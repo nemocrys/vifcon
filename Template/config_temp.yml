@@ -1,0 +1,729 @@
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+time:
+  dt-main: 150                                                            # Reaktionszeit [ms]
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Function_Skip:                                                            # Skip die folgenden Funktionen
+  Multilog_Link: 0                                                        # Multilog-Verbindung: True - On, False - Off
+  Generell_GamePad: 0                                                     # Übergeordnetes Ein- und Ausschalten des Gamepad: True - On, False - Off
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+save:
+  config_save: True                                                       # Speichere die Config, nach Ende im Messordner
+  log_save: True                                                          # Speichere die Log-Datei, nach Ende im Messordner
+  plot_save: True                                                         # Speicher die beiden Plots
+                                                                          # Achtung: Bei Legende Side, werden die Legenden nur dann gspeichert, wenn diese zu sehen sind!
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+language: de                                                              # DE - Deutsch, EN - Englisch  (im Code wird upper genutzt -> de, en, De, En auch erlaubt)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+GUI_Frame: 0                                                              # Extra: True - Zeigt die Frames der Widgets in den Geräte-Widgets an
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+logging:
+  level: 20                                                               # 10: debug, 20: info, 30: warning, 40: error
+  filename: vifcon.log                                                    # if not given, logs are printed in console
+  format: '%(asctime)s %(levelname)s %(name)s - %(message)s'
+  filemode: w                                                             # w: overwrite old logfile, a: append to existing logfile
+  encoding: 'utf-8'                                                       # only available for python >= 3.9, Bei Linux auskommentieren!
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+consol_Logging:
+  # Ausgabe in der Konsole von Logging!
+  # ACHTUNG: Level logging darf nicht größer sein als Level consol_logging!!
+  # Beispiel: logging - level = 40 und consol_Logging - level 30, print 1 --> Keine Konsolen Ausdgabe
+  #           logging - level = 40 und consol_Logging - level 30, print 3 --> Ausdgabe von Error Nachrichten in Konsole
+  # Dies liegt daran, dass die Einstellungen bei logging priorisiert werden!
+  level: 30                                                               # 10: Debug, 20: info, 30: warning, 40: error
+  print: 1                                                                # 1: Nur das Level, 2: Auch alle kleineren, 3: Auch alle Größeren
+  format: '%(asctime)s %(levelname)s %(name)s - %(message)s'
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+legend:
+  # Nutzung von upper im Code! (Bedeutet: rl = RL = Rl = rL | Side = sIdE = etc.)
+  generator:
+    legend_pos: Side                                                      # In - Im Plot (In = default), Out - Unter dem Plot, Side - Kurven neben den Achsen
+    legend_anz: 2                                                         # Anzahl der Legenden Labels in einer Reihe (Bei Side keine Wirkung!!) - In, Out
+    side: rl                                                              # Einstellung Side: rl - an jeweiliger Achse, r - alle rechts, l - alle links - Side | Fehlerhafteeingabe -> Keine Legende
+  antrieb:
+    legend_pos: Side                                                      # In - Im Plot (In = default), Out - Unter dem Plot, Side - Kurven neben den Achsen
+    legend_anz: 2                                                         # Anzahl der Legenden Labels in einer Reihe (Bei Side keine Wirkung!!) - In, Out
+    side: rl                                                              # Einstellung Side: rl - an jeweiliger Achse, r - alle rechts, l - alle links - Side | Fehlerhafteeingabe -> Keine Legende
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+skalFak:                                                                  # Skalierungsfaktor für die Plotkurven (Wird Mal genommen!) (a - Achse, 1 - links, 2 - rechts)
+                                                                          # INFO:    Bei Null wird die Größe aus dem Label genommen!
+                                                                          # ACHTUNG: Bei Null wird der Wert auch auf Null skaliert!!
+  Pos:      1                                                             # Position in mm                 a1
+  Win:      0                                                             # Winkel in °                    a1
+  Speed_1:  1                                                             # Geschwindigkeit in mm/s        a2
+  Speed_2:  0                                                             # Geschwindigkeit in mm/min      a2
+  WinSpeed: 0                                                             # Winkelgeschwindigkeit in 1/min a2
+  Temp:     1                                                             # Temperatur in °C               a1
+  Op:       1                                                             # Leistung in %                  a2
+  Current:  0                                                             # Strom in A                     a1
+  Voltage:  0                                                             # Spannung in V                  a1
+  Pow:      0                                                             # Leistung in kW                 a2
+  Freq:     0                                                             # Frequenz in kHz                a2
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+devices:
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Eurotherm 3504:                                                         # Muss "Eurotherm" enthalten!
+    skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
+    typ:  Generator
+    start:
+      sicherheit: 0                                                       # Sicherheitsschalter 
+                                                                          # True:   HO kann nur am Gerät geändert werden - HO kann von Vifcon nur gelesen werden, wodurch OPmax angepasst wird (1. Menü-Knopf, 2. Umschalten auf Manuel-Mode)
+                                                                          # False:  Vifcon sendet HO an Gerät - Start: OPmax (Config) zu HO, Später: Limit-Änderung durch Menü
+      start_modus: Auto                                                   # Auto - Automatisch (Temperatur), Manuel - Manueller Modus (Leistung)
+      readTime: 2                                                         # Auslesezeit [s]
+      init: 1                                                             # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Instrument Identity, Software Version, Instrumenten Modus, Display-Temperatur (Max., Min.), Solltemperatur (Max., Min.), PID-Parameter, Statuswort
+                                                                          # ggf. Setzen:  Start-Modus (Auto, Manuel), Maximale Ausgangsleistung (HO)
+      ramp_start_value: ist                                               # Start-Wert für die erste Rampe (beginnt Erstellung bei dieser) -> IST = Istwert, SOLL = Sollwert -> Upper genutzt! 
+                                                                          # Default: IST
+    ende: 0                                                               # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Umschalten auf Manuell Modus mit 0 % Op)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+    serial-interface:
+      port: COM5
+      baudrate: 9600
+      bytesize: 7
+      stopbits: 1
+      parity: E
+      timeout: 0.1
+    multilog:
+      trigger: Eurotherm1                                                 # siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen)
+      port: 54626                                                         # Port für die Verbindung (siehe Multilog) 
+                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+    limits:
+      maxTemp: 1000                                                       # Maximale Temperatur [°C]
+      minTemp: 0                                                          # Minimale Temperatur [°C]
+      opMax: 35                                                           # Maximale Leistung [%]
+      opMin: 0                                                            # Minimale Leistung [%]  
+    GUI:
+      legend: RezOp ; RezT ; IWT ; IWOp ; SWT                             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, Op - Leistung, T - Temperatur, Rez - Rezept
+                                                                          # Eingebaut: RezT, RezOp, IWT, IWOp, SWT, uGT, oGT, uGOp, oGOp 
+    defaults:
+      startTemp: 20                                                       # Temperatur bei Programmstart [°C]
+      startPow: 25                                                        # Leistung bei Programmstart [%]
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen ; Sollwert (°C/%) (Rampe: Endwert) ; Art der Rampe ; Schritte/Steigung in °C/s (r, er) | Sollwert Ausgangsleistung (op, opr) - IST bedeutet nur Wechsel zu Manuel-Mode ; Schritte in %/s (opr) ; Start der Rampe (opr)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe, er - Eurotherm-Rampe, op - Leistungssprung in einem Temperaturrezept, opr - Leistungsrampe in einem Temperaturrezept
+                                                                          # Bei einem Leistungsrezept werden nur s und r genutzt!
+                                                                          # Beispiel:
+                                                                          # Sprung                        -> n5: 10 ; 80 ; s
+                                                                          # Rampe                         -> n3: 30 ; 100 ; r ; 0.667
+                                                                          # Eurotherm-Rampe               -> n1: 30 ; 100 ; er ; 2.667
+                                                                          # Sprung Leistung in T-rezept   -> n2: 20 ; 100 ; op ; 5
+                                                                          # Rampe Leistung in T-rezept    -> n4: 30 ; 100 ; opr ; 0 ; 0.667 ; 20
+                                                                          #                               -> n1: 30 ; 20 ; opr ; 20 ; 0.6               
+                                                                          # Steigung: r - z.B. 1      --> bei 10 s und Ziel: 100°C, Start: 30°C -> 10 s/1 = 10 s -> (100°C-30°C)/10 s = 7 °C/s (Sprünge)
+                                                                          #           er - z.B. 0.01  --> Rampe hat eine Steigung von 0.01 °C/s
+                                                                          #           opr - z.B. 1    --> bei 10 s und Ziel: 50 %, Start: 10 % -> 10 s/1 = 10 s -> (50 % - 10 %)/10 s = 4 %/s (Sprünge)
+                                                                          # op und oprs sind nur bei einem Temperaturrezept möglich!
+                                                                          #   - op: Die Rezeptkurve enthält dann Sprünge von Null auf den gewünschten Wert, die Reale Kurve muss dabei nicht auf Null sein!
+                                                                          #   - op: Wenn IST angegeben, dann wird nur Umgeschaltet in den Manuellen Modus. Kein Plot wenn nur IST!
+                                                                          #   - opr: Fehlt das letzte wird bei Null begonnen!
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
+      Test:
+        n1: 10 ; 100 ; er ; 8
+        n2: 10 ; 100 ; s
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  TruHeat:                                                              # Muss "TruHeat" enthalten! (Name nicht doppelt vergeben!!!)         
+    skip: 1                                                             # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
+    typ: Generator
+    start:
+      start_modus: P                                                    # P - Leistung, I - Strom, U - Spannung
+      readTime: 2                                                       # Auslesezeit [s] (Sollte die Watchdog Zeit nicht überschreiten)
+      init: True                                                        # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                        # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                        #               Messung wird nicht gestartet! 
+                                                                        # Start-Werte:  Watchdog, Software Version, Netzteil-Typ, Minimumwerte (SIMIN, SUMIN), Maxiamlewerte (Leistung, Strom, Spannung), Aktives Interface
+                                                                        #      Setzen:  Watchdog
+      ad: '00001'                                                       # Addresse des Generators, Binär, (nach Doku bei Generator fest auf 1) - String!
+      watchdog_Time: 5000                                               # Watchdog-Zeit [ms] (Integer) - Wertebereich: 0 bis 10000 - Deaktivierung: 0 - Notiz: Im Fall init = False und readTime = 0, sollte der Watchdog deaktiviert werden, da dann keine regelmäßigen Befehle kommen!
+      send_Delay: 20                                                    # Sende Delay [ms] (Sollte die Watchdog Zeit nicht überschreiten)
+    ende: False                                                         # End-Bedingung (Programm-Exit Knopf):
+                                                                        # True - Ausführung der Stopp-Funktion (Setze P und U auf Null, I auf Minimum)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                        # False - Nichts wird getann!
+    serial-interface:
+      port: COM11
+      baudrate: 19200
+      bytesize: 8
+      stopbits: 1
+      parity: N
+      timeout: 0.1
+    multilog:
+      trigger: Vifcon_generator                                         # siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen)                                       
+      port: 54634                                                       # Port für die Verbindung (siehe Multilog)
+                                                                        # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+    limits:
+      maxI: 35                                                          # Maximaler Strom [A]     (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 49)
+      minI: 2.5                                                         # Minimaler Strom [A]     (SIMIN (minimaler Sollwert für den Ausgangsstrom) - Betriebsanleitung Generator S. 155 - Befehl 49)
+      maxP: 11.2                                                        # Maximale Leistung [kW]  (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 50)
+      minP: 0                                                           # Minimale Leistung [kW]  (nach Betriebsanleitung Generator S. 155 - Befehl 50)
+      maxU: 1200                                                        # Maximale Spannung [V]   (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 51)
+      minU: 0                                                           # Minimale Spannung [V]   (SUMIN (minimaler Sollwert für die Kondensatorspannung - Betriebsanleitung Generator S. 155 - Befehl 51)
+    GUI:
+      legend: RezI ; RezU ; RezP ; IWU ; IWI ; IWP ; SWI ; SWU ; SWP    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                        # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, P - Leistung, I - Strom, U - Spannung, f - Frequenz, Rez - Rezept
+                                                                        # Eingebaut: RezI, RezU, RezP, IWI, IWU, IWP, IWf, SWI, SWU, SWP, uGI, oGI, uGU, oGU, uGP, oGP
+    defaults:
+      startCurrent: 2.5                                                 # Strom bei Programmstart [A]
+      startPow: 11.2                                                    # Leistung bei Programmstart [kW]
+      startVoltage: 1200                                                # Spannung bei Programmstart [V]
+    rezepte:                                                            # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (kW/V/A), Art der Rampe, Schritt/Steigung (kW/s, V/s, A/s)
+                                                                        # Art der Rampe: s - Sprung, r - Rampe
+                                                                        # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                        # Steigung: r - z.B. 10   --> 10 V Sollwertsteigung je Sekunde (Sprünge)
+                                                                        # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                        #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                        #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                        # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
+      rezept_P1:
+        n1: 10 ; 10 ; s
+        n2: 3 ; 110 ; s
+        n3: 5 ; 1 ; s
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  PI-Achse_h:                                                             # Muss "PI-Achse" enthalten!
+    skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
+    typ: Antrieb
+    mercury_model: C862                                                   # C862 (schwarz), C863 (grau)
+    read_TT_log: True
+    gamepad_Button: PIh                                                   # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: PIh, PIz, PIx, PIy
+                                                                          # PIh - ← & → (Axis)
+                                                                          # PIz - ↑ & ↓ (Axis)
+                                                                          # PIx - X & B (Button)
+                                                                          # PIy - Y & A (Button)
+                                                                          # Knöpfe: X - ↑ (Raus), B - ↓ (Rein), Y - ← (Links), A - → (Rechts), ← & ↑ - ↑ (hoch), → & ↓ (Runter)
+    start:
+      readTime: 2                                                         # Auslesezeit [s]
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Board Adresse, Status, Version, Start-Position
+      mode: 1                                                             # Modus für Entriegelung der Bewegungsknöpfe: 0 - Keine Verrrigelung, 1 - Entriegelung durch Timer, 2 - Entriegelung bei erreichen von 0 mm/s
+    ende: False                                                           # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+    serial-interface:
+      port: COM9
+      baudrate: 9600
+      bytesize: 8
+      stopbits: 1
+      parity: N
+      timeout: 0.1
+    multilog:
+      trigger: pi1                                                        # Aus Multilog entnehmen -> Liste bei Pi
+      port: 54629                                                         # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
+                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+    parameter:
+      adv: '0133'                                                         # Adressauswahlcode
+      cpm: 29752                                                          # Counts per mm
+      mvtime: 25                                                          # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV)
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte!   
+    limits:
+      maxPos: 100                                                         # Positionsgrenze Maximum [mm]
+      minPos: -100                                                        # Positionsgrenze Minimum [mm]
+      maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s]
+      minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s]
+    GUI:
+      bewegung: 'z'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter
+      piSymbol: 'Un'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus)
+      legend: Rezv ; IWs ; IWv                                            # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept
+                                                                          # Eingebaut: Rezv, IWs, IWv, uGv, oGv, uGs, oGs
+    defaults:
+      startSpeed: 2                                                       # Startgeschwindigkeit [mm/s]
+      startPos: 0                                                         # Startposition/Startfahrweg [mm]
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/s), Art der Rampe, Schritte/Steigung ((mm/s)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> 2 mm/s Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
+      rezept_Syn:
+        n1: 1 ; -2 ; s
+        n2: 4 ; -1 ; s
+        n3: 1 ; -0.5 ; s
+        n4: 1 ; 1 ; s
+        n5: 5 ; 2 ; s
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  PI-Achse_y:                                                             # Muss "PI-Achse" enthalten! 
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
+    typ: Antrieb
+    mercury_model: C863                                                   # C862 (schwarz), C863 (grau)
+    read_TT_log: True                                                     # Lese TT aus oder nicht -> In Log-Datei
+    gamepad_Button: PIy                                                   # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: PIh, PIz, PIx, PIy
+                                                                          # PIh - ← & → (Axis)
+                                                                          # PIz - ↑ & ↓ (Axis)
+                                                                          # PIx - X & B (Button)
+                                                                          # PIy - Y & A (Button)
+                                                                          # Knöpfe: X - ↑ (Raus), B - ↓ (Rein), Y - ← (Links), A - → (Rechts), ← & ↑ - ↑ (hoch), → & ↓ (Runter)
+    start:
+      readTime: 2                                                         # Auslesezeit [s]
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Board Adresse, Status, Version, Start-Position
+      mode: 1                                                             # Modus für Entriegelung der Bewegungsknöpfe: 0 - Keine Verrrigelung, 1 - Entriegelung durch Timer, 2 - Entriegelung bei erreichen von 0 mm/s
+    ende: False                                                           # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+    serial-interface:
+      port: COM9
+      baudrate: 9600
+      bytesize: 8
+      stopbits: 1
+      parity: N
+      timeout: 0.1
+    multilog:
+      trigger: pi2                                                        # Aus Multilog entnehmen -> Liste bei Pi
+      port: 0 # 54628                                                     # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
+                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+    parameter:
+      adv: '0131'                                                         # Adressauswahlcode
+      cpm: 29586                                                          # Counts per mm
+      mvtime: 100                                                         # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV)
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte!   
+    limits:
+      maxPos: 10                                                          # Positionsgrenze Maximum [mm]
+      minPos: -10                                                         # Positionsgrenze Minimum [mm]
+      maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s]
+      minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s]
+    GUI:
+      bewegung: 'y'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter
+      piSymbol: 'Re'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus)
+      legend: Rezv ; IWs ; IWv ; uGs ; oGs ; uGv ; oGv                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept
+                                                                          # Eingebaut: Rezv, IWs, IWv, uGv, oGv, uGs, oGs
+    defaults: 
+      startSpeed: 2                                                       # Startgeschwindigkeit [mm/s]
+      startPos: 0                                                         # Startposition/Startfahrweg [mm]
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/s), Art der Rampe, Schritte/Steigung ((mm/s)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> 2 mm/s Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
+      rezept_1:
+        n1: 10 ; 0.5 ; s
+        n2: 20 ; 1 ; s
+        n3: 20 ; -1 ; s
+        n4: 10 ; -0,5 ; s 
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  PI-Achse_x:                                                             # Muss "PI-Achse" enthalten! 
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
+    typ: Antrieb
+    mercury_model: C863                                                   # C862 (schwarz), C863 (grau)
+    read_TT_log: True
+    gamepad_Button: PIx                                                   # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: PIh, PIz, PIx, PIy
+                                                                          # PIh - ← & → (Axis) 
+                                                                          # PIz - ↑ & ↓ (Axis)
+                                                                          # PIx - X & B (Button) 
+                                                                          # PIy - Y & A (Button)
+                                                                          # Knöpfe: X - ↑ (Raus), B - ↓ (Rein), Y - ← (Links), A - → (Rechts), ← & ↑ - ↑ (hoch), → & ↓ (Runter)  
+    start:
+      readTime: 2                                                         # Auslesezeit [s]
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Board Adresse, Status, Version, Start-Position
+      mode: 1                                                             # Modus für Entriegelung der Bewegungsknöpfe: 0 - Keine Verrrigelung, 1 - Entriegelung durch Timer, 2 - Entriegelung bei erreichen von 0 mm/s
+    ende: False                                                           # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+    serial-interface:
+      port: COM9
+      baudrate: 9600
+      bytesize: 8
+      stopbits: 1
+      parity: N
+      timeout: 0.1
+    multilog:
+      trigger: pi3                                                        # Aus Multilog entnehmen -> Liste bei Pi
+      port: 54629                                                         # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
+                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+    parameter:
+      adv: '0130'                                                         # Adressauswahlcode
+      cpm: 29586                                                          # Counts per mm
+      mvtime: 100                                                         # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV)
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte!   
+    limits:
+      maxPos: 100                                                         # Positionsgrenze Maximum [mm]
+      minPos: -100                                                        # Positionsgrenze Minimum [mm]
+      maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s]
+      minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s]
+    GUI:
+      bewegung: 'x'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter
+      piSymbol: 'Vo'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus)
+      legend: Rezv ; IWs ; IWv                                            # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept
+                                                                          # Eingebaut: Rezv, IWs, IWv, uGv, oGv, uGs, oGs
+    defaults:
+      startSpeed: 2                                                       # Startgeschwindigkeit [mm/s]
+      startPos: 0                                                         # Startposition/Startfahrweg [mm]
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/s), Art der Rampe, Schritte/Steigung ((mm/s)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> 2 mm/s Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
+      rezept_1:
+        n1: 10 ; 0.5 ; s
+        n2: 20 ; 1 ; s
+        n3: 20 ; -1 ; s
+        n4: 10 ; -0,5 ; s
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  PI-Achse_z:                                                             # Muss "PI-Achse" enthalten! 
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
+    typ: Antrieb
+    mercury_model: C862                                                   # C862 (schwarz), C863 (grau)
+    read_TT_log: True
+    gamepad_Button: PIz                                                   # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: PIh, PIz, PIx, PIy
+                                                                          # PIh - ← & → (Axis)
+                                                                          # PIz - ↑ & ↓ (Axis)
+                                                                          # PIx - X & B (Button)
+                                                                          # PIy - Y & A (Button)
+                                                                          # Knöpfe: X - ↑ (Raus), B - ↓ (Rein), Y - ← (Links), A - → (Rechts), ← & ↑ - ↑ (hoch), → & ↓ (Runter)
+    start:
+      readTime: 2                                                         # Auslesezeit [s]
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Board Adresse, Status, Version, Start-Position
+      mode: 1                                                             # Modus für Entriegelung der Bewegungsknöpfe: 0 - Keine Verrrigelung, 1 - Entriegelung durch Timer, 2 - Entriegelung bei erreichen von 0 mm/s
+    ende: False                                                           # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+    serial-interface:
+      port: COM9
+      baudrate: 9600
+      bytesize: 8
+      stopbits: 1
+      parity: N
+      timeout: 0.1
+    multilog:
+      trigger: pi4                                                        # Aus Multilog entnehmen -> Liste bei Pi
+      port: 54630                                                         # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
+                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+    parameter:
+      adv: '0132'                                                         # Adressauswahlcode
+      cpm: 29752                                                          # Counts per mm
+      mvtime: 25                                                          # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV)
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte!   
+    limits:
+      maxPos: 10                                                          # Positionsgrenze Maximum [mm]
+      minPos: -10                                                         # Positionsgrenze Minimum [mm]
+      maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s]
+      minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s]
+    GUI:
+      bewegung: 'z'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter
+      piSymbol: 'Ob'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus)
+      legend: Rezv ; IWs ; IWv                                            # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept
+                                                                          # Eingebaut: Rezv, IWs, IWv, uGv, oGv, uGs, oGs
+    defaults:
+      startSpeed: 2                                                       # Startgeschwindigkeit [mm/s]
+      startPos: 0                                                         # Startposition/Startfahrweg [mm]
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/s), Art der Rampe, Schritte/Steigung ((mm/s)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> 2 mm/s Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
+      rezept_Syn:
+        n1: 1 ; 2 ; s
+        n2: 4 ; 1 ; s
+        n3: 10 ; 0.5 ; s
+        n4: 1 ; -1 ; s
+        n5: 5 ; -2 ; s
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Nemo-Achse-Linear_Spindel:                                              # Muss "Nemo-Achse-Linear" enthalten! 
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
+    typ: Antrieb
+    gamepad_Button: HubS                                                  # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: HubS, HubT
+                                                                          # HubS - X & B (Spindel) (Button) 
+                                                                          # HubT - ↑ & ↓ (Tiegel)  (Axes)
+                                                                          # Knöpfe: X & Y - ↑ (Hoch), B & A - ↓ (Runter)
+    
+    start:
+      readTime: 2                                                         # Auslesezeit [s]
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Minamles und Maximales Positionslimit
+      invert: True                                                        # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
+                                                                          # Eigentlich: Spindel:  Hoch-Fahren = Negative Geschwindigkeit
+                                                                          #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
+      start_weg: 250                                                      # Startweg in mm
+    ende: False                                                           # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+    serial-interface:
+      host: '192.168.117.199'                                             # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      port: 502
+      debug: False
+    multilog:
+      trigger: hub1                                                       # Aus Multilog entnehmen -> Liste bei Hub
+      port: 54627                                                         # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
+                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+    register:
+      hoch: 17                                                            # Tiegel: 1, Spindel: 17
+      runter: 18                                                          # Tiegel: 2, Spindel: 18
+      stopp: 16                                                           # Tiegel: 0, Spindel: 16
+      lese_st_Reg: 38                                                     # Auslese Start-Adresse: Spindel: 38, Tiegel: 20
+      write_v_Reg: 4                                                      # Start Register für Geschwindigkeitswert: Spindel: 4, Tiegel: 0
+      posLimReg: 46                                                       # Startregister Limits (Spindel: 46, Tiegel 28)
+      statusReg: 50                                                       # Status: Tiegel: 32, Spindel: 50
+    parameter:
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte!   
+      Vorfaktor: 1                                                        # Vorfaktor für die Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701)
+    limits:
+      maxPos: 250                                                         # Maximale Position [mm]
+      minPos: -110                                                        # Minimale Position [mm]
+      maxSpeed: 100                                                       # Maximale Geschwindigkeit [mm/min]
+      minSpeed: -100                                                      # Minimale Geschwindigkeit [mm/min]
+    GUI:
+      legend: Rezv ; IWs ; IWv ; SWv                                      # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!)
+                                                                          # Eingebaut: Rezv, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs
+    defaults:
+      startSpeed: 1                                                       # Startgeschwindigkeit [mm/min]
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/min), Art der Rampe , Schritte/Steigung ((mm/min)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> 2 mm/min Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
+      Vorfaktor:
+        n1: 120 ; 5 ; s
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Nemo-Achse-Rotation_Spindel:                                            # Muss "Nemo-Achse-Rotation" enthalten! 
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
+    typ: Antrieb
+    gamepad_Button: RotS                                                  # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: RotS, RotT
+                                                                          # RotS - Y & A (Spindel) (Button)
+                                                                          # RotT - ← & → (Tiegel)  (Axes)
+                                                                          # Knöpfe: ↑ & ← - ↻ (CW), ↓ & → - ↺ (CCW)
+    start:
+      readTime: 2                                                         # Auslesezeit [s]
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Nichts
+      invert: True                                                        # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
+                                                                          # Eigentlich: Spindel:  CW-Fahren   = Negative Geschwindigkeit
+                                                                          #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
+      start_winkel: -10                                                   # Startwinkel in °
+    ende: False                                                           # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+    serial-interface:
+      host: '192.168.117.99'                                              # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      port: 502
+      debug: False
+    multilog:
+      trigger: rot1                                                       # Aus Multilog entnehmen -> Liste bei Rot
+      port: 54628                                                         # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
+                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+    register:
+      cw: 21                                                              # Tiegel: 4, Spindel: 20
+      ccw: 20                                                             # Tiegel: 5, Spindel: 21
+      stopp: 19                                                           # Tiegel: 3, Spindel: 19
+      lese_st_Reg: 51                                                     # Auslese Start-Adresse: Spindel: 51, Tiegel: 33
+      write_v_Reg: 6                                                      # Start Register für Geschwindigkeitswert: Spindel: 6, Tiegel: 2
+      statusReg: 55                                                       # Status: Tiegel: 37, Spindel: 55
+    parameter:
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte!   
+      Vorfaktor: 1                                                        # Vorfaktor für die Winkelgeschwindigkeit: write -> Mal, read -> Geteilt
+    limits:
+      maxWinkel: 180                                                      # Maximaler Winkel [°]
+      minWinkel: -1                                                       # Minimaler Winkel [°]
+      maxSpeed: 100                                                       # Maximale Geschwindigkeit [1/min]
+      minSpeed: -100                                                      # Minimale Geschwindigkeit [1/min]
+    GUI:
+      legend: Rezv ; IWv ; SWv ; IWw                                      # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept
+                                                                          # Eingebaut: Rezv, IWw, IWv, SWv, uGv, oGv, uGw, oGw
+    defaults:
+      startSpeed: 1                                                       # Startgeschwindigkeit [1/min]
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (1/min), Art der Rampe , Schritte/Steigung ((1/min)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> 2 1/min Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
+      Ex3_Rezept_1_AA:
+        n1: 120 ; 2 ; s
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Nemo-Achse-Linear_Tiegel:                                               # Muss "Nemo-Achse-Linear" enthalten! 
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
+    typ: Antrieb
+    gamepad_Button: HubT                                                  # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: HubS, HubT
+                                                                          # HubS - X & B (Spindel)
+                                                                          # HubT - ↑ & ↓ (Tiegel)
+                                                                          # Knöpfe: X & Y - ↑ (Hoch), B & A - ↓ (Runter)
+    start:
+      readTime: 2                                                         # Auslesezeit [s]
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Minamles und Maximales Positionslimit
+      invert: False                                                       # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
+                                                                          # Eigentlich: Spindel:  Hoch-Fahren = Negative Geschwindigkeit
+                                                                          #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
+      start_weg: -50                                                      # Startweg in mm
+    ende: False                                                           # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+    serial-interface:
+      host: '192.168.117.99'                                              # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      port: 502
+      debug: False
+    multilog:
+      trigger: hub2                                                       # Aus Multilog entnehmen -> Liste bei Hub
+      port: 54629                                                         # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
+                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+    register:
+      hoch: 1                                                             # Tiegel: 1, Spindel: 17
+      runter: 2                                                           # Tiegel: 2, Spindel: 18
+      stopp: 0                                                            # Tiegel: 0, Spindel: 16
+      lese_st_Reg: 20                                                     # Auslese Start-Adresse: Spindel: 38, Tiegel: 20
+      write_v_Reg: 0                                                      # Start Register für Geschwindigkeitswert: Spindel: 4, Tiegel: 0
+      posLimReg: 28                                                       # Startregister Limits (Spindel: 46, Tiegel 28)
+      statusReg: 32                                                       # Status: Tiegel: 32, Spindel: 50
+    parameter:
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte!   
+      Vorfaktor: 1                                                        # Vorfaktor für die Geschwindigkeit: write -> Mal, read -> Geteilt
+    limits:
+      maxPos: 50                                                          # Maximale Position [mm]
+      minPos: -50                                                         # Minimale Position [mm]
+      maxSpeed: 100                                                       # Maximale Geschwindigkeit [mm/min]
+      minSpeed: -100                                                      # Minimale Geschwindigkeit [mm/min]
+    GUI:
+      legend: Rezv ; IWs ; IWv ; SWv ; IWsd                               # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!)
+                                                                          # Eingebaut: Rezv, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs
+    defaults:
+      startSpeed: 1                                                       # Startgeschwindigkeit [mm/min]
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/min), Art der Rampe , Schritte/Steigung ((mm/min)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> 2 mm/min Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
+      rezept_Syn:
+        n1: 10 ; 1 ; s
+        n2: 10 ; -1 ; s
+      rezept_Syn1:
+        n1: 10 ; 10 ; s
+        n2: 10 ; -10 ; s
+      rezept_feh:
+        n1: 10 ; 90 ; s
+        n2: 100 ; -100 ; s
+        n3: 10 ; -20 ; s
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Nemo-Achse-Rotation_Tiegel:                                             # Muss "Nemo-Achse-Rotation" enthalten! 
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
+    typ: Antrieb
+    gamepad_Button: RotT                                                  # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: RotS, RotT
+                                                                          # RotS - Y & A (Spindel) (Button)
+                                                                          # RotT - ← & → (Tiegel)  (Axes)
+                                                                          # Knöpfe: ↑ & ← - ↻ (CW), ↓ & → - ↺ (CCW)
+    start:
+      readTime: 2                                                         # Auslesezeit [s]
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Minamles und Maximales Positionslimit
+      invert: False                                                       # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
+                                                                          # Eigentlich: Spindel:  CW-Fahren   = Negative Geschwindigkeit
+                                                                          #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
+      start_winkel: 190                                                   # Startwinkel in °
+    ende: False                                                           # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True  - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+    serial-interface:
+      host: '192.168.117.99'                                              # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      port: 502
+      debug: False
+    multilog:
+      trigger: rot2                                                       # Aus Multilog entnehmen -> Liste bei Rot
+      port: 54630                                                         # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
+                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+    register:
+      cw: 4                                                               # Tiegel: 4, Spindel: 20
+      ccw: 5                                                              # Tiegel: 5, Spindel: 21
+      stopp: 3                                                            # Tiegel: 3, Spindel: 19
+      lese_st_Reg: 33                                                     # Auslese Start-Adresse: Spindel: 51, Tiegel: 33
+      write_v_Reg: 2                                                      # Start Register für Geschwindigkeitswert: Spindel: 6, Tiegel: 2
+      statusReg: 37                                                       # Status: Tiegel: 37, Spindel: 55
+    parameter:
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! 
+      Vorfaktor: 1                                                        # Vorfaktor für die Winkelgeschwindigkeit: write -> Mal, read -> Geteilt  
+    limits:
+      maxWinkel: 180                                                      # Maximaler Winkel [°]
+      minWinkel: -1                                                       # Minimaler Winkel [°]
+      maxSpeed: 100                                                       # Maximale Geschwindigkeit [1/min]
+      minSpeed: -100                                                      # Minimale Geschwindigkeit [1/min]
+    GUI:
+      legend: uGv ; oGv ; uGw ; oGw                                       # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept
+                                                                          # Eingebaut: Rezv, IWw, IWv, SWv, uGv, oGv, uGw, oGw
+    defaults:
+      startSpeed: 1                                                       # Startgeschwindigkeit [1/min]
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (1/min), Art der Rampe , Schritte/Steigung ((1/min)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> 2 1/min Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
+      Ex3_Rezept_2_ZAA:
+        dat: Ex3_Rez_2_NemoRT.yml
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Nemo-Gase_1:                                                            # Muss "Nemo-Gase" enthalten! 
+    skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
+    typ: Monitoring
+    start:
+      readTime: 2                                                         # Auslesezeit [s]
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Nichts
+    serial-interface:
+      host: '192.168.117.99'                                              # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      port: 502
+      debug: False
+    multilog:
+      trigger: Vifcon_gase                                                # siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen)
+      port: 54633                                                         # Port für die Verbindung (siehe Multilog)
+                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+    register:
+      lese_st_Reg: 2                                                      # Auslese Start-Adresse: 2
+    parameter:
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte!   
+    

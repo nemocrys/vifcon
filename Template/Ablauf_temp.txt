@@ -1,0 +1,13 @@
+Ablauf der Messung:
+Werteingaben und Knopfberührungen
+
+2024-05-02 16:23:58.382+02:00 - Eurotherm 3504 - SW>0000 Befehl gesendet!
+2024-05-02 16:23:58.510+02:00 - Eurotherm 3504 - Wert wurde angenommen (ACK)!
+2024-05-02 16:23:58.510+02:00 - Eurotherm 3504 - HO35 Befehl gesendet!
+2024-05-02 16:23:58.633+02:00 - Eurotherm 3504 - Wert wurde angenommen (ACK)!
+2024-05-02 16:24:13.203+02:00 - Nemo-Achse-Linear_Spindel - Knopf betätigt - Hoch!
+2024-05-02 16:24:13.345+02:00 - Nemo-Achse-Linear_Spindel - Geschwindigkeit erfolgreich gesendet!
+2024-05-02 16:24:13.365+02:00 - Nemo-Achse-Linear_Spindel - Befehl Hoch erfolgreich gesendet!
+2024-05-02 16:25:44.437+02:00 - Nemo-Achse-Linear_Spindel - Knopf betätigt - Stopp!
+2024-05-02 16:25:44.565+02:00 - Nemo-Achse-Linear_Spindel - Achse wurde erfolgreich angehalten! 
+2024-05-02 16:25:46.614+02:00 - Exit-Knopf betätigt - Programm beendet!
