@@ -180,7 +180,7 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                     for key in sample_values:
                         sample_values[key] = round(random.uniform(0, 10), 3)
                         if 'Status' in key:
-                            sample_values[key] = int(sample_values[key])                # Vieleicht hier für Test-Modus ein Bit-Nr einarbeiten! Oder 512 senden!
+                            sample_values[key] = 32768           # Test-Modus Bit 1000 0000 0000 (Bit 15 gesetzt - 0 bis 15)
 
                 self.device_widget.ak_value = sample_values
                 self.signal.emit(sample_values, self.xList, self.device_name)               

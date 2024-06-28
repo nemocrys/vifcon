@@ -165,6 +165,7 @@ class NemoAchseRotWidget(QWidget):
         self.sta_Bit9_str       = ['Achse Endlage unten (Hard.-End.)',                                                                          'Axis end position down (Hard.-End.)']
         self.sta_Bit10_str      = ['Software-Endlagen aus',                                                                                     'Software end positions']
         self.sta_Bit11_str      = ['Achse in Stopp',                                                                                            'Axis in stop']
+        self.sta_Bit15_str      = ['Test-Modus Aktiv',                                                                                          'Test Mode Active']
         ## Plot-Legende:                                                            
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                    # uL - upper Limit
@@ -692,12 +693,13 @@ class NemoAchseRotWidget(QWidget):
         status_1 = self.status_report_umwandlung(status_1)
         
         label_s1 = ''
-        status = [self.sta_Bit0_str[self.sprache], self.sta_Bit1_str[self.sprache] , self.sta_Bit2_str[self.sprache], self.sta_Bit3_str[self.sprache], self.sta_Bit4_str[self.sprache], self.sta_Bit5_str[self.sprache], self.sta_Bit6_str[self.sprache], self.sta_Bit7_str[self.sprache] , self.sta_Bit8_str[self.sprache] , self.sta_Bit9_str[self.sprache], self.sta_Bit10_str[self.sprache], self.sta_Bit11_str[self.sprache]]
+        status = [self.sta_Bit0_str[self.sprache], self.sta_Bit1_str[self.sprache] , self.sta_Bit2_str[self.sprache], self.sta_Bit3_str[self.sprache], self.sta_Bit4_str[self.sprache], self.sta_Bit5_str[self.sprache], self.sta_Bit6_str[self.sprache], self.sta_Bit7_str[self.sprache] , self.sta_Bit8_str[self.sprache] , self.sta_Bit9_str[self.sprache], self.sta_Bit10_str[self.sprache], self.sta_Bit11_str[self.sprache], '', '', '', self.sta_Bit15_str[self.sprache]]
         # status = ['Betriebsbereit', 'Achse referiert', 'Achse Fehler', 'Antrieb läuft', 'Antrieb läuft Clock Wise', 'Antrieb läuft Counter Clock Wise', 'Achse Position oben', 'Achse Position unten', 'Achse Endlage oben', 'Achse Endlage unten', 'Software-Endlagen aus', 'Achse in Stopp']
         l = len(status_1)
         for n in range(0,l):
             if status_1[n] == '1':
-                label_s1 = label_s1 + f'{status[n]}, '
+                if not status[n] == '':
+                    label_s1 = label_s1 + f'{status[n]}, '
         if label_s1 == '':
             label_s1 = self.status_2_str[self.sprache]
         else:
@@ -732,7 +734,9 @@ class NemoAchseRotWidget(QWidget):
             byte_list.append(status[-8:])
 
         # Byte zusammensetzen in der richtigen Reihenfolge:
-        byte_string = ''                            
+        byte_string = ''
+        byte_list.reverse()                         # Dreht Liste um z.B. 256 = 0000 0001 0000 0000
+                                                    # byte_list vor drehen: ['00000000', '00000001'] -> würde beim zusammensetzen 1 ergeben!                            
         for n in byte_list:
             byte_string = byte_string + n
 
