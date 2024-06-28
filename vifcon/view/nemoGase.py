@@ -313,14 +313,14 @@ class NemoGaseWidget:
             status = status[0:-8]
 
         # Unvolständige Bytes Auffüllen und auf 8 Bit kürzen:
-        if len(status) < 8:                             
+        if len(status) < 8 and not status == '':                             
             status = '0000000' + status
             byte_list.append(status[-8:])
+        elif status == '' and len(byte_list) == 1:
+            byte_list.append('00000000')
 
         # Byte zusammensetzen in der richtigen Reihenfolge:
         byte_string = ''    
-        byte_list.reverse()                         # Dreht Liste um z.B. 256 = 0000 0001 0000 0000
-                                                    # byte_list vor drehen: ['00000000', '00000001'] -> würde beim zusammensetzen 1 ergeben!                        
         for n in byte_list:
             byte_string = byte_string + n
 

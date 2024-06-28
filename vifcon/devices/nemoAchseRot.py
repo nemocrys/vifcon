@@ -202,7 +202,12 @@ class NemoAchseRot:
         if write_Okay['Start'] and not self.neustart:
             self.Start_Werte()
             write_Okay['Start'] = False
-        
+
+        # Kontinuierlische Rotation:
+        if write_value['EndRot']:
+            self.CW_End = False
+            self.CCW_End = False
+
         # Update Limit:
         if write_Okay['Update Limit']:
             self.oGw = write_value['Limits'][0]

@@ -202,7 +202,9 @@ class NemoAchseRotWidget(QWidget):
         self.Text_89_str        = ['Knopf betätigt - Beende Rezept - Keine Wirkung auf Rezept-Funktion, jedoch Auslösung des Stopp-Knopfes!',   'Button pressed - End recipe - No effect on recipe function, but triggers the stop button!']
         self.Text_90_str        = ['Sicherer Endzustand wird hergestellt! Auslösung des Stopp-Knopfes!',                                        'Safe final state is established! Stop button is activated!']
         self.Text_91_str        = ['Rezept Beenden - Sicherer Endzustand',                                                                      'Recipe Ends - Safe End State']
-        
+        # Pop-Up-Fenster:
+        self.Pop_up_EndRot      = ['Das kontinuierlische rotieren wurde beendet. Bitte beachte, dass zu diesem Zeitpunkt bereits ein Limit überschritten sein kann. In Fall der Überschreitung setze den Winkel auf Null, schalte die kontinuierlische Rotation wieder ein oder fahre in die andere Richtung. Wenn z.B. das CCW Limit erreicht wurde, so kann der Antrieb noch immer bis zum CW Limit fahren.',
+                                   'Continuous rotation has ended. Please note that a limit may already have been exceeded at this point. If this limit is exceeded, set the angle to zero, switch continuous rotation back on or move in the other direction. If, for example, the CCW limit has been reached, the drive can still move up to the CW limit.']
         #---------------------------------------
         # Konfigurationen für das Senden:
         #---------------------------------------
@@ -612,6 +614,7 @@ class NemoAchseRotWidget(QWidget):
             self.write_value['EndRot'] = True
         else:
             self.write_value['EndRot'] = False
+            self.typ_widget.Message(self.Pop_up_EndRot[self.sprache], 3, 500)
 
     ##########################################
     # Eingabefeld Kontrolle:
@@ -732,11 +735,11 @@ class NemoAchseRotWidget(QWidget):
         if len(status) < 8 and not status == '':                             
             status = '0000000' + status
             byte_list.append(status[-8:])
+        elif status == '' and len(byte_list) == 1:
+            byte_list.append('00000000')
 
         # Byte zusammensetzen in der richtigen Reihenfolge:
         byte_string = ''
-        byte_list.reverse()                         # Dreht Liste um z.B. 256 = 0000 0001 0000 0000
-                                                    # byte_list vor drehen: ['00000000', '00000001'] -> würde beim zusammensetzen 1 ergeben!                            
         for n in byte_list:
             byte_string = byte_string + n
 
