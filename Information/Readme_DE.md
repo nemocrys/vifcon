@@ -122,3 +122,6 @@ Im Ordner **[Information](../Information)** befinden sich weitere Dokumente, die
 2. Rezepte 
     - [Show En](Rezepte_En.md) 
     - [Show De](Rezepte_DE.md)
+3. Konfiguration
+    - [Show En](Config_En.md) 
+    - [Show De](Config_DE.md)

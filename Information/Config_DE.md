@@ -39,12 +39,14 @@ In dem Template der Datei ([config_temp.yml](../Template/config_temp.yml)) könn
 Im folgenden sind die Punkte:
 1. [Reaktionstimer](#reaktionstimer)
 2. [Feature-Überspringen](#feature-überspringen)
-3. [Speicher Datein und Bilder](#speicher-datein-und-bilder)
+3. [Speicher Dateien und Bilder](#speicher-dateien-und-bilder)
 4. [Sprache](#sprache)
 5. [GUI-Widget-Rahmen](#gui-widget-rahmen)
 6. [Logging-Datei](#logging-datei)
 7. [Konsolen-Logging](#konsolen-logging)
 8. [Legende der GUI](#legende)
+9. [Skalierungsfaktoren](#skalierungsfaktoren)
+10. [Geräte](#geräte)
 
 ### Reaktionstimer:
 
@@ -63,7 +65,7 @@ Function_Skip:
 ```
 Wenn der Wert auf True (1) steht, so werden die Funktionen für den Multilog-Link und dem Gamepad freigeschaltet. Bei False wird dies im Code übersprungen und wirkt sich nicht auf VIFCON aus. 
 
-### Speicher Datein und Bilder
+### Speicher Dateien und Bilder
 
 ```
 save:
@@ -82,7 +84,7 @@ Beachtet werden muss hierbei, dass die Plots und die Legende so gespeichert werd
 language: de
 ```
 
-Hier wird in dem Wert die Sprache angegeben. Dabei können nur Deutsch (DE) und Englisch (EN) ausgewählt werden. 
+Hier wird in dem Wert die Sprache angegeben. Dabei können nur Deutsch (DE) und Englisch (EN) ausgewählt werden. Die GUI ändert sich dementsprechend.
 
 ### GUI-Widget-Rahmen
 
@@ -162,13 +164,252 @@ Bei rl werden zwei Widgets rechts und links vom Plot erstellt. In diesen Widgets
 
 Bei OUT und IN kann auch die Anzahl der in einer Reihe stehenden Label geändert werden. Dies geschieht durch *legend_anz*.
 
+### Skalierungsfaktoren
 
+```
+skalFak:                                                      
+  Pos:      1 
+  Win:      1 
+  Speed_1:  0 
+  Speed_2:  1    
+  WinSpeed: 1 
+  Temp:     0 
+  Op:       0 
+  Current:  0
+  Voltage:  0
+  Pow:      0  
+  Freq:     0
+```
 
-Schlüssel | Wert          | Erklärung
-----------|---------------|------------
-time      | dt-main       | Reaktionszeit in ms, Aufruf der Threads
-Function_Skip | Multilog_Link | Bei True wird die Verbindung zu Multilog eingerichtet!
-Function_Skip | Generell_Gamepad | Bei True wird die Verbindung zu einem Gamepad eingerichtet!
+Durch die Skalierungsfaktoren kann der Plot der GUI geändert werden. Nicht immer sind die verschiedenen Größen im selben Wertebereich. Sobald der Wert ungleich eins ist, wird die Kurve um diesen Wert skalliert. Diese Skalierung wird in dem Label der y-Achse angezeigt. Weiterhin bewirken bestimmte Zahlen in dem Sinne auch eine Änderung. Die Zahl 1 als Skalierungsfaktor wird nicht im y-Achsen-Label angezeigt. Bei einer Null wird die Große aus dem y-Achsen-Label entfernt. Wenn keine Größe im Label mehr enthalten ist, so wird *Keine Einträge!* angezeigt.
 
+### Geräte
 
+```
+devices:
+  Eurotherm 3504:
+    ...
+  PI-Achse_h:
+    ...
+```
 
+Unter dem Schlüssel ***devices*** finden sich nun alle vorhandenen Geräte wieder. Jedes Gerät muss dabei einen bestimmten Namens-Teil haben:
+
+Gerät                          | String-Teil
+-------------------------------|----------------------
+Eurotherm                      | Eurotherm
+TruHeat                        | TruHeat
+PI-Achse                       | PI-Achse
+Nemo-1-Anlage Hub-Antrieb      | Nemo-Achse-Linear
+Nemo-1-Anlage Rotation Antrieb | Nemo-Achse-Rotation
+Nemo-1-Anlage Sensoren         | Nemo-Gase
+
+Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. Die einzelnenen Geräte haben nun teilweise Unterschiede und teilweise Gemeinsamkeiten.
+
+#### Gemeinsamkeiten
+
+1. ```skip: 1```
+    - Um ein Gerät nicht in die GUI zu übertragen, muss bei diesem Schlüssel der Wert True (1) ausgewählt werden. In dem Fall wird die Definition des Gerätes im Programm übersprungen.
+2. ```typ:  Generator```
+    - Auswahlmöglichkeiten: Generator, Antrieb, Monitoring
+    - Generator: Eurotherm, TruHeat
+    - Antrieb: PI-Achse, Nemo-Achse-Linear, Nemo-Achse-Rotation
+    - Monitoring: Nemo-Gase
+    - Durch diesen Schlüssel wird die Seite und Tab des Widgets bestimmt. 
+3. ```ende: 0```
+    - Mit diesem Schlüssel wird der Sichere Endzustand aktiviert. Wenn der Wert auf True (1) steht, dann wird bei Ausführung des Exits (Ende der Anwendung) die Stop-Funktion des jeweiligen Gerätes aktiviert und ausgeführt. 
+4.  ```serial-interface```
+    - Schnittstellen-Eigenschaften für die Kommunikation
+    - RS233
+      - port, baudrate, bytesize, stopbits, parity, timeout
+      - Eurotherm, TruHeat, PI-Achse
+    - Modbus
+      - host (Server-IP-Adresse), port, debug
+      - Nemo-1-Anlage
+5. Multilog-Link 
+    ```
+      multilog:
+        trigger: pi1                                 
+        port: 54629
+    ```
+    - Trigger-Wort hängt von Multilog Konfiguration ab
+    - Port hängt von Multilog Konfiguration ab
+    - Durch diesen Schlüssel, sendet VIFCON seine Daten an Multilog.
+6. Limits
+    - Jedes Gerät hat bestimmte Limits.
+    - Diese Limits sind Software-Limits, wodurch das Senden von Werten nur bis zu diesen Werten funktioniert.
+    - Beispiel Eurotherm:
+      ```
+        limits:
+        maxTemp: 1000
+        minTemp: 0
+        opMax: 35 
+        opMin: 0
+      ```
+7. GUI-Kurven
+    ```
+      GUI:
+        legend: RezOp ; RezT ; IWT ; IWOp ; SWT ; uGT ; oGT ; oGOp ; uGOp
+    ```
+    - Mit dieser Konfiguration wird dem Programm gesagt, welche Kurven im Plot angezeigt werden sollen. 
+    - Je nach Gerät gibt es andere Bezeichnungen.
+    - Grundlegend: Rezepte, Istwerte, Sollwerte, Obere Grenze, Untere Grenze + Größenbezeichnung
+    - z.B. RezOP bedeutet Rezeptkurve für Operating Point (Leistung)
+8. Eingabefeldanzeige
+    ```
+      defaults:
+        startTemp: 20  
+        startPow: 25 
+    ```
+    - Diese Werte werden zu Beginn des Programms in der GUI angezeigt. 
+9. Rezepte:
+    - Für diesen Punkt sehe bitte [Rezepte_DE.md](Rezepte_DE.md).
+
+#### Unterschiede
+
+**Eurotherm:**
+
+```
+    start:
+      sicherheit: 0
+      start_modus: Auto
+      readTime: 2 
+      init: 1
+      ramp_start_value: ist 
+```
+
+*sicherheit*:
+  - Legt fest wie der Maximale Leistungsausgang (HO) gesetzt wird. 
+  - True: HO kann nur am Gerät geändert werden
+  - False: HO kann von VIFCON nur gelesen werden, wodurch OPmax angepasst wird (1. Menü-Knopf, 2. Umschalten auf Manuel-Mode)
+
+*start_modus*:
+  - Möglichkeiten: Auto, Manuel
+  - Eurotherm besitzt zwei Modies
+    - Automatischer Modus: 
+      - Regelung der Temperatur aktiv
+      - PID-Regler sorgt für Leistungsausgang
+    - Manueller Modus:
+      - Benutzer legt Leistungsausgang fest
+
+*readtime*:
+  - Zeitintervall, wann das Gerät ausgelesen werden soll
+  - eine Null schaltet das Lesen von Werten ab
+
+*init*:
+  - Initalisierung des Gerätes erfolgen oder nicht erfolgen
+  - True: 
+    - Gerät hängt an der Schnittstelle und wird direkt vom Programm angesprochen
+  - False:
+    - Schnittstelle existiert, das Gerät hängt aber noch nicht umbedingt daran
+    - Programm sorgt dafür, dass keine Befehle gesendet werden
+
+*ramp_start_value*:
+  - Möglich: IST, SOLL
+  - Jenach Auswahl fängt die erste Rampe beim Sollwert oder dem Istwert an
+
+**TruHeat:**
+
+```
+tart:
+      start_modus: P
+      readTime: 0
+      init: True 
+      ad: '00001'
+      watchdog_Time: 5000
+      send_Delay: 20 
+```
+
+*init* und *readTime* sind bei allen Geräten identisch, siehe Eurotherm für Erklärung!
+
+*start_modus*:
+  - Möglich: P, I, U
+  - Durch das setzen wird der Radio-Button in der GUI auf die Größe gesetzt.
+
+*ad*:
+  - TruHeat-Generator Adresse
+
+*watchdog_Time*:
+  - Der TruHeat besitzt einen Watchdog Timer als Sicherheitsfunktion. Der Zeitwert in Millisekunden wird zu Beginn des Programms gesetzt. 
+
+*send_Delay*:
+  - Hier kann eine Zeit in Millisekunden festgelegt werden, die eine Verzögerung zwischen dem Senden von Befehlen verursacht.
+  - Sollte nicht Größer als die Watchdog Zeit sein!
+
+**PI-Achse:**
+
+1. ```mercury_model: C862```
+    - Bei der PI-Achse wurden zwei verschiedene Modelle des Mercury-Models genutzt. Diese waren C862 und C863.
+    - Beide Modelle haben kleine Unterschiede. Speziell bei der Messung bzw. dem Auslesen der Geschwindigkeit.
+
+2. ```gamepad_Button: PIh```
+    - Möglich bei PI-Achse: PIh, PIz, PIx, PIy
+    - Durch diesen Schlüssel, werden bestimmte Knöpfe für bestimmte Achsen-Bewegungs-Richtungen freigeschaltet.
+
+3. Start:
+    - Bei der PI-Achse gibt es nur *init*, *readTime* und *mode*.
+    - Die ersten beiden sind wie bei den anderen (siehe Eurotherm).
+    - *mode*
+      - Verriegelungsmodus der Bewegungsknöpfe
+      - 0 - Keine Verriegelung
+      - 1 - Entriegelung durch Timer
+      - 2 - Entriegelung durch erreichen von 0 mm/s
+
+4. Parameter:
+    ```
+      parameter:
+        adv: '0133' 
+        cpm: 29752 
+        mvtime: 25  
+        nKS_Aus: 3  
+    ```
+    - *adv* = Adressauswahlcode
+    - *cpm* = Counts per mm
+      - Umrechnungsfaktor
+    - *mvtime*
+      - Auslese-Delay für die Achsengeschwindigkeit (ms)
+      - Wird für den Befehl MV bei C862 benötigt
+    - *nKS_Aus*
+      - angezeigte Nachkommastellen
+
+**Nemo-Achse-Linear und Nemo-Achse-Rotation:**
+
+1. ```gamepad_Button: HubS```
+    - Möglich bei Linear: HubS, HubT
+    - Möglich bei Rotation: RotS, RotT
+    - Durch diesen Schlüssel, werden bestimmte Knöpfe für bestimmte Achsen-Bewegungs-Richtungen freigeschaltet.
+
+2. Start:
+    - Bei der PI-Achse gibt es nur *init*, *readTime*, *invert* und *start_weg* oder *start_winkel*.
+    - Die ersten beiden sind wie bei den anderen (siehe Eurotherm).
+    - *invert*
+      - True: Invertierung des Geschwindigkeitswertes
+        - Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
+    - *start_weg* oder *start_winkel*
+      - Bei der Nemo-1-Anlage wird der Weg und die Geschwindigkeit selbst berechnet. 
+      - Aus dem Grund kann man hier einen Start Wert angeben.
+  
+  3. Modbus-Register
+      ```
+        register:
+          hoch: 17 
+          runter: 18  
+          stopp: 16   
+          lese_st_Reg: 38  
+          write_v_Reg: 4  
+          posLimReg: 46
+          statusReg: 50
+      ```
+      - Bei der Nemo-Anlage werden bestimmte Register gesetzt.
+      - Hierbei werden Coils, Input-Register und Holding-Register angesprochen.
+  
+  4. Parameter:
+      - Diese haben *nKS_Aus* und *Vorfaktor*.
+      - Ersteres sind wieder die Nachkommerstellen die Angezeigt werden.
+      - Der Vorfaktor diente der Korrektur des Fehlerhaften fahrens. Die eingestellte Geschwindigkeit war nicht die richtig, die auch bei den Antrieben ankam.  
+
+**Nemo-Gase:**
+
+- Besitzt weniger Teile, da nur ausgelesen wird.
+- Werte werden nur in GUI angezeigt und können an Multilog übergeben werden.
+- Ähnlich wie der Rest von Nemo-1.

@@ -121,3 +121,6 @@ The **[Information](Information)** folder contains further documents that descri
 3. Recipes 
     - [Show En](Information/Rezepte_En.md) 
     - [Show De](Information/Rezepte_DE.md)
+4. Config
+    - [Show En](Information/Config_En.md) 
+    - [Show De](Information/Config_DE.md)
