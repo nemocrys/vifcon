@@ -180,7 +180,7 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                     for key in sample_values:
                         sample_values[key] = round(random.uniform(0, 10), 3)
                         if 'Status' in key:
-                            sample_values[key] =  128          # Bit 15 gesetzt - 0 bis 15 - wird gesetzt
+                            sample_values[key] =  128          # Bit 15 gesetzt - 0 bis 15 - Test-Modus
 
                 self.device_widget.ak_value = sample_values
                 self.signal.emit(sample_values, self.xList, self.device_name)               
@@ -295,6 +295,12 @@ class Controller(QObject):
         self.Log_Text_251_str   = ['Main-Window Größe (x-Koordinate, y-Koordinate, Breite, Höhe)',                                                      'Main window size (x coordinate, y coordinate, width, height)']
         self.Log_Text_252_str   = ['Geräte-Widget Größe (x-Koordinate, y-Koordinate, Breite, Höhe)',                                                    'Device widget size (x-coordinate, y-coordinate, width, height)']
         self.Log_Text_End_str   = ['Beenden Betätigt - Sicheren Zustand herstellen, Threads beenden, Ports schließen, Dateien und Plots speichern',     'Exit Activated - Establish a safe state, terminate threads, close ports, save files and plots']
+        self.Log_Text_300_str   = ['Anwendung Schließen - Aufruf Exit - Von:',                                                                          'Application Close - Call Exit - From:']  
+        self.Log_Text_301_str   = ['bis',                                                                                                               'to']        
+        self.Log_Text_302_str   = ['Gesamtdauer:',                                                                                                      'Total duration:']
+        self.Log_Text_303_str   = ['s',                                                                                                                 's']
+        self.Log_Text_304_str   = ['Aufruf der Threads bzw. der Funktion ckeck_device:',                                                                'Calling the threads or the function ckeck_device:']
+        self.Log_Text_305_str   = ['Startzeit:',                                                                                                        'Start time:']
         ## Error:
         self.err_Text_1         = ['Zu hohe Verzeichnisanzahl.',                                                                                        "Too high directory count."]
         self.err_Text_2         = ['Synchron Modus benötigt\nAbsolute Positionierung (PI-Achse)!!',                                                     'Synchronous mode requires\nabsolute positioning (PI axis)!!']
@@ -382,6 +388,7 @@ class Controller(QObject):
 
         ## Zeiten:
         self.start_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
+        logging.info(f'{self.Log_Text_305_str[self.sprache]} {self.start_time}')
 
         #---------------------------------------------------------------------------
         # Hauptteile der GUI erstellen:
@@ -536,7 +543,7 @@ class Controller(QObject):
                 if not self.config["devices"][device_name]['multilog']['port'] == 0:
                     self.port_List.append(self.config["devices"][device_name]['multilog']['port'])
                     self.trigger.update({device_name: self.config['devices'][device_name]['multilog']['trigger']})
-            
+    
         logger.debug(f"{self.mutexs}")
 
         #---------------------------------------------------------------------------
@@ -587,14 +594,6 @@ class Controller(QObject):
             self.threads.append(thread) 
 
         #---------------------------------------------------------------------------
-        # Starte Timer und Thread:
-        #--------------------------------------------------------------------------
-        for thread in self.threads:
-            thread.start()    
-        logger.info(f"{self.Log_Text_14_str[self.sprache]} - {self.timer_check_device}")  
-        self.timer_check_device.start()
-
-        #---------------------------------------------------------------------------
         # Datein erstellen:
         #--------------------------------------------------------------------------
         ## Messdaten-Ordner erstellen:
@@ -628,8 +627,21 @@ class Controller(QObject):
             self.save_plot = False
 
         #---------------------------------------------------------------------------
-        # Starte die Anwendung und zeige die GUI:
+        # Extra Variablen:
+        #---------------------------------------------------------------------------
+        self.anzExcecute = 0    # Zähle wie oft die Thread-Signale aufgerufen werden
+
+        #---------------------------------------------------------------------------
+        # Starte Timer und Thread:
         #--------------------------------------------------------------------------
+        for thread in self.threads:
+            thread.start()    
+        logger.info(f"{self.Log_Text_14_str[self.sprache]} - {self.timer_check_device}")  
+        self.timer_check_device.start()
+
+        #---------------------------------------------------------------------------
+        # Starte die Anwendung und zeige die GUI:
+        #---------------------------------------------------------------------------
         self.main_window.show()
         logger.info(f'{self.Log_Text_251_str[self.sprache]} - {self.main_window.geometry()}')
         for widget in self.widgets:
@@ -664,6 +676,7 @@ class Controller(QObject):
         ''' Ruft die Geräte auf über einen Timer auf. Durch die Verbindung des Signals mit allen sample-Funktionen der Sampler-Objekte, werden
         all diese aufgerufen. Durch die Verbindung des Objektes mit dem Thread, wird diese Funktion im Thread aufgerufen. '''
         logging.debug(self.Log_Text_17_str[self.sprache])
+        self.anzExcecute += 1
         self.signal_sample_main.emit()
 
     ############################################################################
@@ -671,6 +684,9 @@ class Controller(QObject):
     ############################################################################
     def exit(self):
         ''' Wird beim schließen der Anwendung aufgerufen und beendet die Threads. '''
+        # Messung der Zeit für das Beenden der Anwednung - Teil 1:
+        time1 = datetime.datetime.now(datetime.timezone.utc).astimezone()
+        # Notizen in Datein:
         self.add_Ablauf(self.Text_4_str[self.sprache])
         logging.debug(self.Log_Text_End_str[self.sprache])
         # Beende Timer:
@@ -683,6 +699,15 @@ class Controller(QObject):
                 if self.config['devices'][device]['ende']:
                     self.widgets[device].Stopp(n=5)
         self.ckeck_device()
+        # Beende die Threads - Teil 1:
+        if self.Multilog_Nutzung:
+            logger.debug(f"{self.Log_Text_208_str[self.sprache]} {self.LinkMultilogThread}")
+            self.LinkMultilogThread.quit()
+            if not self.MultiLink.done:
+                self.MultiLink.ende()
+        if self.Gamepad_Nutzung:
+            self.PadThread.quit()
+            self.gamepad.ende()
         # Schaue ob alle Sample-Aufträge tatsächlich zu Ende sind:
         ## Lesen von Werten abschalten:
         for sampler in self.samplers:
@@ -697,18 +722,10 @@ class Controller(QObject):
                     not_done = True
             if not not_done:
                 break
-        # Beende die Threads:
+        # Beende die Threads - Teil 2:
         for thread in self.threads:
             logger.debug(f"{self.Log_Text_18_str[self.sprache]} {thread}")
             thread.quit()
-        if self.Multilog_Nutzung:
-            logger.debug(f"{self.Log_Text_208_str[self.sprache]} {self.LinkMultilogThread}")
-            self.LinkMultilogThread.quit()
-            if not self.MultiLink.done:
-                self.MultiLink.ende()
-        if self.Gamepad_Nutzung:
-            self.PadThread.quit()
-            self.gamepad.ende()
         # Schließe Ports, wenn offen:
         if not self.test_mode:
             for device in self.devices:
@@ -737,6 +754,13 @@ class Controller(QObject):
                     self.tab_Teile[typ].plot.save_plot(f'{VerschiebePfad}/{typ}_Plot.png')
                     if self.tab_Teile[typ].legend_ops['legend_pos'].upper() == 'SIDE':
                         self.tab_Teile[typ].save_legend(f'{VerschiebePfad}/{typ}_Plot.png')
+        # Messung der Zeit für das Beenden der Anwednung - Teil 2:
+        time2 = datetime.datetime.now(datetime.timezone.utc).astimezone()
+        timediff = (
+                time2 - time1
+            ).total_seconds()
+        logging.info(f'{self.Log_Text_300_str[self.sprache]} {time1} {self.Log_Text_301_str[self.sprache]} {time2} - {self.Log_Text_302_str[self.sprache]} {timediff} {self.Log_Text_303_str[self.sprache]}')
+        logging.info(f'{self.Log_Text_304_str[self.sprache]} {self.anzExcecute}')
 
     def stopp_all(self, typ):
         ''' Funktion um ein Signal zu schreiben, das dann alle Achsen stopped!
