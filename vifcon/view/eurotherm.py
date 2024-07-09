@@ -120,6 +120,7 @@ class EurothermWidget(QWidget):
         rez_ende_str            = ['Rezept Beenden',                                                                                                                                                                                        'Finish recipe']
         ## Checkbox:                                                                                                    
         cb_sync_str             = ['Sync',                                                                                                                                                                                                  'Sync']
+        cb_PID                  = ['PID',                                                                                                                                                                                                   'PID']
         ## Einheiten mit Größe:                                                                                             
         P_str                   = ['Out-Op in %:',                                                                                                                                                                                          'Out-Op in %:']
         T_str                   = ['T in °C:',                                                                                                                                                                                              'T in °C:']
@@ -215,7 +216,7 @@ class EurothermWidget(QWidget):
         #---------------------------------------
         #self.send_betätigt = True
         self.write_task  = {'Soll-Temperatur': False, 'Operating point':False, 'Auto_Mod': False, 'Manuel_Mod': False, 'Init':False, 'Start': False, 'EuRa': False, 'EuRa_Reset': False, 'Read_HO': False, 'Write_HO': False}
-        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0}
+        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID': False}
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -268,6 +269,8 @@ class EurothermWidget(QWidget):
 
         ## Checkbox:
         self.Auswahl = QCheckBox(cb_sync_str[self.sprache])
+        self.PID_cb  = QCheckBox(cb_PID[self.sprache])
+        self.PID_cb.clicked.connect(self.PID_ON_OFF)
 
         ## Radiobutton:
         self.RB_choise_Temp = QRadioButton(f'{sollwert_str[self.sprache]}-{T_str[self.sprache]} ')
@@ -353,6 +356,7 @@ class EurothermWidget(QWidget):
 
         self.first_row_layout.addWidget(self.La_name)
         self.first_row_layout.addWidget(self.Auswahl)
+        self.first_row_layout.addWidget(self.PID_cb)
 
         self.first_row_layout.setContentsMargins(0,0,0,0)      # left, top, right, bottom
 
@@ -570,7 +574,6 @@ class EurothermWidget(QWidget):
             self.write_task['Auto_Mod'] = False      
             self.write_task['Manuel_Mod'] = True
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_26_str[self.sprache]}')           
-            #self.send_betätigt = True
 
     def BlassOutPow(self, selected):  
         ''' Temperatur Eingabefeld ist Verfügbar '''
@@ -583,7 +586,33 @@ class EurothermWidget(QWidget):
             self.write_task['Manuel_Mod'] = False 
             self.write_task['Auto_Mod'] = True 
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_28_str[self.sprache]}')     
-            #self.send_betätigt = True
+    
+    ##########################################
+    # Reaktion auf Checkbox:
+    ##########################################
+    def PID_ON_OFF(self, state):                       
+        if self.PID_cb.isChecked():
+            self.write_value['PID'] = True
+            self.write_task['Manuel_Mod'] = True
+            self.RB_choise_Temp.setChecked(True) 
+
+            # Zugriff sperren:
+            self.LE_Pow.setEnabled(False)
+            self.LE_Temp.setEnabled(False)
+            self.RB_choise_Pow.setEnabled(False)
+            self.RB_choise_Temp.setEnabled(False)
+            self.btn_send_value.setEnabled(False)
+        else:
+            self.write_value['PID'] = False
+
+            # Zugriff freigeben:
+            self.LE_Pow.setEnabled(True)
+            self.RB_choise_Pow.setEnabled(True)
+            self.RB_choise_Temp.setEnabled(True)
+            self.btn_send_value.setEnabled(True)
+            self.RB_choise_Pow.setChecked(True) 
+
+            #self.typ_widget.Message(self.Pop_up_EndRot[self.sprache], 3, 500)
 
     ##########################################
     # Reaktion auf Butttons:
@@ -914,7 +943,7 @@ class EurothermWidget(QWidget):
                     self.write_task['Operating point'] = True
                 
                 ## Wenn op-Schritt, dann stelle Manuellen Modus ein und sende den OP-Wert:
-                if'op' in self.Art_list[self.step]:
+                if 'op' in self.Art_list[self.step]:
                     self.write_task['Auto_Mod'] = False
                     self.write_task['Manuel_Mod'] = True
                     if not self.value_list_op[self.step] == 'IST':

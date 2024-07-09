@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 class MainWindow(QMainWindow):
     '''Hauptfenster von Vifcon '''
 
-    def __init__(self, exit_function, sync_function, sync_end_function, RE_function, sprache, parent=None):
+    def __init__(self, exit_function, sync_function, sync_end_function, RE_function, sprache, gamepad, parent=None):
         """Initialize main window.
 
         Args:
@@ -47,6 +47,7 @@ class MainWindow(QMainWindow):
             sync_funktion (Funktion): Rezepte laufen Synchron
             RE_function (Funktion):   Funktion für das Einlesen aller Rezepte  
             sprache (int):            Sprache der GUI (Listenplatz)
+            gamepad (bool):           Gamepad wird genutzt
         """
         super().__init__(parent)
 
@@ -77,8 +78,11 @@ class MainWindow(QMainWindow):
         new_rez_aus_str     = ["&Alle Geräte",                           "&All devices"]
         ## Exit:
         self.exit_1_str     = ["Anwendung beenden",                      "Close application"]
-        self.exit_2_str     = ["Soll die Anwendung geschlossen werden?\n\nDas Schließen der Anwendung kann durch die Nutzung von einer Schnittstelle für mehrere Geräte etwas Zeit in Anspruch nehmen, da die Threads abgeschlossen werden müssen!", 
+        if gamepad:
+            self.exit_2_str     = ["Soll die Anwendung geschlossen werden?\n\nDas Schließen der Anwendung kann durch die Nutzung von einer Schnittstelle für mehrere Geräte etwas Zeit in Anspruch nehmen, da die Threads abgeschlossen werden müssen!", 
                                "Should the application be closed?\n\nWhen using a multi-device interface, closing the application may take some time as the threads need to be completed!"] 
+        else:
+            self.exit_2_str     = ["Soll die Anwendung geschlossen werden?", "Should the application be closed?"] 
         ## Init:
         self.init_str       = ["initialisieren",                         "initialize"]  
         ## Limit:

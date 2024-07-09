@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 pygame.init()
 
-class Gamepad(QObject):
+class Gamepad_1(QObject):
     '''Quelle: https://www.pygame.org/docs/ref/joystick.html'''
     def __init__(self, sprache, Achsen_list, Ablauf_Funktion):
         ''' Nutzung eines Gamepads

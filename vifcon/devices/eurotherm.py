@@ -21,6 +21,9 @@ import logging
 from serial import Serial, SerialException
 import time
 
+## Eigene:
+from .PID import PID
+
 # ++++++++++++++++++++++++++++
 # Programm:
 # ++++++++++++++++++++++++++++
@@ -75,6 +78,10 @@ class Eurotherm:
 
         ## Weitere:
         self.EuRa_Aktiv = False
+
+        ## PID-Regler:
+        self.PID = PID(self.sprache, self.device_name, self.config['PID'], self.oGOp, self.config["limits"]['opMin'])
+        self.PID_Option = self.config['PID']['Value_Origin'] 
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -206,12 +213,26 @@ class Eurotherm:
         # Sollwertn Lesen (OP oder Temp):
         sollwert = write_value['Sollwert']
 
+        # PID-Regler:
+        if write_value['PID']:
+            if self.PID_Option == 'VV':
+                daten = self.read()
+                ist = daten['IWT']
+                # Solldaten von Rezept senden lassen! Rezept nicht mehr an Eurotherm senden! Im PID-Modbus nur noch Sollwertsprünge
+                # möglich machen, heißt nur noch Segmente s und r nutzen! Dies in der Rezept-Funktion mit Warnungen und Meldungen umsetzen!
+                # Nur noch den Istwert auslesen!
+                # In dem Sinne werden somit das Sollwert-Schreiben verhindert. Nur noch OP darf im PID-Mode an Eurotherm gesendet werden!
+                soll = daten['SWT']
+            op = self.PID.InOutPID(ist, soll)
+            write_Okay['Operating point'] = True
+            write_value['Rez_OPTemp'] = op
+
         # Schreiben:
         ## Ändere Modus:
-        if write_Okay['Auto_Mod']:
+        if write_Okay['Auto_Mod'] and not write_value['PID']:
             self.write_read_answer('SW>', '0000', self.write_Modus)                
             write_Okay['Auto_Mod'] = False
-        elif write_Okay['Manuel_Mod']:
+        elif write_Okay['Manuel_Mod'] or write_value['PID']:
             ## Immer beim Umsachalten, wenn die Sicherheit auf True steht wird der HO ausgelesen:
             value_HO = self.check_HO()
             if value_HO != '':

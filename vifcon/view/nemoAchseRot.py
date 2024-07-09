@@ -608,7 +608,10 @@ class NemoAchseRotWidget(QWidget):
             self.uGw = config['devices'][self.device_name]["limits"]['minWinkel']
         else:
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
-        
+
+    ##########################################
+    # Reaktion Checkbox:
+    ##########################################    
     def Rotation_Nonstopp(self, state):                       
         if self.EndRot.isChecked():
             self.write_value['EndRot'] = True

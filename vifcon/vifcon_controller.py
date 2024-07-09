@@ -361,7 +361,7 @@ class Controller(QObject):
         from .devices.nemoAchseRot import NemoAchseRot
         from .devices.nemoGase import NemoGase
         from .devices.multilog import Multilog
-        from .devices.gamepad import Gamepad
+        from .devices.gamepad import Gamepad_1
 
         ## GUI:
         ### Hauptteile:
@@ -376,7 +376,6 @@ class Controller(QObject):
         from .view.nemoAchseLin import NemoAchseLinWidget
         from .view.nemoAchseRot import NemoAchseRotWidget
         from .view.nemoGase import NemoGaseWidget
-        from .view.typen import PopUpWindow
 
         #---------------------------------------------------------------------------
         # Vorbereitung:
@@ -395,7 +394,7 @@ class Controller(QObject):
         #--------------------------------------------------------------------------
         app = QApplication(sys.argv)
         ## Hauptfenster:
-        self.main_window = MainWindow(self.exit, self.sync_rezept, self.sync_end_rezept, self.rezept_einlesen, self.sprache)  
+        self.main_window = MainWindow(self.exit, self.sync_rezept, self.sync_end_rezept, self.rezept_einlesen, self.sprache, self.config['Function_Skip']['Generell_GamePad'])  
         Frame_Anzeige = self.config['GUI_Frame']                                      
 
         ## Hauttabs erstellen:
@@ -565,7 +564,7 @@ class Controller(QObject):
         if self.Gamepad_Nutzung:
             self.PadThread = QThread()
             try:
-                self.gamepad = Gamepad(self.sprache, self.PadAchsenList, self.add_Ablauf)
+                self.gamepad = Gamepad_1(self.sprache, self.PadAchsenList, self.add_Ablauf)
                 logger.debug(f"{self.gamepad.name} {self.Log_Text_13_str[self.sprache]} {self.PadThread}") 
                 self.gamepad.moveToThread(self.PadThread)
                 logger.info(self.Log_Text_223_str[self.sprache]) 
@@ -692,6 +691,10 @@ class Controller(QObject):
         # Beende Timer:
         self.timer_check_device.stop()
         time.sleep(1)                                                   # Verzögerung um die sampling Aufträge zu beenden (in Threads)
+        # Beennde PID:
+        for device in self.widgets:
+            if 'Eurotherm' in device:
+                self.widgets[device].write_value['PID'] = False
         # Sicheren Endzustand herstellen:
         ## Rufe Stopp-Befehle auf und sende Threads ein letztes Mal:
         for device in self.widgets:
