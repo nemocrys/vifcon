@@ -165,3 +165,4 @@ measdata*
 /vifcon/rezepte/*.yml
 config.yml
 vifcon.log
+config_N4.yml

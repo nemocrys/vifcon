@@ -13,7 +13,11 @@ Eurotherm Gerät:
 # ++++++++++++++++++++++++++++
 ## GUI:
 from PyQt5.QtCore import (
-    QCoreApplication
+    QCoreApplication,
+    pyqtSignal,
+    QThread,
+    QTimer,
+    QObject
 )
 
 ## Allgemein:
@@ -40,7 +44,9 @@ class SerialMock:
         return "".encode()
 
 
-class Eurotherm:
+class Eurotherm(QObject):
+    signal_PID  = pyqtSignal(float, float)
+
     def __init__(self, sprache, config, com_dict, test, neustart, add_Ablauf_function, name="Eurotherm", typ = 'Generator'):
         """ Erstelle Eurotherm Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
@@ -54,7 +60,7 @@ class Eurotherm:
             name (str, optional):               Geräte Namen.
             typ (str, optional):                Geräte Typ.
         """
-
+        super().__init__()
         #---------------------------------------
         # Variablen:
         #---------------------------------------
@@ -70,6 +76,9 @@ class Eurotherm:
         ### Zum Start:
         self.init = self.config['start']['init']                # Initialisierung
         self.messZeit = self.config['start']["readTime"]        # Auslesezeit
+        self.Ist = self.config['PID']["start_ist"] 
+        self.Soll = self.config['PID']["start_soll"] 
+        self.op = 0
         ### Limits:
         self.oGOp = self.config["limits"]['opMax']
 
@@ -78,10 +87,6 @@ class Eurotherm:
 
         ## Weitere:
         self.EuRa_Aktiv = False
-
-        ## PID-Regler:
-        self.PID = PID(self.sprache, self.device_name, self.config['PID'], self.oGOp, self.config["limits"]['opMin'])
-        self.PID_Option = self.config['PID']['Value_Origin'] 
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -129,6 +134,7 @@ class Eurotherm:
         self.Log_Text_243_str   = ['Beim Startwert senden an Eurotherm gab es einen Fehler! Programm wird beendet! Wurde das Gerät eingeschaltet bzw. wurde die Init-Einstellung richtig gesetzt?',
                                    'There was an error when sending the start value to Eurotherm! Program will end! Was the device switched on or was the init setting set correctly?']
         self.Log_Text_244_str   = ['Fehler Grund: ',                                                                        'Error reason:']
+        self.Log_Text_PID_str   = ['Start des PID-Threads!',                                                                'Start of the PID thread!']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                       'Initialization Failed!']
@@ -180,6 +186,24 @@ class Eurotherm:
         self.write_max_leistung =       "\x040000\x02HO"                # maximale Sollleistung schreiben 
         self.EuRa_Modus =               "\x040000\x02OS>"               # Modus Euro-Rampe
 
+        #---------------------------------------
+        # PID-Regler:
+        #---------------------------------------
+        ## PID-Regler:
+        self.PID = PID(self.sprache, self.device_name, self.config['PID'], self.oGOp, self.config["limits"]['opMin'])
+        self.PID_Option = self.config['PID']['Value_Origin'] 
+        ## PID-Thread:
+        self.PIDThread = QThread()
+        self.PID.moveToThread(self.PIDThread)
+        logger.info(self.Log_Text_PID_str[self.sprache]) 
+        self.PIDThread.start()
+        self.signal_PID.connect(self.PID.InOutPID)
+        ## Timer:
+        self.timer_PID = QTimer()                                              # Reaktionszeittimer (ruft die Geräte auf, liest aber nur unter bestimmten Bedingungen!)
+        self.timer_PID.setInterval(self.config['PID']['sample'])
+        self.timer_PID.timeout.connect(self.PID_Update)
+        self.timer_PID.start()
+
     ##########################################
     # Schnittstelle (Schreiben):
     ##########################################
@@ -216,16 +240,10 @@ class Eurotherm:
         # PID-Regler:
         if write_value['PID']:
             if self.PID_Option == 'VV':
-                daten = self.read()
-                ist = daten['IWT']
-                # Solldaten von Rezept senden lassen! Rezept nicht mehr an Eurotherm senden! Im PID-Modbus nur noch Sollwertsprünge
-                # möglich machen, heißt nur noch Segmente s und r nutzen! Dies in der Rezept-Funktion mit Warnungen und Meldungen umsetzen!
-                # Nur noch den Istwert auslesen!
-                # In dem Sinne werden somit das Sollwert-Schreiben verhindert. Nur noch OP darf im PID-Mode an Eurotherm gesendet werden!
-                soll = daten['SWT']
-            op = self.PID.InOutPID(ist, soll)
+                self.Ist = self.read_einzeln(self.read_temperature)
+                self.Soll = sollwert
             write_Okay['Operating point'] = True
-            write_value['Rez_OPTemp'] = op
+            write_value['Rez_OPTemp'] = self.op
 
         # Schreiben:
         ## Ändere Modus:
@@ -385,22 +403,32 @@ class Eurotherm:
 
         try:
             # Lese Ist-Temperatur:
-            self.serial.write(self.read_temperature.encode())
-            temperature = float(self.serial.readline().decode()[3:-2])
+            temperature = self.read_einzeln(self.read_temperature)
             self.value_name['IWT'] = temperature                                # Einheit: °C
             # Lese Leistungswert:
-            self.serial.write(self.read_op.encode())
-            op = float(self.serial.readline().decode()[3:-2])
+            op = self.read_einzeln(self.read_op)
             self.value_name['IWOp'] = op                                        # Einheit: %
             # Lese Soll-Temperatur:
-            self.serial.write(self.read_soll_temperatur.encode())
-            soll_temperatur = float(self.serial.readline().decode()[3:-2])
+            soll_temperatur = self.read_einzeln(self.read_soll_temperatur)
             self.value_name['SWT'] = soll_temperatur                            # Einheit: °C
         except Exception as e:
             logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
             logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
 
         return self.value_name
+    
+    def read_einzeln(self, befehl):
+        ''' Zusammenfassung der einzelnen Sende-Befehle
+        
+        Args: 
+            befehl (str):   Befehlsstring (Steuerzeichen und Mnemonics)
+
+        Return:
+            ans (float):    Antwort des Gerätes in Float umgefandelt
+        '''
+        self.serial.write(befehl.encode())
+        ans = float(self.serial.readline().decode()[3:-2])
+        return ans
 
     def check_HO(self):
         ''' lese die maximale Ausgangsleistungs Grenze aus., wenn im Sicherheitsmodus.
@@ -410,8 +438,7 @@ class Eurotherm:
             max_pow (float):    Aktuelle maximale Ausgangsleistung 
         '''
         if self.config['start']['sicherheit'] == True:
-            self.serial.write(self.read_max_leistung.encode())
-            max_pow = float(self.serial.readline().decode()[3:-2])
+            max_pow = self.read_einzeln(self.read_max_leistung)
             return max_pow
         return ''
 
@@ -548,7 +575,15 @@ class Eurotherm:
             line = line + f'{daten[size]},'
         with open(self.filename, "a", encoding="utf-8") as f:
             f.write(f'{line}\n')
-            
+
+    ##########################################
+    # PID-Regler:
+    ##########################################
+    def PID_Update(self):
+        '''PID-Regler-Thread-Aufruf'''
+        self.signal_PID.emit(self.Ist, self.Soll)
+        self.op = self.PID.Output
+
 ##########################################
 # Verworfen:
 ##########################################

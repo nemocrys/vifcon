@@ -46,6 +46,9 @@ Legend:
 4. Pitch: 			
     - steepness of the ramp
 	    - er: e.g. 0.01 --> transfer to Eurotherm, meaning 0.01°C/s
+        - Calculation: m = delta y / delta x
+            - e.g. recipe: `n1: 600 ; 200 ; er ; 0.297` with a starting temperature of 25°C
+            - m = (200°C - 25°C)/ 600 s = 0.297 °C/s
 5. Ramp jump time interval: 	
     - Distance between the ramp jumps
     - Examples:
@@ -62,7 +65,7 @@ Legend:
             - start power: 0 %    
             -> 10 s/2 s = 5     
             -> (100 % -  0 %)/5 s  = 20 % (jumps)    
-            -> A jump every 20 seconds
+            -> A jump every 2 seconds
 6. Start value: 			
     - start of the ramp
 

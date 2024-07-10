@@ -702,6 +702,7 @@ class Controller(QObject):
                 if self.config['devices'][device]['ende']:
                     self.widgets[device].Stopp(n=5)
         self.ckeck_device()
+        time.sleep(1)                                                   # Verzögerung um die sampling Aufträge zu beenden bzw. überhaupt zu starten (in Threads)              
         # Beende die Threads - Teil 1:
         if self.Multilog_Nutzung:
             logger.debug(f"{self.Log_Text_208_str[self.sprache]} {self.LinkMultilogThread}")
@@ -716,8 +717,7 @@ class Controller(QObject):
         for sampler in self.samplers:
             sampler.messTime = 0
         ## Thread abschließen:
-        ''' Info: Dies ist besonders bei der Nutzung von 4 Pi-Achsen zu spüren. Der Aufruf der Threads 
-        erfolgt öfter als die Threads abgearbeitet werden können. Aus dem Grund müssen am Ende alle abgearbeitet werden!'''
+        ''' Info: Durch das Gamepad (pygame) kann es zu Verzögerungen kommen! Noch überarbeiten!'''
         while 1: 
             not_done = False
             for sampler in self.samplers:

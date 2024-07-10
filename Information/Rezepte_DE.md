@@ -48,6 +48,9 @@ Legend:
 4.  Steigung:			
     - Steilheit der Rampe
 	    - er:  z.B. 0.01 --> Übergabe an Eurotherm, Bedeutung 0.01°C/s
+        - Berechnung: m = delta y / delta x
+            - z.B. Rezept: `n1: 600 ; 200 ; er ; 0,297` mit einer Starttemperatur von 25°C
+            - m = (200°C - 25°C)/ 600 s = 0,297 °C/s
 5.  Rampensprung Zeitabstand:	
     - Abstand der Rampensprünge
     - Beispiele:  
@@ -64,7 +67,7 @@ Legend:
             - Startleistung: 0 %   
             -> 10 s/2 s =  5   
             -> (100 % -  0 %)/5 s  = 20 % (Sprünge)   
-            -> Alle 20 Sekunden ein Sprung 
+            -> Alle 2 Sekunden ein Sprung 
 6. Startwert:	
     - Beginn der Rampe
 

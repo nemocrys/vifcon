@@ -150,6 +150,7 @@ class EurothermWidget(QWidget):
         self.err_17_str         = ['Die Rampen Art op ist\nnur bei T-Rampen möglich!',                                                                                                                                                      'The ramp type op is only\npossible with T-ramps!']
         self.err_18_str         = ['Rezept Fehler:\nFehler im op-Schritt!',                                                                                                                                                                 'Recipe error:\nError in the op step!']
         self.err_19_str         = ['Rezept läuft!\nRezept Start gesperrt!',                                                                                                                                                                 'Recipe running!\nRecipe start blocked!']
+        self.err_20_str         = ['Die Rampen Segmente er, op und opr sind\nin dem PID-Modus nicht erlaubt!',                                                                                                                              'The ramp segments er, op and opr are\nnot allowed in PID mode!']
         ## Plot-Legende:                                                                                                                                                        
         rezept_Label_str        = ['Rezept',                                                                                                                                                                                                'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                                                                                                                    'uL']                                   # uL - upper Limit
@@ -178,6 +179,7 @@ class EurothermWidget(QWidget):
         self.Log_Text_245_str   = ['Die Erste Rampe Startet beim Istwert!',                                                                                                                                                                 'The first ramp starts at the actual value!']
         self.Log_Text_246_str   = ['Die Erste Rampe Startet beim Sollwert!',                                                                                                                                                                'The first ramp starts at the setpoint!']
         self.Log_Text_247_str   = ['Die Einstellung für die Erste Rampe ist fehlerhaft! Möglich sind nur SOLL und IST!! Default IST.',                                                                                                      'The setting for the first ramp is incorrect! Only SOLL and IST are possible!! Default IST.']
+        self.Log_Text_248_str   = ['Die Rampen Segmente op, opr und er können nicht im PID-Modus angewendet werden!',                                                                                                                       'The ramp segments op, opr and er cannot be used in PID mode!']
         ## Ablaufdatei:                                                                             
         self.Text_19_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da keine Eingabe.',                                                                                                                                   'Input field error message: Sending failed because there was no input.']
         self.Text_20_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da Eingabe die Grenzen überschreitet.',                                                                                                               'Input field error message: Send failed because input exceeds limits.']
@@ -598,18 +600,19 @@ class EurothermWidget(QWidget):
 
             # Zugriff sperren:
             self.LE_Pow.setEnabled(False)
-            self.LE_Temp.setEnabled(False)
             self.RB_choise_Pow.setEnabled(False)
             self.RB_choise_Temp.setEnabled(False)
-            self.btn_send_value.setEnabled(False)
+
+            # Start Sollwert:
+            self.write_value['Sollwert'] = self.config['PID']['start_soll']
         else:
             self.write_value['PID'] = False
 
             # Zugriff freigeben:
             self.LE_Pow.setEnabled(True)
+            self.LE_Temp.setEnabled(False)
             self.RB_choise_Pow.setEnabled(True)
             self.RB_choise_Temp.setEnabled(True)
-            self.btn_send_value.setEnabled(True)
             self.RB_choise_Pow.setChecked(True) 
 
             #self.typ_widget.Message(self.Pop_up_EndRot[self.sprache], 3, 500)
@@ -627,7 +630,8 @@ class EurothermWidget(QWidget):
             # Wenn der Radio-Button der Solltemperatur gewählt ist:
             if self.RB_choise_Temp.isChecked():
                 sollwert = self.LE_Temp.text().replace(",", ".")
-                self.write_task['Soll-Temperatur'] = True
+                if not self.PID_cb.isChecked():
+                    self.write_task['Soll-Temperatur'] = True
                 self.write_task['Operating point'] = False
                 oG, uG = self.oGST, self.uGST
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_29_str[self.sprache]}')
@@ -837,6 +841,9 @@ class EurothermWidget(QWidget):
                     else:
                         self.write_task['Operating point'] = True
 
+                    if self.PID_cb.isChecked():
+                        self.write_task['Soll-Temperatur'] = False
+
                     # OP Als Erster Schritt:
                     if self.Art_list[self.step] == 'op':
                         self.write_task['Auto_Mod'] = False
@@ -872,7 +879,7 @@ class EurothermWidget(QWidget):
             rez_End (Bool):   Wenn der Knopf betätigt wird, dann muss Eurotherm Rampe ausgeschaltet werden!
         '''
         if self.init:
-            if self.Rezept_Aktiv == True:
+            if self.Rezept_Aktiv:
                 if excecute == 1: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_81_str[self.sprache]}')
                 elif excecute == 2: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_82_str[self.sprache]}')
                 elif excecute == 3: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_83_str[self.sprache]}')
@@ -887,21 +894,20 @@ class EurothermWidget(QWidget):
                 self.btn_send_value.setEnabled(True)
                 self.Auswahl.setEnabled(True)
 
-                if self.Rezept_Aktiv:
-                    # Variablen:
-                    self.Rezept_Aktiv = False
+                # Variablen:
+                self.Rezept_Aktiv = False
 
-                    ## Am Ende oder bei Abbruch:
-                    ## Eurotherm Rampe :
-                    if self.Art_list[self.step] == 'er' and not rez_End:
-                        self.write_task['EuRa_Reset'] = True
-                    elif self.Art_list[self.step] == 'er' and rez_End:
-                        self.write_task['Soll-Temperatur'] = True
-                        self.write_value['Sollwert'] = self.value_list[-1]
-                    ## Leistungssprung in Temperatur-Rezept:
-                    elif self.Art_list[self.step] == 'op':
-                        self.write_task['Auto_Mod'] = True
-                        self.write_task['Manuel_Mod'] = False
+                ## Am Ende oder bei Abbruch:
+                ## Eurotherm Rampe :
+                if self.Art_list[self.step] == 'er' and not rez_End:
+                    self.write_task['EuRa_Reset'] = True
+                elif self.Art_list[self.step] == 'er' and rez_End:
+                    self.write_task['Soll-Temperatur'] = True
+                    self.write_value['Sollwert'] = self.value_list[-1]
+                ## Leistungssprung in Temperatur-Rezept:
+                elif self.Art_list[self.step] == 'op':
+                    self.write_task['Auto_Mod'] = True
+                    self.write_task['Manuel_Mod'] = False
 
                 # Auto Range
                 self.typ_widget.plot.AutoRange()
@@ -941,6 +947,9 @@ class EurothermWidget(QWidget):
                     self.write_task['Soll-Temperatur'] = True
                 else:
                     self.write_task['Operating point'] = True
+                
+                if self.PID_cb.isChecked():
+                        self.write_task['Soll-Temperatur'] = False
                 
                 ## Wenn op-Schritt, dann stelle Manuellen Modus ein und sende den OP-Wert:
                 if 'op' in self.Art_list[self.step]:
@@ -1009,7 +1018,9 @@ class EurothermWidget(QWidget):
             ## Speichere aktuelle Daten des Rezepts für Logging:
             self.rezept_daten = rez_dat
             #///////////////////////////////////////////////////////////////////////////////
-            ## Fehlermeldung, Kontrolle des Leistungsrezeptes -> op und er nicht möglich:
+            ## Fehlermeldung: 
+            ### Kontrolle des Leistungsrezeptes -> op und er nicht möglich
+            ### PID-Modus -> op, opr und er nicht möglich
             #//////////////////////////////////////////////////////////////////////////////
             if not self.RB_choise_Temp.isChecked():
                 for n in rez_dat:
@@ -1020,6 +1031,12 @@ class EurothermWidget(QWidget):
                     if 'op' in rez_dat[n]:
                         logger.warning(f'{self.device_name} - {self.Log_Text_184_str[self.sprache]}')
                         self.Fehler_Output(1, self.err_17_str[self.sprache])
+                        return False
+            if self.PID_cb.isChecked():
+                for n in rez_dat:
+                    if ('er' or 'op' or 'opr') in rez_dat[n]: 
+                        logger.warning(f'{self.device_name} - {self.Log_Text_248_str[self.sprache]}')
+                        self.Fehler_Output(1, self.err_20_str[self.sprache])
                         return False
             #////////////////////////////////////////////////////////////
             ## Ersten Eintrag prüfen (besondere Startrampe):
