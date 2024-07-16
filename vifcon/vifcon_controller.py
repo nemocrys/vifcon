@@ -683,27 +683,42 @@ class Controller(QObject):
     ############################################################################
     def exit(self):
         ''' Wird beim schließen der Anwendung aufgerufen und beendet die Threads. '''
-        # Messung der Zeit für das Beenden der Anwednung - Teil 1:
-        time1 = datetime.datetime.now(datetime.timezone.utc).astimezone()
-        # Notizen in Datein:
+        #////////////////////////////////////////////////////////////
+        # Informationen zum Exit - Teil 1:
+        #////////////////////////////////////////////////////////////
+        time1 = datetime.datetime.now(datetime.timezone.utc).astimezone()   # Messung der Zeit für das Beenden der Anwednung
+        ## Notizen in Datein:
         self.add_Ablauf(self.Text_4_str[self.sprache])
         logging.debug(self.Log_Text_End_str[self.sprache])
-        # Beende Timer:
+        #////////////////////////////////////////////////////////////
+        # Beende Sample-Timer für Geräte-Threads:
+        #////////////////////////////////////////////////////////////
         self.timer_check_device.stop()
-        time.sleep(1)                                                   # Verzögerung um die sampling Aufträge zu beenden (in Threads)
+        time.sleep(1)                                                       # Verzögerung um die sampling Aufträge zu beenden (in Threads)
+        #////////////////////////////////////////////////////////////
         # Beennde PID:
+        #////////////////////////////////////////////////////////////
         for device in self.widgets:
             if 'Eurotherm' in device:
-                self.widgets[device].write_value['PID'] = False
+                self.widgets[device].write_value['PID'] = False 
+                self.devices[device].PIDThread.quit()
+                self.devices[device].timer_PID.stop()
+        #////////////////////////////////////////////////////////////
         # Sicheren Endzustand herstellen:
-        ## Rufe Stopp-Befehle auf und sende Threads ein letztes Mal:
+        #////////////////////////////////////////////////////////////
+        ## Rufe Stopp-Befehle und setze End-Variable auf und sende Threads ein letztes Mal:
+        ### Stopp - Beendigung von Teilen im Programm
+        ### End-Variable - Sicheres Auslösen bzw. Setzen der nötigen Aufgaben
         for device in self.widgets:
             if not 'Nemo-Gase' in device:
                 if self.config['devices'][device]['ende']:
+                    self.devices[device].Save_End_State = True
                     self.widgets[device].Stopp(n=5)
         self.ckeck_device()
         time.sleep(1)                                                   # Verzögerung um die sampling Aufträge zu beenden bzw. überhaupt zu starten (in Threads)              
+        #////////////////////////////////////////////////////////////
         # Beende die Threads - Teil 1:
+        #////////////////////////////////////////////////////////////
         if self.Multilog_Nutzung:
             logger.debug(f"{self.Log_Text_208_str[self.sprache]} {self.LinkMultilogThread}")
             self.LinkMultilogThread.quit()
@@ -712,7 +727,9 @@ class Controller(QObject):
         if self.Gamepad_Nutzung:
             self.PadThread.quit()
             self.gamepad.ende()
+        #////////////////////////////////////////////////////////////
         # Schaue ob alle Sample-Aufträge tatsächlich zu Ende sind:
+        #////////////////////////////////////////////////////////////
         ## Lesen von Werten abschalten:
         for sampler in self.samplers:
             sampler.messTime = 0
@@ -725,17 +742,24 @@ class Controller(QObject):
                     not_done = True
             if not not_done:
                 break
+        #////////////////////////////////////////////////////////////
         # Beende die Threads - Teil 2:
+        #////////////////////////////////////////////////////////////
         for thread in self.threads:
             logger.debug(f"{self.Log_Text_18_str[self.sprache]} {thread}")
             thread.quit()
+        #////////////////////////////////////////////////////////////
         # Schließe Ports, wenn offen:
+        #////////////////////////////////////////////////////////////
         if not self.test_mode:
             for device in self.devices:
                 if self.devices[device].serial.is_open:
                     logger.debug(f"{self.Log_Text_19_str[self.sprache]} {device}")
                     self.devices[device].serial.close()
-        # Speicher Config-Datei:
+        #////////////////////////////////////////////////////////////
+        # Speichere Datein:
+        #////////////////////////////////////////////////////////////
+        ## Speicher Config-Datei:
         if not self.test_mode:
             VerschiebePfad = self.directory
         if self.save_config:
@@ -743,13 +767,13 @@ class Controller(QObject):
             Bild_Pfad = self.config_pfad
             Erg_Bild_Name = '/config.yml'
             shutil.copyfile(Bild_Pfad, VerschiebePfad + Erg_Bild_Name)
-        # Speicher Log-Datei:
+        ## Speicher Log-Datei:
         if self.save_log:
             logger.debug(f"{self.Log_Text_21_str[self.sprache]} {VerschiebePfad}")
             Bild_Pfad = self.config["logging"]['filename']
             Erg_Bild_Name = f'/{self.config["logging"]["filename"]}'
             shutil.copyfile(Bild_Pfad, VerschiebePfad + Erg_Bild_Name)
-        # Speichere Plot:
+        ## Speichere Plot:
         if self.save_plot:
             for typ in self.tab_Teile:
                 if not typ == 'Monitoring':
@@ -757,8 +781,10 @@ class Controller(QObject):
                     self.tab_Teile[typ].plot.save_plot(f'{VerschiebePfad}/{typ}_Plot.png')
                     if self.tab_Teile[typ].legend_ops['legend_pos'].upper() == 'SIDE':
                         self.tab_Teile[typ].save_legend(f'{VerschiebePfad}/{typ}_Plot.png')
-        # Messung der Zeit für das Beenden der Anwednung - Teil 2:
-        time2 = datetime.datetime.now(datetime.timezone.utc).astimezone()
+        #////////////////////////////////////////////////////////////
+        # Informationen zum Exit - Teil 2:
+        #////////////////////////////////////////////////////////////
+        time2 = datetime.datetime.now(datetime.timezone.utc).astimezone()           # Messung der Zeit für das Beenden der Anwednung
         timediff = (
                 time2 - time1
             ).total_seconds()

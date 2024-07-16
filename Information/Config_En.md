@@ -9,6 +9,10 @@ The config file is one of the most important features of the VIFCON control syst
 
 and much more are provided. The config file is a Yaml file and is integrated into VIFCON using the Python library pyYAML. 
 
+## Last change
+
+The last change to the [template](#explanation-of-the-individual-points) and this description was: June 25, 2024
+
 ## Function
 
 Python sees the Yaml file as a dictionary or a nesting of several dictionaries. A dictionary is structured as follows:

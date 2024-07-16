@@ -2,6 +2,10 @@
 
 Im folgenden werden die einzelnen Rezept-Segmente, der Aufbau und die Auslagerung dieser Rezepte gezeigt.
 
+## Letzte Änderung
+
+Die Letzte Änderung dieser Beschreibung war: 25.6.2024
+
 ## Vorhandene Rezept-Segmente
 
 Die Rezepte hängen von den Geräten ab. Bis auf das Eurotherm Gerät sind alle Rezepte gleich aufgebaut. Somit gibt es folgende Arten von Rampen:

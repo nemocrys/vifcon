@@ -2,6 +2,10 @@
 
 The individual recipe segments, the structure and the outsourcing of these recipes are shown below.
 
+## Last change
+
+The last change of this description was: June 25, 2024
+
 ## Existing recipe segments
 
 The recipes depend on the devices. Except for the Eurotherm device, all recipes are structured the same. There are therefore the following types of ramps:

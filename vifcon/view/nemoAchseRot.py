@@ -257,6 +257,9 @@ class NemoAchseRotWidget(QWidget):
         self.Auswahl = QCheckBox(cb_sync_str[self.sprache])
         self.EndRot  = QCheckBox(cb_EndloseRot_str[self.sprache])
         self.EndRot.clicked.connect(self.Rotation_Nonstopp)
+        if self.config['start']['kont_rot']:
+            self.EndRot.setChecked(True)
+            self.Rotation_Nonstopp()
         self.gamepad = QCheckBox(cb_gPad_str[self.sprache])
 
         if not gamepad_aktiv:
@@ -612,7 +615,7 @@ class NemoAchseRotWidget(QWidget):
     ##########################################
     # Reaktion Checkbox:
     ##########################################    
-    def Rotation_Nonstopp(self, state):                       
+    def Rotation_Nonstopp(self):                       
         if self.EndRot.isChecked():
             self.write_value['EndRot'] = True
         else:

@@ -173,3 +173,7 @@ pi@raspberrypi:~/pyModbusTCP $ sudo python3 setup.py install
 ```
 
 Nach dem alle Bibliotheken installiert worden sind, funktioniert VIFCON auf dem genannten Raspberry Pi. 
+
+## Letzte Änderung
+
+Die Letzte Änderung dieser Beschreibung war: 25.6.2024

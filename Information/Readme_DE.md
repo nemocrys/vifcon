@@ -117,11 +117,18 @@ Die GUI benötigt eine Mindestauflösung des Bildschirms von 1240x900 Pixel.
 Im Ordner **[Information](../Information)** befinden sich weitere Dokumente, die VIFCON näher beschreiben. Folgende Themen sind dort in Deutsch und Englisch zu finden:
 
 1. Python und Raspberry Pi - Installation und Bibliotheken 
-    - [Show En](Python_RPI_En.md)
-    - [Show De](Python_RPI_DE.md)
+    - [Zeige En](Python_RPI_En.md)
+    - [Zeige De](Python_RPI_DE.md)
 2. Rezepte 
-    - [Show En](Rezepte_En.md) 
-    - [Show De](Rezepte_DE.md)
+    - [Zeige En](Rezepte_En.md) 
+    - [Zeige De](Rezepte_DE.md)
 3. Konfiguration
-    - [Show En](Config_En.md) 
-    - [Show De](Config_DE.md)
+    - [Zeige En](Config_En.md) 
+    - [Zeige De](Config_DE.md)
+4. Funktions-Beschreibungen
+    - [Zeige En](Funktionen_En.md) 
+    - [Zeige De](Funktionen_DE.md) 
+
+## Letzte Änderung
+
+Die Letzte Änderung dieser Beschreibung war: 25.6.2024

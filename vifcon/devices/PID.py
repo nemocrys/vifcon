@@ -41,16 +41,22 @@ class PID(QObject):
         # Sprach-Einstellung:
         #---------------------------------------
         ## Logging:
-        self.Log_PID_0      = ['PID-Regler',                             'PID controller']
-        Log_PID_1           = ['P-Anteil (kp) = ',                       'P-share (kp) =']
-        Log_PID_2           = ['I-Anteil (ki) = ',                       'I-share (ki) =']
-        Log_PID_3           = ['D-Anteil (kd) = ',                       'D-share (kd) =']
-        Log_PID_4           = ['Erstelle PID-Regler für das Gerät: ',    'Create PID controller for the device: ']
-        self.Log_PID_5      = ['Zeitdifferenz zwischen den Messungen: ', 'Time difference between measurements: ']
-        self.Log_PID_6      = ['s',                                      's']
-        self.Log_value_1    = ['Eingang - Sollwert: ',                   'Input - Set-Point']
-        self.Log_value_2    = ['und Istwert: ',                          'and Actual Value']
-        self.Log_value_3    = ['/ Ausgang: ',                            '/ Output:']
+        self.Log_PID_0      = ['PID-Regler',                                'PID controller']
+        Log_PID_1           = ['P-Anteil (kp) = ',                          'P-share (kp) =']
+        Log_PID_2           = ['I-Anteil (ki) = ',                          'I-share (ki) =']
+        Log_PID_3           = ['D-Anteil (kd) = ',                          'D-share (kd) =']
+        Log_PID_4           = ['Erstelle PID-Regler für das Gerät: ',       'Create PID controller for the device: ']
+        self.Log_PID_5      = ['Zeitdifferenz zwischen den Messungen: ',    'Time difference between measurements: ']
+        self.Log_PID_6      = ['s',                                         's']
+        self.Log_PID_7      = ['Der Sample-Zeit-Toleranzbereich',           'The sample time tolerance range']
+        self.Log_PID_8      = ['des PID-Reglers wurde überschritten mit',   'of the PID controller was exceeded with']
+        self.Log_PID_9      = ['des PID-Reglers wurde unterschritten mit',  'of the PID controller was undershot with ']
+        self.Log_PID_10     = ['um',                                        'by']
+        self.Log_PID_11     = ['ms',                                        'ms']
+        self.Log_PID_12     = ['bis',                                       'to']
+        self.Log_value_1    = ['Eingang - Sollwert: ',                      'Input - Set-Point']
+        self.Log_value_2    = ['und Istwert: ',                             'and Actual Value']
+        self.Log_value_3    = ['/ Ausgang: ',                               '/ Output:']
 
         #---------------------------------------
         # Variablen:
@@ -62,24 +68,25 @@ class PID(QObject):
         self.OutMax = Max
         self.OutMin = Min
         ## Config:
-        self.kp             = self.config['kp']
-        self.ki             = self.config['ki']
-        self.kd             = self.config['kd']
-        self.sample_time    = self.config['sample']
+        self.kp                 = self.config['kp']
+        self.ki                 = self.config['ki']
+        self.kd                 = self.config['kd']
+        self.sample_time        = self.config['sample']
+        self.sample_toleranz    = self.config['sample_tolleranz']
         ## Startzeit:
         self.last_time      = datetime.datetime.now(datetime.timezone.utc).astimezone()
         ## Start-Werte:
-        self.ITerm = 0
+        self.ITerm      = 0
         self.last_Input = 0
-        self.Output = 0
+        self.Output     = 0
 
         #---------------------------------------
         # Informationen:
         #---------------------------------------
-        logging.info(f'{self.Log_PID_0[self.sprache]} - {Log_PID_4[sprache]}{self.device}')
-        logging.info(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {Log_PID_1[sprache]}{self.kp}')
-        logging.info(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {Log_PID_2[sprache]}{self.ki}')
-        logging.info(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {Log_PID_3[sprache]}{self.kd}')
+        logger.info(f'{self.Log_PID_0[self.sprache]} - {Log_PID_4[sprache]}{self.device}')
+        logger.info(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {Log_PID_1[sprache]}{self.kp}')
+        logger.info(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {Log_PID_2[sprache]}{self.ki}')
+        logger.info(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {Log_PID_3[sprache]}{self.kd}')
 
         #---------------------------------------
         # PID-Werte:
@@ -103,7 +110,11 @@ class PID(QObject):
         # Zeit:
         ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
         timediff = (ak_time - self.last_time).total_seconds()
-        logging.debug(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_5[self.sprache]}{timediff} {self.Log_PID_6[self.sprache]}')
+        logger.debug(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_5[self.sprache]}{timediff} {self.Log_PID_6[self.sprache]}')
+        if timediff*1000 > self.sample_time + self.sample_toleranz: 
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_7[self.sprache]} ({self.sample_time - self.sample_toleranz} {self.Log_PID_12[self.sprache]} {self.sample_time + self.sample_toleranz}) {self.Log_PID_11[self.sprache]} {self.Log_PID_8[self.sprache]} {timediff*1000} {self.Log_PID_11[self.sprache]} {self.Log_PID_10[self.sprache]} {abs(self.sample_time - timediff*1000)} {self.Log_PID_11[self.sprache]}.')    
+        elif timediff*1000 < self.sample_time - self.sample_toleranz:
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_7[self.sprache]} ({self.sample_time - self.sample_toleranz} {self.Log_PID_12[self.sprache]} {self.sample_time + self.sample_toleranz}) {self.Log_PID_11[self.sprache]} {self.Log_PID_9[self.sprache]} {timediff*1000} {self.Log_PID_11[self.sprache]} {self.Log_PID_10[self.sprache]} {abs(self.sample_time - timediff*1000)} {self.Log_PID_11[self.sprache]}.')    
         # Fehler Variablen:
         ## Fehler:
         error = Input_Soll - Input_Ist
@@ -124,7 +135,7 @@ class PID(QObject):
         # Nächster Durchgang:
         self.last_time = ak_time
         self.last_Input = Input_Ist
-        logging.debug(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_value_1[self.sprache]} {Input_Soll} {self.Log_value_2[self.sprache]} {Input_Ist} {self.Log_value_3[self.sprache]} {Output}')
+        logger.debug(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_value_1[self.sprache]} {Input_Soll} {self.Log_value_2[self.sprache]} {Input_Ist} {self.Log_value_3[self.sprache]} {Output}')
         
         self.Output = round(Output,3)
 

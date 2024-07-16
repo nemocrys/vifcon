@@ -86,7 +86,9 @@ class Eurotherm(QObject):
         self.value_name = {'SWT': 0, 'IWT': 0, 'IWOp': 0}
 
         ## Weitere:
-        self.EuRa_Aktiv = False
+        self.EuRa_Aktiv     = False
+        self.Save_End_State = False
+        self.done_ones      = False
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -135,6 +137,13 @@ class Eurotherm(QObject):
                                    'There was an error when sending the start value to Eurotherm! Program will end! Was the device switched on or was the init setting set correctly?']
         self.Log_Text_244_str   = ['Fehler Grund: ',                                                                        'Error reason:']
         self.Log_Text_PID_str   = ['Start des PID-Threads!',                                                                'Start of the PID thread!']
+        Log_Text_PID_N1         = ['Die Konfiguration',                                                                     'The configuration']
+        Log_Text_PID_N2         = ['existiert nicht! Möglich sind nur VV, VM, MM oder MV. Nutzung von Default VV!',         'does not exist! Only VV, VM, MM or MV are possible. Use default VV!']
+        Log_Text_PID_N3         = ['Gewählter PID-Modus ist: ',                                                             'Selected PID mode is: ']
+        Log_Text_PID_N4         = ['Istwert von Multilog',                                                                  'Actual value from Multilog']
+        Log_Text_PID_N5         = ['Istwert von VIFCON',                                                                    'Actual value of VIFCON']
+        Log_Text_PID_N6         = ['Sollwert von Multilog',                                                                 'Setpoint from Multilog']
+        Log_Text_PID_N7         = ['Sollwert von VIFCON',                                                                   'Setpoint from VIFCON']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                       'Initialization Failed!']
@@ -191,11 +200,26 @@ class Eurotherm(QObject):
         #---------------------------------------
         ## PID-Regler:
         self.PID = PID(self.sprache, self.device_name, self.config['PID'], self.oGOp, self.config["limits"]['opMin'])
-        self.PID_Option = self.config['PID']['Value_Origin'] 
+        self.PID_Option = self.config['PID']['Value_Origin'].upper()
+        ## Info und Warnungen:
+        if self.PID_Option not in ['VV', 'VM', 'MM', 'MV']:
+            logger.warning(f'{self.device_name} - {Log_Text_PID_N1[sprache]} {self.PID_Option} {Log_Text_PID_N2[self.sprache]}')
+            self.PID_Option = 'VV'
+        ### Herkunft Istwert:
+        if self.PID_Option[0] == 'V':
+            teil_1 = Log_Text_PID_N5
+        elif self.PID_Option[0] == 'M':
+            teil_1 = Log_Text_PID_N4 
+        ### Herkunft Sollwert:
+        if self.PID_Option[1] == 'V':
+            teil_2 = Log_Text_PID_N7
+        elif self.PID_Option[1] == 'M':
+            teil_2 = Log_Text_PID_N6 
+        logger.info(f'{self.device_name} - {Log_Text_PID_N3[self.sprache]}{self.PID_Option} ({teil_1[self.sprache]}, {teil_2[self.sprache]})')
         ## PID-Thread:
         self.PIDThread = QThread()
         self.PID.moveToThread(self.PIDThread)
-        logger.info(self.Log_Text_PID_str[self.sprache]) 
+        logger.info(f'{self.device_name} - {self.Log_Text_PID_str[self.sprache]}') 
         self.PIDThread.start()
         self.signal_PID.connect(self.PID.InOutPID)
         ## Timer:
@@ -223,7 +247,7 @@ class Eurotherm(QObject):
         bcc = 0
         for item in bcc_list:
             bcc = (bcc^item)                    # XOR
-        logging.debug(f'{self.device_name} - {self.Log_Text_132_str[self.sprache]} = "{bcc}"')
+        logger.debug(f'{self.device_name} - {self.Log_Text_132_str[self.sprache]} = "{bcc}"')
         return chr(bcc)                         # Dezimalzahl zu ASCII
 
     def write(self, write_Okay, write_value):
@@ -233,15 +257,35 @@ class Eurotherm(QObject):
             write_Okay (dict):  beinhaltet Boolsche Werte für das was beschrieben werden soll!
             write_value (dict): beinhaltet die Werte die geschrieben werden sollen
         '''
-
+        # Erwinge das Setzen der Variablen um den Endzustand sicher herzustellen:
+        if self.Save_End_State and not self.done_ones:
+            write_Okay['EuRa_Reset']        = True
+            write_Okay['Manuel_Mod']        = True   
+            write_Okay['Auto_Mod']          = False
+            write_Okay['Operating point']   = True 
+            write_value['Rez_OPTemp']       = 0 
+            self.done_ones                  = True
+            
         # Sollwertn Lesen (OP oder Temp):
         sollwert = write_value['Sollwert']
 
         # PID-Regler:
         if write_value['PID']:
-            if self.PID_Option == 'VV':
+            ## Auswahl Istwert:
+            ### VIFCON:
+            if self.PID_Option[0] == 'V':
                 self.Ist = self.read_einzeln(self.read_temperature)
+            ### MUltilog:
+            elif self.PID_Option[0] == 'M':
+                print('Noch nicht Vorhanden!')
+            ## Auswahl Sollwert:
+            ### VIFCON:
+            if self.PID_Option[1] == 'V':
                 self.Soll = sollwert
+            ### MUltilog:
+            elif self.PID_Option[1] == 'M':
+                print('Noch nicht Vorhanden!')
+            ## Schreibe Werte:
             write_Okay['Operating point'] = True
             write_value['Rez_OPTemp'] = self.op
 

@@ -192,6 +192,7 @@ class EurothermWidget(QWidget):
         self.Text_27_str        = ['Auswahl Solltemperatur senden.',                                                                                                                                                                        'Send selection of target temperature.']
         self.Text_28_str        = ['Schalte auf Automatischen Modus (SW).',                                                                                                                                                                 'Switch to Automatic Mode (SW).']
         self.Text_29_str        = ['Knopf betätigt - Sende Solltemperatur (SL).',                                                                                                                                                           'Button pressed - send target temperature (SL).']
+        self.Text_29_2_str      = ['Knopf betätigt - Sende Solltemperatur (PID).',                                                                                                                                                          'Button pressed - send target temperature (PID).']
         self.Text_30_str        = ['Knopf betätigt - Sende Ausgangsleistung (OP).',                                                                                                                                                         'Button pressed - send output power (OP).']
         self.Text_80_str        = ['Menü-Knopf betätigt - Lese OP maximum (HO) aus.',                                                                                                                                                       'Menu button pressed - read OP maximum (HO).']
         self.Text_81_str        = ['Knopf betätigt - Beende Rezept',                                                                                                                                                                        'Button pressed - End recipe']
@@ -205,6 +206,8 @@ class EurothermWidget(QWidget):
         self.Text_89_str        = ['Knopf betätigt - Beende Rezept - Keine Wirkung, da kein aktives Rezept!',                                                                                                                               'Button pressed - End recipe - No effect because there is no active recipe!']
         self.Text_90_str        = ['Sicherer Endzustand wird hergestellt! Auslösung des Stopp-Knopfes!',                                                                                                                                    'Safe final state is established! Stop button is activated!']
         self.Text_91_str        = ['Rezept Beenden - Sicherer Endzustand',                                                                                                                                                                  'Recipe Ends - Safe End State']
+        self.Text_PID_1         = ['Wechsel in PID-Modus.',                                                                                                                                                                                 'Switch to PID mode.']
+        self.Text_PID_2         = ['Wechsel in Eurotherm-Regel-Modus.',                                                                                                                                                                     'Switch to Eurotherm control mode.']
         ## Pop-Up-Fenster:
         self.puF_HO_str         = ['Die maximale Ausgangsleistung (HO) wird nicht an das Limit angepasst! Die Einstellung Sicherheit wurde auf True gesetzt. Das bedeutet das der Wert nur direkt am Eurotherm geändert werden kann!',    
                                    'The maximum output power (HO) is not adjusted to the limit! The Security setting has been set to True. This means that the value can only be changed directly on the Eurotherm!']
@@ -594,6 +597,7 @@ class EurothermWidget(QWidget):
     ##########################################
     def PID_ON_OFF(self, state):                       
         if self.PID_cb.isChecked():
+            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
             self.write_value['PID'] = True
             self.write_task['Manuel_Mod'] = True
             self.RB_choise_Temp.setChecked(True) 
@@ -605,7 +609,9 @@ class EurothermWidget(QWidget):
 
             # Start Sollwert:
             self.write_value['Sollwert'] = self.config['PID']['start_soll']
+
         else:
+            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
             self.write_value['PID'] = False
 
             # Zugriff freigeben:
@@ -634,7 +640,10 @@ class EurothermWidget(QWidget):
                     self.write_task['Soll-Temperatur'] = True
                 self.write_task['Operating point'] = False
                 oG, uG = self.oGST, self.uGST
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_29_str[self.sprache]}')
+                if not self.PID_cb.isChecked():
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_29_str[self.sprache]}')
+                else:
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_29_2_str[self.sprache]}')
             # Wenn der Radio-Button der Ausgangsleistung gewählt ist:
             else:
                 sollwert = self.LE_Pow.text().replace(",", ".")
