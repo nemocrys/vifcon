@@ -454,8 +454,10 @@ class Controller(QObject):
         self.devices                = {}                                                  # Dictionary für alle Geräte
         self.widgets                = {}                                                  # Dictionary für alle Geräte GUI Teile
         ### Multilog:
-        self.trigger                = {}                                                  # Dictionary für die Trigger-Wörter
-        self.port_List              = []                                                  # Liste der Ports
+        self.trigger_send           = {}                                                  # Dictionary für die Trigger-Wörter (an Multilog)
+        self.trigger_read           = {}                                                  # Dictionary für die Trigger-Wörter (von Mulitlog)
+        self.port_List_send         = []                                                  # Liste der Ports
+        self.port_List_read         = []                                                  # Liste der Ports
         ### Gamepad:
         self.PadAchsenList          = []                                                  # Verbundene Achsen mit dem Controller
         self.hardware_controller    = False                                               # Controller soll erstellt werden
@@ -539,9 +541,13 @@ class Controller(QObject):
                 self.devices.update({device_name: device})
                 self.widgets.update({device_name: widget})
                 #### Ist der Port Null, wird keine Verbindung hergestellt:
-                if not self.config["devices"][device_name]['multilog']['port'] == 0:
-                    self.port_List.append(self.config["devices"][device_name]['multilog']['port'])
-                    self.trigger.update({device_name: self.config['devices'][device_name]['multilog']['trigger']})
+                if not self.config["devices"][device_name]['multilog']['write_port'] == 0:
+                    self.port_List_send.append(self.config["devices"][device_name]['multilog']['write_port'])
+                    self.trigger_send.update({device_name: self.config['devices'][device_name]['multilog']['write_trigger']})
+                if not self.config["devices"][device_name]['multilog']['read_port'] == 0:
+                    if not 'Nemo-Gase' in device_name:
+                        self.port_List_read.append(self.config["devices"][device_name]['multilog']['read_port'])
+                        self.trigger_read.update({self.config["devices"][device_name]['multilog']['read_port']: [self.config['devices'][device_name]['multilog']['read_trigger'], device_name]})
     
         logger.debug(f"{self.mutexs}")
 
@@ -551,7 +557,7 @@ class Controller(QObject):
         self.Multilog_Nutzung = self.config['Function_Skip']['Multilog_Link']
         if self.Multilog_Nutzung:
             self.LinkMultilogThread = QThread()
-            self.MultiLink = Multilog(self.sprache, self.port_List, self.add_Ablauf, self.widgets, self.trigger)
+            self.MultiLink = Multilog(self.sprache, self.port_List_send, self.port_List_read, self.add_Ablauf, self.widgets, self.devices, self.trigger_send, self.trigger_read)
             self.MultiLink.moveToThread(self.LinkMultilogThread)
             self.LinkMultilogThread.start()
             self.signal_Multilog.connect(self.MultiLink.event_Loop)

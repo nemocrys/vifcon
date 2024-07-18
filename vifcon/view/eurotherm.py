@@ -131,7 +131,10 @@ class EurothermWidget(QWidget):
         st_Tsoll_str            = ['(XXX.XX)',                                                                                                                                                                                              '(XXX.XX)']
         T_einzel_str            = ['T',                                                                                                                                                                                                     'T']
         P_einzel_str            = ['P',                                                                                                                                                                                                     'P']
-        ## Fehlermeldungen:  
+        PID_Von_1               = ['Wert von Multilog',                                                                                                                                                                                     'Value of Multilog']
+        PID_Von_2               = ['Wert von VIFCON',                                                                                                                                                                                       'Value ofVIFCON']
+        PID_Zusatz              = ['ex,',                                                                                                                                                                                                    'ex,']
+        ## Fehlermeldungen:                                                                                                                                                                                     
         self.err_0_str          = ['Fehler!',                                                                                                                                                                                               'Error!']                   
         self.err_1_str          = ['Keine Eingabe!',                                                                                                                                                                                        'No input!']
         self.err_2_str          = ['Grenzen überschritten!\nGrenzen von',                                                                                                                                                                   'Limits exceeded!\nLimits from']
@@ -399,16 +402,37 @@ class EurothermWidget(QWidget):
         #---------------------------------------
         # Kurven:
         #---------------------------------------
+        ## PID-Modus:
+        origin = self.config['PID']['Value_Origin'].upper()
+        ### Istwert:
+        PID_Export_Ist = ''
+        if origin[0] == 'V':        PID_Label_Ist = PID_Von_2[sprache]
+        elif origin [0] == 'M':     
+            PID_Label_Ist = PID_Von_1[sprache]
+            PID_Export_Ist = PID_Zusatz[sprache]
+        else:                       PID_Label_Ist = PID_Von_2[sprache]
+        ### Sollwert
+        PID_Export_Soll = ''
+        if origin[1] == 'V':        PID_Label_Soll = PID_Von_2[sprache]
+        elif origin [1] == 'M':     
+            PID_Label_Soll = PID_Von_1[sprache]
+            PID_Export_Soll = PID_Zusatz[sprache]
+        else:                       PID_Label_Soll = PID_Von_2[sprache]
+        ### Start Wert:
+        self.write_value['Sollwert'] = self.config['PID']['start_soll']
+
+        ## Kurven-Namen:
         kurv_dict = {                                                                   # Wert: [Achse, Farbe/Stift, Name]
-            'IWT':   ['a1', pg.mkPen(self.color[0], width=2),                           f'{eurotherm} - {T_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'SWT':   ['a1', pg.mkPen(self.color[1]),                                    f'{eurotherm} - {T_einzel_str[self.sprache]}<sub>{sollwert_str[self.sprache]}</sub>'],
-            'IWOp':  ['a2', pg.mkPen(self.color[2], width=2),                           f'{eurotherm} - {P_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'oGT':   ['a1', pg.mkPen(color=self.color[0], style=Qt.DashLine),           f'{eurotherm} - {T_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGT':   ['a1', pg.mkPen(color=self.color[0], style=Qt.DashDotDotLine),     f'{eurotherm} - {T_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'oGOp':  ['a2', pg.mkPen(color=self.color[2], style=Qt.DashLine),           f'{eurotherm} - {P_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGOp':  ['a2', pg.mkPen(color=self.color[2], style=Qt.DashDotDotLine),     f'{eurotherm} - {P_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'RezT':  ['a1', pg.mkPen(color=self.color[3], width=3, style=Qt.DotLine),   f'{eurotherm} - {rezept_Label_str[self.sprache]}<sub>{T_einzel_str[self.sprache]}</sub>'],
-            'RezOp': ['a2', pg.mkPen(color=self.color[4], width=3, style=Qt.DotLine),   f'{eurotherm} - {rezept_Label_str[self.sprache]}<sub>{P_einzel_str[self.sprache]}</sub>']
+            'IWT':    ['a1', pg.mkPen(self.color[0], width=2),                           f'{eurotherm} - {T_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'SWT':    ['a1', pg.mkPen(self.color[1]),                                    f'{eurotherm} - {T_einzel_str[self.sprache]}<sub>{sollwert_str[self.sprache]}</sub>'],
+            'IWOp':   ['a2', pg.mkPen(self.color[2], width=2),                           f'{eurotherm} - {P_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'oGT':    ['a1', pg.mkPen(color=self.color[0], style=Qt.DashLine),           f'{eurotherm} - {T_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGT':    ['a1', pg.mkPen(color=self.color[0], style=Qt.DashDotDotLine),     f'{eurotherm} - {T_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'oGOp':   ['a2', pg.mkPen(color=self.color[2], style=Qt.DashLine),           f'{eurotherm} - {P_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGOp':   ['a2', pg.mkPen(color=self.color[2], style=Qt.DashDotDotLine),     f'{eurotherm} - {P_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'RezT':   ['a1', pg.mkPen(color=self.color[3], width=3, style=Qt.DotLine),   f'{eurotherm} - {rezept_Label_str[self.sprache]}<sub>{T_einzel_str[self.sprache]}</sub>'],
+            'RezOp':  ['a2', pg.mkPen(color=self.color[4], width=3, style=Qt.DotLine),   f'{eurotherm} - {rezept_Label_str[self.sprache]}<sub>{P_einzel_str[self.sprache]}</sub>'],
+            'SWTPID': ['a1', pg.mkPen(self.color[1], width=2, style=Qt.DashDotLine),     f'{PID_Label_Soll} - {T_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'] 
         }
 
         ## Kurven erstellen:
@@ -448,6 +472,7 @@ class EurothermWidget(QWidget):
         self.opList         = []
         self.istTpList      = []
         self.sollTpList     = []
+        self.sollTPID       = []
         ### Grenzen
         self.ToGList        = []
         self.TuGList        = []
@@ -457,12 +482,12 @@ class EurothermWidget(QWidget):
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
-        self.curveDict      = {'IWT': '', 'SWT': '', 'IWOp': '', 'oGT':'', 'uGT':'', 'oGOp':'', 'uGOp':'', 'RezT':'', 'RezOp':''}
+        self.curveDict      = {'IWT': '', 'SWT': '', 'IWOp': '', 'oGT':'', 'uGT':'', 'oGOp':'', 'uGOp':'', 'RezT':'', 'RezOp':'', 'SWTPID':''}
         for kurve in self.kurven_dict:
                 self.curveDict[kurve] = self.kurven_dict[kurve] 
         self.labelDict      = {'IWT': self.La_IstTemp_wert,                                                'IWOp': self.La_IstPow_wert,      'SWT': self.La_SollTemp_wert}       # Label
         self.labelUnitDict  = {'IWT': '°C',                                                                'IWOp': '%'}                                                          # Einheit
-        self.listDict       = {'IWT': self.istTpList,       'SWT': self.sollTpList,                        'IWOp': self.opList}                                                  # Werte-Listen
+        self.listDict       = {'IWT': self.istTpList,       'SWT': self.sollTpList,                        'IWOp': self.opList,              'SWTPID':self.sollTPID}                                                  # Werte-Listen
         self.grenzListDict  = {'oGT': self.ToGList,         'uGT': self.TuGList,    'oGOp': self.OpoGList, 'uGOp': self.OpuGList}
         self.grenzValueDict = {'oGT': self.oGST,            'uGT': self.uGST,       'oGOp': self.oGOp,     'uGOp': self.uGOp}
 
@@ -602,14 +627,13 @@ class EurothermWidget(QWidget):
             self.write_task['Manuel_Mod'] = True
             self.RB_choise_Temp.setChecked(True) 
 
+            # Zugriff freigeben:
+            self.LE_Temp.setEnabled(True)
+
             # Zugriff sperren:
             self.LE_Pow.setEnabled(False)
             self.RB_choise_Pow.setEnabled(False)
             self.RB_choise_Temp.setEnabled(False)
-
-            # Start Sollwert:
-            self.write_value['Sollwert'] = self.config['PID']['start_soll']
-
         else:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
             self.write_value['PID'] = False
@@ -755,10 +779,11 @@ class EurothermWidget(QWidget):
         self.data.update(value_dict)   
         
         for messung in value_dict:
-            if messung != 'SWT':
+            if not 'SWT' in messung:
                self.labelDict[messung].setText(f'{value_dict[messung]} {self.labelUnitDict[messung]}')
             else:
-               self.labelDict[messung].setText(f'({value_dict[messung]})') 
+               if messung == 'SWT':
+                    self.labelDict[messung].setText(f'({value_dict[messung]})') 
             self.listDict[messung].append(value_dict[messung])
             if not self.curveDict[messung] == '':
                 faktor = self.skalFak_dict[messung]

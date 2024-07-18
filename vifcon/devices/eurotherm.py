@@ -144,6 +144,9 @@ class Eurotherm(QObject):
         Log_Text_PID_N5         = ['Istwert von VIFCON',                                                                    'Actual value of VIFCON']
         Log_Text_PID_N6         = ['Sollwert von Multilog',                                                                 'Setpoint from Multilog']
         Log_Text_PID_N7         = ['Sollwert von VIFCON',                                                                   'Setpoint from VIFCON']
+        Log_Text_PID_N8         = ['Istwert wird von Multilog-Sensor',                                                      'Actual value is from multilog sensor']
+        Log_Text_PID_N9         = ['Sollwert wird von Multilog-Sensor',                                                     'Setpoint is from Multilog sensor']
+        Log_Text_PID_N10        = ['geliefert!',                                                                            'delivered!']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                       'Initialization Failed!']
@@ -216,6 +219,7 @@ class Eurotherm(QObject):
         elif self.PID_Option[1] == 'M':
             teil_2 = Log_Text_PID_N6 
         logger.info(f'{self.device_name} - {Log_Text_PID_N3[self.sprache]}{self.PID_Option} ({teil_1[self.sprache]}, {teil_2[self.sprache]})')
+
         ## PID-Thread:
         self.PIDThread = QThread()
         self.PID.moveToThread(self.PIDThread)
@@ -227,6 +231,13 @@ class Eurotherm(QObject):
         self.timer_PID.setInterval(self.config['PID']['sample'])
         self.timer_PID.timeout.connect(self.PID_Update)
         self.timer_PID.start()
+        ## Multilog-Lese-Variable für die Daten:
+        self.mult_data = {}
+        self.sensor    = self.config['PID']['Multilog_Sensor_Ist'] 
+        if self.PID_Option[0] == 'M':
+            logger.info(f'{Log_Text_PID_N8[self.sprache]} {self.sensor} {Log_Text_PID_N10[self.sprache]}')
+        if self.PID_Option[1] == 'M':
+            logger.info(f'{Log_Text_PID_N9[self.sprache]} ... {Log_Text_PID_N10[self.sprache]}')
 
     ##########################################
     # Schnittstelle (Schreiben):
@@ -277,7 +288,7 @@ class Eurotherm(QObject):
                 self.Ist = self.read_einzeln(self.read_temperature)
             ### MUltilog:
             elif self.PID_Option[0] == 'M':
-                print('Noch nicht Vorhanden!')
+                self.Ist = self.mult_data[self.sensor]
             ## Auswahl Sollwert:
             ### VIFCON:
             if self.PID_Option[1] == 'V':
@@ -455,6 +466,8 @@ class Eurotherm(QObject):
             # Lese Soll-Temperatur:
             soll_temperatur = self.read_einzeln(self.read_soll_temperatur)
             self.value_name['SWT'] = soll_temperatur                            # Einheit: °C
+            # PID-Modus:
+            self.value_name['SWTPID'] = self.Soll
         except Exception as e:
             logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
             logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
@@ -595,9 +608,9 @@ class Eurotherm(QObject):
             pfad (str, optional): Speicherort. Default ist "./".
         """
         self.filename = f"{pfad}/{self.device_name}.csv"
-        units = "# datetime,s,DEG C,DEG C,%,\n"
+        units = "# datetime,s,DEG C,DEG C,%,DEG C,\n"
         #scaling = f"# -,-,{self.}"
-        header = "time_abs,time_rel,Soll-Temperatur,Ist-Temperatur,Operating-point,\n"
+        header = "time_abs,time_rel,Soll-Temperatur,Ist-Temperatur,Operating-point,Soll-Temperatur_PID-Modus\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
             with open(self.filename, "w", encoding="utf-8") as f:
