@@ -125,6 +125,8 @@ class NemoAchseLin:
         self.Log_Text_219_str   = ['Knopf kann nicht ausgeführt werden da Limit erreicht!',                                 'Button cannot be executed because limit has been reached!']         
         self.Log_Text_247_str   = ['Hoch',                                                                                  'Up']
         self.Log_Text_248_str   = ['Runter',                                                                                'Down']
+        self.Log_Text_Info_1    = ['Der Vorfaktor für die Istwinkelgeschwindigkeit beträgt:',                               'The prefactor for the actual angular velocity is:']
+        self.Log_Text_Info_2    = ['Der Vorfaktor für die Sollwinkelgeschwindigkeit beträg:',                               'The prefactor for the target angular velocity is:']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                       'Initialization Failed!']
@@ -191,6 +193,12 @@ class NemoAchseLin:
         self.fahre      = False                                         # True: bewegung wird vollzogen
         self.rechne     = ''                                            # Add - Addiere Winkel, Sub - Subtrahiere Winkel     
         self.umFak      = 1/60                                          # Umrechnungsfaktor:  min zu s (1 min = 60 s)
+
+        #---------------------------------------
+        # Informationen:
+        #---------------------------------------
+        logger.info(f"{self.device_name} - {self.Log_Text_Info_1[self.sprache]} {self.vF_ist}")
+        logger.info(f"{self.device_name} - {self.Log_Text_Info_2[self.sprache]} {self.vF_soll}")
 
     ##########################################
     # Schnittstelle (Schreiben):

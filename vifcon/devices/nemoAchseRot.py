@@ -121,6 +121,8 @@ class NemoAchseRot:
         self.Log_Text_221_str   = ['Minimum Limit erreicht! (CCW)!',                                                        'Minimum limit reached! (CCW)!']
         self.Log_Text_249_str   = ['CW',                                                                                    'CW']
         self.Log_Text_250_str   = ['CCW',                                                                                   'CCW']
+        self.Log_Text_Info_1    = ['Der Vorfaktor für die Istgeschwindigkeit beträgt:',                                     'The prefactor for the actual speed is:']
+        self.Log_Text_Info_2    = ['Der Vorfaktor für die Sollgeschwindigkeit beträgt:',                                    'The prefactor for the target speed is:']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                       'Initialization Failed!']
@@ -187,6 +189,12 @@ class NemoAchseRot:
         self.fahre      = False                                         # True: bewegung wird vollzogen
         self.rechne     = ''                                            # Add - Addiere Winkel, Sub - Subtrahiere Winkel     
         self.umFak      = 360/60                                        # Umrechnungsfaktor: Umdrehung zu Grad + min zu s  (1 Umdrehung = 360 °, 1 min = 60 s)
+
+        #---------------------------------------
+        # Informationen:
+        #---------------------------------------
+        logger.info(f"{self.device_name} - {self.Log_Text_Info_1[self.sprache]} {self.vF_ist}")
+        logger.info(f"{self.device_name} - {self.Log_Text_Info_2[self.sprache]} {self.vF_soll}")
 
     ##########################################
     # Schnittstelle (Schreiben):
