@@ -72,7 +72,8 @@ class NemoAchseRot:
         self.v_invert = self.config['start']['invert']                          # Invertierung bei True der Geschwindigkeit
         ### Parameter:
         self.nKS = self.config['parameter']['nKS_Aus']                          # Nachkommerstellen
-        self.vF  = self.config['parameter']['Vorfaktor']                        # Vorfaktor
+        self.vF_ist   = self.config['parameter']['Vorfaktor_Ist']               # Vorfaktor Istgeschwindigkeit
+        self.vF_soll  = self.config['parameter']['Vorfaktor_Soll']              # Vorfaktor Istgeschwindigkeit
         ### Register:
         self.reg_cw = self.config['register']['cw']                             # Fahre hoch Coil Rergister
         self.reg_ccw = self.config['register']['ccw']                           # Fahre runter Coil Register
@@ -245,7 +246,7 @@ class NemoAchseRot:
             # Berechne Winkel:
             ans = self.serial.read_input_registers(self.start_Lese_Register, 2)         # vIst ist das erste Register!
             logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
-            self.ak_speed = self.umwandeln_Float(ans)[0] * self.vF                      # Beachtung eines Vorfaktors!
+            self.ak_speed = self.umwandeln_Float(ans)[0] * self.vF_ist                  # Beachtung eines Vorfaktors!
             pos = self.umFak * abs(self.ak_speed) * timediff 
             if self.rechne == 'Add':
                 self.akIWw = self.akIWw + pos
@@ -357,7 +358,7 @@ class NemoAchseRot:
             False:              Exception ausgelöst!         
         '''
         try:
-            sollwert = round(sollwert/self.vF, 2)               # Vorfaktor beachten
+            sollwert = round(sollwert/self.vF_soll, 2)          # Vorfaktor beachten
             sollwert_hex = utils.encode_ieee(sollwert)
             if sollwert_hex == 0:
                 sollwert_hex = '0x00000000'
@@ -394,18 +395,18 @@ class NemoAchseRot:
         logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
 
         value = self.umwandeln_Float(ans)
-        multi = -1 if self.v_invert else 1                                  # Spindel ist invertiert
+        multi = -1 if self.v_invert else 1                                       # Spindel ist invertiert
 
         # Reiehnfolge: vIst, vSoll
-        self.value_name['IWv'] = round(value[0]*self.vF, self.nKS) * multi  # Vorfaktor beachten        # Einheit: 1/min
-        self.value_name['SWv'] = round(value[1]*self.vF, self.nKS)          # Vorfaktor beachten        # Einheit: 1/min
+        self.value_name['IWv'] = round(value[0]*self.vF_ist, self.nKS) * multi   # Vorfaktor beachten        # Einheit: 1/min
+        self.value_name['SWv'] = round(value[1]*self.vF_soll, self.nKS)          # Vorfaktor beachten        # Einheit: 1/min
 
         # Lese: Status
         ans = self.serial.read_input_registers(self.Status_Reg, 1)
         self.value_name['Status'] = ans[0]
 
         # Istwinkel:
-        self.value_name['IWw'] = round(self.akIWw, self.nKS)                                            # Einheit: °
+        self.value_name['IWw'] = round(self.akIWw, self.nKS)                                                 # Einheit: °
         
         return self.value_name
 

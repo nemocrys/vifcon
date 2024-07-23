@@ -24,6 +24,7 @@ from PyQt5.QtCore import (
 import logging
 from serial import Serial, SerialException
 import time
+import math as m
 
 ## Eigene:
 from .PID import PID
@@ -83,7 +84,7 @@ class Eurotherm(QObject):
         self.oGOp = self.config["limits"]['opMax']
 
         ## Werte Dictionary:
-        self.value_name = {'SWT': 0, 'IWT': 0, 'IWOp': 0}
+        self.value_name = {'SWT': 0, 'IWT': 0, 'IWOp': 0, 'SWTPID': self.Soll, 'IWTPID': self.Ist}
 
         ## Weitere:
         self.EuRa_Aktiv     = False
@@ -94,71 +95,78 @@ class Eurotherm(QObject):
         # Sprach-Einstellung:
         #---------------------------------------
         ## Logging:
-        self.Log_Text_60_str    = ['Erstelle das Schnittstellen Objekt!',                                                   'Create the interface object!']
-        self.Log_Text_61_str    = ['Aufbau Schnittstelle des Geräts fehlgeschlagen! Programm wird beendet!',                'Setup of the device interface failed! Program will end!']
-        self.Log_Text_62_str    = ['Fehler Grund (Schnittstellen Aufbau):',                                                 'Error reason (interface structure):']
-        self.Log_Text_64_str    = ['Das Gerät konnte nicht ausgelesen werden.',                                             'The device could not be read.']
-        self.Log_Text_68_str    = ['Das Gerät konnte nicht initialisiert werden!',                                          'The device could not be initialized!']
-        self.Log_Text_69_str    = ['Fehler Grund (Initialisierung):',                                                       'Error reason (initialization):']
-        self.Log_Text_70_str    = ['Initialisierung aufheben! Gerät abtrennen!',                                            'Cancel initialization! Disconnect device!']
-        self.Log_Text_71_str    = ['Erstelle die Messdatei mit dem Pfad:',                                                  'Create the measurement file with the path:']
-        self.Log_Text_72_str    = ['Keine Messdatenerfassung aktiv!',                                                       'No measurement data recording active!']
-        self.Log_Text_76_str    = ['Das Senden an das Gerät ist fehlgeschlagen.',                                           'Sending to the device failed.']
-        self.Log_Text_77_str    = ['Fehler Grund (Senden):',                                                                'Error reason (send):']
-        self.Log_Text_103_str   = ['Wiederhole senden nach NAK oder keiner Antwort!',                                       'Repeat send after NAK or no response!']
-        self.Log_Text_132_str   = ['BCC (DEC)',                                                                             'BCC (DEC)']
-        self.Log_Text_133_str   = ['Keine Antwort oder Falsche Antwort, kein NAK oder ACK!',                                'No answer or wrong answer, no NAK or ACK!']
-        self.Log_Text_134_str   = ['Antwort konnte nicht ausgelesen werden!',                                               'Answer could not be read!']
-        self.Log_Text_135_str   = ['Fehler Grund (Sende Antwort):',                                                         'Error reason (send response):']
-        self.Log_Text_136_str   = ['Fehler Grund (Auslesen):',                                                              'Error reason (reading):']
-        self.Log_Text_137_str   = ['Instrumenten Identität:',                                                               'Instrument identity:']
-        self.Log_Text_138_str   = ['Software Version:',                                                                     'Software version:']
-        self.Log_Text_139_str   = ['Instrumenten Modus:',                                                                   'Instrument mode:']
-        self.Log_Text_140_str   = ['Normaler Betriebsmodus',                                                                'Normal Operation Mode']
-        self.Log_Text_141_str   = ['Kein Effekt',                                                                           'No effect']
-        self.Log_Text_142_str   = ['Konfigurationsmodus',                                                                   'Configuration Mode']
-        self.Log_Text_143_str   = ['Ausgabe auf Display:',                                                                  'Output on display:']
-        self.Log_Text_144_str   = ['bis',                                                                                   'to']
-        self.Log_Text_145_str   = ['°C',                                                                                    '°C']
-        self.Log_Text_146_str   = ['Sollwertbereich:',                                                                      'Setpoint range:']
-        self.Log_Text_147_str   = ['PID-Regler Parameter:',                                                                 'PID controller parameters:']
-        self.Log_Text_148_str   = ['P:',                                                                                    'P:']
-        self.Log_Text_149_str   = ['I:',                                                                                    'I:']
-        self.Log_Text_150_str   = ['D:',                                                                                    'D:']
-        self.Log_Text_151_str   = ['Statuswort:',                                                                           'Status word:']
-        self.Log_Text_152_str   = ['Automatischer Modus wird eingeschaltet!',                                               'Automatic mode is turned on!']
-        self.Log_Text_153_str   = ['Manueller Modus wird eingeschaltet!',                                                   'Manual mode is switched on!']
-        self.Log_Text_154_str   = ['Statuswort ist nicht 0000 oder 8000! Startmodus wird nicht geändert!',                  'Status word is not 0000 or 8000! Start mode is not changed!']
-        self.Log_Text_155_str   = ['Ändere Maximale Ausgangsleistungslimit auf',                                            'Change Maximum Output Power Limit to']
-        self.Log_Text_156_str   = ['%',                                                                                     '%']
-        self.Log_Text_157_str   = ['Maximale Ausgangsleistung wird durch die Eingabe am Gerät bestimmt!',                   'Maximum output power is determined by the input on the device!']
-        self.Log_Text_183_str   = ['Das Senden der Werte ist fehlgeschlagen! (Rampe)',                                      'Sending the values failed! (Ramp)']
-        self.Log_Text_243_str   = ['Beim Startwert senden an Eurotherm gab es einen Fehler! Programm wird beendet! Wurde das Gerät eingeschaltet bzw. wurde die Init-Einstellung richtig gesetzt?',
-                                   'There was an error when sending the start value to Eurotherm! Program will end! Was the device switched on or was the init setting set correctly?']
-        self.Log_Text_244_str   = ['Fehler Grund: ',                                                                        'Error reason:']
-        self.Log_Text_PID_str   = ['Start des PID-Threads!',                                                                'Start of the PID thread!']
-        Log_Text_PID_N1         = ['Die Konfiguration',                                                                     'The configuration']
-        Log_Text_PID_N2         = ['existiert nicht! Möglich sind nur VV, VM, MM oder MV. Nutzung von Default VV!',         'does not exist! Only VV, VM, MM or MV are possible. Use default VV!']
-        Log_Text_PID_N3         = ['Gewählter PID-Modus ist: ',                                                             'Selected PID mode is: ']
-        Log_Text_PID_N4         = ['Istwert von Multilog',                                                                  'Actual value from Multilog']
-        Log_Text_PID_N5         = ['Istwert von VIFCON',                                                                    'Actual value of VIFCON']
-        Log_Text_PID_N6         = ['Sollwert von Multilog',                                                                 'Setpoint from Multilog']
-        Log_Text_PID_N7         = ['Sollwert von VIFCON',                                                                   'Setpoint from VIFCON']
-        Log_Text_PID_N8         = ['Istwert wird von Multilog-Sensor',                                                      'Actual value is from multilog sensor']
-        Log_Text_PID_N9         = ['Sollwert wird von Multilog-Sensor',                                                     'Setpoint is from Multilog sensor']
-        Log_Text_PID_N10        = ['geliefert!',                                                                            'delivered!']
+        self.Log_Text_60_str    = ['Erstelle das Schnittstellen Objekt!',                                                                                                                                                   'Create the interface object!']
+        self.Log_Text_61_str    = ['Aufbau Schnittstelle des Geräts fehlgeschlagen! Programm wird beendet!',                                                                                                                'Setup of the device interface failed! Program will end!']
+        self.Log_Text_62_str    = ['Fehler Grund (Schnittstellen Aufbau):',                                                                                                                                                 'Error reason (interface structure):']
+        self.Log_Text_64_str    = ['Das Gerät konnte nicht ausgelesen werden.',                                                                                                                                             'The device could not be read.']
+        self.Log_Text_68_str    = ['Das Gerät konnte nicht initialisiert werden!',                                                                                                                                          'The device could not be initialized!']
+        self.Log_Text_69_str    = ['Fehler Grund (Initialisierung):',                                                                                                                                                       'Error reason (initialization):']
+        self.Log_Text_70_str    = ['Initialisierung aufheben! Gerät abtrennen!',                                                                                                                                            'Cancel initialization! Disconnect device!']
+        self.Log_Text_71_str    = ['Erstelle die Messdatei mit dem Pfad:',                                                                                                                                                  'Create the measurement file with the path:']
+        self.Log_Text_72_str    = ['Keine Messdatenerfassung aktiv!',                                                                                                                                                       'No measurement data recording active!']
+        self.Log_Text_76_str    = ['Das Senden an das Gerät ist fehlgeschlagen.',                                                                                                                                           'Sending to the device failed.']
+        self.Log_Text_77_str    = ['Fehler Grund (Senden):',                                                                                                                                                                'Error reason (send):']
+        self.Log_Text_103_str   = ['Wiederhole senden nach NAK oder keiner Antwort!',                                                                                                                                       'Repeat send after NAK or no response!']
+        self.Log_Text_132_str   = ['BCC (DEC)',                                                                                                                                                                             'BCC (DEC)']
+        self.Log_Text_133_str   = ['Keine Antwort oder Falsche Antwort, kein NAK oder ACK!',                                                                                                                                'No answer or wrong answer, no NAK or ACK!']
+        self.Log_Text_134_str   = ['Antwort konnte nicht ausgelesen werden!',                                                                                                                                               'Answer could not be read!']
+        self.Log_Text_135_str   = ['Fehler Grund (Sende Antwort):',                                                                                                                                                         'Error reason (send response):']
+        self.Log_Text_136_str   = ['Fehler Grund (Auslesen):',                                                                                                                                                              'Error reason (reading):']
+        self.Log_Text_137_str   = ['Instrumenten Identität:',                                                                                                                                                               'Instrument identity:']
+        self.Log_Text_138_str   = ['Software Version:',                                                                                                                                                                     'Software version:']
+        self.Log_Text_139_str   = ['Instrumenten Modus:',                                                                                                                                                                   'Instrument mode:']
+        self.Log_Text_140_str   = ['Normaler Betriebsmodus',                                                                                                                                                                'Normal Operation Mode']
+        self.Log_Text_141_str   = ['Kein Effekt',                                                                                                                                                                           'No effect']
+        self.Log_Text_142_str   = ['Konfigurationsmodus',                                                                                                                                                                   'Configuration Mode']
+        self.Log_Text_143_str   = ['Ausgabe auf Display:',                                                                                                                                                                  'Output on display:']
+        self.Log_Text_144_str   = ['bis',                                                                                                                                                                                   'to']
+        self.Log_Text_145_str   = ['°C',                                                                                                                                                                                    '°C']
+        self.Log_Text_146_str   = ['Sollwertbereich:',                                                                                                                                                                      'Setpoint range:']
+        self.Log_Text_147_str   = ['PID-Regler Parameter:',                                                                                                                                                                 'PID controller parameters:']
+        self.Log_Text_148_str   = ['P:',                                                                                                                                                                                    'P:']
+        self.Log_Text_149_str   = ['I:',                                                                                                                                                                                    'I:']
+        self.Log_Text_150_str   = ['D:',                                                                                                                                                                                    'D:']
+        self.Log_Text_151_str   = ['Statuswort:',                                                                                                                                                                           'Status word:']
+        self.Log_Text_152_str   = ['Automatischer Modus wird eingeschaltet!',                                                                                                                                               'Automatic mode is turned on!']
+        self.Log_Text_153_str   = ['Manueller Modus wird eingeschaltet!',                                                                                                                                                   'Manual mode is switched on!']
+        self.Log_Text_154_str   = ['Statuswort ist nicht 0000 oder 8000! Startmodus wird nicht geändert!',                                                                                                                  'Status word is not 0000 or 8000! Start mode is not changed!']
+        self.Log_Text_155_str   = ['Ändere Maximale Ausgangsleistungslimit auf',                                                                                                                                            'Change Maximum Output Power Limit to']
+        self.Log_Text_156_str   = ['%',                                                                                                                                                                                     '%']
+        self.Log_Text_157_str   = ['Maximale Ausgangsleistung wird durch die Eingabe am Gerät bestimmt!',                                                                                                                   'Maximum output power is determined by the input on the device!']
+        self.Log_Text_183_str   = ['Das Senden der Werte ist fehlgeschlagen! (Rampe)',                                                                                                                                      'Sending the values failed! (Ramp)']
+        self.Log_Text_243_str   = ['Beim Startwert senden an Eurotherm gab es einen Fehler! Programm wird beendet! Wurde das Gerät eingeschaltet bzw. wurde die Init-Einstellung richtig gesetzt?',                         'There was an error when sending the start value to Eurotherm! Program will end! Was the device switched on or was the init setting set correctly?']
+        self.Log_Text_244_str   = ['Fehler Grund: ',                                                                                                                                                                        'Error reason:']
+        self.Log_Text_PID_str   = ['Start des PID-Threads!',                                                                                                                                                                'Start of the PID thread!']
+        Log_Text_PID_N1         = ['Die Konfiguration',                                                                                                                                                                     'The configuration']
+        Log_Text_PID_N2         = ['existiert nicht! Möglich sind nur VV, VM, MM oder MV. Nutzung von Default VV!',                                                                                                         'does not exist! Only VV, VM, MM or MV are possible. Use default VV!']
+        Log_Text_PID_N3         = ['Gewählter PID-Modus ist: ',                                                                                                                                                             'Selected PID mode is: ']
+        Log_Text_PID_N4         = ['Istwert von Multilog',                                                                                                                                                                  'Actual value from Multilog']
+        Log_Text_PID_N5         = ['Istwert von VIFCON',                                                                                                                                                                    'Actual value of VIFCON']
+        Log_Text_PID_N6         = ['Sollwert von Multilog',                                                                                                                                                                 'Setpoint from Multilog']
+        Log_Text_PID_N7         = ['Sollwert von VIFCON',                                                                                                                                                                   'Setpoint from VIFCON']
+        Log_Text_PID_N8         = ['Istwert wird von Multilog-Sensor',                                                                                                                                                      'Actual value is from multilog sensor']
+        Log_Text_PID_N9         = ['Sollwert wird von Multilog-Sensor',                                                                                                                                                     'Setpoint is from Multilog sensor']
+        Log_Text_PID_N10        = ['geliefert!',                                                                                                                                                                            'delivered!']
+        self.Log_Text_PID_N11   = ['Bei der Multilog-PID-Input-Variable gab es einen Fehler!',                                                                                                                              'There was an error with the multilog PID input variable!']
+        self.Log_Text_PID_N12   = ['Fehler Grund:',                                                                                                                                                                         'Error reason:']
+        Log_Text_PID_N13        = ['durch das Gerät',                                                                                                                                                                       'through the device']
+        self.Log_Text_PID_N14   = ['Input-Fehler: Input Werte sind NAN-Werte!',                                                                                                                                             'Input error: Input values ​​are NAN values!']
+        self.Log_Text_PID_N15   = ['Input Werte überschreiten das Maximum von',                                                                                                                                             'Input values ​​exceed the maximum of']
+        self.Log_Text_PID_N16   = ['Input Werte unterschreiten das Minimum von',                                                                                                                                            'Input values ​​fall below the minimum of']
+        self.Log_Text_PID_N17   = ['Input Fehler: Input-Wert ist nicht von Typ Int oder Float! Variablen Typ:',                                                                                                             'Input error: Input value is not of type Int or Float! Variable type:']
+        Log_Text_PID_N18        = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
         ## Ablaufdatei:
-        self.Text_51_str        = ['Initialisierung!',                                                                      'Initialization!']
-        self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                       'Initialization Failed!']
-        self.Text_53_str        = ['Wert wurde angenommen (ACK)!',                                                          'Value was accepted (ACK)!']
-        self.Text_54_str        = ['Wert wurde nicht angenommen (NAK)!',                                                    'Value was not accepted (NAK)!']
-        self.Text_55_str        = ['Senden fehlgeschlagen (Keine Antwort)!',                                                'Sending failed (no response)!']
-        self.Text_56_str        = ['Befehl gesendet!',                                                                      'command sent!']
-        self.Text_57_str        = ['Antwort nicht auslesbar!',                                                              'Answer cannot be read!']
-        self.Text_75_str        = ['Sende Eurotherm Rampe mit dem Aufbau',                                                  'Send Eurotherm ramp with the structure']
-        self.Text_76_str        = ['Eurotherm-Rampe wird gestartet',                                                        'Eurotherm ramp is started']
-        self.Text_77_str        = ['Reset der Eurotherm-Rampe',                                                             'Reset the Eurotherm ramp']
-        self.Text_78_str        = ['Reset der Eurotherm-Rampe wegen Abbruch! Aktuellen Sollwert speichern!',                'Reset of the Eurotherm ramp due to cancellation! Save current setpoint!']
+        self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
+        self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
+        self.Text_53_str        = ['Wert wurde angenommen (ACK)!',                                                                                                                                                          'Value was accepted (ACK)!']
+        self.Text_54_str        = ['Wert wurde nicht angenommen (NAK)!',                                                                                                                                                    'Value was not accepted (NAK)!']
+        self.Text_55_str        = ['Senden fehlgeschlagen (Keine Antwort)!',                                                                                                                                                'Sending failed (no response)!']
+        self.Text_56_str        = ['Befehl gesendet!',                                                                                                                                                                      'command sent!']
+        self.Text_57_str        = ['Antwort nicht auslesbar!',                                                                                                                                                              'Answer cannot be read!']
+        self.Text_75_str        = ['Sende Eurotherm Rampe mit dem Aufbau',                                                                                                                                                  'Send Eurotherm ramp with the structure']
+        self.Text_76_str        = ['Eurotherm-Rampe wird gestartet',                                                                                                                                                        'Eurotherm ramp is started']
+        self.Text_77_str        = ['Reset der Eurotherm-Rampe',                                                                                                                                                             'Reset the Eurotherm ramp']
+        self.Text_78_str        = ['Reset der Eurotherm-Rampe wegen Abbruch! Aktuellen Sollwert speichern!',                                                                                                                'Reset of the Eurotherm ramp due to cancellation! Save current setpoint!']
 
         #---------------------------------------
         # Schnittstelle:
@@ -232,12 +240,20 @@ class Eurotherm(QObject):
         self.timer_PID.timeout.connect(self.PID_Update)
         self.timer_PID.start()
         ## Multilog-Lese-Variable für die Daten:
-        self.mult_data = {}
-        self.sensor    = self.config['PID']['Multilog_Sensor_Ist'] 
+        self.mult_data              = {}
+        self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max'] 
+        self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
+        self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
+        if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
+            logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
+            self.PID_Input_Error_Option = 'error'
+        self.M_device               = self.config['multilog']['read_trigger'] 
+        self.sensor                 = self.config['PID']['Multilog_Sensor_Ist'] 
         if self.PID_Option[0] == 'M':
-            logger.info(f'{Log_Text_PID_N8[self.sprache]} {self.sensor} {Log_Text_PID_N10[self.sprache]}')
+            logger.info(f'{Log_Text_PID_N8[self.sprache]} {self.sensor} {Log_Text_PID_N13[self.sprache]} {self.M_device} {Log_Text_PID_N10[self.sprache]}')
         if self.PID_Option[1] == 'M':
-            logger.info(f'{Log_Text_PID_N9[self.sprache]} ... {Log_Text_PID_N10[self.sprache]}')
+            logger.info(f'{Log_Text_PID_N9[self.sprache]} ... {Log_Text_PID_N13[self.sprache]} ... {Log_Text_PID_N10[self.sprache]}')
+        self.PID_Ist_Last = self.Ist
 
     ##########################################
     # Schnittstelle (Schreiben):
@@ -286,9 +302,46 @@ class Eurotherm(QObject):
             ### VIFCON:
             if self.PID_Option[0] == 'V':
                 self.Ist = self.read_einzeln(self.read_temperature)
-            ### MUltilog:
+            ### Multilog:
             elif self.PID_Option[0] == 'M':
-                self.Ist = self.mult_data[self.sensor]
+                #try:
+                self.Ist = self.mult_data[self.M_device][self.sensor]
+            ### Istwert Filter:
+            error_Input = False
+            try:
+                #### Nan-Werte:
+                if m.isnan(self.Ist):
+                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N14[self.sprache]}")
+                    error_Input = True
+                #### Kein Float oder Integer:
+                elif type(self.Ist) not in [int, float]:
+                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N17[self.sprache]} {type(self.Ist)}")
+                    error_Input = True
+                #### Input-Wert überschreitet Maximum:
+                elif self.Ist > self.PID_Input_Limit_Max:
+                    logger.debug(f"{self.device_name} - {self.Log_Text_PID_N15[self.sprache]} {self.PID_Input_Limit_Max}")
+                    self.Ist = self.PID_Input_Limit_Max
+                #### Input-Wert unterschreitet Minimum:
+                elif self.Ist < self.PID_Input_Limit_Min:
+                    logger.debug(f"{self.device_name} - {self.Log_Text_PID_N16[self.sprache]} {self.PID_Input_Limit_Min}")
+                    self.Ist = self.PID_Input_Limit_Min
+            except Exception as e:
+                error_Input = True
+                logger.warning(f"{self.device_name} - {self.Log_Text_PID_N11[self.sprache]}")
+                logger.exception(f"{self.device_name} - {self.Log_Text_PID_N12[self.sprache]}")
+            ### Fehler-Behandlung:
+            if error_Input:
+                #### Input auf Maximum setzen:
+                if self.PID_Input_Error_Option == 'max':
+                    self.Ist = self.PID_Input_Limit_Max
+                #### Input auf Minimum setzen:
+                elif self.PID_Input_Error_Option == 'min':
+                    self.Ist = self.PID_Input_Limit_Min
+                #### Input auf letzten Input setzen:
+                elif self.PID_Input_Error_Option == 'error':
+                    self.Ist = self.PID_Ist_Last
+            else:
+                self.PID_Ist_Last = self.Ist
             ## Auswahl Sollwert:
             ### VIFCON:
             if self.PID_Option[1] == 'V':
@@ -468,6 +521,7 @@ class Eurotherm(QObject):
             self.value_name['SWT'] = soll_temperatur                            # Einheit: °C
             # PID-Modus:
             self.value_name['SWTPID'] = self.Soll
+            self.value_name['IWTPID'] = self.Ist
         except Exception as e:
             logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
             logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")

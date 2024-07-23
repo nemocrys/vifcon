@@ -71,8 +71,9 @@ class NemoAchseLin:
         self.messZeit = self.config['start']["readTime"]                        # Auslesezeit
         self.v_invert = self.config['start']['invert']                          # Invertierung bei True der Geschwindigkeit
         ### Parameter:
-        self.nKS = self.config['parameter']['nKS_Aus']                          # Nachkommerstellen
-        self.vF  = self.config['parameter']['Vorfaktor']                        # Vorfaktor
+        self.nKS      = self.config['parameter']['nKS_Aus']                     # Nachkommerstellen
+        self.vF_ist   = self.config['parameter']['Vorfaktor_Ist']               # Vorfaktor Istgeschwindigkeit
+        self.vF_soll  = self.config['parameter']['Vorfaktor_Soll']              # Vorfaktor Istgeschwindigkeit
         ### Register:
         self.reg_h = self.config['register']['hoch']                            # Fahre hoch Coil Rergister
         self.reg_r = self.config['register']['runter']                          # Fahre runter Coil Register
@@ -243,7 +244,7 @@ class NemoAchseLin:
             # Berechne Weg:
             ans = self.serial.read_input_registers(self.start_Lese_Register, 2)         # vIst ist das erste Register!
             logger.debug(f'{self.device_name} - {self.Log_Text_166_str[self.sprache]} {ans}')
-            self.ak_speed = self.umwandeln_Float(ans)[0] * self.vF                      # Istwert kann negativ sein. Beachtung eines Vorfaktors!
+            self.ak_speed = self.umwandeln_Float(ans)[0] * self.vF_ist                  # Istwert kann negativ sein. Beachtung eines Vorfaktors!
             pos = self.umFak * abs(self.ak_speed) * timediff 
             if self.rechne == 'Add':
                 self.akIWs = self.akIWs + pos
@@ -353,7 +354,7 @@ class NemoAchseLin:
             False:              Exception ausgelöst!    
         '''
         try:
-            sollwert = round(sollwert/self.vF, 2)           # Beachtung des Vorfaktors
+            sollwert = round(sollwert/self.vF_soll, 2)      # Beachtung des Vorfaktors
             sollwert_hex = utils.encode_ieee(sollwert)
             if sollwert_hex == 0:
                 sollwert_hex = '0x00000000'
@@ -393,13 +394,13 @@ class NemoAchseLin:
         multi = -1 if self.v_invert else 1                                       # Spindel ist invertiert
 
         # Reiehnfolge: vIst, vSoll, posIst, posSoll, posMax, posMin
-        self.value_name['IWv']  = round(value[0] * self.vF, self.nKS) * multi    # Vorfaktor     # Einheit: mm/min
-        self.value_name['SWv']  = round(value[1] * self.vF , self.nKS)           # Vorfaktor     # Einheit: mm/min
-        self.value_name['IWs']  = round(self.akIWs, self.nKS)                    # value[2]      # Einheit: mm
-        self.value_name['IWsd'] = round(value[2], self.nKS)                                      # Einheit: mm
-        self.value_name['SWs']  = round(value[3], self.nKS)                                      # Einheit: mm
-        self.value_name['oGs']  = round(self.oGs, self.nKS)                      # value[4]      # Einheit: mm
-        self.value_name['uGs']  = round(self.uGs, self.nKS)                      # value[5]      # Einheit: mm
+        self.value_name['IWv']  = round(value[0] * self.vF_ist, self.nKS) * multi   # Vorfaktor     # Einheit: mm/min 
+        self.value_name['SWv']  = round(value[1] * self.vF_soll , self.nKS)         # Vorfaktor     # Einheit: mm/min
+        self.value_name['IWs']  = round(self.akIWs, self.nKS)                       # value[2]      # Einheit: mm
+        self.value_name['IWsd'] = round(value[2], self.nKS)                                         # Einheit: mm
+        self.value_name['SWs']  = round(value[3], self.nKS)                                         # Einheit: mm
+        self.value_name['oGs']  = round(self.oGs, self.nKS)                         # value[4]      # Einheit: mm
+        self.value_name['uGs']  = round(self.uGs, self.nKS)                         # value[5]      # Einheit: mm
         logger.debug(f'{self.device_name} - {self.Log_Text_175_str[self.sprache]} {value[3]}, {self.Log_Text_176_str[self.sprache]}: {value[4]}, {self.Log_Text_177_str[self.sprache]}: {value[5]}')
 
         # Lese: Status
