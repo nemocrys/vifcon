@@ -20,7 +20,7 @@ Der Controller macht die Kommunikation zwischen der GUI und den Geräten möglic
 from PyQt5.QtWidgets import (
     QApplication,
     QAction,
-
+    
 )
 from PyQt5.QtCore import (
     QObject,
@@ -301,6 +301,7 @@ class Controller(QObject):
         self.Log_Text_303_str   = ['s',                                                                                                                 's']
         self.Log_Text_304_str   = ['Aufruf der Threads bzw. der Funktion ckeck_device:',                                                                'Calling the threads or the function ckeck_device:']
         self.Log_Text_305_str   = ['Startzeit:',                                                                                                        'Start time:']
+        self.Log_Text_S_GUI     = ['Speichere die aktuell sichtbare GUI in',                                                                            'Save the currently visible GUI in']
         ## Error:
         self.err_Text_1         = ['Zu hohe Verzeichnisanzahl.',                                                                                        "Too high directory count."]
         self.err_Text_2         = ['Synchron Modus benötigt\nAbsolute Positionierung (PI-Achse)!!',                                                     'Synchronous mode requires\nabsolute positioning (PI axis)!!']
@@ -623,13 +624,15 @@ class Controller(QObject):
                 self.devices[device].messdaten_output(self.directory)
 
             ## Config und Log speichern:
-            self.save_config = self.config['save']['config_save']
-            self.save_log = self.config['save']['log_save']
-            self.save_plot = self.config['save']['plot_save']
+            self.save_config    = self.config['save']['config_save']
+            self.save_log       = self.config['save']['log_save']
+            self.save_plot      = self.config['save']['plot_save']
+            self.save_GUI       = self.config['save']['GUI_save']
         else:
-            self.save_config = False
-            self.save_log = False
-            self.save_plot = False
+            self.save_config    = False
+            self.save_log       = False
+            self.save_plot      = False
+            self.save_GUI       = False
 
         #---------------------------------------------------------------------------
         # Extra Variablen:
@@ -787,6 +790,11 @@ class Controller(QObject):
                     self.tab_Teile[typ].plot.save_plot(f'{VerschiebePfad}/{typ}_Plot.png')
                     if self.tab_Teile[typ].legend_ops['legend_pos'].upper() == 'SIDE':
                         self.tab_Teile[typ].save_legend(f'{VerschiebePfad}/{typ}_Plot.png')
+        ## Speichere GUI:
+        if self.save_GUI:
+            logger.debug(f"{self.Log_Text_S_GUI[self.sprache]} {VerschiebePfad}")
+            saveGUI = self.main_window.grab()
+            saveGUI.save(f'{VerschiebePfad}/GUI.png')
         #////////////////////////////////////////////////////////////
         # Informationen zum Exit - Teil 2:
         #////////////////////////////////////////////////////////////

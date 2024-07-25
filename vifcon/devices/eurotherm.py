@@ -155,6 +155,8 @@ class Eurotherm(QObject):
         self.Log_Text_PID_N16   = ['Input Werte unterschreiten das Minimum von',                                                                                                                                            'Input values ​​fall below the minimum of']
         self.Log_Text_PID_N17   = ['Input Fehler: Input-Wert ist nicht von Typ Int oder Float! Variablen Typ:',                                                                                                             'Input error: Input value is not of type Int or Float! Variable type:']
         Log_Text_PID_N18        = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
+        self.Log_Text_PID_N19   = ['Auslesefehler bei Multilog-Dictionary!',                                                                                                                                                'Reading error in multilog dictionary!']
+        self.Log_Text_PID_N20   = ['°C - tatsächlicher Wert war',                                                                                                                                                           '°C - tatsächlicher Wert war']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -304,8 +306,11 @@ class Eurotherm(QObject):
                 self.Ist = self.read_einzeln(self.read_temperature)
             ### Multilog:
             elif self.PID_Option[0] == 'M':
-                #try:
-                self.Ist = self.mult_data[self.M_device][self.sensor]
+                try:
+                    self.Ist = self.mult_data[self.M_device][self.sensor]
+                except Exception as e:
+                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N19[self.sprache]}")
+                    logger.exception(f"{self.device_name} - {self.Log_Text_PID_N12[self.sprache]}")
             ### Istwert Filter:
             error_Input = False
             try:
@@ -319,11 +324,11 @@ class Eurotherm(QObject):
                     error_Input = True
                 #### Input-Wert überschreitet Maximum:
                 elif self.Ist > self.PID_Input_Limit_Max:
-                    logger.debug(f"{self.device_name} - {self.Log_Text_PID_N15[self.sprache]} {self.PID_Input_Limit_Max}")
+                    logger.debug(f"{self.device_name} - {self.Log_Text_PID_N15[self.sprache]} {self.PID_Input_Limit_Max}{self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Text_145_str[self.sprache]}")
                     self.Ist = self.PID_Input_Limit_Max
                 #### Input-Wert unterschreitet Minimum:
                 elif self.Ist < self.PID_Input_Limit_Min:
-                    logger.debug(f"{self.device_name} - {self.Log_Text_PID_N16[self.sprache]} {self.PID_Input_Limit_Min}")
+                    logger.debug(f"{self.device_name} - {self.Log_Text_PID_N16[self.sprache]} {self.PID_Input_Limit_Min}{self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Text_145_str[self.sprache]}")
                     self.Ist = self.PID_Input_Limit_Min
             except Exception as e:
                 error_Input = True
@@ -662,9 +667,9 @@ class Eurotherm(QObject):
             pfad (str, optional): Speicherort. Default ist "./".
         """
         self.filename = f"{pfad}/{self.device_name}.csv"
-        units = "# datetime,s,DEG C,DEG C,%,DEG C,\n"
+        units = "# datetime,s,DEG C,DEG C,%,DEG C,DEG C,\n"
         #scaling = f"# -,-,{self.}"
-        header = "time_abs,time_rel,Soll-Temperatur,Ist-Temperatur,Operating-point,Soll-Temperatur_PID-Modus\n"
+        header = "time_abs,time_rel,Soll-Temperatur,Ist-Temperatur,Operating-point,Soll-Temperatur_PID-Modus,Ist-Temperatur_PID-Modus\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
             with open(self.filename, "w", encoding="utf-8") as f:

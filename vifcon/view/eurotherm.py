@@ -625,8 +625,13 @@ class EurothermWidget(QWidget):
     def PID_ON_OFF(self, state):                       
         if self.PID_cb.isChecked():
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
+            # Aufgaben setzen:
             self.write_value['PID'] = True
             self.write_task['Manuel_Mod'] = True
+            #self.write_task['Operating point'] = False  # Beim Umschalten keine Sollwerte anpassen!
+            #self.write_task['Soll-Temperatur'] = False
+
+            # GUI ändern:
             self.RB_choise_Temp.setChecked(True) 
 
             # Zugriff freigeben:
@@ -638,7 +643,10 @@ class EurothermWidget(QWidget):
             self.RB_choise_Temp.setEnabled(False)
         else:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
+            # Aufgaben setzen:
             self.write_value['PID'] = False
+            #self.write_task['Operating point'] = False  # Beim Umschalten keine Sollwerte anpassen!
+            #self.write_task['Soll-Temperatur'] = False
 
             # Zugriff freigeben:
             self.LE_Pow.setEnabled(True)
