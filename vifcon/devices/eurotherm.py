@@ -294,12 +294,16 @@ class Eurotherm(QObject):
             write_Okay['Operating point']   = True 
             write_value['Rez_OPTemp']       = 0 
             self.done_ones                  = True
-            
-        # Sollwertn Lesen (OP oder Temp):
-        sollwert = write_value['Sollwert']
 
+        # Normaler Betrieb:
+        if not write_value ['PID']:  
+            # Sollwertn Lesen (OP oder Temp):
+            sollwert = write_value['Sollwert']
+            PID_write_OP = False
         # PID-Regler:
-        if write_value['PID']:
+        elif write_value['PID']:
+            # Sollwertn Lesen (OP oder Temp):
+            sollwert = write_value['PID-Sollwert']
             ## Auswahl Istwert:
             ### VIFCON:
             if self.PID_Option[0] == 'V':
@@ -307,7 +311,10 @@ class Eurotherm(QObject):
             ### Multilog:
             elif self.PID_Option[0] == 'M':
                 try:
-                    self.Ist = self.mult_data[self.M_device][self.sensor]
+                    if self.sensor.lower() == 'no sensor':
+                        self.Ist = self.mult_data[self.M_device]
+                    else:
+                        self.Ist = self.mult_data[self.M_device][self.sensor]
                 except Exception as e:
                     logger.warning(f"{self.device_name} - {self.Log_Text_PID_N19[self.sprache]}")
                     logger.exception(f"{self.device_name} - {self.Log_Text_PID_N12[self.sprache]}")
@@ -355,8 +362,8 @@ class Eurotherm(QObject):
             elif self.PID_Option[1] == 'M':
                 print('Noch nicht Vorhanden!')
             ## Schreibe Werte:
-            write_Okay['Operating point'] = True
-            write_value['Rez_OPTemp'] = self.op
+            PID_write_OP = True
+            PowOutPID = self.op
 
         # Schreiben:
         ## Ändere Modus:
@@ -387,6 +394,10 @@ class Eurotherm(QObject):
                     write_value['Rez_OPTemp'] = -1
                 self.write_read_answer('OP', str(sollwert), self.write_leistung)
                 write_Okay[auswahl] = False
+            ## Ausgangsleistung während des PID-Modus:
+            elif PID_write_OP:
+                self.write_read_answer('OP', str(PowOutPID), self.write_leistung)
+                PID_write_OP = False
             ## Startwerte:
             elif write_Okay[auswahl] and auswahl == 'Start' and not self.neustart:
                 self.Start_Werte()

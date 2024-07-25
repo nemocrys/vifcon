@@ -183,6 +183,7 @@ class EurothermWidget(QWidget):
         self.Log_Text_246_str   = ['Die Erste Rampe Startet beim Sollwert!',                                                                                                                                                                'The first ramp starts at the setpoint!']
         self.Log_Text_247_str   = ['Die Einstellung für die Erste Rampe ist fehlerhaft! Möglich sind nur SOLL und IST!! Default IST.',                                                                                                      'The setting for the first ramp is incorrect! Only SOLL and IST are possible!! Default IST.']
         self.Log_Text_248_str   = ['Die Rampen Segmente op, opr und er können nicht im PID-Modus angewendet werden!',                                                                                                                       'The ramp segments op, opr and er cannot be used in PID mode!']
+        self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liebt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',                                                                                              'The value in the config is outside the limit range! Switching value is set to minimum limit!']
         ## Ablaufdatei:                                                                             
         self.Text_19_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da keine Eingabe.',                                                                                                                                   'Input field error message: Sending failed because there was no input.']
         self.Text_20_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da Eingabe die Grenzen überschreitet.',                                                                                                               'Input field error message: Send failed because input exceeds limits.']
@@ -224,7 +225,7 @@ class EurothermWidget(QWidget):
         #---------------------------------------
         #self.send_betätigt = True
         self.write_task  = {'Soll-Temperatur': False, 'Operating point':False, 'Auto_Mod': False, 'Manuel_Mod': False, 'Init':False, 'Start': False, 'EuRa': False, 'EuRa_Reset': False, 'Read_HO': False, 'Write_HO': False}
-        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID': False}
+        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID': False, 'PID-Sollwert': 0}
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -419,7 +420,7 @@ class EurothermWidget(QWidget):
             PID_Export_Soll = PID_Zusatz[sprache]
         else:                       PID_Label_Soll = PID_Von_2[sprache]
         ### Start Wert:
-        self.write_value['Sollwert'] = self.config['PID']['start_soll']
+        self.write_value['PID-Sollwert'] = self.config['PID']['start_soll']
 
         ## Kurven-Namen:
         kurv_dict = {                                                                   # Wert: [Achse, Farbe/Stift, Name]
@@ -628,8 +629,8 @@ class EurothermWidget(QWidget):
             # Aufgaben setzen:
             self.write_value['PID'] = True
             self.write_task['Manuel_Mod'] = True
-            #self.write_task['Operating point'] = False  # Beim Umschalten keine Sollwerte anpassen!
-            #self.write_task['Soll-Temperatur'] = False
+            self.write_task['Operating point'] = False  # Beim Umschalten keine Sollwerte anpassen!
+            self.write_task['Soll-Temperatur'] = False
 
             # GUI ändern:
             self.RB_choise_Temp.setChecked(True) 
@@ -645,8 +646,15 @@ class EurothermWidget(QWidget):
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
             # Aufgaben setzen:
             self.write_value['PID'] = False
-            #self.write_task['Operating point'] = False  # Beim Umschalten keine Sollwerte anpassen!
-            #self.write_task['Soll-Temperatur'] = False
+            self.write_task['Operating point'] = True  # Beim Umschalten keine Sollwerte anpassen bzw. OP auf einen Wert setzen!
+            value = self.config['PID']['umstell_wert']
+            if value > self.oGOp or value < self.uGOp:
+                logger.warning(f"{self.device_name} - {self.Log_Text_PID_Ex[self.sprache]}") 
+                self.write_value['Rez_OPTemp'] = self.uGOp
+            else:
+                print('Hallo')
+                self.write_value['Rez_OPTemp'] = value
+            self.write_task['Soll-Temperatur'] = False
 
             # Zugriff freigeben:
             self.LE_Pow.setEnabled(True)
@@ -689,7 +697,10 @@ class EurothermWidget(QWidget):
             sollwert = self.controll_value(sollwert, oG, uG)
             # Ist alles in Ordnung, dann Gebe dem Programm Bescheid, das es den Wert schreiben kann:
             if sollwert != -1:
-                self.write_value['Sollwert'] = sollwert
+                if self.PID_cb.isChecked():
+                    self.write_value['PID-Sollwert'] = sollwert
+                else:
+                    self.write_value['Sollwert'] = sollwert
             else:
                 self.write_task['Operating point'] = False
                 self.write_task['Soll-Temperatur'] = False
@@ -740,6 +751,7 @@ class EurothermWidget(QWidget):
             self.LE_Pow.setText(str(0))
             self.write_task['Operating point'] = True
             self.write_value['Sollwert'] = 0
+            self.write_value['PID-Sollwert'] = 0
         else:
             self.Fehler_Output(1, self.err_4_str[self.sprache])
 
@@ -878,7 +890,10 @@ class EurothermWidget(QWidget):
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_24_str[self.sprache]} {self.cb_Rezept.currentText()} {self.rezept_datei}') 
 
                     # Erstes Element senden:
-                    self.write_value['Sollwert'] = self.value_list[self.step]
+                    if self.PID_cb.isChecked():
+                        self.write_value['PID-Sollwert'] = self.value_list[self.step]
+                    else:
+                        self.write_value['Sollwert'] = self.value_list[self.step]
 
                     if self.RB_choise_Temp.isChecked():
                         self.write_task['Soll-Temperatur'] = True
@@ -986,7 +1001,10 @@ class EurothermWidget(QWidget):
                     self.op_Mod = False
 
                 ## Senden den aktuellen Sollwert:
-                self.write_value['Sollwert'] = self.value_list[self.step]
+                if self.PID_cb.isChecked():
+                    self.write_value['PID-Sollwert'] = self.value_list[self.step]
+                else:
+                    self.write_value['Sollwert'] = self.value_list[self.step]
                 if self.RB_choise_Temp.isChecked():
                     self.write_task['Soll-Temperatur'] = True
                 else:
