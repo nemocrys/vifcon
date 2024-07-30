@@ -110,4 +110,6 @@ The **dat** must be included. The configuration of the recipes can now also be c
             n5: 600  ; 20  ; er  ; 0.3
         ```
 
-The example also shows with n0 to n5 what it should look like in the config file. The user can specify where the recipe should be! The example shown can be found in figure [Beispiel_Rezepte.png](../Bilder/Beispiel_Rezepte.png).
+The example also shows with n0 to n5 what it should look like in the config file. The user can specify where the recipe should be! The example shown can be found in figure [Beispiel_Rezepte.png](../Bilder/Beispiel_Rezepte.png) and can be seen below.
+
+<img src="../Bilder/Beispiel_Rezepte.png" alt="Recipe Example" title='Recipe Example Eurotherm' width=700/>

@@ -112,4 +112,7 @@ Das **dat** muss  enthalten sein, wenn Rezepte ausgelagert werden. Die Configura
             n5: 600  ; 20  ; er  ; 0.3
         ```
 
-Das Beispiel zeigt auch mit n0 bis n5 wie es in der Config-Datei direkt aussehen müsste. Der Nutzer kann festlegen wo das Rezept stehen soll! Das gezeigte Beispiel kann in Abbildung [Beispiel_Rezepte.png](../Bilder/Beispiel_Rezepte.png) gefunden werden. 
+Das Beispiel zeigt auch mit n0 bis n5 wie es in der Config-Datei direkt aussehen müsste. Der Nutzer kann festlegen wo das Rezept stehen soll! Das gezeigte Beispiel kann in Abbildung [Beispiel_Rezepte.png](../Bilder/Beispiel_Rezepte.png) gefunden werden und ist folgend zu sehen. 
+
+<img src="../Bilder/Beispiel_Rezepte.png" alt="Rezept Beispiel" title='Rezept Beispiel Eurotherm' width=700/>
+
