@@ -680,7 +680,7 @@ class Eurotherm(QObject):
         self.filename = f"{pfad}/{self.device_name}.csv"
         units = "# datetime,s,DEG C,DEG C,%,DEG C,DEG C,\n"
         #scaling = f"# -,-,{self.}"
-        header = "time_abs,time_rel,Soll-Temperatur,Ist-Temperatur,Operating-point,Soll-Temperatur_PID-Modus,Ist-Temperatur_PID-Modus\n"
+        header = "time_abs,time_rel,Soll-Temperatur,Ist-Temperatur,Operating-point,Soll-Temperatur_PID-Modus,Ist-Temperatur_PID-Modus,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
             with open(self.filename, "w", encoding="utf-8") as f:

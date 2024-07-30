@@ -652,7 +652,6 @@ class EurothermWidget(QWidget):
                 logger.warning(f"{self.device_name} - {self.Log_Text_PID_Ex[self.sprache]}") 
                 self.write_value['Rez_OPTemp'] = self.uGOp
             else:
-                print('Hallo')
                 self.write_value['Rez_OPTemp'] = value
             self.write_task['Soll-Temperatur'] = False
 

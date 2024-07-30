@@ -545,8 +545,8 @@ class Controller(QObject):
                 if not self.config["devices"][device_name]['multilog']['write_port'] == 0:
                     self.port_List_send.append(self.config["devices"][device_name]['multilog']['write_port'])
                     self.trigger_send.update({device_name: self.config['devices'][device_name]['multilog']['write_trigger']})
-                if not self.config["devices"][device_name]['multilog']['read_port'] == 0:
-                    if not 'Nemo-Gase' in device_name:
+                if not 'Nemo-Gase' in device_name:    
+                    if not self.config["devices"][device_name]['multilog']['read_port'] == 0:
                         self.port_List_read.append(self.config["devices"][device_name]['multilog']['read_port'])
                         self.trigger_read.update({self.config["devices"][device_name]['multilog']['read_port']: [self.config['devices'][device_name]['multilog']['read_trigger'], device_name]})
     
