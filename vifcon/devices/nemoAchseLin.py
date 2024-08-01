@@ -482,7 +482,7 @@ class NemoAchseLin:
         """
         self.filename = f"{pfad}/{self.device_name}.csv"
         units = "# datetime,s,mm,mm,mm/min,mm/min,mm,mm,mm,\n"
-        header = "time_abs,time_rel,Position-sim,Position-real,Geschwindigkeit,Soll-Geschwindigkeit,Soll-Position,max.Pos.,min.Pos,\n"
+        header = "time_abs,time_rel,Position-sim,Position-real,Geschwindigkeit,Soll-Geschwindigkeit,Soll-Position,max.Pos.,min.Pos.,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
             with open(self.filename, "w", encoding="utf-8") as f:
