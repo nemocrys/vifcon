@@ -201,7 +201,7 @@ class NemoGase:
         self.filename = f"{pfad}/{self.device_name}.csv"
         units = "# datetime,s,ml/min,ml/min,ml/min,ml/min,mbar,mbar,mbar,%,\n"
         #scaling = f"# -,-,{self.}"
-        header = "time_abs,time_rel,MFC24,MFC25,MFC26,MFC27,DM21,PP21,PP22,PP22I\n"
+        header = "time_abs,time_rel,MFC24,MFC25,MFC26,MFC27,DM21,PP21,PP22,PP22I,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
             with open(self.filename, "w", encoding="utf-8") as f:
