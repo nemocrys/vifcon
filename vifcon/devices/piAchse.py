@@ -374,7 +374,7 @@ class PIAchse:
         self.filename = f"{pfad}/{self.device_name}.csv"
         units = "# datetime,s,mm,mm/s,\n"
         #scaling = f"# -,-,{self.}"
-        header = "time_abs,time_rel,Position,Geschwindigkeit,\n"
+        header = "time_abs,time_rel,Ist-Position,Ist-Geschwindigkeit,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
             with open(self.filename, "w", encoding="utf-8") as f:

@@ -106,16 +106,23 @@ class Sampler(QObject, metaclass=SignalMetaclass):
         ## Werte Listen:
         self.xList = []
 
+        ## Andere Variablen:
+        self.port_error_anz = 5
+        self.count_error = 0
+
         #---------------------------------------
         # Sprache:
         #---------------------------------------
         self.sprache = self.device_widget.sprache
         ## Logging:
-        self.Log_Text_2_str = ['Sampler-Funktion vor Locker!',                              'Sampler function before Locker!']
-        self.Log_Text_3_str = ['Sampler-Funktion nach Locker! Locker',                      'Sampler function according to Locker!']
-        self.Log_Text_4_str = ['aktiv!',                                                    'active!']
-        self.Log_Text_5_str = ['Sampler-Funktion fertig! Locker wieder freigegeben!',       'Sampler function ready! Locker released again!']
-        
+        self.Log_Text_2_str = ['Sampler-Funktion vor Locker!',                                      'Sampler function before Locker!']
+        self.Log_Text_3_str = ['Sampler-Funktion nach Locker! Locker',                              'Sampler function according to Locker!']
+        self.Log_Text_4_str = ['aktiv!',                                                            'active!']
+        self.Log_Text_5_str = ['Sampler-Funktion fertig! Locker wieder freigegeben!',               'Sampler function ready! Locker released again!']
+        self.Log_Text_6_str = ['Der Port ist geschlossen! Code-Ausführung gesperrt!',               'The port is closed! Code execution blocked!']
+        self.Log_Text_7_str = ['Anzeige der Port-Fehler-Warnung nur',                               'Port error warning only displayed']
+        self.Log_Text_8_str = ['mal! Anzeige erst nach Fehlerfreien Port-Zugang!',                  'times! Display only after error-free port access!']
+
     def sample(self):
         ''' Löse Lese und Schreib Funktionen am Gerät aus.
         1. Sende Werte an die Geräte (write).
@@ -132,58 +139,72 @@ class Sampler(QObject, metaclass=SignalMetaclass):
             time_rel = round((ak_time - self.startTime).total_seconds(), 3)         # Aktuelle Zeit Relativ
 
             #---------------------------------------
-            # Initialisierung übergeben:
+            # Port Kontrolle:
             #---------------------------------------
-            if self.device_widget.write_task['Init'] and not self.test:
-                self.device.init_device()
-                self.device_widget.init_controll(self.device.init, self.btn_Init)
-                self.device_widget.write_task['Init'] = False
+            port = self.device.serial.is_open
 
-            #---------------------------------------
-            # Schreibe Werte:
-            #---------------------------------------
-            #if self.device_widget.send_betätigt:                                               # Ruft nun immer die write Funktion auf!
-            if not self.test and not 'Nemo-Gase' in self.device_name:
-                self.device.write(self.device_widget.write_task, self.device_widget.write_value)    
-            #    self.device_widget.send_betätigt = False
-            
-            #---------------------------------------
-            # Kontrolle/ Geräte spezielle Aufagben:
-            #---------------------------------------
-            if 'PI-Achse' in self.device_name and self.device.init:
-                # Wenn das Gerät initialisiert wurde, soll die aktuelle Position immer an die GUI gesendet werden:
-                self.device_widget.akPos = self.device.akPos
-                # Wenn Modus 2 ausgewählt, werden die Knöpfe der GUI bei der Achse bei 0 mm/s entriegelt!
-                if self.device_widget.mode == 2 and self.device_widget.losgefahren:
-                    self.device_widget.check_verriegelung(self.device.read_TV())
-            if 'Eurotherm' in self.device_name and self.device.config['start']['sicherheit'] == True:
-                # So bald sich im Gerät der HO ändert und die Leistung ausgewählt wurde oder der Menü-Knopf gedrückt wird, wird auch im Widget die Leistung geändert!
-                self.device_widget.oGOp = self.device.oGOp
+            # Ist der Port des Gerätes erreichbar bzw. Offen so kann die Kommunikation stattfinden!
+            if port:
+                self.count_error = 0
+                #---------------------------------------
+                # Initialisierung übergeben:
+                #---------------------------------------
+                if self.device_widget.write_task['Init'] and not self.test:
+                    self.device.init_device()
+                    self.device_widget.init_controll(self.device.init, self.btn_Init)
+                    self.device_widget.write_task['Init'] = False
 
-            #---------------------------------------
-            # Lese Werte:
-            #---------------------------------------
-            ## Bestimme Zeitdifferenz für das Auslesen:
-            timediff = (
-                datetime.datetime.now(datetime.timezone.utc).astimezone() - self.time
-            ).total_seconds()                                                       
+                #---------------------------------------
+                # Schreibe Werte:
+                #---------------------------------------
+                #if self.device_widget.send_betätigt:                                               # Ruft nun immer die write Funktion auf!
+                if not self.test and not 'Nemo-Gase' in self.device_name:
+                    self.device.write(self.device_widget.write_task, self.device_widget.write_value)    
+                #    self.device_widget.send_betätigt = False
+                
+                #---------------------------------------
+                # Kontrolle/ Geräte spezielle Aufagben:
+                #---------------------------------------
+                if 'PI-Achse' in self.device_name and self.device.init:
+                    # Wenn das Gerät initialisiert wurde, soll die aktuelle Position immer an die GUI gesendet werden:
+                    self.device_widget.akPos = self.device.akPos
+                    # Wenn Modus 2 ausgewählt, werden die Knöpfe der GUI bei der Achse bei 0 mm/s entriegelt!
+                    if self.device_widget.mode == 2 and self.device_widget.losgefahren:
+                        self.device_widget.check_verriegelung(self.device.read_TV())
+                if 'Eurotherm' in self.device_name and self.device.config['start']['sicherheit'] == True:
+                    # So bald sich im Gerät der HO ändert und die Leistung ausgewählt wurde oder der Menü-Knopf gedrückt wird, wird auch im Widget die Leistung geändert!
+                    self.device_widget.oGOp = self.device.oGOp
 
-            ## Lese, wenn die Messzeit überschritten wurde oder identisch ist:
-            if timediff >= self.messTime and self.messTime != 0 and self.device_widget.init:
-                self.time = datetime.datetime.now(datetime.timezone.utc).astimezone()
-                self.xList.append(time_rel)
-                if not self.test:
-                    sample_values = self.device.read()
-                    self.device.update_output(sample_values, ak_time, time_rel)
-                else:
-                    sample_values = self.device.value_name
-                    for key in sample_values:
-                        sample_values[key] = round(random.uniform(0, 10), 3)
-                        if 'Status' in key:
-                            sample_values[key] =  128          # Bit 15 gesetzt - 0 bis 15 - Test-Modus
+                #---------------------------------------
+                # Lese Werte:
+                #---------------------------------------
+                ## Bestimme Zeitdifferenz für das Auslesen:
+                timediff = (
+                    datetime.datetime.now(datetime.timezone.utc).astimezone() - self.time
+                ).total_seconds()                                                       
 
-                self.device_widget.ak_value = sample_values
-                self.signal.emit(sample_values, self.xList, self.device_name)               
+                ## Lese, wenn die Messzeit überschritten wurde oder identisch ist:
+                if timediff >= self.messTime and self.messTime != 0 and self.device_widget.init:
+                    self.time = datetime.datetime.now(datetime.timezone.utc).astimezone()
+                    self.xList.append(time_rel)
+                    if not self.test:
+                        sample_values = self.device.read()
+                        self.device.update_output(sample_values, ak_time, time_rel)
+                    else:
+                        sample_values = self.device.value_name
+                        for key in sample_values:
+                            sample_values[key] = round(random.uniform(0, 10), 3)
+                            if 'Status' in key:
+                                sample_values[key] =  128          # Bit 15 gesetzt - 0 bis 15 - Test-Modus
+
+                    self.device_widget.ak_value = sample_values
+                    self.signal.emit(sample_values, self.xList, self.device_name)
+            else:
+                if self.count_error < self.port_error_anz:
+                    logging.warning(f"{self.device_name} - {self.Log_Text_6_str[self.sprache]} ")
+                    self.count_error += 1
+                    if self.count_error == self.port_error_anz:
+                        logging.warning(f"{self.Log_Text_7_str[self.sprache]} {self.port_error_anz} {self.Log_Text_8_str[self.sprache]}")
         logging.debug(f"{self.device_name} - {self.Log_Text_5_str[self.sprache]}")
         self.end_done = True
 

@@ -370,7 +370,7 @@ class EurothermWidget(QWidget):
         self.first_row_layout.setContentsMargins(0,0,0,0)      # left, top, right, bottom
 
         ## Platzierung der einzelnen Widgets im Layout:
-        self.layer_layout.addWidget(self.first_row_group,   0, 0, 1, 5, alignment=Qt.AlignLeft)     # Reihe, Spalte, RowSpan, ColumSpan Ausrichtung
+        self.layer_layout.addWidget(self.first_row_group,   0, 0, 1, 5, alignment=Qt.AlignLeft)     # Reihe, Spalte, RowSpan, ColumSpan, Ausrichtung
         self.layer_layout.addWidget(self.RB_choise_Temp,    1, 0)                          
         self.layer_layout.addWidget(self.RB_choise_Pow,     2, 0)
         self.layer_layout.addWidget(self.btn_send_value,    3, 0)

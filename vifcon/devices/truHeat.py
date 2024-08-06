@@ -632,7 +632,7 @@ class TruHeat:
         self.filename = f"{pfad}/{self.device_name}.csv"
         units = "# datetime,s,kW,V,A,kHz,kW,V,A,\n"
         #scaling = f"# -,-,{self.}"
-        header = "time_abs,time_rel,Ist-Leistung,Ist-Spannung,Ist_Strom,Ist-Frequenz,Soll-Leistung,Soll-Spannung,Soll-Strom,\n"
+        header = "time_abs,time_rel,Ist-Leistung,Ist-Spannung,Ist-Strom,Ist-Frequenz,Soll-Leistung,Soll-Spannung,Soll-Strom,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
             with open(self.filename, "w", encoding="utf-8") as f:
