@@ -141,7 +141,10 @@ class Sampler(QObject, metaclass=SignalMetaclass):
             #---------------------------------------
             # Port Kontrolle:
             #---------------------------------------
-            port = self.device.serial.is_open
+            if not self.test:   
+                if not 'Nemo' in self.device_name:  port = self.device.serial.is_open
+                else:                               port = self.device.serial.open()
+            else:               port = True
 
             # Ist der Port des Gerätes erreichbar bzw. Offen so kann die Kommunikation stattfinden!
             if port:
