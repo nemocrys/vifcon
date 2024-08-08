@@ -109,6 +109,7 @@ class Sampler(QObject, metaclass=SignalMetaclass):
         ## Andere Variablen:
         self.port_error_anz = 5
         self.count_error = 0
+        self.exit = False
 
         #---------------------------------------
         # Sprache:
@@ -141,10 +142,11 @@ class Sampler(QObject, metaclass=SignalMetaclass):
             #---------------------------------------
             # Port Kontrolle:
             #---------------------------------------
-            if not self.test:   
-                if not 'Nemo' in self.device_name:  port = self.device.serial.is_open
-                else:                               port = self.device.serial.open()
-            else:               port = True
+            if not self.test and self.device.init:  port = self.device.serial.is_open
+            else:                                   port = True
+
+            if 'Nemo' in self.device_name and not port and self.exit and self.device.init:  # Bei ERfolgreichen Test, Port als offen ansehen!!
+                 self.device.Test_Connection()
 
             # Ist der Port des Gerätes erreichbar bzw. Offen so kann die Kommunikation stattfinden!
             if port:
@@ -766,6 +768,7 @@ class Controller(QObject):
         ## Lesen von Werten abschalten:
         for sampler in self.samplers:
             sampler.messTime = 0
+            sampler.exit = True
         ## Thread abschließen:
         ''' Info: Durch das Gamepad (pygame) kann es zu Verzögerungen kommen! Noch überarbeiten!'''
         while 1: 

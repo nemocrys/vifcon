@@ -15,6 +15,7 @@ Nemo Gase (Drücke, Durchfluss und Drehzahl):
 import logging
 from pyModbusTCP.client import ModbusClient
 from pyModbusTCP import utils
+import time
 
 # ++++++++++++++++++++++++++++
 # Programm:
@@ -85,6 +86,9 @@ class NemoGase:
         self.Log_Text_70_str    = ['Initialisierung aufheben! Gerät abtrennen!',                                            'Cancel initialization! Disconnect device!']
         self.Log_Text_71_str    = ['Erstelle die Messdatei mit dem Pfad:',                                      'Create the measurement file with the path:']
         self.Log_Text_72_str    = ['Keine Messdatenerfassung aktiv!',                                           'No measurement data recording active!']
+        self.Log_Text_Port_1    = ['Verbindungsfehler:',                                                                    'Connection error:']
+        self.Log_Text_Port_2    = ['Der Test für den Verbindungsaufbau ist fehlgeschlagen!',                                'The connection establishment test failed!']
+        self.Log_Text_Port_3    = ['Antwort der Test-Abfrage war None. Bearbeitung nicht möglich!',                         'The answer to the test query was None. Processing not possible!']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                          'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                           'Initialization Failed!']
@@ -109,6 +113,15 @@ class NemoGase:
             logger.warning(f"{self.device_name} - {self.Log_Text_61_str[self.sprache]}")
             logger.exception(f"{self.device_name} - {self.Log_Text_62_str[self.sprache]}")
             exit()
+        
+        if self.init:
+            for n in range(0,5,1):
+                if not self.serial.is_open:
+                    self.Test_Connection()
+            if not self.serial.is_open:
+                logger.warning(f"{self.device_name} - {self.Log_Text_61_str[self.sprache]}")
+                logger.warning(f"{self.device_name} - {self.Log_Text_Port_2[self.sprache]}")
+                exit()
 
     ##########################################
     # Schnittstelle (lesen):
@@ -177,6 +190,11 @@ class NemoGase:
             logger.info(f"{self.device_name} - {self.Text_51_str[self.sprache]}")
             # Schnittstelle prüfen:
             try:
+                ## Prüfe Verbindung:
+                for n in range(0,5,1):
+                    self.Test_Connection()
+                if not self.serial.is_open:
+                    raise ValueError(self.Log_Text_Port_2[self.sprache])
                 self.init = True
             except Exception as e:
                 logger.warning(f"{self.device_name} - {self.Log_Text_68_str[self.sprache]}")
@@ -224,6 +242,23 @@ class NemoGase:
                 line = line + f'{daten[size]},'
         with open(self.filename, "a", encoding="utf-8") as f:
             f.write(f'{line}\n')
+    
+    ###################################################
+    # Prüfe die Verbindung:
+    ###################################################
+    def Test_Connection(self):
+        '''Aufbau Versuch der TCP/IP-Verbindung zur Nemo-Anlage'''
+        try:
+            self.serial.open()
+            time.sleep(0.1)         # Dadurch kann es in Ruhe öffnen
+            ans = self.serial.read_input_registers(self.start_Lese_Register, 1)  # MFC24
+            if ans == None:
+                raise ValueError(self.Log_Text_Port_3[self.sprache])
+            else:
+                self.umwandeln_Float(ans)
+        except Exception as e:
+            logger.exception(self.Log_Text_Port_1[self.sprache])
+            self.serial.close()
             
 ##########################################
 # Verworfen:
