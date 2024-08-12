@@ -131,6 +131,8 @@ class NemoAchseLin:
         self.Log_Text_Port_1    = ['Verbindungsfehler:',                                                                    'Connection error:']
         self.Log_Text_Port_2    = ['Der Test für den Verbindungsaufbau ist fehlgeschlagen!',                                'The connection establishment test failed!']
         self.Log_Text_Port_3    = ['Antwort der Test-Abfrage war None. Bearbeitung nicht möglich!',                         'The answer to the test query was None. Processing not possible!']
+        self.Log_Text_Port_4    = ['Bei der Werte-Umwandlung ist ein Fehler aufgetreten!',                                  'An error occurred during value conversion!']
+        self.Log_Text_Port_5    = ['Fehlerbeschreibung:',                                                                   'Error description:']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                       'Initialization Failed!']
@@ -167,9 +169,12 @@ class NemoAchseLin:
             exit()
         
         if self.init and not test:
+            Meldungen = False
             for n in range(0,5,1):
                 if not self.serial.is_open:
-                    self.Test_Connection()
+                    self.Test_Connection(Meldungen)
+                if n == 4:
+                    Meldungen = True
             if not self.serial.is_open:
                 logger.warning(f"{self.device_name} - {self.Log_Text_61_str[self.sprache]}")
                 logger.warning(f"{self.device_name} - {self.Log_Text_Port_2[self.sprache]}")
@@ -438,17 +443,21 @@ class NemoAchseLin:
         Return:
             value_list (list):                Umgewandelte Zahlen
         '''
+        try:
+            Bits_List_32 = utils.word_list_to_long(int_Byte_liste, big_endian=True, long_long=False)
+            logger.debug(f'{self.device_name} - {self.Log_Text_66_str[self.sprache]} {Bits_List_32}')
 
-        Bits_List_32 = utils.word_list_to_long(int_Byte_liste, big_endian=True, long_long=False)
-        logger.debug(f'{self.device_name} - {self.Log_Text_66_str[self.sprache]} {Bits_List_32}')
-
-        value_list = []
-        i = 1
-        for word in Bits_List_32:
-            value = utils.decode_ieee(word)
-            value_list.append(round(value, self.nKS))
-            logger.debug(f'{self.device_name} - {self.Log_Text_67_str[self.sprache]} {i}: {value}')
-            i += 1
+            value_list = []
+            i = 1
+            for word in Bits_List_32:
+                value = utils.decode_ieee(word)
+                value_list.append(round(value, self.nKS))
+                logger.debug(f'{self.device_name} - {self.Log_Text_67_str[self.sprache]} {i}: {value}')
+                i += 1
+        except Exception as e:
+            logger.warning(self.Log_Text_Port_4[self.sprache])
+            logger.exception(self.Log_Text_Port_5[self.sprache])
+            value_list = []
 
         return value_list
 
@@ -463,8 +472,12 @@ class NemoAchseLin:
             # Schnittstelle prüfen:
             try: 
                 ## Prüfe Verbindung:
+                Meldungen = False
                 for n in range(0,5,1):
-                    self.Test_Connection()
+                    if not self.serial.is_open:
+                        self.Test_Connection(Meldungen)
+                    if n == 4:
+                        Meldungen = True
                 if not self.serial.is_open:
                     raise ValueError(self.Log_Text_Port_2[self.sprache])
                 ## Start Werte abfragen:
@@ -529,19 +542,26 @@ class NemoAchseLin:
     ###################################################
     # Prüfe die Verbindung:
     ###################################################
-    def Test_Connection(self):
-        '''Aufbau Versuch der TCP/IP-Verbindung zur Nemo-Anlage'''
+    def Test_Connection(self, test=True):
+        '''Aufbau Versuch der TCP/IP-Verbindung zur Nemo-Anlage
+        Args:
+            test (bool)     - Wenn False werden die Fehlermeldungen nicht mehr in die Log-Datei geschrieben
+        Return: 
+            True or False   - Eingeschaltet/Ausgeschaltet
+        '''
         try:
             self.serial.open()
             time.sleep(0.1)         # Dadurch kann es in Ruhe öffnen
-            ans = self.serial.read_input_registers(self.Status_Reg, 1)  # Status 
+            ans = self.serial.read_input_registers(self.start_Lese_Register, 2)  # vIst
             if ans == None:
                 raise ValueError(self.Log_Text_Port_3[self.sprache])
             else:
-                self.umwandeln_Float(ans)
+                antwort = self.umwandeln_Float(ans)
         except Exception as e:
-            logger.exception(self.Log_Text_Port_1[self.sprache])
+            if test: logger.exception(self.Log_Text_Port_1[self.sprache])
             self.serial.close()
+            return False
+        return True
 
 ##########################################
 # Verworfen:
