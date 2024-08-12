@@ -184,6 +184,7 @@ class EurothermWidget(QWidget):
         self.Log_Text_247_str   = ['Die Einstellung für die Erste Rampe ist fehlerhaft! Möglich sind nur SOLL und IST!! Default IST.',                                                                                                      'The setting for the first ramp is incorrect! Only SOLL and IST are possible!! Default IST.']
         self.Log_Text_248_str   = ['Die Rampen Segmente op, opr und er können nicht im PID-Modus angewendet werden!',                                                                                                                       'The ramp segments op, opr and er cannot be used in PID mode!']
         self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liebt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',                                                                                              'The value in the config is outside the limit range! Switching value is set to minimum limit!']
+        self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                                                                                                                       'Error reason (reading recipe):']
         ## Ablaufdatei:                                                                             
         self.Text_19_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da keine Eingabe.',                                                                                                                                   'Input field error message: Sending failed because there was no input.']
         self.Text_20_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da Eingabe die Grenzen überschreitet.',                                                                                                               'Input field error message: Send failed because input exceeds limits.']
@@ -1071,8 +1072,10 @@ class EurothermWidget(QWidget):
                     with open(f'vifcon/rezepte/{ak_rezept["dat"]}', encoding="utf-8") as f:
                         rez_dat = yaml.safe_load(f)
                     self.rezept_datei = f'({ak_rezept["dat"]})'
-                except:
+                except Exception as e:
                     self.Fehler_Output(1, self.err_10_str[self.sprache])
+                    logger.exception(self.Log_Text_Ex1_str[self.sprache])
+                    return False
             else:
                 rez_dat = ak_rezept
                 self.rezept_datei = '(Config-Datei)'

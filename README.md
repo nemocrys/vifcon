@@ -53,7 +53,12 @@ options:
 
 VIFCON is started by calling [vifcon_main.py](vifcon_main.py).
 ```
-python3 .\vifcon_main.py
+python .\vifcon_main.py
+```
+
+To view VIFCON without devices or to get a first impression of the control system, the template can be used. Vi#IFCON is started as follows:
+```
+python .\vifcon_main.py -t -c ./Template/config_temp.yml
 ```
 
 ### Configuration
@@ -74,8 +79,10 @@ When VIFCON is started, a measurement data folder with the name "measdata_date_#
 
 If everything has been configured correctly, VIFCON starts and the GUI is displayed. The GUI is based on programming with PyQt5.
 
-<img src="Bilder/GUI_S.png" alt="GUI" title='Graphische Oberflächen - Tab Steuerung' width=700/>
-<img src="Bilder/GUI_M.png" alt="GUI" title='Graphische Oberflächen - Tab Monitoring' width=700/>
+<img src="Bilder/GUI_S_En.png" alt="GUI" title='Graphical interface - Tab Control' width=700/>
+<img src="Bilder/GUI_M_En.png" alt="GUI" title='Graphical interface - Tab Monitoring' width=700/>
+
+Status of the GUI: 12.8.24
 
 ## Dependencies
 

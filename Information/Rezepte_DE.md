@@ -1,14 +1,14 @@
 # Informationen zu den Rezepten
 
-Im folgenden werden die einzelnen Rezept-Segmente, der Aufbau und die Auslagerung dieser Rezepte gezeigt.
+Im folgenden werden die einzelnen Rezept-Segmente, der Aufbau und die Auslagerung dieser Rezepte gezeigt und erläutert.
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 25.6.2024
+Die Letzte Änderung dieser Beschreibung war: 12.8.2024
 
 ## Vorhandene Rezept-Segmente
 
-Die Rezepte hängen von den Geräten ab. Bis auf das Eurotherm Gerät sind alle Rezepte gleich aufgebaut. Somit gibt es folgende Arten von Rampen:
+Die Rezepte hängen von den Geräten ab. Bis auf das Eurotherm Gerät sind alle Rezepte gleich aufgebaut. Somit gibt es folgende Arten von Rezept-Segmenten:
 
 s	-	Sprung  
 r	-	Rampe
@@ -18,7 +18,7 @@ er	-	Eurotherm eigene Rampe
 op	-	Leistungssprung in einem Temperaturrezept   
 opr	-	Leostungsrampe in einem Temperaturrezept  
 
-Für Eurotherm Leistung, TruHeat, Nemo-Antriebe (Hub, Rotation) und PI-Achse sind nur s und r verfügbar!
+Für Eurotherm Leistung, PID-Modus, TruHeat, Nemo-Antriebe (Hub, Rotation) und PI-Achse sind nur s und r verfügbar!
 
 ## Aufbau Allgemein:
 
@@ -31,7 +31,7 @@ Leistungs Rampe:	SN: t ; ZST ; opr ; ZSL ; RZ ; SR
 ```
 Legend:  
 - SN - Schritt Nummer
-- t - Zeit
+- t - Segment-Zeit
 - RZ - Rampensprung Zeitabstand
 - ZS - Zielsollwert
 - ZST - Zielsollwert Temperatur
@@ -44,7 +44,7 @@ Legend:
 
 ### Beschreibung:
 1. Zeit:	
-    - Solange dauert der Rezept Schritt, Einheit Sekunden
+    - Solange dauert das Segment, Einheit Sekunden
 2.  Sollwert: 			
     - Wert zu dem gesprungen werden soll.
 3.  Zielsollwert:			
@@ -78,7 +78,7 @@ Legend:
 ## Besonderheiten:
 - Leistungsrezepte bei Eurotherm werden durch s und r erzeugt. Wenn eine Leistung in einem Temperatur-Rezept verändert werden soll, dann werden dort op und opr genutzt.
 - Bei "Leistungs Sprung" kann bei "Sollwert Leistung" auch IST angegeben werden. Dadurch wechselt nur der Modus des Eurotherms auf Manuell. Der aktuelle Leistungswert wird als Istwert/Sollwert gehalten. 
-- Wenn bei "Leistungs Rampe" bei "Startwert Rampe" kann auch nichts angegeben werden, dann Startet die Leistungsrampe bei Null. 
+- Bei "Leistungs Rampe" kann bei "Startwert Rampe" auch nichts angegeben werden, dann Startet die Leistungsrampe bei Null. 
 - Bei "Leistungs Sprung" und "Leistungs Rampe" wird auch ein Temperatursprung ausgelöst. 
 
 ## Auslagern von Rezepten
@@ -96,23 +96,107 @@ Das **dat** muss  enthalten sein, wenn Rezepte ausgelagert werden. Die Configura
 3. In der Datei dürfen nur die Schritte stehen!
 4. Die normalen Config-Rezept-Schritte dürfen niemals dat heißen!
 
-- Beispiel:            
-	- Config.yml:
-        ```   
-            rezept_Ram_3:    
-                dat: rezept.yml
+In dem Ordner *rezepte* befindet sich die Beispiel-Datei [rec_example.yml](../vifcon/rezepte/rec_example.yml), welche eine Datei mit den hier zu finden Erläuterung enthält.
+
+## Beispiele
+           
+1. Rezept in Config-Datei konfigurieren:
+    ``` 
+    device:
+        Eurotherm:
+            # Sonstige Einstellungen
+            rezepte:
+                Test_Rezept_1:  
+                    n1: 600 ; 100 ; r ; 100
+                Test_Rezept_2:
+                    n1: 600 ; 100 ; r ; 10
+                Test_Rezept_3:    
+                    dat: rec_example.yml
+    ```
+
+Beachtet müssen hier nur die Einrückungen, damit alles richtig ausgelesen werden kann. 
+
+2. Ausgelagerte Datei konfigurieren:
+    - rec_example.yml:
         ```
-        - rezept.yml:
-        ```
-            n0: 3600 ; 500 ; er  ; 0.133
-            n1: 600  ; 500 ; s 
-            n2: 600  ; 500 ; op  ; 20
-            n3: 1200 ; 200 ; r   ; 3
-            n4: 600  ; 200 ; opr ; 5 ; 1 ; 20 
-            n5: 600  ; 20  ; er  ; 0.3
+        n0: 3600 ; 500 ; er  ; 0.133
+        n1: 600  ; 500 ; s 
+        n2: 600  ; 500 ; op  ; 20
+        n3: 1200 ; 200 ; r   ; 3
+        n4: 600  ; 200 ; opr ; 5 ; 1 ; 20 
+        n5: 600  ; 20  ; er  ; 0.3
         ```
 
-Das Beispiel zeigt auch mit n0 bis n5 wie es in der Config-Datei direkt aussehen müsste. Der Nutzer kann festlegen wo das Rezept stehen soll! Das gezeigte Beispiel kann in Abbildung [Beispiel_Rezepte.png](../Bilder/Beispiel_Rezepte.png) gefunden werden und ist folgend zu sehen. 
+Diese Datei benötigt keine Einrückungen. Kommentare können in diesen Dateien erstellt werden, beachte hierbei aber das bestimmte Zeichen wie z.B. "\t" nicht außerhalb der Kommentare auftauchen!
 
-<img src="../Bilder/Beispiel_Rezepte.png" alt="Rezept Beispiel" title='Rezept Beispiel Eurotherm' width=700/>
+---
+
+**Test_Rezept_1:**
+
+<img src="../Bilder/Beispiel_Rezept_1.png" alt="Rezept Beispiel 1" title='Rezept Beispiel 1 - r-Segment' width=700/>
+
+In dem Beispiel wird nur ein r-Segment erzeugt.Mit dem *Test_Rezept_2* soll hier die Nutzung von dem r-Segment Teil *Rampensprung Zeitabstand* gezeigt werden. Die letzte Zahl gibt somit die Genauigkeit bzw. die Häufigkeit der Sollwertsprünge in diesem Segment an. Je kleiner die Zahl, desto eher ähnelt das Segment einer linearen Funktion.
+
+**ACHTUNG**: Sprünge sind die größte Belastung für ein System. Für die Nutzung dieser Art Rampe, sollten genügend Test durchgeführt werden, somit diese sicher mit dem System funktioniert. Beim Eurotherm-Regler könnten durch eine schlechte oder nicht konfigurierte Regelung Spitzen in der Ausgangsleistung bei jedem Sprung entstehen!!
+
+---
+
+**Test_Rezept_2:**
+
+<img src="../Bilder/Beispiel_Rezept_2.png" alt="Rezept Beispiel 2" title='Rezept Beispiel 2 - r-Segment' width=700/>
+
+--- 
+
+**Test_Rezept_3:**
+
+Das Beispiel zeigt auch mit n0 bis n5 wie es in der Config-Datei direkt aussehen müsste. Der Nutzer kann festlegen wo das Rezept stehen soll! Das gezeigte Beispiel kann in Abbildung [Beispiel_Rezept_3.png](../Bilder/Beispiel_Rezept_3.png) gefunden werden und ist folgend zu sehen. 
+
+In dem Beispiel werden alle 5 Segmentarten genutzt. Somit handelt es sich um einen Eurotherm-Regler. Das gezeigte Rezept hier ist auch Teil des [Config-Templates](../Template/config_temp.yml). 
+
+<img src="../Bilder/Beispiel_Rezept_3.png" alt="Rezept Beispiel 3" title='Rezept Beispiel Eurotherm 1' width=700/>
+
+---
+
+**Weitere Beispiele:**
+
+Rezept:
+```
+n1: 10 ; 100 ; er ; 8
+n2: 10 ; 100 ; s
+n3: 10 ; 200 ; r ; 0,667
+n4: 10 ; 200 ; op ; 20
+n5: 10 ; 200 ; opr ; 0 ; 0,667 ; 20
+```
+Plot:
+<img src="../Bilder/Beispiel_Rezept_4.png" alt="Rezept Beispiel 4" title='Rezept Beispiel Eurotherm 2' width=700/>
+
+Dieses Rezept ist ähnlich zu *Test_Rezept_3*. Hierbei gibt es nun eine manuelle Beschriftung der einzelnen Segmente.  
+
+---
+
+Rezept:
+```
+n1: 600 ; 100 ; s
+n2: 600 ; 50 ; op ; 10
+n3: 600 ; 20 ; s
+```
+Plot:
+<img src="../Bilder/Beispiel_Rezept_5.png" alt="Rezept Beispiel 5" title='Rezept Beispiel Eurotherm 3' width=700/>
+
+Mit dem Beispiel soll gezeigt werden, dass es möglich ist bei op und opr auch einen Temperatur-Sprung durchzuführen. 
+
+---
+
+Rezept:
+```
+n1: 1 ; -2 ; s
+n2: 4 ; -1 ; s
+n3: 1 ; -0.5 ; s
+n4: 1 ; 1 ; s
+n5: 5 ; 2 ; s
+```
+Plot:
+<img src="../Bilder/Beispiel_Rezept_6.png" alt="Rezept Beispiel 6" title='Rezept Beispiel PI-Achse' width=700/>
+
+Auch dieses Rezept ist im [Template der Configdatei](../Template/config_temp.yml) zu finden. Dieses Rezept ist z.B. für die PI-Achse. 
 

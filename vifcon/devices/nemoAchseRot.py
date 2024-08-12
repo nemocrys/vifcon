@@ -162,7 +162,7 @@ class NemoAchseRot:
             logger.exception(f"{self.device_name} - {self.Log_Text_62_str[self.sprache]}")
             exit()
         
-        if self.init:
+        if self.init and not test:
             for n in range(0,5,1):
                 if not self.serial.is_open:
                     self.Test_Connection()

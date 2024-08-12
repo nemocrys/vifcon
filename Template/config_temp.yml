@@ -11,8 +11,10 @@ save:
   log_save: True                                                          # Speichere die Log-Datei, nach Ende im Messordner
   plot_save: True                                                         # Speicher die beiden Plots
                                                                           # Achtung: Bei Legende Side, werden die Legenden nur dann gspeichert, wenn diese zu sehen sind!
+  GUI_save: True                                                          # Speichert zum Schluss die aktuelle GUI
+                                                                          # Achtung: Bei dem Plot, der Legende und der GUI wird nur das gespeichert, was zur Beendigung zu sehen ist!
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-language: de                                                              # DE - Deutsch, EN - Englisch  (im Code wird upper genutzt -> de, en, De, En auch erlaubt)
+language: en                                                              # DE - Deutsch, EN - Englisch  (im Code wird upper genutzt -> de, en, De, En auch erlaubt)
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 GUI_Frame: 0                                                              # Extra: True - Zeigt die Frames der Widgets in den Geräte-Widgets an
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -42,7 +44,7 @@ legend:
   antrieb:
     legend_pos: Side                                                      # In - Im Plot (In = default), Out - Unter dem Plot, Side - Kurven neben den Achsen
     legend_anz: 2                                                         # Anzahl der Legenden Labels in einer Reihe (Bei Side keine Wirkung!!) - In, Out
-    side: rl                                                              # Einstellung Side: rl - an jeweiliger Achse, r - alle rechts, l - alle links - Side | Fehlerhafteeingabe -> Keine Legende
+    side: l                                                              # Einstellung Side: rl - an jeweiliger Achse, r - alle rechts, l - alle links - Side | Fehlerhafteeingabe -> Keine Legende
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 skalFak:                                                                  # Skalierungsfaktor für die Plotkurven (Wird Mal genommen!) (a - Achse, 1 - links, 2 - rechts)
                                                                           # INFO:    Bei Null wird die Größe aus dem Label genommen!
@@ -88,9 +90,26 @@ devices:
       parity: E
       timeout: 0.1
     multilog:
-      trigger: Eurotherm1                                                 # siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen)
-      port: 54626                                                         # Port für die Verbindung (siehe Multilog) 
-                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      write_trigger: Eurotherm1                                           # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen)
+      write_port: 50000                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
+      read_port: 56000                                                    # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
+    PID:                                                                  # Erstellung eines PID-Reglers
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte
+                                                                          # VV: Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 200                                                             # P-Anteil []
+      ki: 0.3                                                             # I-Anteil []
+      kd: 0                                                               # D-Anteil []
+      sample: 500                                                         # Sample-Time [ms]
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung
+      start_ist: 25                                                       # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht)
+      start_soll: 25                                                      # Start-Sollwert [°C]
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked)
+      Multilog_Sensor_Ist: TE_1_K air 155 mm over crucible                # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+      Input_Limit_max: 1000                                               # Maximum Limit für Input 
+      Input_Limit_min: 0                                                  # Minimum Limit für Input 
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist)
     limits:
       maxTemp: 1000                                                       # Maximale Temperatur [°C]
       minTemp: 0                                                          # Minimale Temperatur [°C]
@@ -98,8 +117,8 @@ devices:
       opMin: 0                                                            # Minimale Leistung [%]  
     GUI:
       legend: RezOp ; RezT ; IWT ; IWOp ; SWT                             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
-                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, Op - Leistung, T - Temperatur, Rez - Rezept
-                                                                          # Eingebaut: RezT, RezOp, IWT, IWOp, SWT, uGT, oGT, uGOp, oGOp 
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, Op - Leistung, T - Temperatur, Rez - Rezept, PID - PID Modus
+                                                                          # Eingebaut: RezT, RezOp, IWT, IWOp, IWTPID, SWT, SWTPID, uGT, oGT, uGOp, oGOp 
     defaults:
       startTemp: 20                                                       # Temperatur bei Programmstart [°C]
       startPow: 25                                                        # Leistung bei Programmstart [%]
@@ -123,10 +142,16 @@ devices:
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
                                                                           #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
                                                                           #                         3. In der Datei dürfen nur die Schritte stehen!
-                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
-      Test:
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
+      Template_Dat:
+        dat: rec_example.yml
+      Template_Config:
         n1: 10 ; 100 ; er ; 8
         n2: 10 ; 100 ; s
+        n3: 10 ; 200 ; r ; 0,667
+        n4: 10 ; 200 ; op ; 20
+        n5: 10 ; 200 ; opr ; 0 ; 0,667 ; 20
   # --------------------------------------------------------------------------------------------------------------------------------------------------------
   TruHeat:                                                              # Muss "TruHeat" enthalten! (Name nicht doppelt vergeben!!!)         
     skip: 1                                                             # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
@@ -153,9 +178,10 @@ devices:
       parity: N
       timeout: 0.1
     multilog:
-      trigger: Vifcon_generator                                         # siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen)                                       
-      port: 54634                                                       # Port für die Verbindung (siehe Multilog)
-                                                                        # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      write_trigger: Vifcon_generator                                   # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen)                                       
+      write_port: 53000                                                 # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      read_trigger: DAQ-6510                                            # Hole von Multilog: Gerätebezeichnung aus Multilog
+      read_port: 0                                                      # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     limits:
       maxI: 35                                                          # Maximaler Strom [A]     (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 49)
       minI: 2.5                                                         # Minimaler Strom [A]     (SIMIN (minimaler Sollwert für den Ausgangsstrom) - Betriebsanleitung Generator S. 155 - Befehl 49)
@@ -178,8 +204,9 @@ devices:
                                                                         # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
                                                                         #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
                                                                         #                         3. In der Datei dürfen nur die Schritte stehen!
-                                                                        # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
-      rezept_P1:
+                                                                        # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                        # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)      
+    Template_Test:
         n1: 10 ; 10 ; s
         n2: 3 ; 110 ; s
         n3: 5 ; 1 ; s
@@ -214,9 +241,10 @@ devices:
       parity: N
       timeout: 0.1
     multilog:
-      trigger: pi1                                                        # Aus Multilog entnehmen -> Liste bei Pi
-      port: 54629                                                         # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
-                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      write_trigger: pi1                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi
+      write_port: 54629                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
+      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     parameter:
       adv: '0133'                                                         # Adressauswahlcode
       cpm: 29752                                                          # Counts per mm
@@ -243,8 +271,9 @@ devices:
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
                                                                           #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
                                                                           #                         3. In der Datei dürfen nur die Schritte stehen!
-                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
-      rezept_Syn:
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)      
+      Template_Test:
         n1: 1 ; -2 ; s
         n2: 4 ; -1 ; s
         n3: 1 ; -0.5 ; s
@@ -281,9 +310,10 @@ devices:
       parity: N
       timeout: 0.1
     multilog:
-      trigger: pi2                                                        # Aus Multilog entnehmen -> Liste bei Pi
-      port: 0 # 54628                                                     # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
-                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      write_trigger: pi2                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi
+      write_port: 0 # 54628                                               # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
+      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     parameter:
       adv: '0131'                                                         # Adressauswahlcode
       cpm: 29586                                                          # Counts per mm
@@ -310,8 +340,9 @@ devices:
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
                                                                           #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
                                                                           #                         3. In der Datei dürfen nur die Schritte stehen!
-                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
-      rezept_1:
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)      
+      Template_Test:
         n1: 10 ; 0.5 ; s
         n2: 20 ; 1 ; s
         n3: 20 ; -1 ; s
@@ -347,9 +378,10 @@ devices:
       parity: N
       timeout: 0.1
     multilog:
-      trigger: pi3                                                        # Aus Multilog entnehmen -> Liste bei Pi
-      port: 54629                                                         # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
-                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      write_trigger: pi3                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi
+      write_port: 54629                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
+      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     parameter:
       adv: '0130'                                                         # Adressauswahlcode
       cpm: 29586                                                          # Counts per mm
@@ -376,8 +408,9 @@ devices:
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
                                                                           #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
                                                                           #                         3. In der Datei dürfen nur die Schritte stehen!
-                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
-      rezept_1:
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
+      Template_Test:
         n1: 10 ; 0.5 ; s
         n2: 20 ; 1 ; s
         n3: 20 ; -1 ; s
@@ -413,9 +446,10 @@ devices:
       parity: N
       timeout: 0.1
     multilog:
-      trigger: pi4                                                        # Aus Multilog entnehmen -> Liste bei Pi
-      port: 54630                                                         # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
-                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      write_trigger: pi4                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi
+      write_port: 54630                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
+      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     parameter:
       adv: '0132'                                                         # Adressauswahlcode
       cpm: 29752                                                          # Counts per mm
@@ -442,8 +476,9 @@ devices:
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
                                                                           #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
                                                                           #                         3. In der Datei dürfen nur die Schritte stehen!
-                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
-      rezept_Syn:
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
+      Template_Test:
         n1: 1 ; 2 ; s
         n2: 4 ; 1 ; s
         n3: 10 ; 0.5 ; s
@@ -473,13 +508,15 @@ devices:
                                                                           # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
                                                                           # False - Nichts wird getann!
     serial-interface:
-      host: '192.168.117.199'                                             # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      host: '192.168.117.99'                                             # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
       port: 502
       debug: False
+      timeout: 0.1                                                        # Default = 30 s
     multilog:
-      trigger: hub1                                                       # Aus Multilog entnehmen -> Liste bei Hub
-      port: 54627                                                         # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
-                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      write_trigger: hub1                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Hub
+      write_port: 54627                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
+      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     register:
       hoch: 17                                                            # Tiegel: 1, Spindel: 17
       runter: 18                                                          # Tiegel: 2, Spindel: 18
@@ -490,7 +527,8 @@ devices:
       statusReg: 50                                                       # Status: Tiegel: 32, Spindel: 50
     parameter:
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte!   
-      Vorfaktor: 1                                                        # Vorfaktor für die Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701)
+      Vorfaktor_Ist: 1                                                    # Vorfaktor für die Ist-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701)
+      Vorfaktor_Soll: 1                                                   # Vorfaktor für die Soll-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701)
     limits:
       maxPos: 250                                                         # Maximale Position [mm]
       minPos: -110                                                        # Minimale Position [mm]
@@ -509,8 +547,9 @@ devices:
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
                                                                           #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
                                                                           #                         3. In der Datei dürfen nur die Schritte stehen!
-                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
-      Vorfaktor:
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
+      Template_Test:
         n1: 120 ; 5 ; s
   # --------------------------------------------------------------------------------------------------------------------------------------------------------
   Nemo-Achse-Rotation_Spindel:                                            # Muss "Nemo-Achse-Rotation" enthalten! 
@@ -531,17 +570,20 @@ devices:
                                                                           # Eigentlich: Spindel:  CW-Fahren   = Negative Geschwindigkeit
                                                                           #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
       start_winkel: -10                                                   # Startwinkel in °
+      kont_rot: True                                                      # Setze Kontinuierlisches Drehen ein oder Aus
     ende: False                                                           # End-Bedingung (Programm-Exit Knopf):
                                                                           # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
                                                                           # False - Nichts wird getann!
     serial-interface:
-      host: '192.168.117.99'                                              # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      host: '192.168.117.99'                                             # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
       port: 502
       debug: False
+      timeout: 0.1                                                        # Default = 30 s
     multilog:
-      trigger: rot1                                                       # Aus Multilog entnehmen -> Liste bei Rot
-      port: 54628                                                         # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
-                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      write_trigger: rot1                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Rot
+      write_port: 54628                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
+      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     register:
       cw: 21                                                              # Tiegel: 4, Spindel: 20
       ccw: 20                                                             # Tiegel: 5, Spindel: 21
@@ -551,7 +593,8 @@ devices:
       statusReg: 55                                                       # Status: Tiegel: 37, Spindel: 55
     parameter:
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte!   
-      Vorfaktor: 1                                                        # Vorfaktor für die Winkelgeschwindigkeit: write -> Mal, read -> Geteilt
+      Vorfaktor_Ist: 1                                                    # Vorfaktor für die Ist-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701)
+      Vorfaktor_Soll: 1                                                   # Vorfaktor für die Soll-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701)
     limits:
       maxWinkel: 180                                                      # Maximaler Winkel [°]
       minWinkel: -1                                                       # Minimaler Winkel [°]
@@ -570,8 +613,9 @@ devices:
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
                                                                           #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
                                                                           #                         3. In der Datei dürfen nur die Schritte stehen!
-                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
-      Ex3_Rezept_1_AA:
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
+      Template_Test:
         n1: 120 ; 2 ; s
   # --------------------------------------------------------------------------------------------------------------------------------------------------------
   Nemo-Achse-Linear_Tiegel:                                               # Muss "Nemo-Achse-Linear" enthalten! 
@@ -599,10 +643,12 @@ devices:
       host: '192.168.117.99'                                              # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
       port: 502
       debug: False
+      timeout: 0.1                                                        # Default = 30 s
     multilog:
-      trigger: hub2                                                       # Aus Multilog entnehmen -> Liste bei Hub
-      port: 54629                                                         # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
-                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      write_trigger: hub2                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Hub
+      write_port: 54629                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
+      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     register:
       hoch: 1                                                             # Tiegel: 1, Spindel: 17
       runter: 2                                                           # Tiegel: 2, Spindel: 18
@@ -613,7 +659,8 @@ devices:
       statusReg: 32                                                       # Status: Tiegel: 32, Spindel: 50
     parameter:
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte!   
-      Vorfaktor: 1                                                        # Vorfaktor für die Geschwindigkeit: write -> Mal, read -> Geteilt
+      Vorfaktor_Ist: 1                                                    # Vorfaktor für die Ist-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701)
+      Vorfaktor_Soll: 1                                                   # Vorfaktor für die Soll-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701)
     limits:
       maxPos: 50                                                          # Maximale Position [mm]
       minPos: -50                                                         # Minimale Position [mm]
@@ -632,17 +679,11 @@ devices:
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
                                                                           #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
                                                                           #                         3. In der Datei dürfen nur die Schritte stehen!
-                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
-      rezept_Syn:
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
+      Template_Test:
         n1: 10 ; 1 ; s
         n2: 10 ; -1 ; s
-      rezept_Syn1:
-        n1: 10 ; 10 ; s
-        n2: 10 ; -10 ; s
-      rezept_feh:
-        n1: 10 ; 90 ; s
-        n2: 100 ; -100 ; s
-        n3: 10 ; -20 ; s
   # --------------------------------------------------------------------------------------------------------------------------------------------------------
   Nemo-Achse-Rotation_Tiegel:                                             # Muss "Nemo-Achse-Rotation" enthalten! 
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
@@ -661,18 +702,21 @@ devices:
       invert: False                                                       # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
                                                                           # Eigentlich: Spindel:  CW-Fahren   = Negative Geschwindigkeit
                                                                           #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
-      start_winkel: 190                                                   # Startwinkel in °
+      start_winkel: 0                                                     # Startwinkel in °
+      kont_rot: 0                                                         # Setze Kontinuierlisches Drehen ein oder Aus
     ende: False                                                           # End-Bedingung (Programm-Exit Knopf):
                                                                           # True  - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
                                                                           # False - Nichts wird getann!
     serial-interface:
-      host: '192.168.117.99'                                              # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      host: '192.168.117.99'                                             # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
       port: 502
       debug: False
+      timeout: 0.1                                                        # Default = 30 s
     multilog:
-      trigger: rot2                                                       # Aus Multilog entnehmen -> Liste bei Rot
-      port: 54630                                                         # Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!)
-                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      write_trigger: rot2                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Rot
+      write_port: 54630                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
+      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     register:
       cw: 4                                                               # Tiegel: 4, Spindel: 20
       ccw: 5                                                              # Tiegel: 5, Spindel: 21
@@ -682,7 +726,8 @@ devices:
       statusReg: 37                                                       # Status: Tiegel: 37, Spindel: 55
     parameter:
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! 
-      Vorfaktor: 1                                                        # Vorfaktor für die Winkelgeschwindigkeit: write -> Mal, read -> Geteilt  
+      Vorfaktor_Ist: 1                                                    # Vorfaktor für die Ist-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701)
+      Vorfaktor_Soll: 1                                                   # Vorfaktor für die Soll-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701)
     limits:
       maxWinkel: 180                                                      # Maximaler Winkel [°]
       minWinkel: -1                                                       # Minimaler Winkel [°]
@@ -701,8 +746,9 @@ devices:
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
                                                                           #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
                                                                           #                         3. In der Datei dürfen nur die Schritte stehen!
-                                                                          # Im Ordner \vifcon\rezepte\ liegt die Datei Note.txt, die auch nochmal eine Beschreibung liefert!
-      Ex3_Rezept_2_ZAA:
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
+      Template_Test:
         dat: Ex3_Rez_2_NemoRT.yml
   # --------------------------------------------------------------------------------------------------------------------------------------------------------
   Nemo-Gase_1:                                                            # Muss "Nemo-Gase" enthalten! 
@@ -718,10 +764,10 @@ devices:
       host: '192.168.117.99'                                              # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
       port: 502
       debug: False
+      timeout: 0.1                                                        # Default = 30 s
     multilog:
-      trigger: Vifcon_gase                                                # siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen)
-      port: 54633                                                         # Port für die Verbindung (siehe Multilog)
-                                                                          # Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      write_trigger: Vifcon_gase                                          # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen)
+      write_port: 54633                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
     register:
       lese_st_Reg: 2                                                      # Auslese Start-Adresse: 2
     parameter:

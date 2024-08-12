@@ -175,6 +175,7 @@ class TruHeatWidget(QWidget):
         self.Log_Text_39_str    = ['Rezept:',                                                                                                   'Recipe:']
         self.Log_Text_40_str    = ['Rezept Inhalt:',                                                                                            'Recipe content:']
         self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                     'Update configuration (update limits):']
+        self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
         ## Ablaufdatei:
         self.Text_13_str        = ['Auswahl Leistung senden.',                                                                                  'Send power selection.']
         self.Text_14_str        = ['Auswahl Spannung senden.',                                                                                  'Send voltage selection.']
@@ -972,6 +973,8 @@ class TruHeatWidget(QWidget):
                     self.rezept_datei = f'({ak_rezept["dat"]})'
                 except:
                     self.Fehler_Output(1, self.err_10_str[self.sprache])
+                    logger.exception(self.Log_Text_Ex1_str[self.sprache])
+                    return False
             else:
                 rez_dat = ak_rezept
                 self.rezept_datei = '(Config-Datei)'

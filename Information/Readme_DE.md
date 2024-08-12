@@ -55,7 +55,12 @@ options:
 
 VIFCON wird durch den Aufruf von [vifcon_main.py](..\vifcon_main.py) gestartet.
 ```
-python3 .\vifcon_main.py
+python .\vifcon_main.py
+```
+
+Um sich  VIFCON ohne Geräte anzuschauen bzw. einen ersten Eindruck der Steuerung zu bekommen, kann das Template genutz werden. So wird Vi#IFCON wie folgt gestartet:
+```
+python .\vifcon_main.py -t -c ./Template/config_temp.yml
 ```
 
 ### Konfiguration
@@ -76,8 +81,10 @@ Wenn VIFCON gestartet wird, wird ein Messdatenordner mit dem Namen "measdata_dat
 
 Wenn alles richtig konfiguriert wurde startet VIFCON und die GUI wird angezeigt. Die GUI bassiert auf der Programmierung mit PyQt5.
 
-<img src="../Bilder/GUI_S.png" alt="GUI" title='Graphische Oberflächen - Tab Steuerung' width=700/>
-<img src="../Bilder/GUI_M.png" alt="GUI" title='Graphische Oberflächen - Tab Monitoring' width=700/>
+<img src="../Bilder/GUI_S_De.png" alt="GUI" title='Grafische Oberfläche - Tab Steuerung' width=700/>
+<img src="../Bilder/GUI_M_De.png" alt="GUI" title='Grafische Oberfläche - Tab Monitoring' width=700/>
+
+Stand der GUI: 12.8.24
 
 ## Abhängigkeiten
 
@@ -106,6 +113,7 @@ VIFCON arbeitet mit Python >= 3.8 auf Windows, Linux und Raspberry Pi (RPi OS 64
     - time
     - datetime
     - argparse
+    - math
 
 ### Bildschirmgröße:
 Die GUI benötigt eine Mindestauflösung des Bildschirms von 1240x900 Pixel.

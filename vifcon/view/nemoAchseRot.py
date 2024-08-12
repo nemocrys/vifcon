@@ -181,6 +181,7 @@ class NemoAchseRotWidget(QWidget):
         self.Log_Text_59_str    = ['Rezept hat folgende zu fahrende Winkel-Abfolge:',                                                           'Recipe has the following angle sequence to be driven:']
         self.Log_Text_181_str   = ['Die Geschwindigkeit wird Invertiert! Die Wahren Werte hätten ein anderes Vorzeichen!',                      'The speed is inverted! The true values would have a different sign!']
         self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                     'Update configuration (update limits):']
+        self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
         ## Ablaufdatei: 
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -948,6 +949,8 @@ class NemoAchseRotWidget(QWidget):
                     self.rezept_datei = f'({ak_rezept["dat"]})'
                 except:
                     self.Fehler_Output(1, self.La_error_1, self.err_10_str[self.sprache])
+                    logger.exception(self.Log_Text_Ex1_str[self.sprache])
+                    return False
             else:
                 rez_dat = ak_rezept
                 self.rezept_datei = '(Config-Datei)'

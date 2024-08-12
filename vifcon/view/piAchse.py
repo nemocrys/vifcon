@@ -186,6 +186,7 @@ class PIAchseWidget(QWidget):
         self.Log_Text_54_str    = ['Fehlerhafte Eingabe bei Geschwindigkeit - Grund:',                                                          'Incorrect input for speed - Rreason:']
         self.Log_Text_55_str    = ['Rezept hat folgende zu fahrende Weg-Abfolge:',                                                              'Recipe has the following route sequence to be traveled:']
         self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                     'Update configuration (update limits):']
+        self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
         ## Ablaufdatei: 
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -1078,6 +1079,8 @@ class PIAchseWidget(QWidget):
                     self.rezept_datei = f'({ak_rezept["dat"]})'
                 except:
                     self.Fehler_Output(1, self.La_error_1, self.err_10_str[self.sprache])
+                    logger.exception(self.Log_Text_Ex1_str[self.sprache])
+                    return False
             else:
                 rez_dat = ak_rezept
                 self.rezept_datei = '(Config-Datei)'
@@ -1189,7 +1192,7 @@ class PIAchseWidget(QWidget):
                 i += 1
 
             # Kurve erstellen mit Skalierungsfaktor:
-            faktor = self.skalFak['Speed_2']
+            faktor = self.skalFak['Speed_1']
             y = [a * faktor for a in self.RezValueList]
             
             # Kurve Anzeigen:
