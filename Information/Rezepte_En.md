@@ -21,11 +21,11 @@ opr - release ramp in a temperature recipe
 For Eurotherm power, PID mode, TruHeat, Nemo drives (stroke, rotation) and PI axis only s and r are available!
 
 ```
-Jump: 			    SN: t ; ST  ; s
-Ramp: 			    SN: t ; TS  ; r   ; RTI
-Eurotherm ramp: 	SN: t ; TS  ; er  ; m
-Power Jump: 		SN: t ; STT ; op  ; STP
-Power ramp: 		SN: t ; TST ; opr ; TSP; RTI ; SVR
+Jump:               SN: t ; ST  ; s
+Ramp:               SN: t ; TS  ; r   ; RTI
+Eurotherm ramp:     SN: t ; TS  ; er  ; m
+Power Jump:         SN: t ; STT ; op  ; STP
+Power ramp:         SN: t ; TST ; opr ; TSP; RTI ; SVR
 ```
 Legend:
 - SN - step number
@@ -166,7 +166,7 @@ n3: 10 ; 200 ; r ; 0,667
 n4: 10 ; 200 ; op ; 20
 n5: 10 ; 200 ; opr ; 0 ; 0,667 ; 20
 ```
-Plot:
+Plot:   
 <img src="../Bilder/Beispiel_Rezept_4.png" alt="Recipe Example 4" title='Recipe Example Eurotherm 2' width=700/>
 
 This recipe is similar to *Test_Recipe_3*. There is now manual labeling of the individual segments. 
@@ -179,7 +179,7 @@ n1: 600 ; 100 ; s
 n2: 600 ; 50 ; op ; 10
 n3: 600 ; 20 ; s
 ```
-Plot:
+Plot:    
 <img src="../Bilder/Beispiel_Rezept_5.png" alt="Rezept Beispiel 5" title='Rezept Beispiel Eurotherm 3' width=700/>
 
 The example is intended to show that it is possible to carry out a temperature jump for op and opr.
@@ -194,7 +194,7 @@ n3: 1 ; -0.5 ; s
 n4: 1 ; 1 ; s
 n5: 5 ; 2 ; s
 ```
-Plot:
+Plot:    
 <img src="../Bilder/Beispiel_Rezept_6.png" alt="Rezept Beispiel 6" title='Rezept Beispiel PI-Achse' width=700/>
 
 This recipe can also be found in the [template of the config file](../Template/config_temp.yml). This recipe is for the PI axis, for example.

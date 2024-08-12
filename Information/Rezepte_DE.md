@@ -23,11 +23,11 @@ Für Eurotherm Leistung, PID-Modus, TruHeat, Nemo-Antriebe (Hub, Rotation) und P
 ## Aufbau Allgemein:
 
 ```
-Sprung:			    SN: t ; So  ; s
-Rampe:			    SN: t ; ZS  ; r   ; RZ
-Eurotherm Rampe:	SN: t ; ZS  ; er  ; m
-Leistungs Sprung:	SN: t ; SoT ; op  ; SoL
-Leistungs Rampe:	SN: t ; ZST ; opr ; ZSL ; RZ ; SR
+Sprung:             SN: t ; So  ; s
+Rampe:              SN: t ; ZS  ; r   ; RZ
+Eurotherm Rampe:    SN: t ; ZS  ; er  ; m
+Leistungs Sprung:   SN: t ; SoT ; op  ; SoL
+Leistungs Rampe:    SN: t ; ZST ; opr ; ZSL ; RZ ; SR
 ```
 Legend:  
 - SN - Schritt Nummer
@@ -167,7 +167,7 @@ n3: 10 ; 200 ; r ; 0,667
 n4: 10 ; 200 ; op ; 20
 n5: 10 ; 200 ; opr ; 0 ; 0,667 ; 20
 ```
-Plot:
+Plot:    
 <img src="../Bilder/Beispiel_Rezept_4.png" alt="Rezept Beispiel 4" title='Rezept Beispiel Eurotherm 2' width=700/>
 
 Dieses Rezept ist ähnlich zu *Test_Rezept_3*. Hierbei gibt es nun eine manuelle Beschriftung der einzelnen Segmente.  
@@ -180,7 +180,7 @@ n1: 600 ; 100 ; s
 n2: 600 ; 50 ; op ; 10
 n3: 600 ; 20 ; s
 ```
-Plot:
+Plot:    
 <img src="../Bilder/Beispiel_Rezept_5.png" alt="Rezept Beispiel 5" title='Rezept Beispiel Eurotherm 3' width=700/>
 
 Mit dem Beispiel soll gezeigt werden, dass es möglich ist bei op und opr auch einen Temperatur-Sprung durchzuführen. 
@@ -195,7 +195,7 @@ n3: 1 ; -0.5 ; s
 n4: 1 ; 1 ; s
 n5: 5 ; 2 ; s
 ```
-Plot:
+Plot:    
 <img src="../Bilder/Beispiel_Rezept_6.png" alt="Rezept Beispiel 6" title='Rezept Beispiel PI-Achse' width=700/>
 
 Auch dieses Rezept ist im [Template der Configdatei](../Template/config_temp.yml) zu finden. Dieses Rezept ist z.B. für die PI-Achse. 

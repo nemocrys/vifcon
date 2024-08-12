@@ -137,4 +137,4 @@ The **[Information](Information)** folder contains further documents that descri
 
 ## Last change
 
-The last change of this description was: June 25, 2024
+The last change of this description was: August 18, 2024
