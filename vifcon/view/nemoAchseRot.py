@@ -730,8 +730,10 @@ class NemoAchseRotWidget(QWidget):
 
         for messung in value_dict:
             if not 'Status' in messung:
-                #if not 'SW' in messung:
-                self.labelDict[messung].setText(f'{value_dict[messung]}{self.labelUnitDict[messung]}')
+                Leerzeichen = ''
+                if 'SWv' in messung or 'IWv' in messung:
+                    Leerzeichen = ' '
+                self.labelDict[messung].setText(f'{value_dict[messung]}{Leerzeichen}{self.labelUnitDict[messung]}')
                 self.listDict[messung].append(value_dict[messung])
                 if not self.curveDict[messung] == '':
                     faktor = self.skalFak_dict[messung]

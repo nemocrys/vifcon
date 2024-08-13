@@ -151,7 +151,6 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                 if check1 and check2:   port = True
                 else:                   port = False
 
-
             # Ist der Port des Gerätes erreichbar bzw. Offen so kann die Kommunikation stattfinden!
             if port:
                 self.count_error = 0
