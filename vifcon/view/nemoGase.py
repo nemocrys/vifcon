@@ -115,7 +115,7 @@ class NemoGaseWidget:
         self.layer_widget.setLayout(self.layer_layout)
         self.typ_widget.splitter.addWidget(self.layer_widget)
         logger.info(f"{self.device_name} - {self.Log_Text_1_str[self.sprache]}")
-        
+        #________________________________________
         ## Kompakteres Darstellen:
         ### Grid Size - bei Verschieben der Splitter zusammenhängend darstellen: (Notiz: Das bei GUI in Arbeit erläutern!)
         self.layer_layout.setRowStretch(16, 1) 
@@ -124,14 +124,15 @@ class NemoGaseWidget:
         ### Spacing:
         self.layer_layout.setHorizontalSpacing(3)       
         self.layer_layout.setVerticalSpacing(1)
-
-        ## Label:
-        ### Überschriften:
+        #________________________________________
+        ## Widgets:
+        ### Label:
+        #### Überschriften:
         self.labelÜ1 = QLabel(f'<b>{ü1_str[self.sprache]}:</b>')
         self.labelÜ2 = QLabel(f'<b>{ü2_str[self.sprache]}:</b>')
         self.labelÜ3 = QLabel(f'<b>{ü3_str[self.sprache]}:</b>')
 
-        ### Flow:
+        #### Flow:
         self.FlabelSize_MFC24 = QLabel(f'{G1_F_str[self.sprache]} {ü1_str[self.sprache]}: ')
         self.FlabelValu_MFC24 = QLabel()
         self.FlabelUnit_MFC24 = QLabel(E1_F_str[self.sprache])
@@ -148,7 +149,7 @@ class NemoGaseWidget:
         self.FlabelValu_MFC27 = QLabel()
         self.FlabelUnit_MFC27 = QLabel(E1_F_str[self.sprache])
 
-        ### Drücke
+        #### Drücke
         self.DlabelSize_DM21 = QLabel(f'{G5_D_str[self.sprache]} {ü2_str[self.sprache]}: ')
         self.DlabelValu_DM21 = QLabel()
         self.DlabelUnit_DM21 = QLabel(E2_D_str[self.sprache])
@@ -161,18 +162,18 @@ class NemoGaseWidget:
         self.DlabelValu_PP22 = QLabel()
         self.DlabelUnit_PP22 = QLabel(E2_D_str[self.sprache])
 
-        ### Pumpen Status:
+        #### Pumpen Status:
         self.DSlabelSize_PP21 = QLabel(f'{G6_D_str[self.sprache]} {ü3_str[self.sprache]}: ')
         self.DSlabelValu_PP21 = QLabel()
 
         self.DSlabelSize_PP22 = QLabel(f'{G7_D_str[self.sprache]} {ü3_str[self.sprache]}: ')
         self.DSlabelValu_PP22 = QLabel()
 
-        ### Pumpen Drehzahl:
+        #### Pumpen Drehzahl:
         self.DIlabelSize_PP22 = QLabel(f'{G7_D_str[self.sprache]} {ü4_str[self.sprache]}: ')
         self.DIlabelValu_PP22 = QLabel()
         self.DIlabelUnit_PP22 = QLabel(E3_n_str[self.sprache])
-
+        #________________________________________
         ## Platzierung der einzelnen Widgets im Layout:
         pos = 0
         self.layer_layout.addWidget(self.labelÜ1,               pos,   0) 
@@ -213,7 +214,7 @@ class NemoGaseWidget:
         self.layer_layout.addWidget(self.DSlabelValu_PP21,      pos+1, spa+2) 
         self.layer_layout.addWidget(self.DSlabelSize_PP22,      pos+2, spa)
         self.layer_layout.addWidget(self.DSlabelValu_PP22,      pos+2, spa+2)
-
+        #________________________________________
         ## Border Sichtbar:
         if Frame_Anzeige:
             self.layer_widget.setStyleSheet("border: 1px solid black;")

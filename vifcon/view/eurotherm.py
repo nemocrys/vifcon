@@ -154,6 +154,7 @@ class EurothermWidget(QWidget):
         self.err_18_str         = ['Rezept Fehler:\nFehler im op-Schritt!',                                                                                                                                                                 'Recipe error:\nError in the op step!']
         self.err_19_str         = ['Rezept läuft!\nRezept Start gesperrt!',                                                                                                                                                                 'Recipe running!\nRecipe start blocked!']
         self.err_20_str         = ['Die Rampen Segmente er, op und opr sind\nin dem PID-Modus nicht erlaubt!',                                                                                                                              'The ramp segments er, op and opr are\nnot allowed in PID mode!']
+        self.err_21_str         = ['Fehler in der Rezept konfiguration\nder Config-Datei! Bitte beheben und Neueinlesen!',                                                                                                                  'Error in the recipe configuration of\nthe config file! Please fix and re-read!']
         ## Plot-Legende:                                                                                                                                                        
         rezept_Label_str        = ['Rezept',                                                                                                                                                                                                'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                                                                                                                    'uL']                                   # uL - upper Limit
@@ -185,6 +186,7 @@ class EurothermWidget(QWidget):
         self.Log_Text_248_str   = ['Die Rampen Segmente op, opr und er können nicht im PID-Modus angewendet werden!',                                                                                                                       'The ramp segments op, opr and er cannot be used in PID mode!']
         self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liebt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',                                                                                              'The value in the config is outside the limit range! Switching value is set to minimum limit!']
         self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                                                                                                                       'Error reason (reading recipe):']
+        self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                                                                                                                      'Error reason (Problem with recipe configuration)']
         ## Ablaufdatei:                                                                             
         self.Text_19_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da keine Eingabe.',                                                                                                                                   'Input field error message: Sending failed because there was no input.']
         self.Text_20_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da Eingabe die Grenzen überschreitet.',                                                                                                               'Input field error message: Send failed because input exceeds limits.']
@@ -252,7 +254,7 @@ class EurothermWidget(QWidget):
         self.layer_widget.setLayout(self.layer_layout)
         self.typ_widget.splitter_main.splitter.addWidget(self.layer_widget)
         logger.info(f"{self.device_name} - {self.Log_Text_1_str[self.sprache]}")
-        
+        #________________________________________
         ## Kompakteres Darstellen:
         ### Grid Size - bei Verschieben der Splitter zusammenhängend darstellen: (Notiz: Das bei GUI in Arbeit erläutern!)
         self.layer_layout.setRowStretch(5, 1) 
@@ -269,20 +271,21 @@ class EurothermWidget(QWidget):
         self.layer_layout.setColumnMinimumWidth(0, 100)
         self.layer_layout.setColumnMinimumWidth(1, 180)
         self.layer_layout.setColumnMinimumWidth(3, 100)
-
-        ## Eingabefelder:
+        #________________________________________
+        ## Widgets:
+        ### Eingabefelder:
         self.LE_Temp = QLineEdit()
         self.LE_Temp.setText(str(self.config["defaults"]['startTemp']))
 
         self.LE_Pow = QLineEdit()
         self.LE_Pow.setText(str(self.config["defaults"]['startPow']))
 
-        ## Checkbox:
+        ### Checkbox:
         self.Auswahl = QCheckBox(cb_sync_str[self.sprache])
         self.PID_cb  = QCheckBox(cb_PID[self.sprache])
         self.PID_cb.clicked.connect(self.PID_ON_OFF)
 
-        ## Radiobutton:
+        ### Radiobutton:
         self.RB_choise_Temp = QRadioButton(f'{sollwert_str[self.sprache]}-{T_str[self.sprache]} ')
         self.RB_choise_Temp.setStyleSheet(f"color: {self.color[1]}")
         self.RB_choise_Temp.clicked.connect(self.BlassOutPow)
@@ -294,39 +297,45 @@ class EurothermWidget(QWidget):
         if self.init:       # and not self.neustart
             self.Start()
 
-        ## Label:
+        ### Label:
+        #### Geräte-Titel:
         self.La_name = QLabel(f'<b>{eurotherm}</b>')
-
+        #### Isttemperatur:
         self.La_IstTemp_text = QLabel(f'{istwert_str[self.sprache]}-{sT_str[self.sprache]} ')
         self.La_IstTemp_wert = QLabel(st_T_str[self.sprache])
         self.La_IstTemp_text.setStyleSheet(f"color: {self.color[0]}")
         self.La_IstTemp_wert.setStyleSheet(f"color: {self.color[0]}")
-
+        #### Istleistung:
         self.La_IstPow_text = QLabel(f'{istwert_str[self.sprache]}-{sP_str[self.sprache]} ')
         self.La_IstPow_wert = QLabel(st_P_str[self.sprache])
         self.La_IstPow_text.setStyleSheet(f"color: {self.color[2]}")
         self.La_IstPow_wert.setStyleSheet(f"color: {self.color[2]}")
-
+        #### Solltemperatur:
         self.La_SollTemp_wert = QLabel(st_Tsoll_str[self.sprache])
         self.La_SollTemp_wert.setStyleSheet(f"color: {self.color[1]}")
-
+        #### Fehlernachrichten:
         self.La_error = QLabel(self.err_13_str[self.sprache])
 
-        ## Knöpfe:
+        ### Knöpfe:
+        #### Senden:
         self.btn_send_value = QPushButton(send_str[self.sprache])
         self.btn_send_value.clicked.connect(self.send) 
-
+        #### Rezepte:
         self.btn_rezept_start =  QPushButton(rez_start_str[self.sprache])
         self.btn_rezept_start.clicked.connect(lambda: self.RezStart(1))
 
         self.btn_rezept_ende =  QPushButton(rez_ende_str[self.sprache])
         self.btn_rezept_ende.clicked.connect(self.RezEnde)   
 
-        ## Combobox:
+        ### Combobox:
         self.cb_Rezept = QComboBox()
         self.cb_Rezept.addItem('------------')                                              # Rezept Eintrag ohne Ausführung, Für die Rezept-Anzeige relevant!
-        for rezept in self.config['rezepte']:
-            self.cb_Rezept.addItem(rezept) 
+        try:
+            for rezept in self.rezept_config:
+                self.cb_Rezept.addItem(rezept) 
+        except Exception as e:
+            self.Fehler_Output(1, self.err_21_str[self.sprache])
+            logger.exception(self.Log_Text_Ex2_str[self.sprache])
         self.cb_Rezept.setStyleSheet('''* 
                                     QComboBox QAbstractItemView 
                                         {
@@ -334,8 +343,8 @@ class EurothermWidget(QWidget):
                                         }
                                     ''')    # https://stackoverflow.com/questions/37632845/qcombobox-adjust-drop-down-width
         
-        ## Gruppen Widgets:
-        ### Rezept:
+        ### Gruppen Widgets:
+        #### Rezept:
         self.btn_group_Rezept = QWidget()
         self.btn_Rezept_layout = QVBoxLayout()
         self.btn_group_Rezept.setLayout(self.btn_Rezept_layout)
@@ -347,7 +356,7 @@ class EurothermWidget(QWidget):
 
         self.btn_Rezept_layout.setContentsMargins(0,0,0,0)  # left, top, right, bottom
 
-        ### Soll-Temp:
+        #### Soll-Temp:
         self.wid_group_SollT = QWidget()
         self.wid_SollT_layout = QHBoxLayout()
         self.wid_group_SollT.setLayout(self.wid_SollT_layout)
@@ -358,7 +367,7 @@ class EurothermWidget(QWidget):
 
         self.wid_SollT_layout.setContentsMargins(0,0,0,0)
 
-        ### First-Row:
+        #### First-Row:
         self.first_row_group  = QWidget()
         self.first_row_layout = QHBoxLayout()
         self.first_row_group.setLayout(self.first_row_layout)
@@ -369,7 +378,7 @@ class EurothermWidget(QWidget):
         self.first_row_layout.addWidget(self.PID_cb)
 
         self.first_row_layout.setContentsMargins(0,0,0,0)      # left, top, right, bottom
-
+        #________________________________________
         ## Platzierung der einzelnen Widgets im Layout:
         self.layer_layout.addWidget(self.first_row_group,   0, 0, 1, 5, alignment=Qt.AlignLeft)     # Reihe, Spalte, RowSpan, ColumSpan, Ausrichtung
         self.layer_layout.addWidget(self.RB_choise_Temp,    1, 0)                          
@@ -383,7 +392,7 @@ class EurothermWidget(QWidget):
         self.layer_layout.addWidget(self.La_IstTemp_wert,   1, 3, alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(self.La_IstPow_wert,    2, 3, alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(self.btn_group_Rezept,  1, 4, 3, 1, alignment=Qt.AlignTop)
-
+        #________________________________________
         ## Größen (Size) - Widgets:
         ### Eingabefelder (Line Edit):
         self.LE_Temp.setFixedWidth(100)
@@ -396,7 +405,7 @@ class EurothermWidget(QWidget):
         self.btn_rezept_start.setFixedWidth(100)
         self.btn_rezept_ende.setFixedWidth(100)
         self.cb_Rezept.setFixedWidth(100)
-
+        #________________________________________
         ## Border Sichtbar:
         if Frame_Anzeige:    
             self.layer_widget.setStyleSheet("border: 1px solid black;")
@@ -434,8 +443,8 @@ class EurothermWidget(QWidget):
             'uGOp':   ['a2', pg.mkPen(color=self.color[2], style=Qt.DashDotDotLine),     f'{eurotherm} - {P_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
             'RezT':   ['a1', pg.mkPen(color=self.color[3], width=3, style=Qt.DotLine),   f'{eurotherm} - {rezept_Label_str[self.sprache]}<sub>{T_einzel_str[self.sprache]}</sub>'],
             'RezOp':  ['a2', pg.mkPen(color=self.color[4], width=3, style=Qt.DotLine),   f'{eurotherm} - {rezept_Label_str[self.sprache]}<sub>{P_einzel_str[self.sprache]}</sub>'],
-            'SWTPID': ['a1', pg.mkPen(self.color[1], width=2, style=Qt.DashDotLine),     f'{PID_Label_Soll} - {T_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
-            'IWTPID': ['a1', pg.mkPen(self.color[0], width=2, style=Qt.DashDotLine),     f'{PID_Label_Ist} - {T_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
+            'SWTPID': ['a1', pg.mkPen(self.color[5], width=2, style=Qt.DashDotLine),     f'{PID_Label_Soll} - {T_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
+            'IWTPID': ['a1', pg.mkPen(self.color[6], width=2, style=Qt.DashDotLine),     f'{PID_Label_Ist} - {T_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
         }
 
         ## Kurven erstellen:
@@ -919,6 +928,7 @@ class EurothermWidget(QWidget):
                     self.RB_choise_Pow.setEnabled(False)
                     self.btn_send_value.setEnabled(False)
                     self.Auswahl.setEnabled(False)
+                    self.PID_cb.setEnabled(False)
 
                     # Timer Starten:
                     self.RezTimer.setInterval(int(abs(self.time_list[self.step]*1000)))
@@ -952,6 +962,7 @@ class EurothermWidget(QWidget):
                 self.RB_choise_Pow.setEnabled(True)
                 self.btn_send_value.setEnabled(True)
                 self.Auswahl.setEnabled(True)
+                self.PID_cb.setEnabled(True)
 
                 # Variablen:
                 self.Rezept_Aktiv = False
@@ -1097,11 +1108,12 @@ class EurothermWidget(QWidget):
                         self.Fehler_Output(1, self.err_17_str[self.sprache])
                         return False
             if self.PID_cb.isChecked():
-                for n in rez_dat:
-                    if ('er' or 'op' or 'opr') in rez_dat[n]: 
-                        logger.warning(f'{self.device_name} - {self.Log_Text_248_str[self.sprache]}')
-                        self.Fehler_Output(1, self.err_20_str[self.sprache])
-                        return False
+                for segment in ['er', 'op', 'opr']:
+                    for n in rez_dat:
+                        if segment in rez_dat[n]: 
+                            logger.warning(f'{self.device_name} - {self.Log_Text_248_str[self.sprache]}')
+                            self.Fehler_Output(1, self.err_20_str[self.sprache])
+                            return False
             #////////////////////////////////////////////////////////////
             ## Ersten Eintrag prüfen (besondere Startrampe):
             #////////////////////////////////////////////////////////////
@@ -1357,8 +1369,12 @@ class EurothermWidget(QWidget):
             
             # Combo-Box neu beschreiben:
             self.cb_Rezept.addItem('------------')
-            for rezept in self.rezept_config:
-                self.cb_Rezept.addItem(rezept) 
+            try:
+                for rezept in self.rezept_config:
+                    self.cb_Rezept.addItem(rezept) 
+            except Exception as e:
+                self.Fehler_Output(1, self.err_21_str[self.sprache])
+                logger.exception(self.Log_Text_Ex2_str[self.sprache])
 
             # Neu verbinden von der Funktion:
             self.cb_Rezept.currentTextChanged.connect(self.RezKurveAnzeige) 

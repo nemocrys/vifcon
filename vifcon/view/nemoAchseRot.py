@@ -133,6 +133,8 @@ class NemoAchseRotWidget(QWidget):
         st_w_str                = ['XXX.XX°',                                                                                                   'XXX.XX°'] 
         w_einzel_str            = ['\u03B1',                                                                                                    '\u03B1']
         v_einzel_str            = ['\u03C9',                                                                                                    '\u03C9']
+        einheit_w_einzel        = ['°',                                                                                                         '°']
+        einheit_v_einzel        = ['1/min',                                                                                                     '1/min']
         ## Fehlermeldungen:     
         self.err_0_str          = ['Fehler!',                                                                                                   'Error!'] 
         self.err_1_str          = ['Keine EINGABE!!',                                                                                           'No INPUT!!']
@@ -149,6 +151,7 @@ class NemoAchseRotWidget(QWidget):
         self.err_14_str         = ['Rezept läuft!\nRezept Einlesen gesperrt!',                                                                  'Recipe is running!\nReading recipes blocked!']
         self.err_15_str         = ['Wähle ein Rezept!',                                                                                         'Choose a recipe!']
         self.err_16_str         = ['Rezept läuft!\nRezept Start gesperrt!',                                                                     'Recipe running!\nRecipe start blocked!']    
+        self.err_21_str         = ['Fehler in der Rezept konfiguration\nder Config-Datei! Bitte beheben und Neueinlesen!',                      'Error in the recipe configuration of\nthe config file! Please fix and re-read!']
         ## Status:                                                              
         status_1_str            = ['Status: Inaktiv',                                                                                           'Status: Inactive']
         self.status_2_str       = ['Kein Status',                                                                                               'No Status']
@@ -182,6 +185,7 @@ class NemoAchseRotWidget(QWidget):
         self.Log_Text_181_str   = ['Die Geschwindigkeit wird Invertiert! Die Wahren Werte hätten ein anderes Vorzeichen!',                      'The speed is inverted! The true values would have a different sign!']
         self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                     'Update configuration (update limits):']
         self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
+        self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                          'Error reason (Problem with recipe configuration)']
         ## Ablaufdatei: 
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -232,7 +236,7 @@ class NemoAchseRotWidget(QWidget):
         self.layer_widget.setLayout(self.layer_layout)
         self.typ_widget.splitter_main.splitter.addWidget(self.layer_widget)
         logger.info(f"{self.device_name} - {self.Log_Text_1_str[self.sprache]}")
-
+        #________________________________________
         ## Kompakteres Darstellen:
         ### Grid Size - bei Verschieben der Splitter zusammenhängend darstellen:
         self.layer_layout.setRowStretch(6, 1) 
@@ -248,13 +252,15 @@ class NemoAchseRotWidget(QWidget):
         ### Spaltenbreiten:
         self.layer_layout.setColumnMinimumWidth(0, 120)
         self.layer_layout.setColumnMinimumWidth(2, 60)
+        self.layer_layout.setColumnMinimumWidth(3, 80)
         self.layer_layout.setColumnMinimumWidth(4, 120)
-
-        ## Eingabefelder:
+        #________________________________________
+        ## Widgets:
+        ### Eingabefelder:
         self.LE_Speed = QLineEdit()
         self.LE_Speed.setText(str(self.config["defaults"]['startSpeed']))
 
-        ## Checkbox:
+        ### Checkbox:
         self.Auswahl = QCheckBox(cb_sync_str[self.sprache])
         self.EndRot  = QCheckBox(cb_EndloseRot_str[self.sprache])
         self.EndRot.clicked.connect(self.Rotation_Nonstopp)
@@ -266,24 +272,34 @@ class NemoAchseRotWidget(QWidget):
         if not gamepad_aktiv:
             self.gamepad.setEnabled(False)
 
-        ## Label:
+        ### Label:
+        #### Titel-Gerät:
         self.La_name = QLabel(f'<b>{nemoAchse}</b>')
-
+        #### Fehlernachrichten:
         self.La_error_1 = QLabel(self.err_13_str[self.sprache])
-
+        #### Istwinkelgeschwindigkeit:
         self.La_IstSpeed_text = QLabel(f'{istwert_str[self.sprache]}-{sv_str[self.sprache]} ')
         self.La_IstSpeed_wert = QLabel(st_v_str[self.sprache])
         self.La_IstSpeed_text.setStyleSheet(f"color: {self.color[0]}")
         self.La_IstSpeed_wert.setStyleSheet(f"color: {self.color[0]}")
-
+        #### Istwinkel:
         self.La_IstWin_text = QLabel(f'{istwert_str[self.sprache]}-{sw_str[self.sprache]} ')
         self.La_IstWin_wert = QLabel(st_w_str[self.sprache])
         self.La_IstWin_text.setStyleSheet(f"color: {self.color[1]}")
         self.La_IstWin_wert.setStyleSheet(f"color: {self.color[1]}")
-
+        #### Statuswert:
         self.La_Status = QLabel(status_1_str[self.sprache])
+        #### Sollwinkelgeschwindigkeit:
+        self.La_SollSpeed = QLabel(v_str[self.sprache])
+        self.La_SollSpeed.setStyleSheet(f"color: {self.color[2]}")
 
-        ## Knöpfe:
+        self.La_SollSpeed_text = QLabel(f'{sollwert_str[self.sprache]}-{sv_str[self.sprache]} ')
+        self.La_SollSpeed_wert = QLabel(st_v_str[self.sprache])
+        self.La_SollSpeed_text.setStyleSheet(f"color: {self.color[2]}")
+        self.La_SollSpeed_wert.setStyleSheet(f"color: {self.color[2]}")
+
+        ### Knöpfe:
+        #### Bewegung:
         self.btn_cw = QPushButton(QIcon("./vifcon/icons/p_cw.png"), '')
         self.btn_cw.setFlat(True)
         self.btn_cw.clicked.connect(self.fahre_cw)
@@ -291,26 +307,30 @@ class NemoAchseRotWidget(QWidget):
         self.btn_ccw = QPushButton(QIcon(QIcon("./vifcon/icons/p_ccw.png")), '')
         self.btn_ccw.setFlat(True)
         self.btn_ccw.clicked.connect(self.fahre_ccw)
-
+        #### Stopp:
         icon_pfad = "./vifcon/icons/p_stopp.png" if sprache == 0 else  "./vifcon/icons/p_stopp_En.png" 
         self.btn_mitte = QPushButton(QIcon(icon_pfad), '')
         self.btn_mitte.setFlat(True)
         self.btn_mitte.clicked.connect(lambda: self.Stopp(2))
-
+        #### Rezepte:
         self.btn_rezept_start =  QPushButton(rez_start_str[self.sprache])
         self.btn_rezept_start.clicked.connect(lambda: self.RezStart(1))
 
         self.btn_rezept_ende =  QPushButton(rez_ende_str[self.sprache])
         self.btn_rezept_ende.clicked.connect(lambda: self.Stopp(1))   
-
+        #### Define Home:
         self.btn_DH = QPushButton(DH_str[self.sprache])
         self.btn_DH.clicked.connect(self.define_home)
 
-        ## Combobox:
+        ### Combobox:
         self.cb_Rezept = QComboBox()
         self.cb_Rezept.addItem('------------')
-        for rezept in self.config['rezepte']:
-            self.cb_Rezept.addItem(rezept)  
+        try:
+            for rezept in self.rezept_config:
+                self.cb_Rezept.addItem(rezept) 
+        except Exception as e:
+            self.Fehler_Output(1, self.err_21_str[self.sprache])
+            logger.exception(self.Log_Text_Ex2_str[self.sprache])  
         self.cb_Rezept.setStyleSheet('''* 
                                     QComboBox QAbstractItemView 
                                         {
@@ -318,8 +338,8 @@ class NemoAchseRotWidget(QWidget):
                                         }
                                     ''')    # https://stackoverflow.com/questions/37632845/qcombobox-adjust-drop-down-width
         
-        ## Gruppen Widgets:
-        ### Bewegungsknöpfe:
+        ### Gruppen Widgets:
+        #### Bewegungsknöpfe:
         self.btn_group_move = QWidget()
         self.btn_move_layout = QHBoxLayout()
         self.btn_group_move.setLayout(self.btn_move_layout)
@@ -329,7 +349,7 @@ class NemoAchseRotWidget(QWidget):
         self.btn_move_layout.addWidget(self.btn_mitte)
         self.btn_move_layout.addWidget(self.btn_ccw)
 
-        ### Rezept/Define Home:
+        #### Rezept/Define Home:
         self.btn_group_Rezept = QWidget()
         self.btn_Rezept_layout = QVBoxLayout()
         self.btn_group_Rezept.setLayout(self.btn_Rezept_layout)
@@ -342,7 +362,7 @@ class NemoAchseRotWidget(QWidget):
 
         self.btn_Rezept_layout.setContentsMargins(2,0,2,0)      # left, top, right, bottom
 
-        ### First-Row:
+        #### First-Row:
         self.first_row_group  = QWidget()
         self.first_row_layout = QHBoxLayout()
         self.first_row_group.setLayout(self.first_row_layout)
@@ -355,19 +375,51 @@ class NemoAchseRotWidget(QWidget):
 
         self.first_row_layout.setContentsMargins(0,0,0,0)      # left, top, right, bottom
 
+        #### Label-Werte:
+        W_spalte = 80
+        self.W1 = QWidget()
+        self.W1_layout = QGridLayout()
+        self.W1.setLayout(self.W1_layout)
+        self.W1_layout.addWidget(self.La_IstSpeed_text, 0 , 0)
+        self.W1_layout.addWidget(self.La_IstSpeed_wert, 0 , 1 , alignment=Qt.AlignLeft)
+        self.W1_layout.setContentsMargins(0,0,0,0)
+        self.W1_layout.setColumnMinimumWidth(0, W_spalte)
+
+        self.W2 = QWidget()
+        self.W2_layout = QGridLayout()
+        self.W2.setLayout(self.W2_layout)
+        self.W2_layout.addWidget(self.La_IstWin_text, 0 , 0)
+        self.W2_layout.addWidget(self.La_IstWin_wert, 0 , 1 , alignment=Qt.AlignLeft)
+        self.W2_layout.setContentsMargins(0,0,0,0)
+        self.W2_layout.setColumnMinimumWidth(0, W_spalte)
+
+        self.W3 = QWidget()
+        self.W3_layout = QGridLayout()
+        self.W3.setLayout(self.W3_layout)
+        self.W3_layout.addWidget(self.La_SollSpeed_text, 0 , 0)
+        self.W3_layout.addWidget(self.La_SollSpeed_wert, 0 , 1 , alignment=Qt.AlignLeft)
+        self.W3_layout.setContentsMargins(0,0,0,0)
+        self.W3_layout.setColumnMinimumWidth(0, W_spalte)
+
+        self.V = QWidget()
+        self.V_layout = QVBoxLayout()
+        self.V.setLayout(self.V_layout)
+        self.V_layout.setSpacing(0)
+        self.V_layout.addWidget(self.W1)
+        self.V_layout.addWidget(self.W3)
+        self.V_layout.addWidget(self.W2)
+        self.V_layout.setContentsMargins(0,0,0,0)
+        #________________________________________
         ## Platzierung der einzelnen Widgets im Layout:
         self.layer_layout.addWidget(self.first_row_group,                   0, 0, 1, 6, alignment=Qt.AlignLeft)
-        self.layer_layout.addWidget(QLabel(v_str[self.sprache]),            1, 0)  
+        self.layer_layout.addWidget(self.La_SollSpeed,                      1, 0)  
         self.layer_layout.addWidget(self.btn_group_move,                    3, 0, 1, 3, alignment=Qt.AlignLeft)                     # Reihe, Spalte, RowSpan, ColumSpan, Ausrichtung                     
         self.layer_layout.addWidget(self.La_Status,                         4, 0, 1, 6, alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(self.LE_Speed,                          1, 1)   
         self.layer_layout.addWidget(self.La_error_1,                        1, 2,       alignment=Qt.AlignLeft)
-        self.layer_layout.addWidget(self.La_IstSpeed_text,                  1, 3)
-        self.layer_layout.addWidget(self.La_IstWin_text,                    2, 3)
-        self.layer_layout.addWidget(self.La_IstSpeed_wert,                  1, 4,       alignment=Qt.AlignLeft)
-        self.layer_layout.addWidget(self.La_IstWin_wert,                    2, 4,       alignment=Qt.AlignLeft)
+        self.layer_layout.addWidget(self.V,                                 1, 3, 3, 2, alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(self.btn_group_Rezept,                  1, 5, 3, 1, alignment=Qt.AlignTop)
-
+        #________________________________________
         ## Größen (Size) - Widgets:
         ### Button-Icon:
         self.btn_cw.setIconSize(QSize(50, 50))
@@ -383,7 +435,7 @@ class NemoAchseRotWidget(QWidget):
         self.btn_rezept_ende.setFixedWidth(100)
         self.cb_Rezept.setFixedWidth(100)
         self.btn_DH.setFixedWidth(100)
-
+        #________________________________________
         ## Border Sichtbar:
         if Frame_Anzeige:
             self.layer_widget.setStyleSheet("border: 1px solid black;")
@@ -451,11 +503,11 @@ class NemoAchseRotWidget(QWidget):
         self.curveDict      = {'IWv': '', 'SWv': '', 'IWw':'', 'oGv': '', 'uGv': '', 'oGw': '', 'uGw': '', 'Rezv':''}            # Kurven
         for kurve in self.kurven_dict:
             self.curveDict[kurve] = self.kurven_dict[kurve]
-        self.labelDict      = {'IWv': self.La_IstSpeed_wert,                              'IWw':self.La_IstWin_wert}             # Label
-        self.labelUnitDict  = {'IWv': ' 1/min',                                           'IWw':'°'}                             # Einheit
-        self.listDict       = {'IWv': self.speedList,       'SWv':self.sollspeedList,     'IWw':self.winList}                    # Werteliste
-        self.grenzListDict  = {'oGv': self.VoGList,         'uGv': self.VuGList,          'oGw': self.WoGList,         'uGw': self.WuGList}
-        self.grenzValueDict = {'oGv': self.oGv,             'uGv': self.uGv,              'oGw': self.oGw,             'uGw': self.uGw}
+        self.labelDict      = {'IWv': self.La_IstSpeed_wert,                'SWv': self.La_SollSpeed_wert,          'IWw':self.La_IstWin_wert}             # Label
+        self.labelUnitDict  = {'IWv': einheit_v_einzel[self.sprache],       'SWv': einheit_v_einzel[self.sprache],  'IWw':einheit_w_einzel[self.sprache]}                             # Einheit
+        self.listDict       = {'IWv': self.speedList,                       'SWv':self.sollspeedList,               'IWw':self.winList}                    # Werteliste
+        self.grenzListDict  = {'oGv': self.VoGList,                         'uGv': self.VuGList,                    'oGw': self.WoGList,         'uGw': self.WuGList}
+        self.grenzValueDict = {'oGv': self.oGv,                             'uGv': self.uGv,                        'oGw': self.oGw,             'uGw': self.uGw}
 
         ## Plot-Skalierungsfaktoren:
         self.skalFak_dict = {}
@@ -678,8 +730,8 @@ class NemoAchseRotWidget(QWidget):
 
         for messung in value_dict:
             if not 'Status' in messung:
-                if not 'SW' in messung:
-                    self.labelDict[messung].setText(f'{value_dict[messung]}{self.labelUnitDict[messung]}')
+                #if not 'SW' in messung:
+                self.labelDict[messung].setText(f'{value_dict[messung]}{self.labelUnitDict[messung]}')
                 self.listDict[messung].append(value_dict[messung])
                 if not self.curveDict[messung] == '':
                     faktor = self.skalFak_dict[messung]
@@ -1089,8 +1141,12 @@ class NemoAchseRotWidget(QWidget):
             
             # Combo-Box neu beschreiben:
             self.cb_Rezept.addItem('------------')
-            for rezept in self.rezept_config:
-                self.cb_Rezept.addItem(rezept) 
+            try:
+                for rezept in self.rezept_config:
+                    self.cb_Rezept.addItem(rezept) 
+            except Exception as e:
+                self.Fehler_Output(1, self.err_21_str[self.sprache])
+                logger.exception(self.Log_Text_Ex2_str[self.sprache]) 
 
             # Neu verbinden von der Funktion:
             self.cb_Rezept.currentTextChanged.connect(self.RezKurveAnzeige) 

@@ -520,7 +520,7 @@ class Controller(QObject):
                         menu_HO_Button = QAction(f'{device_name} - {EuHO_Menu_str[self.sprache]}', self)
                         menu_HO_Button.triggered.connect(widget.Lese_HO)
                         self.main_window.G_menu.addAction(menu_HO_Button)
-                        color_Gen_n = color_Gen_n + 5
+                        color_Gen_n = color_Gen_n + 7
                     elif 'TruHeat' in device_name:
                         device = TruHeat(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, self.add_Ablauf, device_name) 
                         widget = TruHeatWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.add_Ablauf, device_name)

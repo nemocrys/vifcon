@@ -155,6 +155,7 @@ class TruHeatWidget(QWidget):
         self.err_14_str         = ['Rezept läuft!\nRezept Einlesen gesperrt!',                                                                  'Recipe is running!\nReading recipes blocked!']
         self.err_15_str         = ['Wähle ein Rezept!',                                                                                         'Choose a recipe!']
         self.err_16_str         = ['Rezept läuft!\nRezept Start gesperrt!',                                                                     'Recipe running!\nRecipe start blocked!']
+        self.err_21_str         = ['Fehler in der Rezept konfiguration\nder Config-Datei! Bitte beheben und Neueinlesen!',                      'Error in the recipe configuration of\nthe config file! Please fix and re-read!']
         ## Plot-Legende:                                                
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
@@ -176,6 +177,7 @@ class TruHeatWidget(QWidget):
         self.Log_Text_40_str    = ['Rezept Inhalt:',                                                                                            'Recipe content:']
         self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                     'Update configuration (update limits):']
         self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
+        self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                          'Error reason (Problem with recipe configuration)']
         ## Ablaufdatei:
         self.Text_13_str        = ['Auswahl Leistung senden.',                                                                                  'Send power selection.']
         self.Text_14_str        = ['Auswahl Spannung senden.',                                                                                  'Send voltage selection.']
@@ -238,7 +240,7 @@ class TruHeatWidget(QWidget):
         self.layer_widget.setLayout(self.layer_layout)
         self.typ_widget.splitter_main.splitter.addWidget(self.layer_widget)
         logger.info(f"{self.device_name} - {self.Log_Text_1_str[self.sprache]}")
-        
+        #________________________________________
         ## Kompakteres Darstellen:
         ### Grid Size - bei Verschieben der Splitter zusammenhängend darstellen:
         self.layer_layout.setRowStretch(7, 1) 
@@ -255,8 +257,9 @@ class TruHeatWidget(QWidget):
         self.layer_layout.setColumnMinimumWidth(0, 100)
         self.layer_layout.setColumnMinimumWidth(1, 105)
         self.layer_layout.setColumnMinimumWidth(3, 120)
-
-        ## Eingabefelder:
+        #________________________________________
+        ## Widgets:
+        ### Eingabefelder:
         self.LE_Pow = QLineEdit()
         self.LE_Pow.setText(str(self.config["defaults"]['startPow']))
 
@@ -266,10 +269,10 @@ class TruHeatWidget(QWidget):
         self.LE_Current = QLineEdit()
         self.LE_Current.setText(str(self.config["defaults"]['startCurrent']))
 
-        ## Checkbox:
+        ### Checkbox:
         self.Auswahl = QCheckBox(cb_sync_str[self.sprache])
 
-        ## Radiobutton:
+        ### Radiobutton:
         self.RB_choise_Pow = QRadioButton(f'{sollwert_str[self.sprache]}-{P_str[self.sprache]} ')
         self.RB_choise_Pow.setStyleSheet(f"color: {self.color[0]}")
         self.RB_choise_Pow.clicked.connect(self.BlassOutUI)
@@ -282,45 +285,47 @@ class TruHeatWidget(QWidget):
         self.RB_choise_Current.setStyleSheet(f"color: {self.color[2]}")
         self.RB_choise_Current.clicked.connect(self.BlassOutPU)
 
-        ## Start-Modus:
+        ### Start-Modus:
         if self.init:       # and not self.neustart
             self.Start()
 
-        ## Label:
+        ### Label:
+        #### Geräte-Titel:
         self.La_name = QLabel(f'<b>{truheat}</b>')
-
+        #### Istleistung:
         self.La_IstPow_text = QLabel(f'{istwert_str[self.sprache]}-{sP_str[self.sprache]} ')
         self.La_IstPow_wert = QLabel(st_P_str[self.sprache])
         self.La_IstPow_text.setStyleSheet(f"color: {self.color[3]}")
         self.La_IstPow_wert.setStyleSheet(f"color: {self.color[3]}")
-
+        #### Istspannung:
         self.La_IstVoltage_text = QLabel(f'{istwert_str[self.sprache]}-{sU_str[self.sprache]} ')
         self.La_IstVoltage_wert = QLabel(st_U_str[self.sprache])
         self.La_IstVoltage_text.setStyleSheet(f"color: {self.color[4]}")
         self.La_IstVoltage_wert.setStyleSheet(f"color: {self.color[4]}")
-
+        #### Iststrom:
         self.La_IstCurrent_text = QLabel(f'{istwert_str[self.sprache]}-{sI_str[self.sprache]} ')
         self.La_IstCurrent_wert = QLabel(st_I_str[self.sprache])
         self.La_IstCurrent_text.setStyleSheet(f"color: {self.color[5]}")
         self.La_IstCurrent_wert.setStyleSheet(f"color: {self.color[5]}")
-
+        #### Istfrequenz:
         self.La_IstFre_text = QLabel(f'{istwert_str[self.sprache]}-{sf_str[self.sprache]} ')
         self.La_IstFre_wert = QLabel(st_f_str[self.sprache])
         self.La_IstFre_text.setStyleSheet(f"color: {self.color[6]}")
         self.La_IstFre_wert.setStyleSheet(f"color: {self.color[6]}")
-
+        #### Fehlernachrichten:
         self.La_error = QLabel(self.err_13_str[self.sprache])
 
-        ## Knöpfe:
+        ### Knöpfe:
+        #### Senden:
         self.btn_send_value = QPushButton(send_str[self.sprache])
         self.btn_send_value.clicked.connect(self.send) 
-
+        #### Rezepte:
         self.btn_rezept_start =  QPushButton(rez_start_str[self.sprache])
         self.btn_rezept_start.clicked.connect(lambda: self.RezStart(1))
 
         self.btn_rezept_ende =  QPushButton(rez_ende_str[self.sprache])
         self.btn_rezept_ende.clicked.connect(self.RezEnde)   
-
+        #### Generator Ein/Aus;
         self.btn_Ein = QPushButton(QIcon("./vifcon/icons/p_TH_Ein.png"), '')
         self.btn_Ein.setFlat(True)
         self.btn_Ein.clicked.connect(self.THEin)   
@@ -329,11 +334,15 @@ class TruHeatWidget(QWidget):
         self.btn_Aus.setFlat(True)
         self.btn_Aus.clicked.connect(self.THAus)   
 
-        ## Combobox:
+        ### Combobox:
         self.cb_Rezept = QComboBox()
         self.cb_Rezept.addItem('------------')
-        for rezept in self.rezept_config:
-            self.cb_Rezept.addItem(rezept)    
+        try:
+            for rezept in self.rezept_config:
+                self.cb_Rezept.addItem(rezept) 
+        except Exception as e:
+            self.Fehler_Output(1, self.err_21_str[self.sprache])
+            logger.exception(self.Log_Text_Ex2_str[self.sprache])    
         self.cb_Rezept.setStyleSheet('''* 
                                     QComboBox QAbstractItemView 
                                         {
@@ -341,8 +350,8 @@ class TruHeatWidget(QWidget):
                                         }
                                     ''')    # https://stackoverflow.com/questions/37632845/qcombobox-adjust-drop-down-width
 
-        ## Gruppen Widgets:
-        ### Knöpfe:
+        ### Gruppen Widgets:
+        #### Knöpfe:
         self.btn_group = QWidget()
         self.btn_group_layout = QVBoxLayout()
         self.btn_group.setLayout(self.btn_group_layout)
@@ -353,7 +362,7 @@ class TruHeatWidget(QWidget):
 
         self.btn_group_layout.setContentsMargins(15,0,5,0)       # left, top, right, bottom
 
-        ### Rezept:
+        #### Rezept:
         self.btn_group_Rezept = QWidget()
         self.btn_Rezept_layout = QVBoxLayout()
         self.btn_group_Rezept.setLayout(self.btn_Rezept_layout)
@@ -365,7 +374,7 @@ class TruHeatWidget(QWidget):
 
         self.btn_Rezept_layout.setContentsMargins(0,0,0,0)      # left, top, right, bottom
 
-        ### First-Row:
+        #### First-Row:
         self.first_row_group  = QWidget()
         self.first_row_layout = QHBoxLayout()
         self.first_row_group.setLayout(self.first_row_layout)
@@ -375,7 +384,7 @@ class TruHeatWidget(QWidget):
         self.first_row_layout.addWidget(self.Auswahl)
 
         self.first_row_layout.setContentsMargins(0,0,0,0)      # left, top, right, bottom
-
+        #________________________________________
         ## Platzierung der einzelnen Widgets im Layout:
         self.layer_layout.addWidget(self.first_row_group,       0, 0, 1, 5, alignment=Qt.AlignLeft)  # Reihe, Spalte, RowSpan, ColumSpan, Ausrichtung
         self.layer_layout.addWidget(self.RB_choise_Pow,         1, 0)                         
@@ -396,7 +405,7 @@ class TruHeatWidget(QWidget):
         self.layer_layout.addWidget(self.La_IstFre_wert,        4, 3, alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(self.btn_group_Rezept,      1, 4, 3, 1, alignment=Qt.AlignTop)
         self.layer_layout.addWidget(self.btn_group,             1, 5, 4, 1, alignment=Qt.AlignTop)
-
+        #________________________________________
         ## Größen (Size) - Widgets:
         ### Button-Icon:
         self.btn_Aus.setIconSize(QSize(50, 50))
@@ -416,7 +425,7 @@ class TruHeatWidget(QWidget):
         self.btn_rezept_start.setFixedWidth(100)
         self.btn_rezept_ende.setFixedWidth(100)
         self.cb_Rezept.setFixedWidth(100)
-
+        #________________________________________
         ## Border Sichtbar:
         if Frame_Anzeige:
             self.layer_widget.setStyleSheet("border: 1px solid black;")
@@ -1111,13 +1120,20 @@ class TruHeatWidget(QWidget):
             
             # Combo-Box neu beschreiben:
             self.cb_Rezept.addItem('------------')
-            for rezept in self.rezept_config:
-                self.cb_Rezept.addItem(rezept) 
+            try:
+                for rezept in self.rezept_config:
+                    self.cb_Rezept.addItem(rezept) 
+                error = 0
+            except Exception as e:
+                self.Fehler_Output(1, self.err_21_str[self.sprache])
+                logger.exception(self.Log_Text_Ex2_str[self.sprache])
+                error = 1
 
             # Neu verbinden von der Funktion:
             self.cb_Rezept.currentTextChanged.connect(self.RezKurveAnzeige) 
-
-            self.Fehler_Output(0)
+            
+            if not error:
+                self.Fehler_Output(0)
         else:
             self.Fehler_Output(1, self.err_14_str[self.sprache])
 

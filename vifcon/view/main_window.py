@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
         # Sprach-Einstellung:
         #--------------------------------------- 
         ## Menü-Leiste:
-        PGR_str             = ["&Plot, Geräte, Rezepte",                 "&Plot, Devices, Recipes"] 
+        PGR_str             = ["&Menü",                                  "&Menu"] 
         P_str               = ["Pl&ot",                                  "Pl&ot"] 
         G_str               = ["&Geräte",                                "&Devices"] 
         R_str               = ["&Rezepte",                               "&Recipes"] 
@@ -73,7 +73,7 @@ class MainWindow(QMainWindow):
         syn_rez_str         = ["&Synchro Start",                         "&Synchro start"]
         syn_rez_ende_str    = ["S&ynchro beenden",                       "S&ynchro end"]
         new_rez_str         = ["&Neu Einlesen",                          "R&ead in again"]
-        syn_rez_sta_str     = ["Starte Synchron &Modus",                 "Start synchronously &mode"]
+        syn_rez_sta_str     = ["S&tarte Synchron Modus",                 "S&tart synchronously mode"]
         syn_rez_end_str     = ["&Beende Synchron Modus",                 "&Finish synchronous mode"]
         new_rez_aus_str     = ["&Alle Geräte",                           "&All devices"]
         ## Exit:

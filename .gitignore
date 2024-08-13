@@ -159,12 +159,14 @@ cython_debug/
 #.idea/
 
 # Programm spezifisches:
-Ablauf.txt
 Thumbs.db
 measdata*
-/vifcon/rezepte/*.yml
+*.yml
+*.log
+*.txt
+
+# Ausnahmen:
+!/vifcon/Template/config_temp.yml
 !/vifcon/rezepte/rec_example.yml
-config.yml
-vifcon.log
-config_N4.yml
-config_All.yml
+!/vifcon/Template/vifcon_temp.log
+!/vifcon/Template/Ablauf_temp.txt

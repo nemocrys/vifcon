@@ -137,7 +137,8 @@ class Generator(QWidget, Cursor, PopUpWindow):
         self.PopUp_3            = ['Warnung',                                                                                                               'Warning']
         self.PopUp_4            = ['Kritisch',                                                                                                              'Critical']           
         ## Logging:
-        self.Log_Text_185_str   = ['Faktor auf Null gesetzt. Anzeige in Plot-Achse entfernt. ACHTUNG: Wert wird bei Nutzung auf Null skalliert! Größe: ',   'Factor set to zero. Display in plot axis removed. ATTENTION: Value is scaled to zero when used! Size: ']
+        self.Log_Text_185_str_1 = ['Skalierungsfaktor für Größe',                                                                                           'Scaling factor for size']
+        self.Log_Text_185_str_2 = ['auf Null gesetzt, keine Anzeige im Plot.',                                                                              'set to zero, not displayed in plot.']
 
         #---------------------------------------
         # Horizontaller Splitter:
@@ -160,7 +161,7 @@ class Generator(QWidget, Cursor, PopUpWindow):
                     label_list.append(f'{label_dict[size]}x{self.Faktor[size]}')
                 else:
                     label_list.append('0')
-                    logging.warning(f'{self.Log_Text_185_str[self.sprache]}{size}')
+                    logging.warning(f'{self.Log_Text_185_str_1[self.sprache]} {size} {self.Log_Text_185_str_2[self.sprache]}')
             else:
                 label_list.append(f'{label_dict[size]}')
         
@@ -275,7 +276,8 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         self.PopUp_3            = ['Warnung',                                                                                                               'Warning']
         self.PopUp_4            = ['Kritisch',                                                                                                              'Critical']           
         ## Logging:
-        self.Log_Text_185_str   = ['Faktor auf Null gesetzt. Anzeige in Plot-Achse entfernt. ACHTUNG: Wert wird bei Nutzung auf Null skalliert! Größe: ',   'Factor set to zero. Display in plot axis removed. ATTENTION: Value is scaled to zero when used! Size: ']
+        self.Log_Text_185_str_1 = ['Skalierungsfaktor für Größe',                                                                                           'Scaling factor for size']
+        self.Log_Text_185_str_2 = ['auf Null gesetzt, keine Anzeige im Plot.',                                                                              'set to zero, not displayed in plot.']
 
         #---------------------------------------
         # Horizontaller Splitter:
@@ -298,7 +300,7 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
                     label_list.append(f'{label_dict[size]}x{self.Faktor[size]}')
                 else:
                     label_list.append('0')
-                    logging.warning(f'{self.Log_Text_185_str[self.sprache]}{size}')
+                    logging.warning(f'{self.Log_Text_185_str_1[self.sprache]} {size} {self.Log_Text_185_str_2[self.sprache]}')
             else:
                 label_list.append(f'{label_dict[size]}')
 

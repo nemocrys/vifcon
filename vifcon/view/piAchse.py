@@ -50,6 +50,7 @@ import yaml
 # ++++++++++++++++++++++++++++
 logger = logging.getLogger(__name__)
 
+
 class PIAchseWidget(QWidget):
     def __init__(self, sprache, Frame_Anzeige, widget, line_color, config, config_dat, start_werte, neustart, add_Ablauf_function, piAchse, gamepad_aktiv, typ = 'Antrieb', parent=None):
         """ GUI widget of PI-Achse.
@@ -163,6 +164,7 @@ class PIAchseWidget(QWidget):
         self.err_14_str         = ['Rezept läuft!\nRezept Einlesen gesperrt!',                                                                  'Recipe is running!\nReading recipes blocked!']
         self.err_15_str         = ['Wähle ein Rezept!',                                                                                         'Choose a recipe!']
         self.err_16_str         = ['Rezept läuft!\nRezept Start gesperrt!',                                                                     'Recipe running!\nRecipe start blocked!']
+        self.err_21_str         = ['Fehler in der Rezept konfiguration\nder Config-Datei! Bitte beheben und Neueinlesen!',                      'Error in the recipe configuration of\nthe config file! Please fix and re-read!']
         ## Plot-Legende:                                                    
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
@@ -187,6 +189,7 @@ class PIAchseWidget(QWidget):
         self.Log_Text_55_str    = ['Rezept hat folgende zu fahrende Weg-Abfolge:',                                                              'Recipe has the following route sequence to be traveled:']
         self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                     'Update configuration (update limits):']
         self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
+        self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                          'Error reason (Problem with recipe configuration)']
         ## Ablaufdatei: 
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -251,6 +254,7 @@ class PIAchseWidget(QWidget):
             self.icon_1 = "./vifcon/icons/p_hoch.png"               
             self.icon_2 = "./vifcon/icons/p_runter.png"  
         
+        #________________________________________
         ## Richtungszuordnung:
         ausrichtung = self.config["GUI"]['piSymbol'].upper()
         if ausrichtung == 'RE' or ausrichtung == 'HI' or ausrichtung == 'UN':
@@ -259,14 +263,14 @@ class PIAchseWidget(QWidget):
         else: 
             self.links = 'Minus'
             self.rechts = 'Plus'  
-            
+        #________________________________________    
         ## Grundgerüst:
         self.layer_widget = QWidget()
         self.layer_layout = QGridLayout()
         self.layer_widget.setLayout(self.layer_layout)
         self.typ_widget.splitter_main.splitter.addWidget(self.layer_widget)
         logger.info(f"{self.device_name} - {self.Log_Text_1_str[self.sprache]}")
-
+        #________________________________________
         ## Kompakteres Darstellen:
         ### Grid Size - bei Verschieben der Splitter zusammenhängend darstellen:
         self.layer_layout.setRowStretch(6, 1) 
@@ -284,40 +288,43 @@ class PIAchseWidget(QWidget):
         self.layer_layout.setColumnMinimumWidth(0, 120)
         self.layer_layout.setColumnMinimumWidth(2, 60)
         self.layer_layout.setColumnMinimumWidth(4, 100)
-
-        ## Eingabefelder:
+        #________________________________________
+        ## Widgets:
+        ### Eingabefelder:
         self.LE_Pos = QLineEdit()
         self.LE_Pos.setText(str(self.config["defaults"]['startPos']))
 
         self.LE_Speed = QLineEdit()
         self.LE_Speed.setText(str(self.config["defaults"]['startSpeed']))
 
-        ## Checkbox:
+        ### Checkbox:
         self.Auswahl = QCheckBox(cb_sync_str[self.sprache])
         self.gamepad = QCheckBox(cb_gPad_str[self.sprache])
         
         if not gamepad_aktiv:
             self.gamepad.setEnabled(False)
 
-        ## Label:
+        ### Label:
+        #### Titel-Gerät:
         self.La_name = QLabel(f'<b>{piAchse}</b>')
-
+        #### Fehlernachrichten:
         self.La_error_1 = QLabel(self.err_13_str[self.sprache])
         self.La_error_2 = QLabel(self.err_13_str[self.sprache])
-        
+        #### Istposition:
         self.La_IstPos_text = QLabel(f"{istwert_str[self.sprache]}-{self.config['GUI']['bewegung']}: ")
         self.La_IstPos_wert = QLabel(st_s_str[self.sprache])
         self.La_IstPos_text.setStyleSheet(f"color: {self.color[0]}")
         self.La_IstPos_wert.setStyleSheet(f"color: {self.color[0]}")
-
+        #### Istgeschwindigkeit:
         self.La_IstSpeed_text = QLabel(f'{istwert_str[self.sprache]}-{sv_str[self.sprache]} ')
         self.La_IstSpeed_wert = QLabel(st_v_str[self.sprache])
         self.La_IstSpeed_text.setStyleSheet(f"color: {self.color[1]}")
         self.La_IstSpeed_wert.setStyleSheet(f"color: {self.color[1]}")
-
+        #### Sollposition:
         self.La_SollPos_text = QLabel(f'{self.pos_1_str[self.sprache]} {self.s_str[self.sprache]}')
 
-        ## Knöpfe:
+        ### Knöpfe:
+        #### Bewegungen:
         self.btn_left = QPushButton(QIcon(self.icon_1), '')
         self.btn_left.setFlat(True)
         self.btn_left.clicked.connect(self.fahre_links)
@@ -325,26 +332,30 @@ class PIAchseWidget(QWidget):
         self.btn_right = QPushButton(QIcon(self.icon_2), '')
         self.btn_right.setFlat(True)
         self.btn_right.clicked.connect(self.fahre_rechts)
-
+        #### Stopp:
         icon_pfad = "./vifcon/icons/p_stopp.png" if sprache == 0 else  "./vifcon/icons/p_stopp_En.png" 
         self.btn_mitte = QPushButton(QIcon(icon_pfad), '')
         self.btn_mitte.setFlat(True)
         self.btn_mitte.clicked.connect(self.Stopp)
-
+        #### Define-Home:
         self.btn_DH = QPushButton(DH_str[self.sprache])
         self.btn_DH.clicked.connect(self.define_home) 
-
+        #### Rezepte:
         self.btn_rezept_start =  QPushButton(rez_start_str[self.sprache])
         self.btn_rezept_start.clicked.connect(lambda: self.RezStart(1))
 
         self.btn_rezept_ende =  QPushButton(rez_ende_str[self.sprache])
         self.btn_rezept_ende.clicked.connect(self.Stopp)   
 
-        ## Combobox:
+        ### Combobox:
         self.cb_Rezept = QComboBox()
         self.cb_Rezept.addItem('------------')
-        for rezept in self.config['rezepte']:
-            self.cb_Rezept.addItem(rezept)    
+        try:
+            for rezept in self.rezept_config:
+                self.cb_Rezept.addItem(rezept) 
+        except Exception as e:
+            self.Fehler_Output(1, self.err_21_str[self.sprache])
+            logger.exception(self.Log_Text_Ex2_str[self.sprache])    
         self.cb_Rezept.setStyleSheet('''* 
                                     QComboBox QAbstractItemView 
                                         {
@@ -352,7 +363,7 @@ class PIAchseWidget(QWidget):
                                         }
                                     ''')    # https://stackoverflow.com/questions/37632845/qcombobox-adjust-drop-down-width
         
-        ## Radiobutton:
+        ### Radiobutton:
         self.RB_choise_relPos= QRadioButton(pos_rel_str[self.sprache])
         self.RB_choise_relPos.clicked.connect(self.relPos)
         self.RB_choise_relPos.setChecked(True)
@@ -360,8 +371,8 @@ class PIAchseWidget(QWidget):
         self.RB_choise_absPos = QRadioButton(pos_abs_str[self.sprache])
         self.RB_choise_absPos.clicked.connect(self.absPos)
 
-        ## Gruppen Widgets:
-        ### Radiobutton:
+        ### Gruppen Widgets:
+        #### Radiobutton:
         self.btn_group_RB = QWidget()
         self.btn_RB_layout = QVBoxLayout()
         self.btn_group_RB.setLayout(self.btn_RB_layout)
@@ -370,7 +381,7 @@ class PIAchseWidget(QWidget):
         self.btn_RB_layout.addWidget(self.RB_choise_relPos)
         self.btn_RB_layout.addWidget(self.RB_choise_absPos)
 
-        ### Bewegungsknöpfe:
+        #### Bewegungsknöpfe:
         self.btn_group_move = QWidget()
         self.btn_move_layout = QHBoxLayout()
         self.btn_group_move.setLayout(self.btn_move_layout)
@@ -383,7 +394,7 @@ class PIAchseWidget(QWidget):
 
         self.btn_move_layout.setContentsMargins(0,10,0,0)  # left, top, right, bottom
 
-        ### Rezept und Define-Home:
+        #### Rezept und Define-Home:
         self.btn_group_Rezept = QWidget()
         self.btn_Rezept_layout = QVBoxLayout()
         self.btn_group_Rezept.setLayout(self.btn_Rezept_layout)
@@ -396,7 +407,7 @@ class PIAchseWidget(QWidget):
 
         self.btn_Rezept_layout.setContentsMargins(0,0,0,0)  # left, top, right, bottom
 
-        ### First-Row:
+        #### First-Row:
         self.first_row_group  = QWidget()
         self.first_row_layout = QHBoxLayout()
         self.first_row_group.setLayout(self.first_row_layout)
@@ -407,7 +418,7 @@ class PIAchseWidget(QWidget):
         self.first_row_layout.addWidget(self.gamepad)
 
         self.first_row_layout.setContentsMargins(0,0,0,0)      # left, top, right, bottom
-
+        #________________________________________
         ## Platzierung der einzelnen Widgets im Layout:
         self.layer_layout.addWidget(self.first_row_group,                   0, 0, 1, 6, alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(QLabel(v_str[self.sprache]),            1, 0)
@@ -422,7 +433,7 @@ class PIAchseWidget(QWidget):
         self.layer_layout.addWidget(self.La_IstSpeed_wert,                  1, 4,       alignment=Qt.AlignLeft)     
         self.layer_layout.addWidget(self.La_IstPos_wert,                    2, 4,       alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(self.btn_group_Rezept,                  1, 5, 4, 1, alignment=Qt.AlignTop)
-        
+        #________________________________________
         ## Größen (Size) - Widgets:
         ### Button-Icon:
         self.btn_left.setIconSize(QSize(50, 50))
@@ -441,7 +452,7 @@ class PIAchseWidget(QWidget):
         self.btn_rezept_ende.setFixedWidth(100)
         self.cb_Rezept.setFixedWidth(100)
         self.btn_DH.setFixedWidth(100)
-
+        #________________________________________
         ## Border Sichtbar:
         if Frame_Anzeige:
             self.layer_widget.setStyleSheet("border: 1px solid black;")
@@ -1221,8 +1232,12 @@ class PIAchseWidget(QWidget):
             
             # Combo-Box neu beschreiben:
             self.cb_Rezept.addItem('------------')
-            for rezept in self.rezept_config:
-                self.cb_Rezept.addItem(rezept) 
+            try:
+                for rezept in self.rezept_config:
+                    self.cb_Rezept.addItem(rezept) 
+            except Exception as e:
+                self.Fehler_Output(1, self.err_21_str[self.sprache])
+                logger.exception(self.Log_Text_Ex2_str[self.sprache]) 
 
             # Neu verbinden von der Funktion:
             self.cb_Rezept.currentTextChanged.connect(self.RezKurveAnzeige)  
