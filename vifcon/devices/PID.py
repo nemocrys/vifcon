@@ -97,12 +97,14 @@ class PID(QObject):
     ##########################################
     # Input-Output:
     ##########################################
-    def InOutPID(self, Input_Ist, Input_Soll):
+    def InOutPID(self, Input_Ist, Input_Soll, Modus, Rezept_OP):
         ''' Regelung
 
         Args: 
             Input_Ist (float):  Istwert der Regelung
             Input_Soll (float): Sollwert der Regelung
+            Modus (bool):       Wenn True, so ist der Rezept-Modus aktiv!
+            Rezept_OP (float):  Wert wird an Output gegeben - bei -1 wird der alte noch genommen!
         
         Return:
             Output (float):     Regelgröße die gesendet werden soll        
@@ -135,8 +137,15 @@ class PID(QObject):
         # Nächster Durchgang:
         self.last_time = ak_time
         self.last_Input = Input_Ist
+
+        # Rezept-Modus:
+        if Modus and not Rezept_OP == -1:
+            Output = Rezept_OP 
+
+        # Werte Loggen:    
         logger.debug(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_value_1[self.sprache]} {Input_Soll} {self.Log_value_2[self.sprache]} {Input_Ist} {self.Log_value_3[self.sprache]} {Output}')
         
+        # Rückgabewert beschreiben:
         self.Output = round(Output,3)
 
         

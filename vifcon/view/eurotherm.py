@@ -228,7 +228,7 @@ class EurothermWidget(QWidget):
         #---------------------------------------
         #self.send_betätigt = True
         self.write_task  = {'Soll-Temperatur': False, 'Operating point':False, 'Auto_Mod': False, 'Manuel_Mod': False, 'Init':False, 'Start': False, 'EuRa': False, 'EuRa_Reset': False, 'Read_HO': False, 'Write_HO': False}
-        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID': False, 'PID-Sollwert': 0}
+        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID': False, 'PID-Sollwert': 0, 'PID_Rezept_Mode_OP': False, 'PID_Rez': -1}
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -914,12 +914,16 @@ class EurothermWidget(QWidget):
 
                     # OP Als Erster Schritt:
                     if self.Art_list[self.step] == 'op':
-                        self.write_task['Auto_Mod'] = False
-                        self.write_task['Manuel_Mod'] = True
-                        if not self.value_list_op[self.step] == 'IST':
-                            self.write_task['Operating point'] = True
-                            self.write_value['Rez_OPTemp'] = self.value_list_op[self.step]
-                        self.op_Mod = True
+                        if self.PID_cb.isChecked():
+                            self.write_value['PID_Rezept_Mode_OP'] = True
+                            self.write_value['PID_Rez'] = self.value_list_op[self.step]
+                        else:
+                            self.write_task['Auto_Mod'] = False
+                            self.write_task['Manuel_Mod'] = True
+                            if not self.value_list_op[self.step] == 'IST':
+                                self.write_task['Operating point'] = True
+                                self.write_value['Rez_OPTemp'] = self.value_list_op[self.step]
+                            self.op_Mod = True
 
                     # Elemente GUI sperren:
                     self.cb_Rezept.setEnabled(False)
@@ -966,6 +970,8 @@ class EurothermWidget(QWidget):
 
                 # Variablen:
                 self.Rezept_Aktiv = False
+                self.write_value['PID_Rezept_Mode_OP'] = False
+                self.write_value['PID_Rez'] = -1
 
                 ## Am Ende oder bei Abbruch:
                 ## Eurotherm Rampe :
@@ -1026,12 +1032,19 @@ class EurothermWidget(QWidget):
                 
                 ## Wenn op-Schritt, dann stelle Manuellen Modus ein und sende den OP-Wert:
                 if 'op' in self.Art_list[self.step]:
-                    self.write_task['Auto_Mod'] = False
-                    self.write_task['Manuel_Mod'] = True
-                    if not self.value_list_op[self.step] == 'IST':
-                        self.write_task['Operating point'] = True
-                        self.write_value['Rez_OPTemp'] = self.value_list_op[self.step]
-                    self.op_Mod = True
+                    if self.PID_cb.isChecked():
+                        self.write_value['PID_Rezept_Mode_OP'] = True
+                        self.write_value['PID_Rez'] = self.value_list_op[self.step]
+                    else:
+                        self.write_task['Auto_Mod'] = False
+                        self.write_task['Manuel_Mod'] = True
+                        if not self.value_list_op[self.step] == 'IST':
+                            self.write_task['Operating point'] = True
+                            self.write_value['Rez_OPTemp'] = self.value_list_op[self.step]
+                        self.op_Mod = True
+                else:
+                    self.write_value['PID_Rezept_Mode_OP'] = False
+                    self.write_value['PID_Rez'] = -1
             elif self.Art_list[self.step] == 'er':
                 ## Kontrolliere ob der vorherige Schritt ein op-Schritt war:
                 if self.op_Mod:
@@ -1108,7 +1121,7 @@ class EurothermWidget(QWidget):
                         self.Fehler_Output(1, self.err_17_str[self.sprache])
                         return False
             if self.PID_cb.isChecked():
-                for segment in ['er', 'op', 'opr']:
+                for segment in ['er']:
                     for n in rez_dat:
                         if segment in rez_dat[n]: 
                             logger.warning(f'{self.device_name} - {self.Log_Text_248_str[self.sprache]}')
@@ -1176,11 +1189,14 @@ class EurothermWidget(QWidget):
                         self.Steigung.append(rampen_config_step)                # Steigungswert eintragen
                 ### Eurotherm Rampe:
                 elif werte[2].strip() == 'er': 
+                    #### Berechnung der Steigung:
+                    m = abs(round((self.value_list[-1] - value)/time, 3))       # Steigung: m = Delta(y)/Delta(x) -> m = (aktueller_Wert - Zielwert)/Segmentzeit   
+                    #### Listen-füllen:
                     self.value_list.append(value)                               # Sollwert speichern
                     self.value_list_op.append(0)                                # OP-Wert auf Null
                     self.time_list.append(time)                                 # Zeit-Wert speichern
                     self.Art_list.append('er')                                  # Rampen-Art: er
-                    self.Steigung.append(float(werte[3].replace(',','.')))      # Steigungswert eintragen
+                    self.Steigung.append(m)                                     # Steigungswert eintragen
                 ### Leistungssprung in Temperatur-Rezept:
                 elif werte[2].strip() == 'op':
                     self.value_list.append(value)                               # Sollwert (Temp) speichern

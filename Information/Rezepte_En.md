@@ -4,7 +4,7 @@ In the following, the individual recipe segments, the structure and the outsourc
 
 ## Last change
 
-The last change of this description was: August 25, 2024
+The last change of this description was: August 13, 2024
 
 ## Existing recipe segments
 
@@ -23,7 +23,7 @@ For Eurotherm power, PID mode, TruHeat, Nemo drives (stroke, rotation) and PI ax
 ```
 Jump:               SN: t ; ST  ; s
 Ramp:               SN: t ; TS  ; r   ; RTI
-Eurotherm ramp:     SN: t ; TS  ; er  ; m
+Eurotherm ramp:     SN: t ; TS  ; er  
 Power Jump:         SN: t ; STT ; op  ; STP
 Power ramp:         SN: t ; TST ; opr ; TSP; RTI ; SVR
 ```
@@ -37,7 +37,6 @@ Legend:
 - TST - target setpoint temperatur
 - TSP - target setpoint power
 - RTI - ramp jump time interval
-- m - pitch
 - SVR - start value ramp
 
 ### Description:
@@ -47,13 +46,7 @@ Legend:
     - Value to which the jump should be made.
 3.  Target setpoint: 		
     - end of ramp
-4. Pitch: 			
-    - steepness of the ramp
-	    - er: e.g. 0.01 --> transfer to Eurotherm, meaning 0.01°C/s
-        - Calculation: m = delta y / delta x
-            - e.g. recipe: `n1: 600 ; 200 ; er ; 0.297` with a starting temperature of 25°C
-            - m = (200°C - 25°C)/ 600 s = 0.297 °C/s
-5. Ramp jump time interval: 	
+4. Ramp jump time interval: 	
     - Distance between the ramp jumps
     - Examples:
 	    - r:   
@@ -70,7 +63,7 @@ Legend:
             -> 10 s/2 s = 5     
             -> (100 % -  0 %)/5 s  = 20 % (jumps)    
             -> A jump every 2 seconds
-6. Start value: 			
+5. Start value: 			
     - start of the ramp
 
 ## Particularities:
@@ -78,6 +71,9 @@ Legend:
 - In the case of "power jump" the ACTUAL value can also be specified in the "setpoint power". This only switches the Eurotherm mode to manual. The current power value is kept as the actual value/setpoint.
 - For "Power ramp" nothing can be specified for "Start value ramp", then the power ramp starts at zero.
 - A temperature jump is also triggered with "power jump" and "power ramp".
+- With the Eurotherm ramp, the gradient (calculation: m = delta y / delta x) is calculated in the program. Apart from the start value of the ramp, everything else is set in the configuration: m = (start value - target value)/segment time
+- With the ramps, the user can select either start with actual value or start with setpoint in the configuration. This configuration is only necessary for the first ramp in a recipe.
+- With the Eurotherm ramp, it must be known that this is an internal program of the Eurotherm controller. The ramps always start from the current actual value!!
 
 ## Outsourcing of recipes
 
@@ -117,12 +113,12 @@ The only thing you need to pay attention to here is the indentation so that ever
 2. Configure the swapped file:
     - rec_example.yml:
         ```
-        n0: 3600 ; 500 ; er  ; 0.133
+        n0: 3600 ; 500 ; er
         n1: 600  ; 500 ; s 
         n2: 600  ; 500 ; op  ; 20
         n3: 1200 ; 200 ; r   ; 3
         n4: 600  ; 200 ; opr ; 5 ; 1 ; 20 
-        n5: 600  ; 20  ; er  ; 0.3
+        n5: 600  ; 20  ; er
         ```
 
 This file does not require indentation. Comments can be created in these files, but note that certain characters such as "\t" do not appear outside of the comments!
@@ -160,7 +156,7 @@ All 5 segment types are used in the example. This means that it is a Eurotherm c
 Recipe:
 
 ```
-n1: 10 ; 100 ; er ; 8
+n1: 10 ; 100 ; er
 n2: 10 ; 100 ; s
 n3: 10 ; 200 ; r ; 0,667
 n4: 10 ; 200 ; op ; 20

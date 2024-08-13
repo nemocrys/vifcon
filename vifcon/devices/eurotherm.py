@@ -46,7 +46,7 @@ class SerialMock:
 
 
 class Eurotherm(QObject):
-    signal_PID  = pyqtSignal(float, float)
+    signal_PID  = pyqtSignal(float, float, bool, float)
 
     def __init__(self, sprache, config, com_dict, test, neustart, add_Ablauf_function, name="Eurotherm", typ = 'Generator'):
         """ Erstelle Eurotherm Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
@@ -90,6 +90,8 @@ class Eurotherm(QObject):
         self.EuRa_Aktiv     = False
         self.Save_End_State = False
         self.done_ones      = False
+        self.mode_aktiv     = False 
+        self.Rez_OP         = -1
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -364,6 +366,10 @@ class Eurotherm(QObject):
             ## Schreibe Werte:
             PID_write_OP = True
             PowOutPID = self.op
+            ## Rezept-Modus:
+            self.mode_aktiv = write_value['PID_Rezept_Mode_OP']
+            if self.mode_aktiv:
+                self.Rez_OP = write_value['PID_Rez']
 
         # Schreiben:
         ## Ändere Modus:
@@ -708,7 +714,7 @@ class Eurotherm(QObject):
     ##########################################
     def PID_Update(self):
         '''PID-Regler-Thread-Aufruf'''
-        self.signal_PID.emit(self.Ist, self.Soll)
+        self.signal_PID.emit(self.Ist, self.Soll, self.mode_aktiv, self.Rez_OP)
         self.op = self.PID.Output
 
 ##########################################

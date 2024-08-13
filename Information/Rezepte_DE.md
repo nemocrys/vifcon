@@ -4,7 +4,7 @@ Im folgenden werden die einzelnen Rezept-Segmente, der Aufbau und die Auslagerun
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 12.8.2024
+Die Letzte Änderung dieser Beschreibung war: 13.8.2024
 
 ## Vorhandene Rezept-Segmente
 
@@ -25,7 +25,7 @@ Für Eurotherm Leistung, PID-Modus, TruHeat, Nemo-Antriebe (Hub, Rotation) und P
 ```
 Sprung:             SN: t ; So  ; s
 Rampe:              SN: t ; ZS  ; r   ; RZ
-Eurotherm Rampe:    SN: t ; ZS  ; er  ; m
+Eurotherm Rampe:    SN: t ; ZS  ; er
 Leistungs Sprung:   SN: t ; SoT ; op  ; SoL
 Leistungs Rampe:    SN: t ; ZST ; opr ; ZSL ; RZ ; SR
 ```
@@ -39,7 +39,6 @@ Legend:
 - So - Sollwert
 - SoT - Sollwert Temperatur
 - SoL - Sollwert Leistung
-- m - Steigung
 - SR - Startwert Rampe
 
 ### Beschreibung:
@@ -49,13 +48,7 @@ Legend:
     - Wert zu dem gesprungen werden soll.
 3.  Zielsollwert:			
     - Ende der Rampe
-4.  Steigung:			
-    - Steilheit der Rampe
-	    - er:  z.B. 0.01 --> Übergabe an Eurotherm, Bedeutung 0.01°C/s
-        - Berechnung: m = delta y / delta x
-            - z.B. Rezept: `n1: 600 ; 200 ; er ; 0,297` mit einer Starttemperatur von 25°C
-            - m = (200°C - 25°C)/ 600 s = 0,297 °C/s
-5.  Rampensprung Zeitabstand:	
+4.  Rampensprung Zeitabstand:	
     - Abstand der Rampensprünge
     - Beispiele:  
 		- r:   
@@ -72,7 +65,7 @@ Legend:
             -> 10 s/2 s =  5   
             -> (100 % -  0 %)/5 s  = 20 % (Sprünge)   
             -> Alle 2 Sekunden ein Sprung 
-6. Startwert:	
+5. Startwert:	
     - Beginn der Rampe
 
 ## Besonderheiten:
@@ -80,6 +73,9 @@ Legend:
 - Bei "Leistungs Sprung" kann bei "Sollwert Leistung" auch IST angegeben werden. Dadurch wechselt nur der Modus des Eurotherms auf Manuell. Der aktuelle Leistungswert wird als Istwert/Sollwert gehalten. 
 - Bei "Leistungs Rampe" kann bei "Startwert Rampe" auch nichts angegeben werden, dann Startet die Leistungsrampe bei Null. 
 - Bei "Leistungs Sprung" und "Leistungs Rampe" wird auch ein Temperatursprung ausgelöst. 
+- Bei der Eurotherm-Rampe wird die Steigung (Berechnung: m = delta y / delta x) im Programm berechnet. Bis auf den Startwert der Rampe, wird alles andere in der Konfiguration gesetzt: m = (Startwert - Zielwert)/Segmentzeit
+- Bei den Rampen kann der Nutzer in der Konfiguration entweder Start mit Istwert oder Start mit Sollwert auswählen. Diese konfiguration ist nur für die erste Rampe in einem Rezept notwendig.
+- Bei der Eurotherm-Rampe muss gewusst werden, das dies ein internes Programm des Eurotherm-Reglers ist. Die Rampen starten immer vom aktuellen Istwert!!
 
 ## Auslagern von Rezepten
 
@@ -119,12 +115,12 @@ Beachtet müssen hier nur die Einrückungen, damit alles richtig ausgelesen werd
 2. Ausgelagerte Datei konfigurieren:
     - rec_example.yml:
         ```
-        n0: 3600 ; 500 ; er  ; 0.133
+        n0: 3600 ; 500 ; er
         n1: 600  ; 500 ; s 
         n2: 600  ; 500 ; op  ; 20
         n3: 1200 ; 200 ; r   ; 3
         n4: 600  ; 200 ; opr ; 5 ; 1 ; 20 
-        n5: 600  ; 20  ; er  ; 0.3
+        n5: 600  ; 20  ; er
         ```
 
 Diese Datei benötigt keine Einrückungen. Kommentare können in diesen Dateien erstellt werden, beachte hierbei aber das bestimmte Zeichen wie z.B. "\t" nicht außerhalb der Kommentare auftauchen!
@@ -161,7 +157,7 @@ In dem Beispiel werden alle 5 Segmentarten genutzt. Somit handelt es sich um ein
 
 Rezept:
 ```
-n1: 10 ; 100 ; er ; 8
+n1: 10 ; 100 ; er
 n2: 10 ; 100 ; s
 n3: 10 ; 200 ; r ; 0,667
 n4: 10 ; 200 ; op ; 20
