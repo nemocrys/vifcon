@@ -111,6 +111,7 @@ VIFCON works with Python >= 3.8 on Windows, Linux and Raspberry Pi (RPi OS 64-bi
     - time
     - datetime
     - argparse
+    - math
 
 ### Screen size:
 The GUI requires a minimum screen resolution of 1240x900 pixels.
