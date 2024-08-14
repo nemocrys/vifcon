@@ -807,15 +807,33 @@ class EurothermWidget(QWidget):
             x_value (list):     Werte für die x-Achse
         '''
 
+        ### PID-Modus - Werte Anzeige und Farbe:
+        if self.color_Aktiv:
+            if self.PID_cb.isChecked():
+                self.labelDict['IWT'].setStyleSheet(f"color: {self.color[6]}")  # Istwert PID
+                self.La_IstTemp_text.setStyleSheet(f"color: {self.color[6]}")
+                self.labelDict['SWT'].setStyleSheet(f"color: {self.color[5]}")  # Sollwert PID
+                self.RB_choise_Temp.setStyleSheet(f"color: {self.color[5]}")
+            else:
+                self.labelDict['IWT'].setStyleSheet(f"color: {self.color[0]}")  # Istwert PID
+                self.La_IstTemp_text.setStyleSheet(f"color: {self.color[0]}")  
+                self.labelDict['SWT'].setStyleSheet(f"color: {self.color[1]}")  # Sollwert PID
+                self.RB_choise_Temp.setStyleSheet(f"color: {self.color[1]}")
+
+        ### Kurven Update:
         self.data.update({'Time' : x_value[-1]})                    
         self.data.update(value_dict)   
         
         for messung in value_dict:
-            if not 'SWT' in messung and not messung == 'IWTPID':
-               self.labelDict[messung].setText(f'{value_dict[messung]} {self.labelUnitDict[messung]}')
+            if not 'SWT' in messung:
+                if 'IWT' in messung:
+                    if messung == 'IWT' and not self.PID_cb.isChecked():   self.labelDict[messung].setText(f'({value_dict[messung]})') 
+                    elif messung == 'IWTPID' and  self.PID_cb.isChecked(): self.labelDict['IWT'].setText(f'({value_dict[messung]})')
+                else:
+                    self.labelDict[messung].setText(f'{value_dict[messung]} {self.labelUnitDict[messung]}')
             else:
-               if messung == 'SWT':
-                    self.labelDict[messung].setText(f'({value_dict[messung]})') 
+                if messung == 'SWT' and not self.PID_cb.isChecked():   self.labelDict[messung].setText(f'({value_dict[messung]})') 
+                elif messung == 'SWTPID' and  self.PID_cb.isChecked(): self.labelDict['SWT'].setText(f'({value_dict[messung]})') 
             self.listDict[messung].append(value_dict[messung])
             if not self.curveDict[messung] == '':
                 faktor = self.skalFak_dict[messung]
