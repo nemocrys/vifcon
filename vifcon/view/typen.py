@@ -95,7 +95,7 @@ class PopUpWindow:
 
 class Generator(QWidget, Cursor, PopUpWindow):
     ''' Splitter-GUI für Generator mit Knöpfen und Plot in der ersten Zeile. '''
-    def __init__(self, start_zeit, tab_splitter_widget, add_Ablauf_function, stopp_all_function, menu_dict, legend_ops, Faktoren, sprache, parent=None):
+    def __init__(self, start_zeit, tab_splitter_widget, add_Ablauf_function, stopp_all_function, menu_dict, legend_ops, Faktoren, sprache, color_On, parent=None):
         """Generator Widget für Generator und Controller Geräte.
 
         Args:
@@ -107,6 +107,7 @@ class Generator(QWidget, Cursor, PopUpWindow):
             legend_ops (dict):                  Optionen für die Legende aus der Config-Datei
             Faktoren (dict):                    Skalierungsfaktoren für den Plot
             sprache (int):                      Sprache der GUI (Listenplatz)
+            color_On (bool):                    Einstellung ob die Widget-Werte in Farbe oder Schwarz sind
         """
         super().__init__()
 
@@ -120,6 +121,7 @@ class Generator(QWidget, Cursor, PopUpWindow):
         self.legend_ops                 = legend_ops
         self.Faktor                     = Faktoren
         self.sprache                    = sprache
+        self.color_On                   = color_On
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -131,6 +133,9 @@ class Generator(QWidget, Cursor, PopUpWindow):
         self.sichere_Bild_2_str = ['legende_Achse_Rechts',                                                                                                  'legend_axis_right']
         ## GUI:
         self.Eintrag_Achse      = ['Keine Einträge!',                                                                                                       'No entries!']
+        autoR_str               = ["Auto Achse",                                                                                                            "Auto Range"]
+        action_ar_str           = ['Passe Achsen an',                                                                                                       'Adjust axes']
+        Typ                     = ['Generatoren und Regler',                                                                                                'Generators and Controllers']
         ## Pop-Up:
         self.PopUp_1            = ['Frage',                                                                                                                 'Question']
         self.PopUp_2            = ['Information',                                                                                                           'Information']
@@ -165,6 +170,9 @@ class Generator(QWidget, Cursor, PopUpWindow):
             else:
                 label_list.append(f'{label_dict[size]}')
         
+        ## AutoScale Knopf definieren:
+        self.btn_AS = QPushButton(QIcon("./vifcon/icons/AutoScale.png"), '')     # Icon
+        
         ## Graphen/Plot erstellen:
         if legend_ops['legend_pos'].upper() == 'SIDE' and (legend_ops['side'] == 'rl' or legend_ops['side'] == 'l'):
             self.legend_achsen_Links_widget = Widget_VBox()
@@ -176,7 +184,7 @@ class Generator(QWidget, Cursor, PopUpWindow):
         Achse_y2_str = f'{label_list[3]} | {label_list[4]} | {label_list[5]}'.replace(' | 0', '').replace('0 |','')
         if Achse_y2_str == '0':
             Achse_y2_str = self.Eintrag_Achse[self.sprache]
-        self.plot = PlotWidget(menu_dict, self.legend_ops, self.sprache, 'Generator', 't [s]', Achse_y1_str, Achse_y2_str)            
+        self.plot = PlotWidget(menu_dict, self.btn_AS, self.legend_ops, self.sprache, 'Generator', 't [s]', Achse_y1_str, Achse_y2_str)            
         self.splitter_row_one.splitter.addWidget(self.plot.plot_widget)
 
         if legend_ops['legend_pos'].upper() == 'SIDE' and (legend_ops['side'] == 'rl' or legend_ops['side'] == 'r'):
@@ -197,12 +205,18 @@ class Generator(QWidget, Cursor, PopUpWindow):
         self.btn_stopp_all.setIconSize(QSize(60, 60))                                   # Icon Size
         self.controll_layout.addWidget(self.btn_stopp_all, 0, 0)                        # Platzierung
 
+        ### Auto-Scale:                 
+        self.btn_AS.setFlat(True)                                                                                   # Rahmen weg
+        self.btn_AS.setIconSize(QSize(60, 60))                                                                      # Icon Size
+        self.btn_AS.setToolTip(f'{autoR_str[self.sprache]} {Typ[self.sprache]} - {action_ar_str[self.sprache]}')    # ToolTip
+        self.controll_layout.addWidget(self.btn_AS, 1, 0)                                                           # Platzierung
+
         ### Achsen Werte:
-        self.Add_Widget(1)
+        self.Add_Widget(2)
 
         ## Anordnung-rechts-Grid Size:
         self.controll_layout.setRowStretch(1, 1) 
-        self.controll_layout.setColumnStretch(2, 1)
+        self.controll_layout.setColumnStretch(3, 1)
 
         ## Spacing:
         self.controll_layout.setHorizontalSpacing(3)       
@@ -231,7 +245,7 @@ class Generator(QWidget, Cursor, PopUpWindow):
     
 class Antrieb(QWidget, Cursor, PopUpWindow):
     ''' Splitter-GUI für Antriebe mit Knöpfen und Plot in der ersten Zeile. '''
-    def __init__(self, start_zeit, tab_splitter_widget, add_Ablauf_function, stopp_all_function, synchro_function, menu_dict, legend_ops, Faktoren, sprache, parent=None):
+    def __init__(self, start_zeit, tab_splitter_widget, add_Ablauf_function, stopp_all_function, synchro_function, menu_dict, legend_ops, Faktoren, sprache, color_On, parent=None):
         """ Generator Widget für Generator und Controller Geräte.
 
         Args:
@@ -244,6 +258,7 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
             legend_ops (dict):                  Optionen für die Legende aus der Config-Datei
             Faktoren (dict):                    Skalierungsfaktoren für den Plot
             sprache (int):                      Sprache der GUI (Listenplatz)
+            color_On (bool):                    Einstellung ob die Widget-Werte in Farbe oder Schwarz sind
         """
         super().__init__()
 
@@ -258,18 +273,22 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         self.legend_ops                 = legend_ops
         self.Faktor                     = Faktoren
         self.sprache                    = sprache
+        self.color_On                   = color_On
 
         #--------------------------------------- 
         # Sprach-Einstellung:                                                               
         #---------------------------------------                                                                
         ## Ablaufdatei:                                                             
-        self.Text_11_str        = ['Knopf zum ausschalten aller Achsen betätigt!',                                                                          'Button pressed to switch off all axes!']
-        self.Text_12_str        = ['Knopf zum synchronen Achsen bewegen betätigt!',                                                                         'Button for synchronous axes movement pressed!']
+        self.Text_11_str        = ['Knopf zum ausschalten aller Achsen/Antribe betätigt!',                                                                  'Button pressed to switch off all axes/drives!']
+        self.Text_12_str        = ['Knopf zum synchronen Achsen/Antribe bewegen betätigt!',                                                                 'Button for synchronous axes/drives movement pressed!']
         ## Speichere Bilder:                                                                        
         self.sichere_Bild_1_str = ['legende_Achse_Links',                                                                                                   'legend_axis_left']
         self.sichere_Bild_2_str = ['legende_Achse_Rechts',                                                                                                  'legend_axis_right']
         ## GUI:                                                                     
         self.Eintrag_Achse      = ['Keine Einträge!',                                                                                                       'No entries!']
+        autoR_str               = ["Auto Achse",                                                                                                            "Auto Range"]
+        action_ar_str           = ['Passe Achsen an',                                                                                                       'Adjust axes']
+        Typ                     = ['Antriebe',                                                                                                              'Drives']
         ## Pop-Up:
         self.PopUp_1            = ['Frage',                                                                                                                 'Question']
         self.PopUp_2            = ['Information',                                                                                                           'Information']
@@ -304,6 +323,9 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
             else:
                 label_list.append(f'{label_dict[size]}')
 
+        ## AutoScale Knopf definieren:
+        self.btn_AS = QPushButton(QIcon("./vifcon/icons/AutoScale.png"), '')     # Icon
+
         ## Graphen erstellen:
         if legend_ops['legend_pos'].upper() == 'SIDE' and (legend_ops['side'] == 'rl' or legend_ops['side'] == 'l'):
             self.legend_achsen_Links_widget = Widget_VBox()
@@ -315,7 +337,7 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         Achse_y2_str = f'{label_list[2]} | {label_list[3]} | {label_list[4]}'.replace(' | 0', '').replace('0 |','')
         if Achse_y2_str == '0':
             Achse_y2_str = self.Eintrag_Achse[self.sprache]
-        self.plot = PlotWidget(menu_dict, self.legend_ops, self.sprache, 'Antrieb', 't [s]', Achse_y1_str, Achse_y2_str)          
+        self.plot = PlotWidget(menu_dict, self.btn_AS, self.legend_ops, self.sprache, 'Antrieb', 't [s]', Achse_y1_str, Achse_y2_str)          
         self.splitter_row_one.splitter.addWidget(self.plot.plot_widget)
 
         if legend_ops['legend_pos'].upper() == 'SIDE' and (legend_ops['side'] == 'rl' or legend_ops['side'] == 'r'):
@@ -343,12 +365,18 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         self.btn_syn.setIconSize(QSize(60, 60))                                   # Icon Size
         self.controll_layout.addWidget(self.btn_syn, 1, 0)                        # Platzierung
 
+        ### Auto-Scale:
+        self.btn_AS.setFlat(True)                                                                                   # Rahmen weg
+        self.btn_AS.setIconSize(QSize(60, 60))                                                                      # Icon Size
+        self.btn_AS.setToolTip(f'{autoR_str[self.sprache]} {Typ[self.sprache]} - {action_ar_str[self.sprache]}')    # ToolTip
+        self.controll_layout.addWidget(self.btn_AS, 2, 0)                                                           # Platzierung
+
         ### Achsen Werte:
-        self.Add_Widget(2)
+        self.Add_Widget(3)
 
         ## Grid Size:
-        self.controll_layout.setRowStretch(2, 1) 
-        self.controll_layout.setColumnStretch(2, 1)
+        self.controll_layout.setRowStretch(3, 1) 
+        self.controll_layout.setColumnStretch(3, 1)
 
         ## Spacing:
         self.controll_layout.setHorizontalSpacing(3)       

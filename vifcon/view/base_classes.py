@@ -71,7 +71,7 @@ class Widget_VBox(QWidget):
 
 
 class PlotWidget(QWidget):
-    def __init__(self, menu, legend_ops, sprache, typ, label_x, label_y1, label_y2 = '', parent=None):
+    def __init__(self, menu, btn_AS, legend_ops, sprache, typ, label_x, label_y1, label_y2 = '', parent=None):
         """Setup plot widget.
            siehe auch: https://stackoverflow.com/questions/71175650/pyqtgraph-add-items-from-seperate-viewbox-to-legend       
 
@@ -89,18 +89,18 @@ class PlotWidget(QWidget):
         #---------------------------------------
         # Variablen:
         #---------------------------------------
-        self.legend_pos     = legend_ops['legend_pos'].upper()
-        self.sprache        = sprache
+        self.legend_pos         = legend_ops['legend_pos'].upper()
+        self.sprache            = sprache
+        self.button_action_2    = btn_AS
 
-        self.toggle_Grid    = True
-        fontsize            = 12                                   # Integer, Schriftgröße Achsen
+        self.toggle_Grid        = True
+        fontsize                = 12                                   # Integer, Schriftgröße Achsen
 
         #--------------------------------------- 
         # Sprach-Einstellung:
         #--------------------------------------- 
         ## Menü-Leiste:
         action_grid_str         = ['Toggle Gitter An/Aus',  'Toggle Grid On/Off']
-        action_ar_str           = ['Passe Achsen an',       'Adjust axes']
         ## Save:
         self.sichere_Bild_3_str = ['legend',                'legend']
 
@@ -184,12 +184,10 @@ class PlotWidget(QWidget):
         self.button_action_1.triggered.connect(self.GridOnOff)
         self.button_action_1.setCheckable(True)
 
-        button_action_2 = QAction(f"{typ} - {action_ar_str[self.sprache]}", self)
-        button_action_2.triggered.connect(self.AutoRange)
+        self.button_action_2.clicked.connect(self.AutoRange)
         
         ## Anhaften:
         menu['Grid'].addAction(self.button_action_1)
-        menu['Auto Range'].addAction(button_action_2)
 
     ##########################################
     # Reaktion auf Menüleiste:

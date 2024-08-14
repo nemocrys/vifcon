@@ -94,6 +94,7 @@ class EurothermWidget(QWidget):
         ### GUI:
         self.legenden_inhalt = self.config['GUI']['legend'].split(';')
         self.legenden_inhalt = [a.strip() for a in self.legenden_inhalt]    # sollten Unnötige Leerzeichen vorhanden sein, so werden diese entfernt!
+        self.color_Aktiv = self.typ_widget.color_On
         ### Rezepte:
         self.rezept_config = self.config["rezepte"]
 
@@ -287,11 +288,11 @@ class EurothermWidget(QWidget):
 
         ### Radiobutton:
         self.RB_choise_Temp = QRadioButton(f'{sollwert_str[self.sprache]}-{T_str[self.sprache]} ')
-        self.RB_choise_Temp.setStyleSheet(f"color: {self.color[1]}")
+        if self.color_Aktiv: self.RB_choise_Temp.setStyleSheet(f"color: {self.color[1]}")
         self.RB_choise_Temp.clicked.connect(self.BlassOutPow)
 
         self.RB_choise_Pow = QRadioButton(f'{P_str[self.sprache]} ')
-        self.RB_choise_Pow.setStyleSheet(f"color: {self.color[2]}")
+        if self.color_Aktiv: self.RB_choise_Pow.setStyleSheet(f"color: {self.color[2]}")
         self.RB_choise_Pow.clicked.connect(self.BlassOutTemp)
 
         if self.init:       # and not self.neustart
@@ -303,16 +304,16 @@ class EurothermWidget(QWidget):
         #### Isttemperatur:
         self.La_IstTemp_text = QLabel(f'{istwert_str[self.sprache]}-{sT_str[self.sprache]} ')
         self.La_IstTemp_wert = QLabel(st_T_str[self.sprache])
-        self.La_IstTemp_text.setStyleSheet(f"color: {self.color[0]}")
-        self.La_IstTemp_wert.setStyleSheet(f"color: {self.color[0]}")
+        if self.color_Aktiv: self.La_IstTemp_text.setStyleSheet(f"color: {self.color[0]}")
+        if self.color_Aktiv: self.La_IstTemp_wert.setStyleSheet(f"color: {self.color[0]}")
         #### Istleistung:
         self.La_IstPow_text = QLabel(f'{istwert_str[self.sprache]}-{sP_str[self.sprache]} ')
         self.La_IstPow_wert = QLabel(st_P_str[self.sprache])
-        self.La_IstPow_text.setStyleSheet(f"color: {self.color[2]}")
-        self.La_IstPow_wert.setStyleSheet(f"color: {self.color[2]}")
+        if self.color_Aktiv: self.La_IstPow_text.setStyleSheet(f"color: {self.color[2]}")
+        if self.color_Aktiv: self.La_IstPow_wert.setStyleSheet(f"color: {self.color[2]}")
         #### Solltemperatur:
         self.La_SollTemp_wert = QLabel(st_Tsoll_str[self.sprache])
-        self.La_SollTemp_wert.setStyleSheet(f"color: {self.color[1]}")
+        if self.color_Aktiv: self.La_SollTemp_wert.setStyleSheet(f"color: {self.color[1]}")
         #### Fehlernachrichten:
         self.La_error = QLabel(self.err_13_str[self.sprache])
 

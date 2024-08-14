@@ -93,6 +93,7 @@ class NemoAchseRotWidget(QWidget):
         ### GUI:
         self.legenden_inhalt = self.config['GUI']['legend'].split(';')
         self.legenden_inhalt = [a.strip() for a in self.legenden_inhalt]    # sollten Unnötige Leerzeichen vorhanden sein, so werden diese entfernt!
+        self.color_Aktiv = self.typ_widget.color_On
         ### Rezepte:
         self.rezept_config = self.config["rezepte"]
         ### Gamepad:
@@ -280,23 +281,23 @@ class NemoAchseRotWidget(QWidget):
         #### Istwinkelgeschwindigkeit:
         self.La_IstSpeed_text = QLabel(f'{istwert_str[self.sprache]}-{sv_str[self.sprache]} ')
         self.La_IstSpeed_wert = QLabel(st_v_str[self.sprache])
-        self.La_IstSpeed_text.setStyleSheet(f"color: {self.color[0]}")
-        self.La_IstSpeed_wert.setStyleSheet(f"color: {self.color[0]}")
+        if self.color_Aktiv: self.La_IstSpeed_text.setStyleSheet(f"color: {self.color[0]}")
+        if self.color_Aktiv: self.La_IstSpeed_wert.setStyleSheet(f"color: {self.color[0]}")
         #### Istwinkel:
         self.La_IstWin_text = QLabel(f'{istwert_str[self.sprache]}-{sw_str[self.sprache]} ')
         self.La_IstWin_wert = QLabel(st_w_str[self.sprache])
-        self.La_IstWin_text.setStyleSheet(f"color: {self.color[1]}")
-        self.La_IstWin_wert.setStyleSheet(f"color: {self.color[1]}")
+        if self.color_Aktiv: self.La_IstWin_text.setStyleSheet(f"color: {self.color[1]}")
+        if self.color_Aktiv: self.La_IstWin_wert.setStyleSheet(f"color: {self.color[1]}")
         #### Statuswert:
         self.La_Status = QLabel(status_1_str[self.sprache])
         #### Sollwinkelgeschwindigkeit:
         self.La_SollSpeed = QLabel(v_str[self.sprache])
-        self.La_SollSpeed.setStyleSheet(f"color: {self.color[2]}")
+        if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[2]}")
 
         self.La_SollSpeed_text = QLabel(f'{sollwert_str[self.sprache]}-{sv_str[self.sprache]} ')
         self.La_SollSpeed_wert = QLabel(st_v_str[self.sprache])
-        self.La_SollSpeed_text.setStyleSheet(f"color: {self.color[2]}")
-        self.La_SollSpeed_wert.setStyleSheet(f"color: {self.color[2]}")
+        if self.color_Aktiv: self.La_SollSpeed_text.setStyleSheet(f"color: {self.color[2]}")
+        if self.color_Aktiv: self.La_SollSpeed_wert.setStyleSheet(f"color: {self.color[2]}")
 
         ### Knöpfe:
         #### Bewegung:

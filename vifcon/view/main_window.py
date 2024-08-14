@@ -67,7 +67,6 @@ class MainWindow(QMainWindow):
         G_str               = ["&Geräte",                                "&Devices"] 
         R_str               = ["&Rezepte",                               "&Recipes"] 
         gitter_str          = ["&Gitter",                                "&Grid"]                               # & - Ermöglicht eine Tastenkombination Alt + Buchstabe (nach &)
-        autoR_str           = ["&Auto Achse",                            "&Auto Range"]
         init_str            = ["&Initialisiere",                         "&Initialize"]
         limits_str          = ["&Lese Limits erneut",                    "Read &Limits again"]
         syn_rez_str         = ["&Synchro Start",                         "&Synchro start"]
@@ -122,7 +121,6 @@ class MainWindow(QMainWindow):
         ### Menü-Ebene 3:
         #### Plot:
         self.grid_menu          = self.P_menu.addMenu(gitter_str[self.sprache])                      
-        self.scale_menu         = self.P_menu.addMenu(autoR_str[self.sprache])
         #### Geräte:
         self.init_menu          = self.G_menu.addMenu(init_str[self.sprache])             
         self.limits_menu        = self.G_menu.addMenu(limits_str[self.sprache]) 
@@ -131,7 +129,7 @@ class MainWindow(QMainWindow):
         self.syn_Rez_end_menu   = self.R_menu.addMenu(syn_rez_ende_str[self.sprache])
         self.Rez_einlesen_menu  = self.R_menu.addMenu(new_rez_str[self.sprache])
 
-        self.menu_dict = {'Grid': self.grid_menu, 'Auto Range': self.scale_menu, 'Init': self.init_menu, 'Limit': self.limits_menu}
+        self.menu_dict = {'Grid': self.grid_menu, 'Init': self.init_menu, 'Limit': self.limits_menu}
 
         ### Menü-Ebene 4:
         #### Action Synchro Rezept Start:

@@ -279,10 +279,10 @@ class Controller(QObject):
         # Sprachvariablen:
         #--------------------------------------------------------------------------
         ## Konfiguriere Sprache:
-        if self.config['language'].upper() == 'DE':
+        if self.config['GUI']['language'].upper() == 'DE':
             logger.info('Sprache der GUI ist Deutsch!')
             self.sprache = 0
-        elif self.config['language'].upper() == 'EN':
+        elif self.config['GUI']['language'].upper() == 'EN':
             logger.info('The language of the GUI is English!')
             self.sprache = 1
         else:
@@ -425,7 +425,8 @@ class Controller(QObject):
         app = QApplication(sys.argv)
         ## Hauptfenster:
         self.main_window = MainWindow(self.exit, self.sync_rezept, self.sync_end_rezept, self.rezept_einlesen, self.sprache, self.config['Function_Skip']['Generell_GamePad'])  
-        Frame_Anzeige = self.config['GUI_Frame']                                      
+        Frame_Anzeige = self.config['GUI']['GUI_Frame'] 
+        Color_Anzeige = self.config['GUI']['GUI_color_Widget']                                     
 
         ## Hauttabs erstellen:
         ### Haupttab Steuerung:
@@ -433,8 +434,8 @@ class Controller(QObject):
         self.main_window.add_tab(self.tab_GenAnt.splitter, main_window_tab_1_str[self.sprache])
 
         scale = self.config['skalFak']
-        self.generator = Generator(self.start_time, self.tab_GenAnt.splitter, self.add_Ablauf, self.stopp_all, self.main_window.menu_dict, self.config["legend"]["generator"], scale, self.sprache)
-        self.antrieb = Antrieb(self.start_time, self.tab_GenAnt.splitter, self.add_Ablauf, self.stopp_all, self.synchro_achse, self.main_window.menu_dict, self.config["legend"]["antrieb"], scale, self.sprache)
+        self.generator = Generator(self.start_time, self.tab_GenAnt.splitter, self.add_Ablauf, self.stopp_all, self.main_window.menu_dict, self.config["legend"]["generator"], scale, self.sprache, Color_Anzeige)
+        self.antrieb = Antrieb(self.start_time, self.tab_GenAnt.splitter, self.add_Ablauf, self.stopp_all, self.synchro_achse, self.main_window.menu_dict, self.config["legend"]["antrieb"], scale, self.sprache, Color_Anzeige)
 
         ### Haupttab Monitoring:
         self.tab_Mon = Splitter('H', True)

@@ -99,6 +99,7 @@ class TruHeatWidget(QWidget):
         ### GUI:
         self.legenden_inhalt = self.config['GUI']['legend'].split(';')
         self.legenden_inhalt = [a.strip() for a in self.legenden_inhalt]    # sollten Unnötige Leerzeichen vorhanden sein, so werden diese entfernt!
+        self.color_Aktiv = self.typ_widget.color_On
         ### Rezepte:
         self.rezept_config = self.config["rezepte"]
 
@@ -274,15 +275,15 @@ class TruHeatWidget(QWidget):
 
         ### Radiobutton:
         self.RB_choise_Pow = QRadioButton(f'{sollwert_str[self.sprache]}-{P_str[self.sprache]} ')
-        self.RB_choise_Pow.setStyleSheet(f"color: {self.color[0]}")
+        if self.color_Aktiv: self.RB_choise_Pow.setStyleSheet(f"color: {self.color[0]}")
         self.RB_choise_Pow.clicked.connect(self.BlassOutUI)
 
         self.RB_choise_Voltage = QRadioButton(f'{sollwert_str[self.sprache]}-{U_str[self.sprache]} ')
-        self.RB_choise_Voltage.setStyleSheet(f"color: {self.color[1]}")
+        if self.color_Aktiv: self.RB_choise_Voltage.setStyleSheet(f"color: {self.color[1]}")
         self.RB_choise_Voltage.clicked.connect(self.BlassOutPI)
 
         self.RB_choise_Current = QRadioButton(f'{sollwert_str[self.sprache]}-{I_str[self.sprache]} ')
-        self.RB_choise_Current.setStyleSheet(f"color: {self.color[2]}")
+        if self.color_Aktiv: self.RB_choise_Current.setStyleSheet(f"color: {self.color[2]}")
         self.RB_choise_Current.clicked.connect(self.BlassOutPU)
 
         ### Start-Modus:
@@ -295,23 +296,23 @@ class TruHeatWidget(QWidget):
         #### Istleistung:
         self.La_IstPow_text = QLabel(f'{istwert_str[self.sprache]}-{sP_str[self.sprache]} ')
         self.La_IstPow_wert = QLabel(st_P_str[self.sprache])
-        self.La_IstPow_text.setStyleSheet(f"color: {self.color[3]}")
-        self.La_IstPow_wert.setStyleSheet(f"color: {self.color[3]}")
+        if self.color_Aktiv: self.La_IstPow_text.setStyleSheet(f"color: {self.color[3]}")
+        if self.color_Aktiv: self.La_IstPow_wert.setStyleSheet(f"color: {self.color[3]}")
         #### Istspannung:
         self.La_IstVoltage_text = QLabel(f'{istwert_str[self.sprache]}-{sU_str[self.sprache]} ')
         self.La_IstVoltage_wert = QLabel(st_U_str[self.sprache])
-        self.La_IstVoltage_text.setStyleSheet(f"color: {self.color[4]}")
-        self.La_IstVoltage_wert.setStyleSheet(f"color: {self.color[4]}")
+        if self.color_Aktiv: self.La_IstVoltage_text.setStyleSheet(f"color: {self.color[4]}")
+        if self.color_Aktiv: self.La_IstVoltage_wert.setStyleSheet(f"color: {self.color[4]}")
         #### Iststrom:
         self.La_IstCurrent_text = QLabel(f'{istwert_str[self.sprache]}-{sI_str[self.sprache]} ')
         self.La_IstCurrent_wert = QLabel(st_I_str[self.sprache])
-        self.La_IstCurrent_text.setStyleSheet(f"color: {self.color[5]}")
-        self.La_IstCurrent_wert.setStyleSheet(f"color: {self.color[5]}")
+        if self.color_Aktiv: self.La_IstCurrent_text.setStyleSheet(f"color: {self.color[5]}")
+        if self.color_Aktiv: self.La_IstCurrent_wert.setStyleSheet(f"color: {self.color[5]}")
         #### Istfrequenz:
         self.La_IstFre_text = QLabel(f'{istwert_str[self.sprache]}-{sf_str[self.sprache]} ')
         self.La_IstFre_wert = QLabel(st_f_str[self.sprache])
-        self.La_IstFre_text.setStyleSheet(f"color: {self.color[6]}")
-        self.La_IstFre_wert.setStyleSheet(f"color: {self.color[6]}")
+        if self.color_Aktiv: self.La_IstFre_text.setStyleSheet(f"color: {self.color[6]}")
+        if self.color_Aktiv: self.La_IstFre_wert.setStyleSheet(f"color: {self.color[6]}")
         #### Fehlernachrichten:
         self.La_error = QLabel(self.err_13_str[self.sprache])
 
