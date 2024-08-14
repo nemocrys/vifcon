@@ -634,7 +634,7 @@ class EurothermWidget(QWidget):
     ##########################################
     # Reaktion auf Checkbox:
     ##########################################
-    def PID_ON_OFF(self, state):                       
+    def PID_ON_OFF(self):                       
         if self.PID_cb.isChecked():
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
             # Aufgaben setzen:

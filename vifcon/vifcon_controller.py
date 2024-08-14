@@ -123,6 +123,7 @@ class Sampler(QObject, metaclass=SignalMetaclass):
         self.Log_Text_6_str = ['Der Port ist geschlossen! Code-Ausführung gesperrt!',               'The port is closed! Code execution blocked!']
         self.Log_Text_7_str = ['Anzeige der Port-Fehler-Warnung nur',                               'Port error warning only displayed']
         self.Log_Text_8_str = ['mal! Anzeige erst nach Fehlerfreien Port-Zugang!',                  'times! Display only after error-free port access!']
+        self.Log_Text_1_PID = ['PID-Modus gilt als gesperrt! PID-Parameter nicht richtig!',         'PID mode is locked! PID parameters not correct!']
 
     def sample(self):
         ''' Löse Lese und Schreib Funktionen am Gerät aus.
@@ -165,6 +166,11 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                 #---------------------------------------
                 # Schreibe Werte:
                 #---------------------------------------
+                if 'Eurotherm' in self.device_name:     # Wenn alle PID haben dann Zeile nicht notwendig
+                    if self.device.PID.PID_speere and self.device_widget.write_value['PID']:
+                        self.device_widget.PID_cb.setChecked(False)
+                        self.device_widget.PID_ON_OFF()
+                        self.device_widget.Fehler_Output(1, self.Log_Text_1_PID[self.sprache])
                 #if self.device_widget.send_betätigt:                                               # Ruft nun immer die write Funktion auf!
                 if not self.test and not 'Nemo-Gase' in self.device_name:
                     self.device.write(self.device_widget.write_task, self.device_widget.write_value)    

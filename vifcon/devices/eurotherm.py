@@ -714,8 +714,9 @@ class Eurotherm(QObject):
     ##########################################
     def PID_Update(self):
         '''PID-Regler-Thread-Aufruf'''
-        self.signal_PID.emit(self.Ist, self.Soll, self.mode_aktiv, self.Rez_OP)
-        self.op = self.PID.Output
+        if not self.PID.PID_speere:
+            self.signal_PID.emit(self.Ist, self.Soll, self.mode_aktiv, self.Rez_OP)
+            self.op = self.PID.Output
 
 ##########################################
 # Verworfen:
