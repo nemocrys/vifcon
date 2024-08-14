@@ -132,9 +132,11 @@ class Eurotherm(QObject):
         self.Log_Text_152_str   = ['Automatischer Modus wird eingeschaltet!',                                                                                                                                               'Automatic mode is turned on!']
         self.Log_Text_153_str   = ['Manueller Modus wird eingeschaltet!',                                                                                                                                                   'Manual mode is switched on!']
         self.Log_Text_154_str   = ['Statuswort ist nicht 0000 oder 8000! Startmodus wird nicht geändert!',                                                                                                                  'Status word is not 0000 or 8000! Start mode is not changed!']
-        self.Log_Text_155_str   = ['Ändere Maximale Ausgangsleistungslimit auf',                                                                                                                                            'Change Maximum Output Power Limit to']
+        self.Log_Text_155_str   = ['Ändere Maximale Ausgangsleistungslimit von',                                                                                                                                            'Change Maximum Output Power Limit from']
+        self.Log_Text_155_str_1 = ['auf',                                                                                                                                                                                   'to']
         self.Log_Text_156_str   = ['%',                                                                                                                                                                                     '%']
         self.Log_Text_157_str   = ['Maximale Ausgangsleistung wird durch die Eingabe am Gerät bestimmt!',                                                                                                                   'Maximum output power is determined by the input on the device!']
+        self.Log_Text_157_str_1 = ['Maximale Ausgangsleistung (am Gerät eingestellt):',                                                                                                                                     'Maximum output power (set on the device):']
         self.Log_Text_183_str   = ['Das Senden der Werte ist fehlgeschlagen! (Rampe)',                                                                                                                                      'Sending the values failed! (Ramp)']
         self.Log_Text_243_str   = ['Beim Startwert senden an Eurotherm gab es einen Fehler! Programm wird beendet! Wurde das Gerät eingeschaltet bzw. wurde die Init-Einstellung richtig gesetzt?',                         'There was an error when sending the start value to Eurotherm! Program will end! Was the device switched on or was the init setting set correctly?']
         self.Log_Text_244_str   = ['Fehler Grund: ',                                                                                                                                                                        'Error reason:']
@@ -662,10 +664,16 @@ class Eurotherm(QObject):
                 logger.warning(f"{self.device_name} - {self.Log_Text_154_str[self.sprache]}")
             ## Änderung von HO:
             if self.config['start']['sicherheit'] == False:
+                self.serial.write("\x040000HO\x05".encode())
+                HO_vorher = str(self.serial.readline().decode()[4:-2])
                 self.write_read_answer('HO', str(self.oGOp), self.write_max_leistung)
-                logger.info(f"{self.device_name} - {self.Log_Text_155_str[self.sprache]} {self.oGOp} {self.Log_Text_156_str[self.sprache]}")
+                logger.info(f"{self.device_name} - {self.Log_Text_155_str[self.sprache]} {HO_vorher} {self.Log_Text_156_str[self.sprache]} {self.Log_Text_155_str_1[self.sprache]} {self.oGOp} {self.Log_Text_156_str[self.sprache]}")
             else:
                 logger.info(f"{self.device_name} - {self.Log_Text_157_str[self.sprache]}")
+            ## Lese HO aus:
+            self.serial.write("\x040000HO\x05".encode())
+            HO_Aktuel= str(self.serial.readline().decode()[4:-2])
+            logger.info(f"{self.device_name} - {self.Log_Text_157_str_1[self.sprache]} {HO_Aktuel} {self.Log_Text_156_str[self.sprache]}")
         except Exception as e:
             if self.init:
                 logger.warning(f"{self.device_name} - {self.Log_Text_243_str[self.sprache]}")
