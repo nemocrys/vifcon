@@ -31,6 +31,8 @@ from PyQt5.QtCore import (
     QMutexLocker,
 
 )
+import matplotlib
+import randomcolor            
 
 ## Algemein:
 import logging
@@ -299,6 +301,8 @@ class Controller(QObject):
         ## Variablen:
         main_window_tab_1_str   = ['Steuerung'  ,                                                                                                       'Control']
         main_window_tab_2_str   = ['Überwachung',                                                                                                       'Monitoring']
+        TypA                    = ['Antriebe',                                                                                                          'Drives']
+        TypG                    = ['Generatoren und Regler',                                                                                            'Generators and Controllers']
         ## Logging:                                                     
         self.Log_Text_6_str     = ["Initialisiere VIFCON",                                                                                              'Initialize VIFCON']
         self.Log_Text_7_str     = ['Konfiguration:',                                                                                                    'Configuration:']
@@ -337,6 +341,7 @@ class Controller(QObject):
         self.Log_Text_304_str   = ['Aufruf der Threads bzw. der Funktion ckeck_device:',                                                                'Calling the threads or the function ckeck_device:']
         self.Log_Text_305_str   = ['Startzeit:',                                                                                                        'Start time:']
         self.Log_Text_S_GUI     = ['Speichere die aktuell sichtbare GUI in',                                                                            'Save the currently visible GUI in']
+        self.Log_Text_Color     = ['Definierte Farben aufgebraucht! Folgend werden nun neue zufällige Farben für die Kurven verwendet!',                'Defined colors used up! New random colors will now be used for the curves!']
         ## Error:
         self.err_Text_1         = ['Zu hohe Verzeichnisanzahl.',                                                                                        "Too high directory count."]
         self.err_Text_2         = ['Synchron Modus benötigt\nAbsolute Positionierung (PI-Achse)!!',                                                     'Synchronous mode requires\nabsolute positioning (PI axis)!!']
@@ -479,6 +484,13 @@ class Controller(QObject):
             "darkred"
         ] # 23 Farben - https://matplotlib.org/stable/gallery/color/named_colors.html 
 
+        ## Farb-Liste:
+        used_Color_list = []
+        for n in COLORS:
+            used_Color_list.append(matplotlib.colors.cnames[n])
+        used_Color_list.append(matplotlib.colors.cnames['red'])
+        used_Color_list.append(matplotlib.colors.cnames['black'])
+
         ## Geräte und ihre Tabs erstellen:
         color_Gen_n = 0
         color_Ant_n = 0
@@ -499,6 +511,8 @@ class Controller(QObject):
         self.PadAchsenList          = []                                                  # Verbundene Achsen mit dem Controller
         self.hardware_controller    = False                                               # Controller soll erstellt werden
 
+        überlaufA = False
+        überlaufG = False
         for device_name in self.config['devices']:
             if not self.config['devices'][device_name]['skip']:                           # Wenn skip == True, dann überspringe die Erstellung
                 ### Auswahl Farbe und Geräte-Typ:
@@ -514,10 +528,22 @@ class Controller(QObject):
                 for n in range(color,color+10,1):
                     try:
                         ak_color.append(COLORS[n])
-                    except:
-                        # Verhindert das Überlaufen von Farben, da Liste immer mit 10 Farben gefüllt wird, da TruHeat so viele braucht!
-                        nix = 'nix'
-                
+                    except Exception as e:
+                        # Wenn ein Überlauf der 23 Farben geschieht, werden zufällige Farben ausgewählt!
+                        if not überlaufG and device_typ == 'Generator':
+                            logger.warning(f'{self.Log_Text_Color[self.sprache]} ({TypG[self.sprache]})')
+                            überlaufG = True
+                        elif not überlaufA and device_typ == 'Antrieb':
+                            logger.warning(f'{self.Log_Text_Color[self.sprache]} ({TypA[self.sprache]})')
+                            überlaufA = True
+                        while 1:
+                            # Zufällige Farbe erzeugen, generieren und doppelte vermeiden:
+                            farbe = randomcolor.RandomColor().generate()[0]
+                            if not farbe in used_Color_list:
+                                used_Color_list.append(farbe)
+                                ak_color.append(farbe)
+                                break 
+                        
                 ### Geräte erstellen:
                 if device_typ == 'Generator':
                     if 'Eurotherm' in device_name:

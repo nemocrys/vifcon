@@ -755,13 +755,15 @@ class EurothermWidget(QWidget):
         if self.init:
             if n == 5:
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
+            self.PID_cb.setChecked(False)
+            self.PID_ON_OFF()
             self.RezEnde(excecute=n)
             self.BlassOutTemp(True)
             self.RB_choise_Pow.setChecked(True)
             self.LE_Pow.setText(str(0))
             self.write_task['Operating point'] = True
             self.write_value['Sollwert'] = 0
-            self.write_value['PID-Sollwert'] = 0
+            #self.write_value['PID-Sollwert'] = 0
         else:
             self.Fehler_Output(1, self.err_4_str[self.sprache])
 

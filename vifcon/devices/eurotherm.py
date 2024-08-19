@@ -25,6 +25,7 @@ import logging
 from serial import Serial, SerialException
 import time
 import math as m
+import threading
 
 ## Eigene:
 from .PID import PID
@@ -43,7 +44,7 @@ class SerialMock:
 
     def readline(self):
         return "".encode()
-
+    
 
 class Eurotherm(QObject):
     signal_PID  = pyqtSignal(float, float, bool, float)
@@ -245,6 +246,9 @@ class Eurotherm(QObject):
         self.timer_PID.setInterval(self.config['PID']['sample'])
         self.timer_PID.timeout.connect(self.PID_Update)
         self.timer_PID.start()
+        ### PID-Timer Thread:
+        #self.PIDThreadTimer = threading.Thread(target=self.PID_Update)
+        #self.PIDThreadTimer.start()
         ## Multilog-Lese-Variable für die Daten:
         self.mult_data              = {}
         self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max'] 
