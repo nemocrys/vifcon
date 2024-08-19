@@ -14,9 +14,10 @@ save:
   GUI_save: True                                                          # Speichert zum Schluss die aktuelle GUI
                                                                           # Achtung: Bei dem Plot, der Legende und der GUI wird nur das gespeichert, was zur Beendigung zu sehen ist!
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-language: en                                                              # DE - Deutsch, EN - Englisch  (im Code wird upper genutzt -> de, en, De, En auch erlaubt)
-# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-GUI_Frame: 0                                                              # Extra: True - Zeigt die Frames der Widgets in den Geräte-Widgets an
+GUI:
+  language: en                                                            # DE - Deutsch, EN - Englisch  (im Code wird upper genutzt -> de, en, De, En auch erlaubt)
+  GUI_Frame: 0                                                            # True - Zeigt die Frames der Widgets in den Geräte-Widgets an
+  GUI_color_Widget: 1                                                     # True - Die Größen-Label und Werte werden in der Farbe der Kurven angezeigt, False - Alles Schwarz
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 logging:
   level: 20                                                               # 10: debug, 20: info, 30: warning, 40: error
@@ -98,7 +99,7 @@ devices:
       Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte
                                                                           # VV: Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 200                                                             # P-Anteil []
-      ki: 0.3                                                             # I-Anteil []
+      ki: 0,3                                                             # I-Anteil []
       kd: 0                                                               # D-Anteil []
       sample: 500                                                         # Sample-Time [ms]
       sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung
@@ -110,6 +111,7 @@ devices:
       Input_Limit_max: 1000                                               # Maximum Limit für Input 
       Input_Limit_min: 0                                                  # Minimum Limit für Input 
       Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist)
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] 
     limits:
       maxTemp: 1000                                                       # Maximale Temperatur [°C]
       minTemp: 0                                                          # Minimale Temperatur [°C]

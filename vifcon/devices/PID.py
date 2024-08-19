@@ -35,6 +35,8 @@ class PID(QObject):
             sprache (int):              Sprache des Programms (GUI, Files)
             device_name (str):          Name des Gerätes, zu dem der PID-Regler gehört
             PID_config (dict):          Config-Datei-Teil für den PID 
+            Max (float):                Maximaler Output
+            Min (float):                Minimaler Output
         '''
         super().__init__()
         #--------------------------------------- 
@@ -73,10 +75,12 @@ class PID(QObject):
         self.kp                 = self.config['kp']
         self.ki                 = self.config['ki']
         self.kd                 = self.config['kd']
-        self.sample_time        = self.config['sample']
-        self.sample_toleranz    = self.config['sample_tolleranz']
+        self.sample_time        = self.config['sample']                 # Sample-Zeit [ms]
+        self.sample_toleranz    = self.config['sample_tolleranz']       # erlaubte Tolleranz zur Sample-Zeit [ms]
+        self.debug_time         = self.config['debug_log_time']         # Abstand der Aufnahme der Debug-Log-Nachrichten [s]
         ## Startzeit:
-        self.last_time      = datetime.datetime.now(datetime.timezone.utc).astimezone()
+        self.last_time          = datetime.datetime.now(datetime.timezone.utc).astimezone()
+        self.log_time           = datetime.datetime.now(datetime.timezone.utc).astimezone()
         ## Start-Werte:
         self.ITerm      = 0
         self.last_Input = 0
@@ -125,13 +129,9 @@ class PID(QObject):
             Output (float):     Regelgröße die gesendet werden soll        
         '''
         # Zeit:
-        ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
-        timediff = (ak_time - self.last_time).total_seconds()
-        logger.debug(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_5[self.sprache]}{timediff} {self.Log_PID_6[self.sprache]}')
-        if timediff*1000 > self.sample_time + self.sample_toleranz: 
-            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_7[self.sprache]} ({self.sample_time - self.sample_toleranz} {self.Log_PID_12[self.sprache]} {self.sample_time + self.sample_toleranz}) {self.Log_PID_11[self.sprache]} {self.Log_PID_8[self.sprache]} {timediff*1000} {self.Log_PID_11[self.sprache]} {self.Log_PID_10[self.sprache]} {abs(self.sample_time - timediff*1000)} {self.Log_PID_11[self.sprache]}.')    
-        elif timediff*1000 < self.sample_time - self.sample_toleranz:
-            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_7[self.sprache]} ({self.sample_time - self.sample_toleranz} {self.Log_PID_12[self.sprache]} {self.sample_time + self.sample_toleranz}) {self.Log_PID_11[self.sprache]} {self.Log_PID_9[self.sprache]} {timediff*1000} {self.Log_PID_11[self.sprache]} {self.Log_PID_10[self.sprache]} {abs(self.sample_time - timediff*1000)} {self.Log_PID_11[self.sprache]}.')    
+        ak_time         = datetime.datetime.now(datetime.timezone.utc).astimezone()
+        timediff        = (ak_time - self.last_time).total_seconds()
+        timediff_log    = (ak_time - self.log_time).total_seconds()
         # Fehler Variablen:
         ## Fehler:
         error = Input_Soll - Input_Ist
@@ -157,9 +157,17 @@ class PID(QObject):
         if Modus and not Rezept_OP == -1:
             Output = Rezept_OP 
 
-        # Werte Loggen:    
-        logger.debug(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_value_1[self.sprache]} {Input_Soll} {self.Log_value_2[self.sprache]} {Input_Ist} {self.Log_value_3[self.sprache]} {Output}')
+        # Werte Loggen:
+        if timediff*1000 > self.sample_time + self.sample_toleranz: 
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_7[self.sprache]} ({self.sample_time - self.sample_toleranz} {self.Log_PID_12[self.sprache]} {self.sample_time + self.sample_toleranz}) {self.Log_PID_11[self.sprache]} {self.Log_PID_8[self.sprache]} {timediff*1000} {self.Log_PID_11[self.sprache]} {self.Log_PID_10[self.sprache]} {abs(self.sample_time - timediff*1000)} {self.Log_PID_11[self.sprache]}.')    
+        elif timediff*1000 < self.sample_time - self.sample_toleranz:
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_7[self.sprache]} ({self.sample_time - self.sample_toleranz} {self.Log_PID_12[self.sprache]} {self.sample_time + self.sample_toleranz}) {self.Log_PID_11[self.sprache]} {self.Log_PID_9[self.sprache]} {timediff*1000} {self.Log_PID_11[self.sprache]} {self.Log_PID_10[self.sprache]} {abs(self.sample_time - timediff*1000)} {self.Log_PID_11[self.sprache]}.')    
         
+        if timediff_log >= self.debug_time:
+            logger.debug(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_5[self.sprache]}{timediff} {self.Log_PID_6[self.sprache]}')    
+            logger.debug(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_value_1[self.sprache]} {Input_Soll} {self.Log_value_2[self.sprache]} {Input_Ist} {self.Log_value_3[self.sprache]} {Output}')
+            self.log_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
+
         # Rückgabewert beschreiben:
         self.Output = round(Output,3)
 
