@@ -327,7 +327,7 @@ class Controller(QObject):
         self.Log_Text_26_str    = ['Synchro Rezept!',                                                                                                   'Synchro recipe!']
         self.Log_Text_27_str    = ['Update Konfiguration (Update Rezepte):',                                                                            'Update configuration (update recipes):']
         self.Log_Text_203_str   = ['Synchro Rezept Abschaltung!',                                                                                       'Synchro recipe shutdown!']
-        self.Log_Text_204_str   = ['Das Gerät konnte nicht in der Menüleiste Limit erstellt werden!',                                                   'The device could not be created in the limit menu bar!']
+        self.Log_Text_204_str   = ['Das Gerät konnte nicht in der Menüleiste Limit oder Update VIFCON-PID-Parameter erstellt werden!',                  'The device could not be created in the menu bar Limit or Update VIFCON PID parameters!']
         self.Log_Text_208_str   = ['Beende Multilog Verbindung und Beende den Thread:',                                                                 'Close Multilog connection and end the thread:']
         self.Log_Text_222_str   = ['Der Aufbau mit dem Gamepad ist fehlgeschlagen!',                                                                    'The setup with the gamepad failed!']
         self.Log_Text_223_str   = ['Start des Gamepad-Threads!',                                                                                        'Start of the gamepad thread!']
@@ -597,6 +597,10 @@ class Controller(QObject):
                 if not 'Nemo-Gase' in device_name:
                     try:
                         self.main_window.add_menu('Limit', device_name, widget.update_Limit, widget.init)
+                        if 'Eurotherm' in device_name:  # später anpassen!
+                            self.main_window.add_menu('VIFCON-PID', device_name, device.PID.update_VPID_Para, widget.init)
+                            device.PID.config_dat = config
+                            device.PID.widget = widget
                     except Exception as e:
                         logger.exception(f'{device_name} - {self.Log_Text_204_str[self.sprache]}')
                 

@@ -584,25 +584,29 @@ class EurothermWidget(QWidget):
     ##########################################
     # Fehlermedlung:
     ##########################################
-    def Fehler_Output(self, Fehler, error_Message_Log_GUI = '', error_Message_Ablauf = ''):
+    def Fehler_Output(self, Fehler, error_Message_Log_GUI = '', error_Message_Ablauf = '', device = ''):
         ''' Erstelle Fehler-Nachricht für GUI, Ablaufdatei und Logging
         Args:
             Fehler (bool):                  False -> o.k. (schwarz), True -> Fehler (rot, bold)
             error_Message_Log_GUI (str):    Nachricht die im Log und der GUI angezeigt wird
             error_Message_Ablauf (str):     Nachricht für die Ablaufdatei
         ''' 
+        if device == '':
+            device_name = self.device_name
+        else:
+            device_name = device
         if Fehler:
             self.La_error.setText(self.err_0_str[self.sprache])
             self.La_error.setToolTip(error_Message_Log_GUI)  
             self.La_error.setStyleSheet(f"color: red; font-weight: bold")
             log_vorberietung = error_Message_Log_GUI.replace("\n"," ")
-            logger.error(f'{self.device_name} - {log_vorberietung}')
+            logger.error(f'{device_name} - {log_vorberietung}')
         else:
             self.La_error.setText(self.err_13_str[self.sprache])
             self.La_error.setToolTip('')
             self.La_error.setStyleSheet(f"color: black; font-weight: normal")
         if not error_Message_Ablauf == '':
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {error_Message_Ablauf}') 
+                self.add_Text_To_Ablauf_Datei(f'{device_name} - {error_Message_Ablauf}') 
 
     ##########################################
     # Reaktion auf Radio-Butttons:

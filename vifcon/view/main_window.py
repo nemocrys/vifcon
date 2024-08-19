@@ -69,6 +69,7 @@ class MainWindow(QMainWindow):
         gitter_str          = ["&Gitter",                                "&Grid"]                               # & - Ermöglicht eine Tastenkombination Alt + Buchstabe (nach &)
         init_str            = ["&Initialisiere",                         "&Initialize"]
         limits_str          = ["&Lese Limits erneut",                    "Read &Limits again"]
+        PID_Para_str        = ['Lese VIFCON-PID-Parameter erneut',       'Reread VIFCON-PID parameters']
         syn_rez_str         = ["&Synchro Start",                         "&Synchro start"]
         syn_rez_ende_str    = ["S&ynchro beenden",                       "S&ynchro end"]
         new_rez_str         = ["&Neu Einlesen",                          "R&ead in again"]
@@ -124,12 +125,13 @@ class MainWindow(QMainWindow):
         #### Geräte:
         self.init_menu          = self.G_menu.addMenu(init_str[self.sprache])             
         self.limits_menu        = self.G_menu.addMenu(limits_str[self.sprache]) 
+        self.PID_Para_menu      = self.G_menu.addMenu(PID_Para_str[self.sprache])
         #### Rezepte:
         self.syn_Rez_menu       = self.R_menu.addMenu(syn_rez_str[self.sprache])
         self.syn_Rez_end_menu   = self.R_menu.addMenu(syn_rez_ende_str[self.sprache])
         self.Rez_einlesen_menu  = self.R_menu.addMenu(new_rez_str[self.sprache])
 
-        self.menu_dict = {'Grid': self.grid_menu, 'Init': self.init_menu, 'Limit': self.limits_menu}
+        self.menu_dict = {'Grid': self.grid_menu, 'Init': self.init_menu, 'Limit': self.limits_menu, 'VIFCON-PID': self.PID_Para_menu}
 
         ### Menü-Ebene 4:
         #### Action Synchro Rezept Start:
@@ -191,7 +193,7 @@ class MainWindow(QMainWindow):
                 icon = QIcon("./vifcon/icons/p_Init_nicht_Okay.png")
             
             button_action = QAction(icon, f"{name} {self.init_str[self.sprache]}", self)
-        elif menu_str == 'Limit':
+        elif menu_str == 'Limit' or menu_str == 'VIFCON-PID':
             button_action = QAction(f"{self.limit_str[self.sprache]} {name}", self)
         button_action.triggered.connect(function)
         self.menu_dict[menu_str].addAction(button_action)
