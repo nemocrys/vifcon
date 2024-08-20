@@ -49,7 +49,7 @@ class SerialMock:
 class Eurotherm(QObject):
     signal_PID  = pyqtSignal(float, float, bool, float)
 
-    def __init__(self, sprache, config, com_dict, test, neustart, add_Ablauf_function, name="Eurotherm", typ = 'Generator'):
+    def __init__(self, sprache, config, com_dict, test, neustart, multilog_aktiv, add_Ablauf_function, name="Eurotherm", typ = 'Generator'):
         """ Erstelle Eurotherm Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
         Args:
@@ -58,6 +58,7 @@ class Eurotherm(QObject):
             com_dict (dict):                    Dictionary mit den anderen Ports der PI-Achsen
             test (bool):                        Test Modus
             neustart (bool):                    Neustart Modus, Startkonfigurationen werden übersprungen
+            multilog_aktiv (bool):              Multilog-Read/Send Aktiviert
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
             name (str, optional):               Geräte Namen.
             typ (str, optional):                Geräte Typ.
@@ -67,20 +68,21 @@ class Eurotherm(QObject):
         # Variablen:
         #---------------------------------------
         ## Funktionsübergabe einlesen:
-        self.sprache = sprache
-        self.config = config
-        self.neustart = neustart
-        self.add_Text_To_Ablauf_Datei = add_Ablauf_function
-        self.device_name = name
-        self.typ = typ
+        self.sprache                    = sprache
+        self.config                     = config
+        self.neustart                   = neustart
+        self.multilog_OnOff             = multilog_aktiv
+        self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
+        self.device_name                = name
+        self.typ                        = typ
 
         ## Aus Config:
         ### Zum Start:
-        self.init = self.config['start']['init']                # Initialisierung
-        self.messZeit = self.config['start']["readTime"]        # Auslesezeit
-        self.Ist = self.config['PID']["start_ist"] 
-        self.Soll = self.config['PID']["start_soll"] 
-        self.op = 0
+        self.init       = self.config['start']['init']            # Initialisierung
+        self.messZeit   = self.config['start']["readTime"]        # Auslesezeit
+        self.Ist        = self.config['PID']["start_ist"] 
+        self.Soll       = self.config['PID']["start_soll"] 
+        self.op         = 0
         ### Limits:
         self.oGOp = self.config["limits"]['opMax']
 
@@ -144,6 +146,7 @@ class Eurotherm(QObject):
         self.Log_Text_PID_str   = ['Start des PID-Threads!',                                                                                                                                                                'Start of the PID thread!']
         Log_Text_PID_N1         = ['Die Konfiguration',                                                                                                                                                                     'The configuration']
         Log_Text_PID_N2         = ['existiert nicht! Möglich sind nur VV, VM, MM oder MV. Nutzung von Default VV!',                                                                                                         'does not exist! Only VV, VM, MM or MV are possible. Use default VV!']
+        Log_Text_PID_N2_1       = ['ist für das Gerät noch nicht umgesetzt! Nutzung von Default VV!',                                                                                                                       'is not yet implemented for the device! Use of default VV!']
         Log_Text_PID_N3         = ['Gewählter PID-Modus ist: ',                                                                                                                                                             'Selected PID mode is: ']
         Log_Text_PID_N4         = ['Istwert von Multilog',                                                                                                                                                                  'Actual value from Multilog']
         Log_Text_PID_N5         = ['Istwert von VIFCON',                                                                                                                                                                    'Actual value of VIFCON']
@@ -162,6 +165,13 @@ class Eurotherm(QObject):
         Log_Text_PID_N18        = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
         self.Log_Text_PID_N19   = ['Auslesefehler bei Multilog-Dictionary!',                                                                                                                                                'Reading error in multilog dictionary!']
         self.Log_Text_PID_N20   = ['°C - tatsächlicher Wert war',                                                                                                                                                           '°C - tatsächlicher Wert war']
+        Log_Text_PID_N21        = ['Multilog Verbindung wurde in Config als Abgestellt gewählt! Eine Nutzung der Werte-Herkunft mit VM, MV oder MM ist so nicht möglich! Nutzung von Default VV!',                          'Multilog connection was selected as disabled in config! Using the value origin with VM, MV or MM is not possible! Use of default VV!']
+        self.Log_Text_PID_N22   = ['Wert',                                                                                                                                                                                  'Value']
+        self.Log_Text_PID_N23   = ['ist außerhalb gültigen Bereich von 0 bis 99999!',                                                                                                                                       'is outside the valid range from 0 to 99999!']
+        self.Log_Text_PID_N24   = ['Fehlergrund (PID-Parameter senden):',                                                                                                                                                   'Reason for error (send PID parameters):']
+        self.Log_Text_PID_N25   = ['Senden der PID-Parameter am Start ist Fehlgeschlagen. Um es erneut zu versuchen überprüfe die Config-Datei und nutze das Menü!',                                                        'Sending PID parameters at startup failed. To try again check the config file and use the menu!']   
+        self.Log_Extra          = ['Vor Änderung',                                                                                                                                                                          'Before change']
+        self.Log_Extra_2        = ['Nach Änderung',                                                                                                                                                                         'After change']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -212,6 +222,9 @@ class Eurotherm(QObject):
         self.write_Modus =              "\x040000\x02SW>"               # Modus ändern schreiben 
         self.write_max_leistung =       "\x040000\x02HO"                # maximale Sollleistung schreiben 
         self.EuRa_Modus =               "\x040000\x02OS>"               # Modus Euro-Rampe
+        self.write_PB   =               "\x040000\x02XP"                # PID-Regler P-Anteil
+        self.write_TI   =               "\x040000\x02TI"                # PID-Regler I-Anteil
+        self.write_TD   =               "\x040000\x02TD"                # PID-Regler D-Anteil
 
         #---------------------------------------
         # PID-Regler:
@@ -220,7 +233,13 @@ class Eurotherm(QObject):
         self.PID = PID(self.sprache, self.device_name, self.config['PID'], self.oGOp, self.config["limits"]['opMin'])
         self.PID_Option = self.config['PID']['Value_Origin'].upper()
         ## Info und Warnungen:
-        if self.PID_Option not in ['VV', 'VM', 'MM', 'MV']:
+        if not self.multilog_OnOff and self.PID_Option in ['MV', 'MM', 'VM']:
+            logger.warning(f'{self.device_name} - {Log_Text_PID_N21[sprache]}')
+            self.PID_Option = 'VV'
+        elif self.PID_Option in ['MM', 'VM']:
+            logger.warning(f'{self.device_name} - {Log_Text_PID_N1[sprache]} {self.PID_Option} {Log_Text_PID_N2_1[self.sprache]}')
+            self.PID_Option = 'VV'
+        elif self.PID_Option not in ['VV', 'MV']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N1[sprache]} {self.PID_Option} {Log_Text_PID_N2[self.sprache]}')
             self.PID_Option = 'VV'
         ### Herkunft Istwert:
@@ -310,8 +329,6 @@ class Eurotherm(QObject):
             PID_write_OP = False
         # PID-Regler:
         elif write_value['PID']:
-            # Sollwertn Lesen (OP oder Temp):
-            sollwert = write_value['PID-Sollwert']
             ## Auswahl Istwert:
             ### VIFCON:
             if self.PID_Option[0] == 'V':
@@ -365,7 +382,7 @@ class Eurotherm(QObject):
             ## Auswahl Sollwert:
             ### VIFCON:
             if self.PID_Option[1] == 'V':
-                self.Soll = sollwert
+                self.Soll = write_value['PID-Sollwert']
             ### MUltilog:
             elif self.PID_Option[1] == 'M':
                 print('Noch nicht Vorhanden!')
@@ -445,6 +462,16 @@ class Eurotherm(QObject):
             ## Schreibe Maximum OP.
             elif write_Okay[auswahl] and auswahl == 'Write_HO':
                 self.write_read_answer('HO', str(write_value['HO']), self.write_max_leistung)
+                write_Okay[auswahl] = False
+            ## Schreibe die PID-Parameter:
+            elif write_Okay[auswahl] and auswahl == 'PID-Update':
+                self.write_read_answer('XP', str(write_value['PID-Update'][0]), self.write_PB)
+                self.write_read_answer('TI', str(write_value['PID-Update'][1]), self.write_TI)
+                self.write_read_answer('TD', str(write_value['PID-Update'][2]), self.write_TD)
+                write_Okay[auswahl] = False
+            ## Lese die PID-Parameter:
+            elif write_Okay[auswahl] and auswahl == 'Read_PID':
+                self.check_PID()
                 write_Okay[auswahl] = False
 
     def write_read_answer(self, write_mn, value, befehl_start):
@@ -580,6 +607,22 @@ class Eurotherm(QObject):
             max_pow = self.read_einzeln(self.read_max_leistung)
             return max_pow
         return ''
+    
+    def check_PID(self, extra_str = ''):
+        '''Lese die drei Parameter aus und Logge sie!
+        Args:
+            extra_str (str):    Extra String für den Log!
+        '''
+        ### XP - proportional band
+        self.serial.write("\x040000XP\x05".encode())
+        P = str(self.serial.readline().decode()[4:-2])
+        ### TI - Integral time
+        self.serial.write("\x040000TI\x05".encode())
+        I = str(self.serial.readline().decode()[4:-2])
+        ### TD - Derivative time
+        self.serial.write("\x040000TD\x05".encode())
+        D = str(self.serial.readline().decode()[4:-2])
+        logger.info(f"{self.device_name} - {self.Log_Text_147_str[self.sprache]} {self.Log_Text_148_str[self.sprache]} {P.strip()}, {self.Log_Text_149_str[self.sprache]} {I.strip()}, {self.Log_Text_150_str[self.sprache]} {D.strip()} {extra_str}")
 
     ##########################################
     # Reaktion auf Initialisierung:
@@ -642,16 +685,24 @@ class Eurotherm(QObject):
             min_s = str(self.serial.readline().decode()[3:-2])
             logger.info(f"{self.device_name} - {self.Log_Text_146_str[self.sprache]} {min_s} {self.Log_Text_144_str[self.sprache]} {max_s} {self.Log_Text_145_str[self.sprache]}")
             ## PID-Regler Parameter:
-            ### XP - proportional band
-            self.serial.write("\x040000XP\x05".encode())
-            P = str(self.serial.readline().decode()[4:-2])
-            ### TI - Integral time
-            self.serial.write("\x040000TI\x05".encode())
-            I = str(self.serial.readline().decode()[4:-2])
-            ### TD - Derivative time
-            self.serial.write("\x040000TD\x05".encode())
-            D = str(self.serial.readline().decode()[4:-2])
-            logger.info(f"{self.device_name} - {self.Log_Text_147_str[self.sprache]} {self.Log_Text_148_str[self.sprache]} {P.strip()}, {self.Log_Text_149_str[self.sprache]} {I.strip()}, {self.Log_Text_150_str[self.sprache]} {D.strip()}")
+            ### Schreiben der PID-Parameter wenn gewollt:
+            if self.config['start']['PID_Write']:
+                self.check_PID(f'({self.Log_Extra[self.sprache]})')
+                try:
+                    P = round(float(str(self.config['PID-Device']['PB']).replace(',','.')),1)
+                    I = round(float(str(self.config['PID-Device']['TI']).replace(',','.')),0)
+                    D = round(float(str(self.config['PID-Device']['TD']).replace(',','.')),0)
+                    for n in [P, I, D]:
+                        if n > 99999 or n < 0:
+                            raise ValueError(f'{self.device_name} - {self.Log_Text_PID_N22[self.sprache]} {n} {self.Log_Text_PID_N23[self.sprache]}')
+                    self.write_read_answer('XP', str(P), self.write_PB)
+                    self.write_read_answer('TI', str(I), self.write_TI)
+                    self.write_read_answer('TD', str(D), self.write_TD)
+                except Exception as e:
+                    logger.warning(f'{self.device_name} - {self.Log_Text_PID_N25[self.sprache]}')
+                    logger.exception(f'{self.device_name} - {self.Log_Text_PID_N24[self.sprache]}')
+            ## Lese PID-Parameter:
+            self.check_PID(f'({self.Log_Extra_2[self.sprache]})')
             ## Statuswort:
             self.serial.write("\x040000SW\x05".encode())
             stWort = str(self.serial.readline().decode()[3:-2])

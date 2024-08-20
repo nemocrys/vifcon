@@ -357,7 +357,9 @@ class Controller(QObject):
         self.Text_79_str        = ['Menü-Knopf betätigt - Synchro Rezepte Ende!',                                                                       'Menu button pressed - Synchro recipes end!']
         ## Menü:
         EuHO_Menu_str           = ['&HO lesen',                                                                                                         'Read &HO']
-        
+        EuPIDS_Menu_str         = ['PID-Parameter &schreiben',                                                                                          '&Write PID parameters']
+        EuPIDR_Menu_str         = ['PID-Paramete&r lesen',                                                                                              '&Read PID parameters']
+
         #--------------------------------------------------------------------------
         # Logging-Datei erstellen:
         #--------------------------------------------------------------------------
@@ -547,36 +549,57 @@ class Controller(QObject):
                 ### Geräte erstellen:
                 if device_typ == 'Generator':
                     if 'Eurotherm' in device_name:
-                        device = Eurotherm(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, self.add_Ablauf, device_name)
+                        #### Objekte erstellen:
+                        device = Eurotherm(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name)
                         widget = EurothermWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.add_Ablauf, device_name)
+                        #### Menü-Sonder-Knöpfe:
+                        ##### Lese HO:
                         menu_HO_Button = QAction(f'{device_name} - {EuHO_Menu_str[self.sprache]}', self)
                         menu_HO_Button.triggered.connect(widget.Lese_HO)
                         self.main_window.G_menu.addAction(menu_HO_Button)
+                        ##### Lese PID:
+                        menu_PIDR_Button = QAction(f'{device_name} - {EuPIDR_Menu_str[self.sprache]}', self)
+                        menu_PIDR_Button.triggered.connect(widget.Read_PID)
+                        self.main_window.G_menu.addAction(menu_PIDR_Button)
+                        ##### Schreibe PID:
+                        menu_PIDS_Button = QAction(f'{device_name} - {EuPIDS_Menu_str[self.sprache]}', self)
+                        menu_PIDS_Button.triggered.connect(widget.Write_PID)
+                        self.main_window.G_menu.addAction(menu_PIDS_Button)
+                        #### Farben-Option:
                         color_Gen_n = color_Gen_n + 7
                     elif 'TruHeat' in device_name:
-                        device = TruHeat(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, self.add_Ablauf, device_name) 
+                        #### Objekte erstellen:
+                        device = TruHeat(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name) 
                         widget = TruHeatWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.add_Ablauf, device_name)
+                        #### Farben-Option:
                         color_Gen_n = color_Gen_n + 10
                 elif device_typ == 'Antrieb':
                     if 'PI-Achse' in device_name:
-                        device = PIAchse(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, self.add_Ablauf, device_name)
+                        #### Objekte erstellen:
+                        device = PIAchse(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name)
                         if device.config['start']['init'] and not self.test_mode:
                             start_werte = device.read() 
                         else:
                             start_werte = {'IWv': '?', 'IWs': '?'}
-                        widget = PIAchseWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, start_werte, self.neustart, self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        widget = PIAchseWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, start_werte, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        #### Farben-Option:
                         color_Ant_n = color_Ant_n + 3
                     elif 'Nemo-Achse-Linear' in device_name:
+                        #### Objekte erstellen:
                         device = NemoAchseLin(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.add_Ablauf, device_name) 
-                        widget = NemoAchseLinWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        widget = NemoAchseLinWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        #### Farben-Option:
                         color_Ant_n = color_Ant_n + 6
                     elif 'Nemo-Achse-Rotation' in device_name:
+                        #### Objekte erstellen:
                         device = NemoAchseRot(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.add_Ablauf, device_name) 
-                        widget = NemoAchseRotWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        widget = NemoAchseRotWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        #### Farben-Option:
                         color_Ant_n = color_Ant_n + 4
                     self.PadAchsenList.append(widget)
                 elif device_typ == 'Monitoring':
                     if 'Nemo-Gase' in device_name:
+                        #### Objekte erstellen:
                         device = NemoGase(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.add_Ablauf, device_name)
                         widget = NemoGaseWidget(self.sprache, Frame_Anzeige, device_typ_widget, self.config['devices'][device_name], config, self.add_Ablauf, device_name)
                 

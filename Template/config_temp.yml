@@ -71,6 +71,7 @@ devices:
       sicherheit: 0                                                       # Sicherheitsschalter 
                                                                           # True:   HO kann nur am Gerät geändert werden - HO kann von Vifcon nur gelesen werden, wodurch OPmax angepasst wird (1. Menü-Knopf, 2. Umschalten auf Manuel-Mode)
                                                                           # False:  Vifcon sendet HO an Gerät - Start: OPmax (Config) zu HO, Später: Limit-Änderung durch Menü
+      PID_Write: 0                                                        # Schreibe zum Start die neuen PID-Werte - True: Schreibe, False: Später über Menü
       start_modus: Auto                                                   # Auto - Automatisch (Temperatur), Manuel - Manueller Modus (Leistung)
       readTime: 2                                                         # Auslesezeit [s]
       init: 1                                                             # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
@@ -112,6 +113,10 @@ devices:
       Input_Limit_min: 0                                                  # Minimum Limit für Input 
       Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist)
       debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] 
+    PID-Device:
+      PB: 11.8                                                            # Proportionalband [Eng] oder [%] - Eng: °C, F  - 0 bis 99999   - Float   (eine Nachkommastelle)
+      TI: 114                                                             # Integralzeit [s]                - Off = 0     - Aus bis 99999 - Integer (keine Nachkommerstelle) 
+      TD: 0                                                               # Differenzialzeit [s]            - Off = 0     - Aus bis 99999 - Integer (keine Nachkommerstelle) 
     limits:
       maxTemp: 1000                                                       # Maximale Temperatur [°C]
       minTemp: 0                                                          # Minimale Temperatur [°C]

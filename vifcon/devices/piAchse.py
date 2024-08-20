@@ -33,7 +33,7 @@ class SerialMock:
 
 
 class PIAchse:
-    def __init__(self, sprache, config, com_dict, test, neustart, add_Ablauf_function, name="PI-Achse", typ = 'Antrieb'):
+    def __init__(self, sprache, config, com_dict, test, neustart, multilog_aktiv, add_Ablauf_function, name="PI-Achse", typ = 'Antrieb'):
         """ Erstelle PI-Achse Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
         Args:
@@ -42,6 +42,7 @@ class PIAchse:
             com_dict (dict):                    Dictionary mit den anderen Ports der PI-Achsen
             test (bool):                        Test Modus
             neustart (bool):                    Neustart Modus, Startkonfigurationen werden übersprungen
+            multilog_aktiv (bool):              Multilog-Read/Send Aktiviert
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
             name (str, optional):               device name.
             typ (str, optional):                device name.
@@ -51,27 +52,28 @@ class PIAchse:
         # Variablen:
         #---------------------------------------
         ## Funktionsübergabe einlesen:
-        self.sprache = sprache
-        self.config = config
-        self.neustart = neustart
-        self.add_Text_To_Ablauf_Datei = add_Ablauf_function
-        self.device_name = name
-        self.typ = typ
+        self.sprache                    = sprache
+        self.config                     = config
+        self.neustart                   = neustart
+        self.multilog_OnOff             = multilog_aktiv
+        self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
+        self.device_name                = name
+        self.typ                        = typ
 
         ## Andere:
-        self.akPos = 0
+        self.akPos      = 0
         self.value_name = {'IWs': 0, 'IWv': 0}
 
         ## Aus Config:
-        self.mercury_model = self.config['mercury_model']  
-        self.read_TT = self.config['read_TT_log']
+        self.mercury_model  = self.config['mercury_model']  
+        self.read_TT        = self.config['read_TT_log']
         ### Zum Start:
-        self.init = self.config['start']['init']                        # Initialisierung
-        self.messZeit = self.config['start']["readTime"]                # Auslesezeit
+        self.init           = self.config['start']['init']                    # Initialisierung
+        self.messZeit       = self.config['start']["readTime"]                # Auslesezeit
         ### Parameter:
-        self.cpm = self.config["parameter"]['cpm']                      # Counts per mm
-        self.mvtime = self.config["parameter"]['mvtime']                # Delay-Zeit MV-Befehl (Auslesen der Geschwindigkeit)
-        self.nKS = self.config['parameter']['nKS_Aus']                  # Nachkommerstellen
+        self.cpm    = self.config["parameter"]['cpm']                       # Counts per mm
+        self.mvtime = self.config["parameter"]['mvtime']                    # Delay-Zeit MV-Befehl (Auslesen der Geschwindigkeit)
+        self.nKS    = self.config['parameter']['nKS_Aus']                   # Nachkommerstellen
         ### Limits:
         self.oGPos = self.config["limits"]['maxPos']
         self.uGPos = self.config["limits"]['minPos']

@@ -36,7 +36,7 @@ class SerialMock:
 
 
 class NemoAchseRot:
-    def __init__(self, sprache, config, config_dat, com_dict, test, neustart, add_Ablauf_function, name="Nemo-Achse-Rotation", typ = 'Antrieb'):
+    def __init__(self, sprache, config, config_dat, com_dict, test, neustart, multilog_aktiv, add_Ablauf_function, name="Nemo-Achse-Rotation", typ = 'Antrieb'):
         """ Erstelle Nemo-Achse Rot Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
         Args:
@@ -46,6 +46,7 @@ class NemoAchseRot:
             config_dat (string):                Datei-Name der Config-Datei
             test (bool):                        Test Modus
             neustart (bool):                    Neustart Modus, Startkonfigurationen werden übersprungen
+            multilog_aktiv (bool):              Multilog-Read/Send Aktiviert
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
             name (str, optional):               device name.
             typ (str, optional):                device name.
@@ -55,13 +56,14 @@ class NemoAchseRot:
         # Variablen:
         #---------------------------------------
         ## Funktionsübergabe einlesen:
-        self.sprache = sprache
-        self.config = config
-        self.config_dat = config_dat
-        self.neustart = neustart
-        self.add_Text_To_Ablauf_Datei = add_Ablauf_function
-        self.device_name = name
-        self.typ = typ
+        self.sprache                    = sprache
+        self.config                     = config
+        self.config_dat                 = config_dat
+        self.neustart                   = neustart
+        self.multilog_OnOff             = multilog_aktiv
+        self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
+        self.device_name                = name
+        self.typ                        = typ
 
         ## Andere:
         self.value_name = {'IWv': 0, 'IWw':0, 'SWv': 0, 'Status': 0}

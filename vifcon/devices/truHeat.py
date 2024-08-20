@@ -33,7 +33,7 @@ class SerialMock: # Notiz: Näher ansehen!
 
 
 class TruHeat:
-    def __init__(self, sprache, config, com_dict, test, neustart, add_Ablauf_function, name="TruHeat", typ = 'Generator'):
+    def __init__(self, sprache, config, com_dict, test, neustart, multilog_aktiv, add_Ablauf_function, name="TruHeat", typ = 'Generator'):
         """ Erstelle TruHeat Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
         Args:
@@ -42,6 +42,7 @@ class TruHeat:
             com_dict (dict):                    Dictionary mit den anderen Ports der PI-Achsen
             test (bool):                        Test Modus
             neustart (bool):                    Neustart Modus, Startkonfigurationen werden übersprungen
+            multilog_aktiv (bool):              Multilog-Read/Send Aktiviert
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
             name (str, optional):               Geräte Namen.
             typ (str, optional):                Geräte Typ.
@@ -51,12 +52,13 @@ class TruHeat:
         # Variablen:
         #---------------------------------------
         ## Funktionsübergabe einlesen:
-        self.sprache = sprache
-        self.config = config
-        self.neustart = neustart
-        self.add_Text_To_Ablauf_Datei = add_Ablauf_function
-        self.device_name = name
-        self.typ = typ
+        self.sprache                    = sprache
+        self.config                     = config
+        self.neustart                   = neustart
+        self.multilog_OnOff             = multilog_aktiv
+        self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
+        self.device_name                = name
+        self.typ                        = typ
         
         ## Auflösung und Umrechnung:
         ### Auflösung (Resolution):

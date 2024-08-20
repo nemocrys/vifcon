@@ -184,10 +184,16 @@ class EurothermWidget(QWidget):
         self.Log_Text_245_str   = ['Die Erste Rampe Startet beim Istwert!',                                                                                                                                                                 'The first ramp starts at the actual value!']
         self.Log_Text_246_str   = ['Die Erste Rampe Startet beim Sollwert!',                                                                                                                                                                'The first ramp starts at the setpoint!']
         self.Log_Text_247_str   = ['Die Einstellung für die Erste Rampe ist fehlerhaft! Möglich sind nur SOLL und IST!! Default IST.',                                                                                                      'The setting for the first ramp is incorrect! Only SOLL and IST are possible!! Default IST.']
-        self.Log_Text_248_str   = ['Die Rampen Segmente op, opr und er können nicht im PID-Modus angewendet werden!',                                                                                                                       'The ramp segments op, opr and er cannot be used in PID mode!']
+        self.Log_Text_248_str   = ['Das Rampen Segment er kann nicht im PID-Modus angewendet werden!',                                                                                                                                      'The ramp segment er cannot be used in PID mode!']
         self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liebt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',                                                                                              'The value in the config is outside the limit range! Switching value is set to minimum limit!']
         self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                                                                                                                       'Error reason (reading recipe):']
         self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                                                                                                                      'Error reason (Problem with recipe configuration)']
+        self.Log_Text_EPID_1    = ['Update Konfiguration (Update PID-Parameter Eurotherm):',                                                                                                                                                'Update configuration (update PID parameters Eurotherm):']
+        self.Log_Text_EPID_2    = ['Der Wert',                                                                                                                                                                                              'The value']
+        self.Log_Text_EPID_3    = ['liegt außerhalb des Bereiches 0 bis 99999! Senden verhindert!',                                                                                                                                         'is outside the range 0 to 99999! Sending prevented!']
+        self.Log_Text_EPID_4    = ['Beim Vorbereiten des Sendens der neuen PID-Parameter gab es einen Fehler!',                                                                                                                             'There was an error while preparing to send the new PID parameters!']
+        self.Log_Text_EPID_5    = ['Einlese-Fehler der\nneuen Eurotherm PID-Parameter!',                                                                                                                                                    'Error reading the\nnew Eurotherm PID parameters!']
+        self.Log_Text_EPID_6    = ['Fehlergrund (PID-Parameter):',                                                                                                                                                                          'Reason for error (PID parameter):']
         ## Ablaufdatei:                                                                             
         self.Text_19_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da keine Eingabe.',                                                                                                                                   'Input field error message: Sending failed because there was no input.']
         self.Text_20_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da Eingabe die Grenzen überschreitet.',                                                                                                               'Input field error message: Send failed because input exceeds limits.']
@@ -203,6 +209,8 @@ class EurothermWidget(QWidget):
         self.Text_29_2_str      = ['Knopf betätigt - Sende Solltemperatur (PID).',                                                                                                                                                          'Button pressed - send target temperature (PID).']
         self.Text_30_str        = ['Knopf betätigt - Sende Ausgangsleistung (OP).',                                                                                                                                                         'Button pressed - send output power (OP).']
         self.Text_80_str        = ['Menü-Knopf betätigt - Lese OP maximum (HO) aus.',                                                                                                                                                       'Menu button pressed - read OP maximum (HO).']
+        self.Text_80_2_str      = ['Menü-Knopf betätigt - Schreibe PID-Parameter (XP, TI, TD).',                                                                                                                                            'Menu button pressed - Write PID parameters (XP, TI, TD).']
+        self.Text_80_3_str      = ['Menü-Knopf betätigt - Lese PID-Parameter (XP, TI, TD).',                                                                                                                                                'Menu button pressed - Read PID parameters (XP, TI, TD).']
         self.Text_81_str        = ['Knopf betätigt - Beende Rezept',                                                                                                                                                                        'Button pressed - End recipe']
         self.Text_82_str        = ['Rezept ist zu Ende!',                                                                                                                                                                                   'Recipe is finished!']
         self.Text_83_str        = ['Stopp betätigt - Beende Rezept',                                                                                                                                                                        'Stop pressed - End recipe']
@@ -228,8 +236,8 @@ class EurothermWidget(QWidget):
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = True
-        self.write_task  = {'Soll-Temperatur': False, 'Operating point':False, 'Auto_Mod': False, 'Manuel_Mod': False, 'Init':False, 'Start': False, 'EuRa': False, 'EuRa_Reset': False, 'Read_HO': False, 'Write_HO': False}
-        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID': False, 'PID-Sollwert': 0, 'PID_Rezept_Mode_OP': False, 'PID_Rez': -1}
+        self.write_task  = {'Soll-Temperatur': False, 'Operating point':False, 'Auto_Mod': False, 'Manuel_Mod': False, 'Init':False, 'Start': False, 'EuRa': False, 'EuRa_Reset': False, 'Read_HO': False, 'Write_HO': False, 'PID-Update': False, 'Read_PID': False}
+        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID': False, 'PID-Sollwert': 0, 'PID_Rezept_Mode_OP': False, 'PID_Rez': -1, 'PID-Update': [0, 0, 0]}
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -796,9 +804,47 @@ class EurothermWidget(QWidget):
             self.Fehler_Output(1, self.err_4_str[self.sprache])
 
     def Lese_HO(self):
+        '''Lese HO neu aus!'''
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_80_str[self.sprache]}')
             self.write_task['Read_HO'] = True
+        else:
+            self.Fehler_Output(1, self.err_4_str[self.sprache])
+
+    def Read_PID(self):
+        '''Lese HO neu aus!'''
+        if self.init:
+            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_80_3_str[self.sprache]}')
+            self.write_task['Read_PID'] = True
+        else:
+            self.Fehler_Output(1, self.err_4_str[self.sprache])
+    
+    def Write_PID(self):
+        '''Entnehme der Config die PID-Werte für Eurotherm und ändere diese!'''
+        if self.init:
+            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_80_2_str[self.sprache]}')
+            # Config auslesen:
+            with open(self.config_dat, encoding="utf-8") as f:
+                config = yaml.safe_load(f)
+            logger.info(f'{self.device_name} - {self.Log_Text_EPID_1[self.sprache]} {config}')
+            # PID-Werte lesen:
+            try:
+                P = round(float(str(config['devices'][self.device_name]['PID-Device']['PB']).replace(',','.')),1)
+                I = round(float(str(config['devices'][self.device_name]['PID-Device']['TI']).replace(',','.')),0)
+                D = round(float(str(config['devices'][self.device_name]['PID-Device']['TD']).replace(',','.')),0)
+                error = False
+                for n in [P, I, D]:
+                    if n > 99999 or n < 0:
+                        self.Fehler_Output(1, f'{self.Log_Text_EPID_2[self.sprache]} {n} {self.Log_Text_EPID_3[self.sprache]}')
+                        error = True
+                if not error:
+                    self.write_task['PID-Update']  = True
+                    self.write_value['PID-Update'] = [P, I, D]
+                    self.Fehler_Output(0)
+            except Exception as e:
+                logger.warning(f'{self.device_name} - {self.Log_Text_EPID_4[self.sprache]}')
+                self.Fehler_Output(1, self.Log_Text_EPID_5[self.sprache])
+                logger.exception(f'{self.device_name} - {self.Log_Text_EPID_6[self.sprache]}')      
         else:
             self.Fehler_Output(1, self.err_4_str[self.sprache])
 
@@ -986,12 +1032,14 @@ class EurothermWidget(QWidget):
 
                 # Elemente GUI entsperren:
                 self.cb_Rezept.setEnabled(True)
+                self.PID_cb.setEnabled(True)
                 self.btn_rezept_start.setEnabled(True)
-                self.RB_choise_Temp.setEnabled(True)
-                self.RB_choise_Pow.setEnabled(True)
                 self.btn_send_value.setEnabled(True)
                 self.Auswahl.setEnabled(True)
-                self.PID_cb.setEnabled(True)
+                
+                if not self.PID_cb.isChecked():
+                    self.RB_choise_Temp.setEnabled(True)
+                    self.RB_choise_Pow.setEnabled(True)
 
                 # Variablen:
                 self.Rezept_Aktiv = False
