@@ -63,19 +63,16 @@ class MainWindow(QMainWindow):
         #--------------------------------------- 
         ## Menü-Leiste:
         PGR_str             = ["&Menü",                                  "&Menu"] 
-        P_str               = ["Pl&ot",                                  "Pl&ot"] 
+        P_str               = ["&Plot",                                  "&Plot"] 
         G_str               = ["&Geräte",                                "&Devices"] 
         R_str               = ["&Rezepte",                               "&Recipes"] 
         gitter_str          = ["&Gitter",                                "&Grid"]                               # & - Ermöglicht eine Tastenkombination Alt + Buchstabe (nach &)
         init_str            = ["&Initialisiere",                         "&Initialize"]
         limits_str          = ["&Lese Limits erneut",                    "Read &Limits again"]
-        PID_Para_str        = ['Lese VIFCON-PID-Parameter erneut',       'Reread VIFCON-PID parameters']
-        syn_rez_str         = ["&Synchro Start",                         "&Synchro start"]
-        syn_rez_ende_str    = ["S&ynchro beenden",                       "S&ynchro end"]
-        new_rez_str         = ["&Neu Einlesen",                          "R&ead in again"]
-        syn_rez_sta_str     = ["S&tarte Synchron Modus",                 "S&tart synchronously mode"]
+        PID_Para_str        = ['Lese &VIFCON-PID-Parameter erneut',      'Reread &VIFCON-PID parameters']
+        syn_rez_sta_str     = ["&Starte Synchron Modus",                 "&Start synchronously mode"]
         syn_rez_end_str     = ["&Beende Synchron Modus",                 "&Finish synchronous mode"]
-        new_rez_aus_str     = ["&Alle Geräte",                           "&All devices"]
+        new_rez_aus_str     = ["&Alle Geräte neu Einlesen",              "Re-read &all devices"]
         ## Exit:
         self.exit_1_str     = ["Anwendung beenden",                      "Close application"]
         if gamepad:
@@ -127,28 +124,21 @@ class MainWindow(QMainWindow):
         self.limits_menu        = self.G_menu.addMenu(limits_str[self.sprache]) 
         self.PID_Para_menu      = self.G_menu.addMenu(PID_Para_str[self.sprache])
         #### Rezepte:
-        self.syn_Rez_menu       = self.R_menu.addMenu(syn_rez_str[self.sprache])
-        self.syn_Rez_end_menu   = self.R_menu.addMenu(syn_rez_ende_str[self.sprache])
-        self.Rez_einlesen_menu  = self.R_menu.addMenu(new_rez_str[self.sprache])
-
-        self.menu_dict = {'Grid': self.grid_menu, 'Init': self.init_menu, 'Limit': self.limits_menu, 'VIFCON-PID': self.PID_Para_menu}
-
-        ### Menü-Ebene 4:
-        #### Action Synchro Rezept Start:
+        ##### Action Synchro Rezept Start:
         button_action = QAction(syn_rez_sta_str[self.sprache], self)
         button_action.triggered.connect(sync_function)
-        self.syn_Rez_menu.addAction(button_action)
-
-        #### Action Synchro Rezept Ende:
+        self.R_menu.addAction(button_action)
+        ##### Action Synchro Rezept Ende:
         button_action_RF = QAction(syn_rez_end_str[self.sprache], self)
         button_action_RF.triggered.connect(sync_end_function)
-        self.syn_Rez_end_menu.addAction(button_action_RF)
-
-        #### Action Rezepte Neu Einlesen:
+        self.R_menu.addAction(button_action_RF)
+        ##### Action Rezepte Neu Einlesen:
         button_action_RE = QAction(new_rez_aus_str[self.sprache], self)
         button_action_RE.triggered.connect(RE_function)
-        self.Rez_einlesen_menu.addAction(button_action_RE)
-    
+        self.R_menu.addAction(button_action_RE)
+
+        self.menu_dict = {'Grid': self.grid_menu, 'Init': self.init_menu, 'Limit': self.limits_menu, 'VIFCON-PID': self.PID_Para_menu}      
+
     ##########################################
     # Funktionen:
     ##########################################
