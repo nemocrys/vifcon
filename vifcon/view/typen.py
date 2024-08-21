@@ -136,6 +136,7 @@ class Generator(QWidget, Cursor, PopUpWindow):
         autoR_str               = ["Auto Achse",                                                                                                            "Auto Range"]
         action_ar_str           = ['Passe Achsen an',                                                                                                       'Adjust axes']
         Typ                     = ['Generatoren und Regler',                                                                                                'Generators and Controllers']
+        sehe_device             = ['s.G.',                                                                                                                  's.d.']
         ## Pop-Up:
         self.PopUp_1            = ['Frage',                                                                                                                 'Question']
         self.PopUp_2            = ['Information',                                                                                                           'Information']
@@ -158,7 +159,7 @@ class Generator(QWidget, Cursor, PopUpWindow):
         self.splitter_main.splitter.addWidget(self.splitter_row_one.splitter)
 
         # Faktoren bestimmen für Label:
-        label_dict = {'Temp': 'T [°C]', 'Current': 'I [A]', 'Voltage': 'U [V]', 'Op': 'P [%]', 'Pow': 'P [kW]', 'Freq': 'f [kHz]'}
+        label_dict = {'Temp': 'T [°C]', 'Current': 'I [A]', 'Voltage': 'U [V]', 'Op': 'P [%]', 'Pow': 'P [kW]', 'Freq': 'f [kHz]', 'PIDG': f'x [{sehe_device[self.sprache]}]'}
         label_list = []
         for size in label_dict:
             if not self.Faktor[size] == 1:
@@ -178,7 +179,7 @@ class Generator(QWidget, Cursor, PopUpWindow):
             self.legend_achsen_Links_widget = Widget_VBox()
             self.splitter_row_one.splitter.addWidget(self.legend_achsen_Links_widget.widget)
 
-        Achse_y1_str = f'{label_list[0]} | {label_list[1]} | {label_list[2]}'.replace(' | 0', '').replace('0 |','')
+        Achse_y1_str = f'{label_list[0]} | {label_list[1]} | {label_list[2]} | {label_list[6]}'.replace(' | 0', '').replace('0 |','')
         if Achse_y1_str == '0':
             Achse_y1_str = self.Eintrag_Achse[self.sprache]
         Achse_y2_str = f'{label_list[3]} | {label_list[4]} | {label_list[5]}'.replace(' | 0', '').replace('0 |','')
@@ -289,6 +290,7 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         autoR_str               = ["Auto Achse",                                                                                                            "Auto Range"]
         action_ar_str           = ['Passe Achsen an',                                                                                                       'Adjust axes']
         Typ                     = ['Antriebe',                                                                                                              'Drives']
+        sehe_device             = ['s.G.',                                                                                                                  's.d.']
         ## Pop-Up:
         self.PopUp_1            = ['Frage',                                                                                                                 'Question']
         self.PopUp_2            = ['Information',                                                                                                           'Information']
@@ -311,7 +313,7 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         self.splitter_main.splitter.addWidget(self.splitter_row_one.splitter)
 
         # Faktoren bestimmen für Label:
-        label_dict = {'Pos': 's [mm]', 'Win': '\u03B1 [°]', 'Speed_1': 'v [mm/s]', 'Speed_2': 'v [mm/min]',  'WinSpeed': '\u03C9 [1/min]'}         # https://pythonforundergradengineers.com/unicode-characters-in-python.html
+        label_dict = {'Pos': 's [mm]', 'Win': '\u03B1 [°]', 'Speed_1': 'v [mm/s]', 'Speed_2': 'v [mm/min]',  'WinSpeed': '\u03C9 [1/min]', 'PIDA': f'x [{sehe_device[self.sprache]}]'}         # https://pythonforundergradengineers.com/unicode-characters-in-python.html
         label_list = []
         for size in label_dict:
             if not self.Faktor[size] == 1:
@@ -331,7 +333,7 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
             self.legend_achsen_Links_widget = Widget_VBox()
             self.splitter_row_one.splitter.addWidget(self.legend_achsen_Links_widget.widget)
 
-        Achse_y1_str = f'{label_list[0]} | {label_list[1]}'.replace(' | 0', '').replace('0 |','')
+        Achse_y1_str = f'{label_list[0]} | {label_list[1]} | {label_list[5]}'.replace(' | 0', '').replace('0 |','')
         if Achse_y1_str == '0':
             Achse_y1_str = self.Eintrag_Achse[self.sprache]
         Achse_y2_str = f'{label_list[2]} | {label_list[3]} | {label_list[4]}'.replace(' | 0', '').replace('0 |','')

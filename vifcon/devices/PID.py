@@ -191,9 +191,11 @@ class PID(QObject):
         error, kp, ki, kd = self.check_PID_Parameter(config['devices'][self.device]['PID']['kp'], config['devices'][self.device]['PID']['ki'], config['devices'][self.device]['PID']['kd'])
 
         if self.PID_speere and error:
-            self.widget.Fehler_Output(1, self.Log_PID_16[self.sprache], device = f'{self.Log_PID_0[self.sprache]} ({self.device})')
+            if 'Achse' in self.device:   self.widget.Fehler_Output(1, self.widget.La_error_1, self.Log_PID_16[self.sprache], device = f'{self.Log_PID_0[self.sprache]} ({self.device})')
+            else:                        self.widget.Fehler_Output(1, self.Log_PID_16[self.sprache], device = f'{self.Log_PID_0[self.sprache]} ({self.device})')
         elif kp == self.kp and ki == self.ki and kd == self.kd and not self.PID_speere:
-            self.widget.Fehler_Output(1, self.Log_PID_17[self.sprache], device = f'{self.Log_PID_0[self.sprache]} ({self.device})')
+            if 'Achse' in self.device:   self.widget.Fehler_Output(1, self.widget.La_error_1, self.Log_PID_17[self.sprache], device = f'{self.Log_PID_0[self.sprache]} ({self.device})')  
+            else:                        self.widget.Fehler_Output(1, self.Log_PID_17[self.sprache], device = f'{self.Log_PID_0[self.sprache]} ({self.device})')
             logger.info(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_18[self.sprache]}{self.Log_PID_1[self.sprache]} {self.kp}; {self.Log_PID_2[self.sprache]}{self.ki}; {self.Log_PID_3[self.sprache]}{self.kd}')
         elif not error:
             self.kp = kp
@@ -203,7 +205,8 @@ class PID(QObject):
 
             self.ki_st = self.ki * self.sample_time
             self.kd_st = self.kd/self.sample_time
-            self.widget.Fehler_Output(0)
+            if 'Achse' in self.device:   self.widget.Fehler_Output(0, self.widget.La_error_1)
+            else:                        self.widget.Fehler_Output(0)
                         
     def check_PID_Parameter(self, kp, ki, kd):
         ''' Prüfe die PID-Parameter aus der Config!

@@ -329,7 +329,9 @@ class Eurotherm(QObject):
             PID_write_OP = False
         # PID-Regler:
         elif write_value['PID']:
+            #---------------------------------------------
             ## Auswahl Istwert:
+            #---------------------------------------------
             ### VIFCON:
             if self.PID_Option[0] == 'V':
                 self.Ist = self.read_einzeln(self.read_temperature)
@@ -379,17 +381,23 @@ class Eurotherm(QObject):
                     self.Ist = self.PID_Ist_Last
             else:
                 self.PID_Ist_Last = self.Ist
+            #---------------------------------------------
             ## Auswahl Sollwert:
+            #---------------------------------------------
             ### VIFCON:
             if self.PID_Option[1] == 'V':
                 self.Soll = write_value['PID-Sollwert']
             ### MUltilog:
             elif self.PID_Option[1] == 'M':
                 print('Noch nicht Vorhanden!')
+            #---------------------------------------------
             ## Schreibe Werte:
+            #---------------------------------------------
             PID_write_OP = True
             PowOutPID = self.op
+            #---------------------------------------------
             ## Rezept-Modus:
+            #---------------------------------------------
             self.mode_aktiv = write_value['PID_Rezept_Mode_OP']
             if self.mode_aktiv:
                 self.Rez_OP = write_value['PID_Rez']

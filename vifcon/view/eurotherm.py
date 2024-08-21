@@ -134,7 +134,9 @@ class EurothermWidget(QWidget):
         P_einzel_str            = ['P',                                                                                                                                                                                                     'P']
         PID_Von_1               = ['Wert von Multilog',                                                                                                                                                                                     'Value of Multilog']
         PID_Von_2               = ['Wert von VIFCON',                                                                                                                                                                                       'Value ofVIFCON']
-        PID_Zusatz              = ['ex,',                                                                                                                                                                                                    'ex,']
+        PID_Zusatz              = ['ex,',                                                                                                                                                                                                   'ex,']
+        T_unit_einzel           = ['°C',                                                                                                                                                                                                    '°C']
+        P_unit_einzel           = ['%',                                                                                                                                                                                                     '%']
         ## Fehlermeldungen:                                                                                                                                                                                     
         self.err_0_str          = ['Fehler!',                                                                                                                                                                                               'Error!']                   
         self.err_1_str          = ['Keine Eingabe!',                                                                                                                                                                                        'No input!']
@@ -508,7 +510,7 @@ class EurothermWidget(QWidget):
         for kurve in self.kurven_dict:
                 self.curveDict[kurve] = self.kurven_dict[kurve] 
         self.labelDict      = {'IWT': self.La_IstTemp_wert,                                                'IWOp': self.La_IstPow_wert,      'SWT': self.La_SollTemp_wert}                              # Label
-        self.labelUnitDict  = {'IWT': '°C',                                                                'IWOp': '%'}                                                                                 # Einheit
+        self.labelUnitDict  = {'IWT': T_unit_einzel[self.sprache],                                         'IWOp': P_unit_einzel[self.sprache]}                                                         # Einheit
         self.listDict       = {'IWT': self.istTpList,       'SWT': self.sollTpList,                        'IWOp': self.opList,              'SWTPID':self.sollTPID,        'IWTPID':self.istTPID}      # Werte-Listen
         self.grenzListDict  = {'oGT': self.ToGList,         'uGT': self.TuGList,    'oGOp': self.OpoGList, 'uGOp': self.OpuGList}
         self.grenzValueDict = {'oGT': self.oGST,            'uGT': self.uGST,       'oGOp': self.oGOp,     'uGOp': self.uGOp}
@@ -598,6 +600,7 @@ class EurothermWidget(QWidget):
             Fehler (bool):                  False -> o.k. (schwarz), True -> Fehler (rot, bold)
             error_Message_Log_GUI (str):    Nachricht die im Log und der GUI angezeigt wird
             error_Message_Ablauf (str):     Nachricht für die Ablaufdatei
+            device (str):                   Wenn ein anderes Gerät genutzt wird (z.B. PID)
         ''' 
         if device == '':
             device_name = self.device_name
@@ -670,7 +673,10 @@ class EurothermWidget(QWidget):
             # Aufgaben setzen:
             self.write_value['PID'] = False
             self.write_task['Operating point'] = True  # Beim Umschalten keine Sollwerte anpassen bzw. OP auf einen Wert setzen!
-            value = self.config['PID']['umstell_wert']
+            try:
+                value = float(str(self.config['PID']['umstell_wert'].replace(',', '.')))
+            except:
+                value = 0
             if value > self.oGOp or value < self.uGOp:
                 logger.warning(f"{self.device_name} - {self.Log_Text_PID_Ex[self.sprache]}") 
                 self.write_value['Rez_OPTemp'] = self.uGOp
@@ -879,8 +885,8 @@ class EurothermWidget(QWidget):
         for messung in value_dict:
             if not 'SWT' in messung:
                 if 'IWT' in messung:
-                    if messung == 'IWT' and not self.PID_cb.isChecked():   self.labelDict[messung].setText(f'({value_dict[messung]})') 
-                    elif messung == 'IWTPID' and  self.PID_cb.isChecked(): self.labelDict['IWT'].setText(f'({value_dict[messung]})')
+                    if messung == 'IWT' and not self.PID_cb.isChecked():   self.labelDict[messung].setText(f'{value_dict[messung]} {self.labelUnitDict[messung]}') 
+                    elif messung == 'IWTPID' and  self.PID_cb.isChecked(): self.labelDict['IWT'].setText(f'{value_dict[messung]} {self.labelUnitDict["IWT"]}')
                 else:
                     self.labelDict[messung].setText(f'{value_dict[messung]} {self.labelUnitDict[messung]}')
             else:

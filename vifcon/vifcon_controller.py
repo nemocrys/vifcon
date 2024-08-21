@@ -168,7 +168,7 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                 #---------------------------------------
                 # Schreibe Werte:
                 #---------------------------------------
-                if 'Eurotherm' in self.device_name:     # Wenn alle PID haben dann Zeile nicht notwendig
+                if 'Eurotherm' in self.device_name or 'Nemo-Achse-Rotation' in self.device_name:     # Wenn alle PID haben dann Zeile nicht notwendig
                     if self.device.PID.PID_speere and self.device_widget.write_value['PID']:
                         self.device_widget.PID_cb.setChecked(False)
                         self.device_widget.PID_ON_OFF()
@@ -586,16 +586,16 @@ class Controller(QObject):
                         color_Ant_n = color_Ant_n + 3
                     elif 'Nemo-Achse-Linear' in device_name:
                         #### Objekte erstellen:
-                        device = NemoAchseLin(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.add_Ablauf, device_name) 
-                        widget = NemoAchseLinWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        device = NemoAchseLin(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name) 
+                        widget = NemoAchseLinWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
                         #### Farben-Option:
                         color_Ant_n = color_Ant_n + 6
                     elif 'Nemo-Achse-Rotation' in device_name:
                         #### Objekte erstellen:
-                        device = NemoAchseRot(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.add_Ablauf, device_name) 
-                        widget = NemoAchseRotWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        device = NemoAchseRot(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name) 
+                        widget = NemoAchseRotWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
                         #### Farben-Option:
-                        color_Ant_n = color_Ant_n + 4
+                        color_Ant_n = color_Ant_n + 6
                     self.PadAchsenList.append(widget)
                 elif device_typ == 'Monitoring':
                     if 'Nemo-Gase' in device_name:
@@ -620,7 +620,7 @@ class Controller(QObject):
                 if not 'Nemo-Gase' in device_name:
                     try:
                         self.main_window.add_menu('Limit', device_name, widget.update_Limit, widget.init)
-                        if 'Eurotherm' in device_name:  # später anpassen!
+                        if 'Eurotherm' in device_name or 'Nemo-Achse-Rotation' in device_name:  # später anpassen!
                             self.main_window.add_menu('VIFCON-PID', device_name, device.PID.update_VPID_Para, widget.init)
                             device.PID.config_dat = config
                             device.PID.widget = widget
@@ -797,7 +797,7 @@ class Controller(QObject):
         # Beennde PID:
         #////////////////////////////////////////////////////////////
         for device in self.widgets:
-            if 'Eurotherm' in device:
+            if 'Eurotherm' in device or 'Nemo-Achse-Rotation' in device:
                 self.widgets[device].write_value['PID'] = False 
                 self.devices[device].PIDThread.quit()
                 self.devices[device].timer_PID.stop()

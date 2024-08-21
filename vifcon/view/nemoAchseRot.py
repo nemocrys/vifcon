@@ -98,6 +98,8 @@ class NemoAchseRotWidget(QWidget):
         self.rezept_config = self.config["rezepte"]
         ### Gamepad:
         self.Button_Link = self.config['gamepad_Button']
+        ### PID-Modus:
+        self.unit_PIDIn = self.config['PID']['Input_Size_unit']
 
         ## Faktoren Skalierung:
         self.skalFak = self.typ_widget.Faktor
@@ -126,16 +128,25 @@ class NemoAchseRotWidget(QWidget):
         cb_sync_str             = ['Sync',                                                                                                      'Sync']
         cb_EndloseRot_str       = ['Kont. Rot.',                                                                                                'Cont. Rot.']           # \u221E \u03B1
         cb_gPad_str             = ['GPad',                                                                                                      'GPad']
+        cb_PID                  = ['PID',                                                                                                       'PID']
         ## Einheiten mit Größe: 
-        v_str                   = ['\u03C9 in 1/min:',                                                                                          '\u03C9 in 1/min:']
+        self.v_str              = ['\u03C9 in 1/min:',                                                                                          '\u03C9 in 1/min:']
+        self.x_str              = [f'x in {self.unit_PIDIn}:',                                                                                  f'x in {self.unit_PIDIn}:']
         sv_str                  = ['\u03C9:',                                                                                                   '\u03C9:']              # Omega
         sw_str                  = ['\u03B1 (sim):',                                                                                             '\u03B1 (sim):']        # Alpha
+        sx_str                  = ['PID:',                                                                                                      'PID:']
         st_v_str                = ['XXX.XX 1/min',                                                                                              'XXX.XX 1/min']
         st_w_str                = ['XXX.XX°',                                                                                                   'XXX.XX°'] 
+        st_x_str                = [f'XXX.XX {self.unit_PIDIn}',                                                                                 f'XXX.XX {self.unit_PIDIn}'] 
         w_einzel_str            = ['\u03B1',                                                                                                    '\u03B1']
         v_einzel_str            = ['\u03C9',                                                                                                    '\u03C9']
+        x_einzel_str            = ['x',                                                                                                         'x']
         einheit_w_einzel        = ['°',                                                                                                         '°']
         einheit_v_einzel        = ['1/min',                                                                                                     '1/min']
+        einheit_x_einzel        = [f'{self.unit_PIDIn}',                                                                                        f'{self.unit_PIDIn}']
+        PID_Von_1               = ['Wert von Multilog',                                                                                         'Value of Multilog']
+        PID_Von_2               = ['Wert von VIFCON',                                                                                           'Value ofVIFCON']
+        PID_Zusatz              = ['ex,',                                                                                                       'ex,']
         ## Fehlermeldungen:     
         self.err_0_str          = ['Fehler!',                                                                                                   'Error!'] 
         self.err_1_str          = ['Keine EINGABE!!',                                                                                           'No INPUT!!']
@@ -187,6 +198,7 @@ class NemoAchseRotWidget(QWidget):
         self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                     'Update configuration (update limits):']
         self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
         self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                          'Error reason (Problem with recipe configuration)']
+        self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liebt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',  'The value in the config is outside the limit range! Switching value is set to minimum limit!']
         ## Ablaufdatei: 
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -208,6 +220,10 @@ class NemoAchseRotWidget(QWidget):
         self.Text_89_str        = ['Knopf betätigt - Beende Rezept - Keine Wirkung auf Rezept-Funktion, jedoch Auslösung des Stopp-Knopfes!',   'Button pressed - End recipe - No effect on recipe function, but triggers the stop button!']
         self.Text_90_str        = ['Sicherer Endzustand wird hergestellt! Auslösung des Stopp-Knopfes!',                                        'Safe final state is established! Stop button is activated!']
         self.Text_91_str        = ['Rezept Beenden - Sicherer Endzustand',                                                                      'Recipe Ends - Safe End State']
+        self.Text_PID_1         = ['Wechsel in PID-Modus.',                                                                                     'Switch to PID mode.']
+        self.Text_PID_2         = ['Wechsel in Eurotherm-Regel-Modus.',                                                                         'Switch to Eurotherm control mode.']
+        self.Text_PID_3         = ['Moduswechsel! Auslösung des Stopp-Knopfes aus Sicherheitsgründen!',                                         'Mode change! Stop button triggered for safety reasons!']
+        self.Text_PID_4         = ['Rezept Beenden! Wechsel des Modus!',                                                                        'End recipe! Change mode!']
         # Pop-Up-Fenster:
         self.Pop_up_EndRot      = ['Das kontinuierlische rotieren wurde beendet. Bitte beachte, dass zu diesem Zeitpunkt bereits ein Limit überschritten sein kann. In Fall der Überschreitung setze den Winkel auf Null, schalte die kontinuierlische Rotation wieder ein oder fahre in die andere Richtung. Wenn z.B. das CCW Limit erreicht wurde, so kann der Antrieb noch immer bis zum CW Limit fahren.',
                                    'Continuous rotation has ended. Please note that a limit may already have been exceeded at this point. If this limit is exceeded, set the angle to zero, switch continuous rotation back on or move in the other direction. If, for example, the CCW limit has been reached, the drive can still move up to the CW limit.']
@@ -215,7 +231,7 @@ class NemoAchseRotWidget(QWidget):
         # Konfigurationen für das Senden:
         #---------------------------------------
         self.write_task = {'Stopp': False, 'CCW': False, 'CW': False, 'Init':False, 'Define Home': False, 'Start':False, 'Send':False, 'Update Limit': False}
-        self.write_value = {'Speed': 0, 'EndRot':False, 'Limits': [0, 0]} # Limits: oGw, uGw
+        self.write_value = {'Speed': 0, 'EndRot':False, 'Limits': [0, 0], 'PID': False, 'PID-Sollwert': 0} # Limits: oGw, uGw
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -273,6 +289,9 @@ class NemoAchseRotWidget(QWidget):
         if not gamepad_aktiv:
             self.gamepad.setEnabled(False)
 
+        self.PID_cb  = QCheckBox(cb_PID[self.sprache])
+        self.PID_cb.clicked.connect(self.PID_ON_OFF)
+
         ### Label:
         #### Titel-Gerät:
         self.La_name = QLabel(f'<b>{nemoAchse}</b>')
@@ -291,13 +310,23 @@ class NemoAchseRotWidget(QWidget):
         #### Statuswert:
         self.La_Status = QLabel(status_1_str[self.sprache])
         #### Sollwinkelgeschwindigkeit:
-        self.La_SollSpeed = QLabel(v_str[self.sprache])
+        self.La_SollSpeed = QLabel(self.v_str[self.sprache])
         if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[2]}")
 
         self.La_SollSpeed_text = QLabel(f'{sollwert_str[self.sprache]}-{sv_str[self.sprache]} ')
         self.La_SollSpeed_wert = QLabel(st_v_str[self.sprache])
         if self.color_Aktiv: self.La_SollSpeed_text.setStyleSheet(f"color: {self.color[2]}")
         if self.color_Aktiv: self.La_SollSpeed_wert.setStyleSheet(f"color: {self.color[2]}")
+        #### Soll-Größe PID-Modus:
+        self.La_SollPID_text = QLabel(f'{sollwert_str[self.sprache]}-{sx_str[self.sprache]} ')
+        self.La_SollPID_wert = QLabel(st_x_str[self.sprache])
+        if self.color_Aktiv: self.La_SollPID_text.setStyleSheet(f"color: {self.color[4]}")
+        if self.color_Aktiv: self.La_SollPID_wert.setStyleSheet(f"color: {self.color[4]}")
+        #### Ist-Größe PID-Modus:
+        self.La_IstPID_text = QLabel(f'{istwert_str[self.sprache]}-{sx_str[self.sprache]} ')
+        self.La_IstPID_wert = QLabel(st_x_str[self.sprache])
+        if self.color_Aktiv: self.La_IstPID_text.setStyleSheet(f"color: {self.color[5]}")
+        if self.color_Aktiv: self.La_IstPID_wert.setStyleSheet(f"color: {self.color[5]}")
 
         ### Knöpfe:
         #### Bewegung:
@@ -373,6 +402,7 @@ class NemoAchseRotWidget(QWidget):
         self.first_row_layout.addWidget(self.Auswahl)
         self.first_row_layout.addWidget(self.gamepad)
         self.first_row_layout.addWidget(self.EndRot)
+        self.first_row_layout.addWidget(self.PID_cb)
 
         self.first_row_layout.setContentsMargins(0,0,0,0)      # left, top, right, bottom
 
@@ -402,6 +432,22 @@ class NemoAchseRotWidget(QWidget):
         self.W3_layout.setContentsMargins(0,0,0,0)
         self.W3_layout.setColumnMinimumWidth(0, W_spalte)
 
+        self.W4 = QWidget()
+        self.W4_layout = QGridLayout()
+        self.W4.setLayout(self.W4_layout)
+        self.W4_layout.addWidget(self.La_IstPID_text, 0 , 0)
+        self.W4_layout.addWidget(self.La_IstPID_wert, 0 , 1 , alignment=Qt.AlignLeft)
+        self.W4_layout.setContentsMargins(0,0,0,0)
+        self.W4_layout.setColumnMinimumWidth(0, W_spalte)
+
+        self.W5 = QWidget()
+        self.W5_layout = QGridLayout()
+        self.W5.setLayout(self.W5_layout)
+        self.W5_layout.addWidget(self.La_SollPID_text, 0 , 0)
+        self.W5_layout.addWidget(self.La_SollPID_wert, 0 , 1 , alignment=Qt.AlignLeft)
+        self.W5_layout.setContentsMargins(0,0,0,0)
+        self.W5_layout.setColumnMinimumWidth(0, W_spalte)
+
         self.V = QWidget()
         self.V_layout = QVBoxLayout()
         self.V.setLayout(self.V_layout)
@@ -409,6 +455,8 @@ class NemoAchseRotWidget(QWidget):
         self.V_layout.addWidget(self.W1)
         self.V_layout.addWidget(self.W3)
         self.V_layout.addWidget(self.W2)
+        self.V_layout.addWidget(self.W4)
+        self.V_layout.addWidget(self.W5)
         self.V_layout.setContentsMargins(0,0,0,0)
         #________________________________________
         ## Platzierung der einzelnen Widgets im Layout:
@@ -444,6 +492,27 @@ class NemoAchseRotWidget(QWidget):
         #---------------------------------------
         # Kurven:
         #---------------------------------------
+        ## PID-Modus:
+        origin = self.config['PID']['Value_Origin'].upper()
+        ### Istwert:
+        PID_Export_Ist = ''
+        if origin[0] == 'V':        PID_Label_Ist = PID_Von_2[sprache]
+        elif origin [0] == 'M':     
+            PID_Label_Ist = PID_Von_1[sprache]
+            PID_Export_Ist = PID_Zusatz[sprache]
+        else:                       PID_Label_Ist = PID_Von_2[sprache]
+        ### Sollwert
+        PID_Export_Soll = ''
+        if origin[1] == 'V':        PID_Label_Soll = PID_Von_2[sprache]
+        elif origin [1] == 'M':     
+            PID_Label_Soll = PID_Von_1[sprache]
+            PID_Export_Soll = PID_Zusatz[sprache]
+        else:                       PID_Label_Soll = PID_Von_2[sprache]
+        
+        ### Start Wert:
+        self.write_value['PID-Sollwert'] = self.config['PID']['start_soll']
+
+        ## Kurven-Namen:
         kurv_dict = {                                                               # Wert: [Achse, Farbe/Stift, Name]
             'IWv':  ['a2', pg.mkPen(self.color[0], width=2),                            f'{nemoAchse} - {v_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
             'IWw':  ['a1', pg.mkPen(self.color[1], width=2),                            f'{nemoAchse} - {w_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
@@ -452,7 +521,9 @@ class NemoAchseRotWidget(QWidget):
             'uGv':  ['a2', pg.mkPen(color=self.color[0], style=Qt.DashDotDotLine),      f'{nemoAchse} - {v_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
             'oGw':  ['a1', pg.mkPen(color=self.color[1], style=Qt.DashLine),            f'{nemoAchse} - {w_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
             'uGw':  ['a1', pg.mkPen(color=self.color[1], style=Qt.DashDotDotLine),      f'{nemoAchse} - {w_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'Rezv': ['a2', pg.mkPen(color=self.color[3], width=3, style=Qt.DotLine),    f'{nemoAchse} - {rezept_Label_str[self.sprache]}<sub>{v_einzel_str[self.sprache]}</sub>']
+            'Rezv': ['a2', pg.mkPen(color=self.color[3], width=3, style=Qt.DotLine),    f'{nemoAchse} - {rezept_Label_str[self.sprache]}<sub>{v_einzel_str[self.sprache]}</sub>'],
+            'SWxPID': ['a1', pg.mkPen(self.color[4], width=2, style=Qt.DashDotLine),    f'{PID_Label_Soll} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
+            'IWxPID': ['a1', pg.mkPen(self.color[5], width=2, style=Qt.DashDotLine),    f'{PID_Label_Ist} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
         }
 
         ## Kurven erstellen:
@@ -492,6 +563,8 @@ class NemoAchseRotWidget(QWidget):
         self.winList        = []       
         self.speedList      = []   
         self.sollspeedList  = []  
+        self.sollxPID       = []
+        self.istxPID        = []
         ### Grenzen:
         self.VoGList        = []
         self.VuGList        = []
@@ -501,14 +574,14 @@ class NemoAchseRotWidget(QWidget):
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
-        self.curveDict      = {'IWv': '', 'SWv': '', 'IWw':'', 'oGv': '', 'uGv': '', 'oGw': '', 'uGw': '', 'Rezv':''}            # Kurven
+        self.curveDict      = {'IWv': '', 'SWv': '', 'IWw':'', 'oGv': '', 'uGv': '', 'oGw': '', 'uGw': '', 'Rezv':'', 'SWTPID':'', 'IWTPID':''}                                                                                                                 # Kurven
         for kurve in self.kurven_dict:
             self.curveDict[kurve] = self.kurven_dict[kurve]
-        self.labelDict      = {'IWv': self.La_IstSpeed_wert,                'SWv': self.La_SollSpeed_wert,          'IWw':self.La_IstWin_wert}             # Label
-        self.labelUnitDict  = {'IWv': einheit_v_einzel[self.sprache],       'SWv': einheit_v_einzel[self.sprache],  'IWw':einheit_w_einzel[self.sprache]}                             # Einheit
-        self.listDict       = {'IWv': self.speedList,                       'SWv':self.sollspeedList,               'IWw':self.winList}                    # Werteliste
-        self.grenzListDict  = {'oGv': self.VoGList,                         'uGv': self.VuGList,                    'oGw': self.WoGList,         'uGw': self.WuGList}
-        self.grenzValueDict = {'oGv': self.oGv,                             'uGv': self.uGv,                        'oGw': self.oGw,             'uGw': self.uGw}
+        self.labelDict      = {'IWv': self.La_IstSpeed_wert,                'SWv': self.La_SollSpeed_wert,          'IWw':self.La_IstWin_wert,              'SWxPID': self.La_SollPID_wert,             'IWxPID': self.La_IstPID_wert}                          # Label
+        self.labelUnitDict  = {'IWv': einheit_v_einzel[self.sprache],       'SWv': einheit_v_einzel[self.sprache],  'IWw':einheit_w_einzel[self.sprache],   'SWxPID': einheit_x_einzel[self.sprache],   'IWxPID': einheit_x_einzel[self.sprache]}               # Einheit
+        self.listDict       = {'IWv': self.speedList,                       'SWv':self.sollspeedList,               'IWw':self.winList,                     'SWxPID': self.sollxPID,                    'IWxPID': self.istxPID}                                  # Werteliste
+        self.grenzListDict  = {'oGv': self.VoGList,                         'uGv': self.VuGList,                    'oGw': self.WoGList,                    'uGw': self.WuGList}
+        self.grenzValueDict = {'oGv': self.oGv,                             'uGv': self.uGv,                        'oGw': self.oGw,                        'uGw': self.uGw}
 
         ## Plot-Skalierungsfaktoren:
         self.skalFak_dict = {}
@@ -517,6 +590,8 @@ class NemoAchseRotWidget(QWidget):
                 self.skalFak_dict.update({size: self.skalFak['Win']})
             if 'Wv' in size:
                 self.skalFak_dict.update({size: self.skalFak['WinSpeed']})
+            if 'Wx' in size:
+                self.skalFak_dict.update({size: self.skalFak['PIDA']})
 
         #---------------------------------------
         # Timer:
@@ -582,27 +657,32 @@ class NemoAchseRotWidget(QWidget):
     ##########################################
     # Fehlermedlung:
     ##########################################
-    def Fehler_Output(self, Fehler, La_error, error_Message_Log_GUI = '', error_Message_Ablauf = ''):
+    def Fehler_Output(self, Fehler, La_error, error_Message_Log_GUI = '', error_Message_Ablauf = '', device = ''):
         ''' Erstelle Fehler-Nachricht für GUI, Ablaufdatei und Logging
         Args:
             Fehler (bool):                  False -> o.k. (schwarz), True -> Fehler (rot, bold)
             La_error (PyQt-Label):          Label das beschrieben werden soll (Objekt)
             error_Message_Log_GUI (str):    Nachricht die im Log und der GUI angezeigt wird
             error_Message_Ablauf (str):     Nachricht für die Ablaufdatei
+            device (str):                   Wenn ein anderes Gerät genutzt wird (z.B. PID)
         ''' 
+        if device == '':
+            device_name = self.device_name
+        else:
+            device_name = device
         if Fehler:
             La_error.setText(self.err_0_str[self.sprache])
             La_error.setToolTip(error_Message_Log_GUI)  
             La_error.setStyleSheet(f"color: red; font-weight: bold")
             zusatz = f'({self.str_Size_1[self.sprache]})' if La_error == self.La_error_1 else (f'({self.str_Size_2[self.sprache]})' if La_error == self.La_error_2 else '')
             log_vorberietung = error_Message_Log_GUI.replace("\n"," ") 
-            logger.error(f'{self.device_name} - {log_vorberietung} {zusatz}')
+            logger.error(f'{device_name} - {log_vorberietung} {zusatz}')
         else:
             La_error.setText(self.err_13_str[self.sprache])
             La_error.setToolTip('')
             La_error.setStyleSheet(f"color: black; font-weight: normal")
         if not error_Message_Ablauf == '':
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {error_Message_Ablauf}') 
+                self.add_Text_To_Ablauf_Datei(f'{device_name} - {error_Message_Ablauf}') 
 
     ##########################################
     # Reaktion auf Buttons:
@@ -619,8 +699,11 @@ class NemoAchseRotWidget(QWidget):
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_49_str[self.sprache]}')
             ans = self.controll_value()
-            self.write_value['Speed'] = ans
             if not ans == '':
+                if self.PID_cb.isChecked():
+                    self.write_value['PID-Sollwert'] = ans
+                else:
+                    self.write_value['Speed'] = ans
                 self.write_task['CW'] = True
                 self.write_task['Send'] = True
         else:
@@ -631,8 +714,11 @@ class NemoAchseRotWidget(QWidget):
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_50_str[self.sprache]}')
             ans = self.controll_value()
-            self.write_value['Speed'] = ans
             if not ans == '':
+                if self.PID_cb.isChecked():
+                    self.write_value['PID-Sollwert'] = ans
+                else:
+                    self.write_value['Speed'] = ans
                 self.write_task['CCW'] = True
                 self.write_task['Send'] = True
         else:
@@ -643,6 +729,7 @@ class NemoAchseRotWidget(QWidget):
         if self.init:
             if n == 3: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_47_str[self.sprache]}')
             elif n == 5: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
+            elif n == 6: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_3[self.sprache]}')
             self.RezEnde(n)
             # Sende Befehl:
             self.write_task['Stopp'] = True
@@ -676,6 +763,30 @@ class NemoAchseRotWidget(QWidget):
             self.write_value['EndRot'] = False
             self.typ_widget.Message(self.Pop_up_EndRot[self.sprache], 3, 500)
 
+    def PID_ON_OFF(self):                       
+        if self.PID_cb.isChecked():
+            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
+            # Aufgaben setzen:
+            self.write_value['PID'] = True
+            self.write_task['Send'] = False
+            self.Stopp(6)
+        else:
+            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
+            # Aufgaben setzen:
+            self.write_value['PID'] = False
+            self.write_task['Send'] = False  
+            self.Stopp(6)
+            try:
+                value = float(str(self.config['PID']['umstell_wert'].replace(',', '.')))
+            except:
+                value = 0
+            self.LE_Speed.setText(str(value))
+            if value > self.oGv or value < self.uGv:
+                logger.warning(f"{self.device_name} - {self.Log_Text_PID_Ex[self.sprache]}") 
+                self.write_value['Speed'] = self.uGOp
+            else:
+                self.write_value['Speed'] = value
+
     ##########################################
     # Eingabefeld Kontrolle:
     ##########################################
@@ -686,9 +797,18 @@ class NemoAchseRotWidget(QWidget):
             '' (str):               Fehlerfall
             speed_value (float):    Geschwindigkeitswert
         '''
+
         # Eingebabefeld auslesen:
         speed_value = self.LE_Speed.text().replace(",", ".")
         speed_okay = False
+
+        # Auswahl Limits Sollwert:
+        if self.PID_cb.isChecked():
+            oGv = self.config['PID']['Input_Limit_max'] 
+            uGv = self.config['PID']['Input_Limit_min'] 
+        else:
+            oGv = self.oGv
+            uGv = self.uGv
 
         # Wenn eins der beiden Eingabefelder leer ist, dann sende nicht:
         if speed_value == '':
@@ -699,8 +819,8 @@ class NemoAchseRotWidget(QWidget):
                 # Umwandeln Position:
                 speed_value = float(speed_value)
                 # Kontrolliere die Grenzen/Limits:
-                if speed_value < self.uGv or speed_value > self.oGv: 
-                    self.Fehler_Output(1, self.La_error_1, f'{self.err_2_str[self.sprache]} {self.uGv} {self.err_3_str[self.sprache]} {self.oGv}', self.Text_42_str[self.sprache])                                                                 
+                if speed_value < uGv or speed_value > oGv: 
+                    self.Fehler_Output(1, self.La_error_1, f'{self.err_2_str[self.sprache]} {uGv} {self.err_3_str[self.sprache]} {oGv}', self.Text_42_str[self.sprache])                                                                 
                 # Alles in Ordnung mit der Eingabe:
                 else:                           
                     self.Fehler_Output(0, self.La_error_1)                                                               
@@ -725,6 +845,14 @@ class NemoAchseRotWidget(QWidget):
             value_dict (dict):  Dictionary mit den aktuellen Werten!
             x_value (list):     Werte für die x-Achse
         '''
+        
+        ### PID-Modus - Werte Anzeige und Farbe:
+        if self.PID_cb.isChecked():
+            self.La_SollSpeed.setText(self.x_str[self.sprache])
+            if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[5]}")
+        else:
+            self.La_SollSpeed.setText(self.v_str[self.sprache])
+            if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[2]}")
                 
         self.data.update({'Time' : x_value[-1]})                  
         self.data.update(value_dict)   
@@ -732,8 +860,9 @@ class NemoAchseRotWidget(QWidget):
         for messung in value_dict:
             if not 'Status' in messung:
                 Leerzeichen = ''
-                if 'SWv' in messung or 'IWv' in messung:
+                if 'SWv' in messung or 'IWv' in messung or 'SWx' in messung or 'IWx' in messung:
                     Leerzeichen = ' '
+                # Label Veränderung im PID-Modus!
                 self.labelDict[messung].setText(f'{value_dict[messung]}{Leerzeichen}{self.labelUnitDict[messung]}')
                 self.listDict[messung].append(value_dict[messung])
                 if not self.curveDict[messung] == '':
@@ -854,6 +983,7 @@ class NemoAchseRotWidget(QWidget):
     ##########################################
     def RezStart(self, execute = 1):
         ''' Rezept wurde gestartet '''
+        # Notiz: PID noch nicht in Rezept eingearbeitet!
         if self.init:
             if not self.Rezept_Aktiv:
                 if execute == 1: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_87_str[self.sprache]}')
@@ -876,14 +1006,17 @@ class NemoAchseRotWidget(QWidget):
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_24_str[self.sprache]} {self.cb_Rezept.currentText()} {self.rezept_datei}') 
 
                     # Erstes Element senden:
-                    self.write_value['Speed'] = abs(self.value_list[self.step]) 
-
-                    if self.value_list[self.step] < 0:
-                        self.write_task['CCW'] = True
-                        self.write_task['CW'] = False
+                    if self.PID_cb.isChecked():
+                        self.write_value['PID-Sollwert'] = self.value_list[self.step]
                     else:
-                        self.write_task['CW'] = True
-                        self.write_task['CCW'] = False
+                        self.write_value['Speed'] = abs(self.value_list[self.step]) 
+
+                        if self.value_list[self.step] < 0:
+                            self.write_task['CCW'] = True
+                            self.write_task['CW'] = False
+                        else:
+                            self.write_task['CW'] = True
+                            self.write_task['CCW'] = False
                     self.write_task['Send'] = True
 
                     # Elemente GUI sperren:
@@ -895,6 +1028,7 @@ class NemoAchseRotWidget(QWidget):
                     self.EndRot.setEnabled(False)
                     self.btn_DH.setEnabled(False)
                     self.Auswahl.setEnabled(False)
+                    self.PID_cb.setEnabled(False)
 
                     # Timer Starten:
                     self.RezTimer.setInterval(int(abs(self.time_list[self.step]*1000)))
@@ -916,7 +1050,8 @@ class NemoAchseRotWidget(QWidget):
                 elif excecute == 2: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_82_str[self.sprache]}')
                 elif excecute == 3: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_83_str[self.sprache]}')
                 elif excecute == 4: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_86_str[self.sprache]}')
-                elif excecute == 5: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
+                elif excecute == 5: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_91_str[self.sprache]}')
+                elif excecute == 6: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_4[self.sprache]}')
 
                 # Elemente GUI entsperren:
                 self.cb_Rezept.setEnabled(True)
@@ -928,6 +1063,7 @@ class NemoAchseRotWidget(QWidget):
                 self.EndRot.setEnabled(True)
                 self.btn_DH.setEnabled(True)
                 self.Auswahl.setEnabled(True)
+                self.PID_cb.setEnabled(True)
 
                 # Variablen:
                 self.Rezept_Aktiv = False
@@ -954,14 +1090,17 @@ class NemoAchseRotWidget(QWidget):
             self.RezTimer.setInterval(int(abs(self.time_list[self.step]*1000)))
 
             # Nächstes Element senden:
-            self.write_value['Speed'] = abs(self.value_list[self.step]) 
-
-            if self.value_list[self.step] < 0:
-                self.write_task['CCW'] = True
-                self.write_task['CW'] = False
+            if self.PID_cb.isChecked():
+                self.write_value['PID-Sollwert'] = self.value_list[self.step]
             else:
-                self.write_task['CW'] = True
-                self.write_task['CCW'] = False
+                self.write_value['Speed'] = abs(self.value_list[self.step]) 
+
+                if self.value_list[self.step] < 0:
+                    self.write_task['CCW'] = True
+                    self.write_task['CW'] = False
+                else:
+                    self.write_task['CW'] = True
+                    self.write_task['CCW'] = False
             self.write_task['Send'] = True
     
     def Rezept_lesen_controll(self):
