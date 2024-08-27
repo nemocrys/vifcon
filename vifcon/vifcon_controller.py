@@ -595,7 +595,7 @@ class Controller(QObject):
                         device = NemoAchseRot(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name) 
                         widget = NemoAchseRotWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
                         #### Farben-Option:
-                        color_Ant_n = color_Ant_n + 6
+                        color_Ant_n = color_Ant_n + 7
                     self.PadAchsenList.append(widget)
                 elif device_typ == 'Monitoring':
                     if 'Nemo-Gase' in device_name:

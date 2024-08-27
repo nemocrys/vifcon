@@ -64,6 +64,7 @@ class PID(QObject):
         self.Log_PID_16     = ['Fehlerhafte Konfiguration der VIFCON-PID-Parameter!\nKeine gültigen Parameter vorhanden! Speere bleibt bestehen!',      'Incorrect configuration of the VIFCON PID parameters!\nNo valid parameters available! Spears remain!']
         self.Log_PID_17     = ['Fehlerhafte Konfiguration der VIFCON-PID-Parameter!\nNutzung der alten gültigen Parameter!',                            'Incorrect configuration of the VIFCON PID parameters!\nUse of the old valid parameters!']
         self.Log_PID_18     = ['Aktuelle Parameter: ',                                                                                                  'Current parameters:']
+        self.Log_PID_19     = ['Die PID-Parameter wurden in der Config nicht geändert!',                                                                'The PID parameters were not changed in the config!']
         self.Log_value_1    = ['Eingang - Sollwert: ',                                                                                                  'Input - Set-Point']
         self.Log_value_2    = ['und Istwert: ',                                                                                                         'and Actual Value']
         self.Log_value_3    = ['/ Ausgang: ',                                                                                                           '/ Output:']
@@ -193,10 +194,12 @@ class PID(QObject):
         if self.PID_speere and error:
             if 'Achse' in self.device:   self.widget.Fehler_Output(1, self.widget.La_error_1, self.Log_PID_16[self.sprache], device = f'{self.Log_PID_0[self.sprache]} ({self.device})')
             else:                        self.widget.Fehler_Output(1, self.Log_PID_16[self.sprache], device = f'{self.Log_PID_0[self.sprache]} ({self.device})')
-        elif kp == self.kp and ki == self.ki and kd == self.kd and not self.PID_speere:
+        elif kp == self.kp and ki == self.ki and kd == self.kd and not self.PID_speere and error:
             if 'Achse' in self.device:   self.widget.Fehler_Output(1, self.widget.La_error_1, self.Log_PID_17[self.sprache], device = f'{self.Log_PID_0[self.sprache]} ({self.device})')  
             else:                        self.widget.Fehler_Output(1, self.Log_PID_17[self.sprache], device = f'{self.Log_PID_0[self.sprache]} ({self.device})')
             logger.info(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_18[self.sprache]}{self.Log_PID_1[self.sprache]} {self.kp}; {self.Log_PID_2[self.sprache]}{self.ki}; {self.Log_PID_3[self.sprache]}{self.kd}')
+        elif kp == self.kp and ki == self.ki and kd == self.kd and not self.PID_speere and not error:
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_19[self.sprache]}')
         elif not error:
             self.kp = kp
             self.ki = ki

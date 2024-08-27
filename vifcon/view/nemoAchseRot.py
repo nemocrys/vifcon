@@ -90,6 +90,8 @@ class NemoAchseRotWidget(QWidget):
         self.uGv = self.config["limits"]['minSpeed']
         self.oGw = self.config["limits"]['maxWinkel']
         self.uGw = self.config["limits"]['minWinkel']
+        self.oGx = self.config['PID']['Input_Limit_max']
+        self.uGx = self.config['PID']['Input_Limit_min']
         ### GUI:
         self.legenden_inhalt = self.config['GUI']['legend'].split(';')
         self.legenden_inhalt = [a.strip() for a in self.legenden_inhalt]    # sollten Unnötige Leerzeichen vorhanden sein, so werden diese entfernt!
@@ -524,6 +526,7 @@ class NemoAchseRotWidget(QWidget):
             'Rezv': ['a2', pg.mkPen(color=self.color[3], width=3, style=Qt.DotLine),    f'{nemoAchse} - {rezept_Label_str[self.sprache]}<sub>{v_einzel_str[self.sprache]}</sub>'],
             'SWxPID': ['a1', pg.mkPen(self.color[4], width=2, style=Qt.DashDotLine),    f'{PID_Label_Soll} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
             'IWxPID': ['a1', pg.mkPen(self.color[5], width=2, style=Qt.DashDotLine),    f'{PID_Label_Ist} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
+            'Rezx': ['a1', pg.mkPen(color=self.color[6], width=3, style=Qt.DotLine),    f'{nemoAchse} - {rezept_Label_str[self.sprache]}<sub>{x_einzel_str[self.sprache]}</sub>'],
         }
 
         ## Kurven erstellen:
@@ -574,12 +577,12 @@ class NemoAchseRotWidget(QWidget):
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
-        self.curveDict      = {'IWv': '', 'SWv': '', 'IWw':'', 'oGv': '', 'uGv': '', 'oGw': '', 'uGw': '', 'Rezv':'', 'SWTPID':'', 'IWTPID':''}                                                                                                                 # Kurven
+        self.curveDict      = {'IWv': '', 'SWv': '', 'IWw':'', 'oGv': '', 'uGv': '', 'oGw': '', 'uGw': '', 'Rezv':'', 'SWTPID':'', 'IWTPID':'', 'Rezx': ''}                                                                                                     # Kurven
         for kurve in self.kurven_dict:
             self.curveDict[kurve] = self.kurven_dict[kurve]
         self.labelDict      = {'IWv': self.La_IstSpeed_wert,                'SWv': self.La_SollSpeed_wert,          'IWw':self.La_IstWin_wert,              'SWxPID': self.La_SollPID_wert,             'IWxPID': self.La_IstPID_wert}                          # Label
         self.labelUnitDict  = {'IWv': einheit_v_einzel[self.sprache],       'SWv': einheit_v_einzel[self.sprache],  'IWw':einheit_w_einzel[self.sprache],   'SWxPID': einheit_x_einzel[self.sprache],   'IWxPID': einheit_x_einzel[self.sprache]}               # Einheit
-        self.listDict       = {'IWv': self.speedList,                       'SWv':self.sollspeedList,               'IWw':self.winList,                     'SWxPID': self.sollxPID,                    'IWxPID': self.istxPID}                                  # Werteliste
+        self.listDict       = {'IWv': self.speedList,                       'SWv':self.sollspeedList,               'IWw':self.winList,                     'SWxPID': self.sollxPID,                    'IWxPID': self.istxPID}                                 # Werteliste
         self.grenzListDict  = {'oGv': self.VoGList,                         'uGv': self.VuGList,                    'oGw': self.WoGList,                    'uGw': self.WuGList}
         self.grenzValueDict = {'oGv': self.oGv,                             'uGv': self.uGv,                        'oGw': self.oGw,                        'uGw': self.uGw}
 
@@ -804,8 +807,8 @@ class NemoAchseRotWidget(QWidget):
 
         # Auswahl Limits Sollwert:
         if self.PID_cb.isChecked():
-            oGv = self.config['PID']['Input_Limit_max'] 
-            uGv = self.config['PID']['Input_Limit_min'] 
+            oGv = self.oGx
+            uGv = self.uGx 
         else:
             oGv = self.oGv
             uGv = self.uGv
@@ -974,6 +977,8 @@ class NemoAchseRotWidget(QWidget):
         self.uGv = config['devices'][self.device_name]["limits"]['minSpeed']
         self.oGw = config['devices'][self.device_name]["limits"]['maxWinkel']
         self.uGw = config['devices'][self.device_name]["limits"]['minWinkel']
+        self.oGx = config['devices'][self.device_name]['PID']['Input_Limit_max']
+        self.uGx = config['devices'][self.device_name]['PID']['Input_Limit_min']
 
         self.write_task['Update Limit']     = True
         self.write_value['Limits']          = [self.oGw, self.uGw]
@@ -1122,6 +1127,11 @@ class NemoAchseRotWidget(QWidget):
         uGw = self.uGw
         oGw = self.oGw
 
+        ## PID-Limits:
+        if self.PID_cb.isChecked():
+            oG = self.oGx
+            uG = self.uGx 
+
         ## Aktueller Wert Geschwindigkeit:
         ak_value = self.ak_value['IWv'] if not self.ak_value == {} else 0
 
@@ -1165,7 +1175,7 @@ class NemoAchseRotWidget(QWidget):
                 time = float(werte[0].replace(',', '.'))
                 value = float(werte[1].replace(',','.'))
                 ## Kontrolle Geschwindigkeit:
-                if (value < uG or value > oG) and not self.EndRot.isChecked():
+                if (value < uG or value > oG):
                     error = True
                     self.Fehler_Output(1, self.La_error_1, f'{self.err_6_str[self.sprache]} {value} {self.err_7_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG}!') # Grenz-Fehler: {value}\nGrenzen: {uG} bis {oG}
                     break
@@ -1192,25 +1202,26 @@ class NemoAchseRotWidget(QWidget):
                     self.value_list.append(value)
                     self.time_list.append(time)
             
-            ## Positionen bestimmen:
-            value_step = 0
-            for n_PosP in self.value_list:
-                pos_list.append(360/60 * n_PosP * self.time_list[value_step])
-                value_step += 1
+            if not self.PID_cb.isChecked():
+                ## Positionen bestimmen:
+                value_step = 0
+                for n_PosP in self.value_list:
+                    pos_list.append(360/60 * n_PosP * self.time_list[value_step])
+                    value_step += 1
 
-            ## Kontrolle Winkel:
-            logger.debug(f"{self.device_name} - {self.Log_Text_59_str[self.sprache]} {pos_list}")
-            rezept_schritt = 1 
-            for n in pos_list:
-                pos = start_pos + n
-                start_pos = pos
-                if (pos < uGw or pos > oGw) and not self.EndRot.isChecked():
-                    error = True
-                    self.Fehler_Output(1, self.La_error_1, f'{self.err_9_str[self.sprache]} {rezept_schritt} {self.err_7_str[self.sprache]} {uGw} {self.err_3_str[self.sprache]} {oGw}!')
-                    break
-                else:
-                    self.Fehler_Output(0, self.La_error_1)
-                rezept_schritt += 1 
+                ## Kontrolle Winkel:
+                logger.debug(f"{self.device_name} - {self.Log_Text_59_str[self.sprache]} {pos_list}")
+                rezept_schritt = 1 
+                for n in pos_list:
+                    pos = start_pos + n
+                    start_pos = pos
+                    if (pos < uGw or pos > oGw) and not self.EndRot.isChecked():
+                        error = True
+                        self.Fehler_Output(1, self.La_error_1, f'{self.err_9_str[self.sprache]} {rezept_schritt} {self.err_7_str[self.sprache]} {uGw} {self.err_3_str[self.sprache]} {oGw}!')
+                        break
+                    else:
+                        self.Fehler_Output(0, self.La_error_1)
+                    rezept_schritt += 1 
         else:
             self.Fehler_Output(0, self.La_error_1)
         return error
@@ -1228,9 +1239,13 @@ class NemoAchseRotWidget(QWidget):
         self.RezTimeList = []
         self.RezValueList = []  
 
-        anzeigev = True                        
-        try: self.curveDict['Rezv'].setData(self.RezTimeList, self.RezValueList)
-        except: anzeigev  = False                               
+        anzeigev = True
+        if not self.PID_cb.isChecked():                       
+            try: self.curveDict['Rezv'].setData(self.RezTimeList, self.RezValueList)
+            except: anzeigev  = False    
+        else:
+            try: self.curveDict['Rezx'].setData(self.RezTimeList, self.RezValueList)
+            except: anzeigev  = False                              
 
         # Startzeit bestimmen:
         ak_time_1 = datetime.datetime.now(datetime.timezone.utc).astimezone()                # Aktuelle Zeit Absolut
@@ -1254,14 +1269,19 @@ class NemoAchseRotWidget(QWidget):
                 i += 1
 
             # Kurve erstellen mit Skalierungsfaktor:
-            faktor = self.skalFak['WinSpeed']
+            if not self.PID_cb.isChecked(): faktor = self.skalFak['WinSpeed']
+            else:                           faktor = self.skalFak['PIDA']
             y = [a * faktor for a in self.RezValueList]
             
             # Kurve Anzeigen:
             if anzeigev:
-                self.curveDict['Rezv'].setData(self.RezTimeList, y)
-                self.typ_widget.plot.achse_2.autoRange()                            # Rezept Achse 2 wird nicht fertig angezeigt, aus dem Grund wird dies durchgeführt! Beim Enden wird die AutoRange Funktion von base_classes.py durchgeführt. Bewegung des Plots sind mit der Lösung nicht machbar!!
-                                                                                    # Plot wird nur an Achse 1 (links) angepasst!
+                if not self.PID_cb.isChecked(): 
+                    self.curveDict['Rezv'].setData(self.RezTimeList, y)
+                    self.typ_widget.plot.achse_2.autoRange()                            # Rezept Achse 2 wird nicht fertig angezeigt, aus dem Grund wird dies durchgeführt! Beim Enden wird die AutoRange Funktion von base_classes.py durchgeführt. Bewegung des Plots sind mit der Lösung nicht machbar!!
+                                                                                        # Plot wird nur an Achse 1 (links) angepasst!
+                else:
+                    self.curveDict['Rezx'].setData(self.RezTimeList, y)
+                    self.typ_widget.plot.achse_1.autoRange()
 
         return error
 

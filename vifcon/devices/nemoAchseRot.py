@@ -716,8 +716,9 @@ class NemoAchseRot(QObject):
         Args:
             pfad (str, optional): Speicherort. Default ist "./".
         """
+        PID_x_unit = self.config['PID']['Input_Size_unit'] 
         self.filename = f"{pfad}/{self.device_name}.csv"
-        units = "# datetime,s,1/min,°,1/min,None,None,\n"
+        units = f"# datetime,s,1/min,°,1/min,{PID_x_unit},{PID_x_unit},\n"
         header = "time_abs,time_rel,Ist-Winkelgeschwindigkeit,Ist-Winkel,Soll-Winkelgeschwindigkeit,Soll-x_PID-Modus,Ist-x_PID-Modus,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
