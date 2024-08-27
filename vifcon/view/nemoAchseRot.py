@@ -166,6 +166,9 @@ class NemoAchseRotWidget(QWidget):
         self.err_15_str         = ['Wähle ein Rezept!',                                                                                         'Choose a recipe!']
         self.err_16_str         = ['Rezept läuft!\nRezept Start gesperrt!',                                                                     'Recipe running!\nRecipe start blocked!']    
         self.err_21_str         = ['Fehler in der Rezept konfiguration\nder Config-Datei! Bitte beheben und Neueinlesen!',                      'Error in the recipe configuration of\nthe config file! Please fix and re-read!']
+        self.err_PID_1_str      = ['Die Bewegungsrichtung',                                                                                     'The direction of movement']
+        self.err_PID_2_str      = ['exestiert nicht!\nGenutzt werden kann nur L und R!',                                                        'does not exist!\nOnly L and R can be used!']
+        self.err_PID_3_str      = ['Der PID-Modus benötigt eine\nAngabe der Bewegungsrichtung!',                                                'The PID mode requires a specification\nof the direction of movement!']
         ## Status:                                                              
         status_1_str            = ['Status: Inaktiv',                                                                                           'Status: Inactive']
         self.status_2_str       = ['Kein Status',                                                                                               'No Status']
@@ -1013,6 +1016,13 @@ class NemoAchseRotWidget(QWidget):
                     # Erstes Element senden:
                     if self.PID_cb.isChecked():
                         self.write_value['PID-Sollwert'] = self.value_list[self.step]
+
+                        if self.move_list[self.step] == 'L':
+                            self.write_task['CW'] = True
+                            self.write_task['CCW'] = False
+                        elif self.move_list[self.step] == 'R':
+                            self.write_task['CCW'] = True
+                            self.write_task['CW'] = False
                     else:
                         self.write_value['Speed'] = abs(self.value_list[self.step]) 
 
@@ -1097,6 +1107,13 @@ class NemoAchseRotWidget(QWidget):
             # Nächstes Element senden:
             if self.PID_cb.isChecked():
                 self.write_value['PID-Sollwert'] = self.value_list[self.step]
+
+                if self.move_list[self.step] == 'L':
+                    self.write_task['CW'] = True
+                    self.write_task['CCW'] = False
+                elif self.move_list[self.step] == 'R':
+                    self.write_task['CCW'] = True
+                    self.write_task['CW'] = False
             else:
                 self.write_value['Speed'] = abs(self.value_list[self.step]) 
 
@@ -1118,6 +1135,7 @@ class NemoAchseRotWidget(QWidget):
         error = False 
         self.time_list  = []
         self.value_list = []
+        self.move_list  = []
         
         ## Geschwindigkeitlimits:
         uG = self.uGv 
@@ -1168,13 +1186,26 @@ class NemoAchseRotWidget(QWidget):
             elif first_line.strip() == 'r' and self.ak_value == {}:
                 self.Fehler_Output(1, self.La_error_1, self.err_12_str[self.sprache])
                 return False
+            ## Bewegungsrichtung für PID-Modus prüfen:
+            if self.PID_cb.isChecked():
+                for n in rez_dat:
+                    try:
+                        werte = rez_dat[n].split(';')
+                        if werte[2].strip() == 'r': sNum = 4
+                        elif werte[2].strip() == 's': sNum = 3
+                        if not werte[sNum].upper().strip() in ['L', 'R']:  
+                            self.Fehler_Output(1, self.La_error_1, f'{self.err_PID_1_str[self.sprache]} {werte[sNum].upper()} {self.err_PID_2_str[self.sprache]}')
+                            return False
+                    except:
+                        self.Fehler_Output(1, self.La_error_1, self.err_PID_3_str[self.sprache])
+                        return False
             ## Rezept Kurven-Listen erstellen:
             for n in rez_dat:
                 werte = rez_dat[n].split(';')
                 ## Beachtung von Kommas (Komma zu Punkt):
                 time = float(werte[0].replace(',', '.'))
                 value = float(werte[1].replace(',','.'))
-                ## Kontrolle Geschwindigkeit:
+                ## Kontrolle Geschwindigkeit oder PID-Input:
                 if (value < uG or value > oG):
                     error = True
                     self.Fehler_Output(1, self.La_error_1, f'{self.err_6_str[self.sprache]} {value} {self.err_7_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG}!') # Grenz-Fehler: {value}\nGrenzen: {uG} bis {oG}
@@ -1197,18 +1228,18 @@ class NemoAchseRotWidget(QWidget):
                         else: # Letzter Wert!
                             self.value_list.append(value)
                             self.time_list.append(rampen_config_step)   # 0 
+                        if self.PID_cb.isChecked(): self.move_list.append(werte[4].upper().strip())
                 ### Sprung:
                 else:                                               
                     self.value_list.append(value)
                     self.time_list.append(time)
-            
+                    if self.PID_cb.isChecked(): self.move_list.append(werte[3].upper().strip())
             if not self.PID_cb.isChecked():
                 ## Positionen bestimmen:
                 value_step = 0
                 for n_PosP in self.value_list:
                     pos_list.append(360/60 * n_PosP * self.time_list[value_step])
                     value_step += 1
-
                 ## Kontrolle Winkel:
                 logger.debug(f"{self.device_name} - {self.Log_Text_59_str[self.sprache]} {pos_list}")
                 rezept_schritt = 1 
