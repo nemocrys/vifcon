@@ -203,7 +203,7 @@ class NemoAchseRotWidget(QWidget):
         self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                     'Update configuration (update limits):']
         self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
         self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                          'Error reason (Problem with recipe configuration)']
-        self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liebt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',  'The value in the config is outside the limit range! Switching value is set to minimum limit!']
+        self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liegt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',  'The value in the config is outside the limit range! Switching value is set to minimum limit!']
         ## Ablaufdatei: 
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -236,7 +236,7 @@ class NemoAchseRotWidget(QWidget):
         # Konfigurationen für das Senden:
         #---------------------------------------
         self.write_task = {'Stopp': False, 'CCW': False, 'CW': False, 'Init':False, 'Define Home': False, 'Start':False, 'Send':False, 'Update Limit': False}
-        self.write_value = {'Speed': 0, 'EndRot':False, 'Limits': [0, 0], 'PID': False, 'PID-Sollwert': 0} # Limits: oGw, uGw
+        self.write_value = {'Speed': 0, 'EndRot':False, 'Limits': [0, 0, 0, 0, 0, 0], 'PID': False, 'PID-Sollwert': 0} # Limits: oGw, uGw, oGv, uGv, oGx, uGx
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -289,8 +289,8 @@ class NemoAchseRotWidget(QWidget):
         if self.config['start']['kont_rot']:
             self.EndRot.setChecked(True)
             self.Rotation_Nonstopp()
+        
         self.gamepad = QCheckBox(cb_gPad_str[self.sprache])
-
         if not gamepad_aktiv:
             self.gamepad.setEnabled(False)
 
@@ -519,17 +519,17 @@ class NemoAchseRotWidget(QWidget):
 
         ## Kurven-Namen:
         kurv_dict = {                                                               # Wert: [Achse, Farbe/Stift, Name]
-            'IWv':  ['a2', pg.mkPen(self.color[0], width=2),                            f'{nemoAchse} - {v_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'IWw':  ['a1', pg.mkPen(self.color[1], width=2),                            f'{nemoAchse} - {w_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'SWv':  ['a2', pg.mkPen(self.color[2]),                                     f'{nemoAchse} - {v_einzel_str[self.sprache]}<sub>{sollwert_str[self.sprache]}</sub>'],
-            'oGv':  ['a2', pg.mkPen(color=self.color[0], style=Qt.DashLine),            f'{nemoAchse} - {v_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGv':  ['a2', pg.mkPen(color=self.color[0], style=Qt.DashDotDotLine),      f'{nemoAchse} - {v_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'oGw':  ['a1', pg.mkPen(color=self.color[1], style=Qt.DashLine),            f'{nemoAchse} - {w_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGw':  ['a1', pg.mkPen(color=self.color[1], style=Qt.DashDotDotLine),      f'{nemoAchse} - {w_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'Rezv': ['a2', pg.mkPen(color=self.color[3], width=3, style=Qt.DotLine),    f'{nemoAchse} - {rezept_Label_str[self.sprache]}<sub>{v_einzel_str[self.sprache]}</sub>'],
-            'SWxPID': ['a1', pg.mkPen(self.color[4], width=2, style=Qt.DashDotLine),    f'{PID_Label_Soll} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
-            'IWxPID': ['a1', pg.mkPen(self.color[5], width=2, style=Qt.DashDotLine),    f'{PID_Label_Ist} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
-            'Rezx': ['a1', pg.mkPen(color=self.color[6], width=3, style=Qt.DotLine),    f'{nemoAchse} - {rezept_Label_str[self.sprache]}<sub>{x_einzel_str[self.sprache]}</sub>'],
+            'IWv':      ['a2', pg.mkPen(self.color[0], width=2),                            f'{nemoAchse} - {v_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'IWw':      ['a1', pg.mkPen(self.color[1], width=2),                            f'{nemoAchse} - {w_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'SWv':      ['a2', pg.mkPen(self.color[2]),                                     f'{nemoAchse} - {v_einzel_str[self.sprache]}<sub>{sollwert_str[self.sprache]}</sub>'],
+            'oGv':      ['a2', pg.mkPen(color=self.color[0], style=Qt.DashLine),            f'{nemoAchse} - {v_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGv':      ['a2', pg.mkPen(color=self.color[0], style=Qt.DashDotDotLine),      f'{nemoAchse} - {v_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'oGw':      ['a1', pg.mkPen(color=self.color[1], style=Qt.DashLine),            f'{nemoAchse} - {w_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGw':      ['a1', pg.mkPen(color=self.color[1], style=Qt.DashDotDotLine),      f'{nemoAchse} - {w_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'Rezv':     ['a2', pg.mkPen(color=self.color[3], width=3, style=Qt.DotLine),    f'{nemoAchse} - {rezept_Label_str[self.sprache]}<sub>{v_einzel_str[self.sprache]}</sub>'],
+            'SWxPID':   ['a1', pg.mkPen(self.color[4], width=2, style=Qt.DashDotLine),      f'{PID_Label_Soll} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
+            'IWxPID':   ['a1', pg.mkPen(self.color[5], width=2, style=Qt.DashDotLine),      f'{PID_Label_Ist} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
+            'Rezx':     ['a1', pg.mkPen(color=self.color[6], width=3, style=Qt.DotLine),    f'{nemoAchse} - {rezept_Label_str[self.sprache]}<sub>{x_einzel_str[self.sprache]}</sub>'],
         }
 
         ## Kurven erstellen:
@@ -739,7 +739,6 @@ class NemoAchseRotWidget(QWidget):
             self.RezEnde(n)
             # Sende Befehl:
             self.write_task['Stopp'] = True
-            #self.send_betätigt = True
         else:
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
 
@@ -789,7 +788,7 @@ class NemoAchseRotWidget(QWidget):
             self.LE_Speed.setText(str(value))
             if value > self.oGv or value < self.uGv:
                 logger.warning(f"{self.device_name} - {self.Log_Text_PID_Ex[self.sprache]}") 
-                self.write_value['Speed'] = self.uGOp
+                self.write_value['Speed'] = self.uGv
             else:
                 self.write_value['Speed'] = value
 
@@ -852,7 +851,7 @@ class NemoAchseRotWidget(QWidget):
             x_value (list):     Werte für die x-Achse
         '''
         
-        ### PID-Modus - Werte Anzeige und Farbe:
+        ## PID-Modus - Werte Anzeige und Farbe:
         if self.PID_cb.isChecked():
             self.La_SollSpeed.setText(self.x_str[self.sprache])
             if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[5]}")
@@ -860,6 +859,7 @@ class NemoAchseRotWidget(QWidget):
             self.La_SollSpeed.setText(self.v_str[self.sprache])
             if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[2]}")
                 
+        ### Kurven Update:
         self.data.update({'Time' : x_value[-1]})                  
         self.data.update(value_dict)   
 
@@ -984,14 +984,13 @@ class NemoAchseRotWidget(QWidget):
         self.uGx = config['devices'][self.device_name]['PID']['Input_Limit_min']
 
         self.write_task['Update Limit']     = True
-        self.write_value['Limits']          = [self.oGw, self.uGw]
+        self.write_value['Limits']          = [self.oGw, self.uGw, self.oGv, self.uGv, self.oGx, self.uGx]
 
     ##########################################
     # Reaktion auf Rezepte:
     ##########################################
     def RezStart(self, execute = 1):
         ''' Rezept wurde gestartet '''
-        # Notiz: PID noch nicht in Rezept eingearbeitet!
         if self.init:
             if not self.Rezept_Aktiv:
                 if execute == 1: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_87_str[self.sprache]}')

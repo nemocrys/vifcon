@@ -61,7 +61,7 @@ skalFak:                                                                  # Skal
   Voltage:  0                                                             # Spannung in V                  a1
   Pow:      0                                                             # Leistung in kW                 a2
   Freq:     0                                                             # Frequenz in kHz                a2
-  PIDA:     1                                                             # PID-Größe Input Antriebe       a1
+  PIDA:     0                                                             # PID-Größe Input Antriebe       a1
   PIDG:     0                                                             # PID-Größe Input Generator      a1
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 devices:
@@ -526,6 +526,24 @@ devices:
       write_port: 54627                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
       read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
       read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
+    PID:                                                                  # Erstellung eines PID-Reglers
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
+                                                                          # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil []
+      ki: 0.003                                                           # I-Anteil []
+      kd: 0.16                                                            # D-Anteil []
+      sample: 150                                                         # Sample-Time [ms]
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht)
+      start_soll: 0                                                       # Start-Sollwert [°C]
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld)
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+      Input_Limit_max: 100                                                # Maximum Limit für Input 
+      Input_Limit_min: 0                                                  # Minimum Limit für Input 
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist)
+      Input_Size_unit: 'mm'                                               # Einheit der Input-Größe
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] 
     register:
       hoch: 17                                                            # Tiegel: 1, Spindel: 17
       runter: 18                                                          # Tiegel: 2, Spindel: 18
@@ -541,16 +559,19 @@ devices:
     limits:
       maxPos: 250                                                         # Maximale Position [mm]
       minPos: -110                                                        # Minimale Position [mm]
-      maxSpeed: 100                                                       # Maximale Geschwindigkeit [mm/min]
-      minSpeed: -100                                                      # Minimale Geschwindigkeit [mm/min]
+      maxSpeed: 4                                                         # Maximale Geschwindigkeit [mm/min]
+      minSpeed: -4                                                        # Minimale Geschwindigkeit [mm/min]
     GUI:
-      legend: Rezv ; IWs ; IWv ; SWv                                      # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
-                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!)
-                                                                          # Eingebaut: Rezv, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs
+      legend: Rezv ; Rezx ; IWs ; IWv ; SWv ; IWxPID ; SWxPID             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!), x - Externe-PID-Input-Größe, PID- PID-Modus
+                                                                          # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID
     defaults:
       startSpeed: 1                                                       # Startgeschwindigkeit [mm/min]
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/min), Art der Rampe , Schritte/Steigung ((mm/min)/s)
                                                                           # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Im PID-Modus benötigt es noch einen Wert am Ende der Schritte:
+                                                                          #    - diese geben die Bewegungsrichtung an
+                                                                          #    - im Normalen-Betrieb wird die Richtung anhand des Vorzeichens erkannt
                                                                           # Schritte/Steigung wird bei Sprung nicht benötigt!
                                                                           # Steigung: r - z.B. 2    --> 2 mm/min Sollwertsteigung je Sekunde (Sprünge)
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
@@ -558,8 +579,14 @@ devices:
                                                                           #                         3. In der Datei dürfen nur die Schritte stehen!
                                                                           # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
                                                                           # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
-      Template_Test:
-        n1: 120 ; 5 ; s
+      PID_Test:
+        n1: 20 ; 74 ; s ; H
+        n2: 20 ; 75 ; s ; U
+        n3: 100 ; 74 ; r ; 10 ; H
+      v_Test:
+        n1: 20 ; 3 ; s
+        n2: 20 ; -3 ; s
+        n3: 100 ; 3 ; r ; 10
   # --------------------------------------------------------------------------------------------------------------------------------------------------------
   Nemo-Achse-Rotation_Spindel:                                            # Muss "Nemo-Achse-Rotation" enthalten! 
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
@@ -626,24 +653,33 @@ devices:
       maxWinkel: 180                                                      # Maximaler Winkel [°]
       minWinkel: -1                                                       # Minimaler Winkel [°]
       maxSpeed: 4                                                         # Maximale Geschwindigkeit [1/min]
-      minSpeed: 0                                                         # Minimale Geschwindigkeit [1/min]
+      minSpeed: -4                                                        # Minimale Geschwindigkeit [1/min]
     GUI:
-      legend: Rezv ; IWv ; SWv ; IWw ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
-                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Unbekannt, PID- PID-Modus
-                                                                          # Eingebaut: Rezv, IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID
+      legend: Rezv ; Rezx ; IWv ; SWv ; IWw ; IWxPID ; SWxPID             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Externe-PID-Input-Größe, PID- PID-Modus
+                                                                          # Eingebaut: Rezv, Rezx , IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID
     defaults:
       startSpeed: 1                                                       # Startgeschwindigkeit [1/min]
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (1/min), Art der Rampe , Schritte/Steigung ((1/min)/s)
                                                                           # Art der Rampe: s - Sprung, r - Rampe
                                                                           # Schritte/Steigung wird bei Sprung nicht benötigt!
-                                                                          # Steigung: r - z.B. 2    --> 2 1/min Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Steigung: r - z.B. 2    --> Alle 2 s erfolgt ein Sollwertsprung!
+                                                                          # Im PID-Modus benötigt es noch einen Wert am Ende der Schritte:
+                                                                          #    - diese geben die Bewegungsrichtung an
+                                                                          #    - im Normalen-Betrieb wird die Richtung anhand des Vorzeichens erkannt
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
                                                                           #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
                                                                           #                         3. In der Datei dürfen nur die Schritte stehen!
                                                                           # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
                                                                           # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
-      Template_Test:
-        n1: 120 ; 2 ; s
+      PID_Test:
+        n1: 20 ; 74 ; s ; L
+        n2: 20 ; 75 ; s ; R
+        n3: 100 ; 74 ; r ; 10 ; L
+      v_Test:
+        n1: 20 ; 3 ; s
+        n2: 20 ; -3 ; s
+        n3: 100 ; 3 ; r ; 10
   # --------------------------------------------------------------------------------------------------------------------------------------------------------
   Nemo-Achse-Linear_Tiegel:                                               # Muss "Nemo-Achse-Linear" enthalten! 
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
@@ -676,6 +712,24 @@ devices:
       write_port: 54629                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
       read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
       read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
+    PID:                                                                  # Erstellung eines PID-Reglers
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
+                                                                          # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil []
+      ki: 0.003                                                           # I-Anteil []
+      kd: 0.16                                                            # D-Anteil []
+      sample: 150                                                         # Sample-Time [ms]
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht)
+      start_soll: 0                                                       # Start-Sollwert [°C]
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld)
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+      Input_Limit_max: 100                                                # Maximum Limit für Input 
+      Input_Limit_min: 0                                                  # Minimum Limit für Input 
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist)
+      Input_Size_unit: 'mm'                                               # Einheit der Input-Größe
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s]                                                    # für das Debug-Logging: Zeitabstand des Loggens [s] 
     register:
       hoch: 1                                                             # Tiegel: 1, Spindel: 17
       runter: 2                                                           # Tiegel: 2, Spindel: 18
@@ -694,13 +748,16 @@ devices:
       maxSpeed: 100                                                       # Maximale Geschwindigkeit [mm/min]
       minSpeed: -100                                                      # Minimale Geschwindigkeit [mm/min]
     GUI:
-      legend: Rezv ; IWs ; IWv ; SWv ; IWsd                               # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
-                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!)
-                                                                          # Eingebaut: Rezv, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs
+      legend: Rezv ; Rezx ; IWs ; IWv ; SWv ; IWxPID ; SWxPID             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!), x - Externe-PID-Input-Größe, PID- PID-Modus
+                                                                          # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID
     defaults:
       startSpeed: 1                                                       # Startgeschwindigkeit [mm/min]
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/min), Art der Rampe , Schritte/Steigung ((mm/min)/s)
                                                                           # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Im PID-Modus benötigt es noch einen Wert am Ende der Schritte:
+                                                                          #    - diese geben die Bewegungsrichtung an
+                                                                          #    - im Normalen-Betrieb wird die Richtung anhand des Vorzeichens erkannt
                                                                           # Schritte/Steigung wird bei Sprung nicht benötigt!
                                                                           # Steigung: r - z.B. 2    --> 2 mm/min Sollwertsteigung je Sekunde (Sprünge)
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
@@ -760,7 +817,7 @@ devices:
       Input_Limit_max: 100                                                # Maximum Limit für Input 
       Input_Limit_min: 0                                                  # Minimum Limit für Input 
       Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist)
-      Input_Size_unit: 'mm'                                               # Einheit der Input-Größe
+      Input_Size_unit: mm                                                 # Einheit der Input-Größe
       debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] 
     register:
       cw: 4                                                               # Tiegel: 4, Spindel: 20
@@ -787,7 +844,10 @@ devices:
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (1/min), Art der Rampe , Schritte/Steigung ((1/min)/s)
                                                                           # Art der Rampe: s - Sprung, r - Rampe
                                                                           # Schritte/Steigung wird bei Sprung nicht benötigt!
-                                                                          # Steigung: r - z.B. 2    --> 2 1/min Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Steigung: r - z.B. 2    --> Alle 2 s erfolgt ein Sollwertsprung!
+                                                                          # Im PID-Modus benötigt es noch einen Wert am Ende der Schritte:
+                                                                          #    - diese geben die Bewegungsrichtung an
+                                                                          #    - im Normalen-Betrieb wird die Richtung anhand des Vorzeichens erkannt
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
                                                                           #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
                                                                           #                         3. In der Datei dürfen nur die Schritte stehen!

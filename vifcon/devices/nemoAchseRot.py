@@ -231,7 +231,7 @@ class NemoAchseRot(QObject):
         # Variablen Positions-Controlle:
         #---------------------------------------
         self.start_Time = 0                                             # Startzeitpunkt
-        self.ak_Time = 0                                                # Endzeitpunkt/aktuelle Zeit
+        self.ak_Time    = 0                                                # Endzeitpunkt/aktuelle Zeit
         if self.config['start']['start_winkel'] > self.oGw:
             value = self.oGw
             self.CW_End = True                                          # Limit CW erreicht     (Maximum)
@@ -347,18 +347,25 @@ class NemoAchseRot(QObject):
         # Update Limit:
         #++++++++++++++++++++++++++++++++++++++++++
         if write_Okay['Update Limit']:
+            ## Winkel:
             self.oGw = write_value['Limits'][0]
             self.uGw = write_value['Limits'][1]
-            write_Okay['Limit'] = False
+            ## Geschwindigkeit/PID-Output:
+            self.PID.OutMax = write_value['Limits'][2]
+            self.PID.OutMin = write_value['Limits'][3]
+            ## PID-Input:
+            self.PID_Input_Limit_Max = write_value['Limits'][4]
+            self.PID_Input_Limit_Min = write_value['Limits'][5]
+            write_Okay['Update Limit'] = False
 
         #++++++++++++++++++++++++++++++++++++++++++
         # Define Home:
         #++++++++++++++++++++++++++++++++++++++++++
         if write_Okay['Define Home']:
-            # Setze Position auf Null:
+            ## Setze Position auf Null:
             self.akIWw = 0
 
-            # Grenzen Updaten:
+            ## Grenzen Updaten:
             with open(self.config_dat, encoding="utf-8") as f:
                 config = yaml.safe_load(f)
                 logger.info(f"{self.device_name} - {self.Log_Text_207_str[self.sprache]} {config}")
@@ -376,14 +383,13 @@ class NemoAchseRot(QObject):
         # Position berechnen und Limits beachten:
         #++++++++++++++++++++++++++++++++++++++++++
         if self.fahre:
-            # Bestimmung der Zeit zum Start:
+            ## Bestimmung der Zeit zum Start:
             self.ak_Time = datetime.datetime.now(datetime.timezone.utc).astimezone()        # Zyklus Ende
             timediff = (
                 self.ak_Time - self.start_Time
             ).total_seconds()  
-            #print(f'Zeit: {timediff}')
             self.start_Time = datetime.datetime.now(datetime.timezone.utc).astimezone()     # Neuer zyklus
-            # Berechne Winkel:
+            ## Berechne Winkel:
             ans = self.serial.read_input_registers(self.start_Lese_Register, 2)             # vIst ist das erste Register!
             logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
             self.ak_speed = self.umwandeln_Float(ans)[0] * self.vF_ist                      # Beachtung eines Vorfaktors!
@@ -392,7 +398,7 @@ class NemoAchseRot(QObject):
                 self.akIWw = self.akIWw + pos
             elif self.rechne == 'Sub':
                 self.akIWw = self.akIWw - pos
-            # Endlose Rotation Ein/Aus:
+            ## Endlose Rotation Ein/Aus:
             if not write_value['EndRot']:
                 # Kontrolliere die Grenzen:
                 if self.akIWw >= self.oGw and not self.CW_End:
@@ -411,7 +417,7 @@ class NemoAchseRot(QObject):
         # Normaler Betrieb:
         #++++++++++++++++++++++++++++++++++++++++++
         if not write_value ['PID']:  
-            # Sollwert Lesen (v):
+            ## Sollwert Lesen (v):
             speed_vorgabe = write_value['Speed']
             PID_write_V = False
         #++++++++++++++++++++++++++++++++++++++++++    
@@ -479,7 +485,7 @@ class NemoAchseRot(QObject):
                 self.Soll = write_value['PID-Sollwert']
             ### MUltilog:
             elif self.PID_Option[1] == 'M':
-                print('Noch nicht Vorhanden!')
+                print(['Noch nicht Vorhanden!', 'Not available yet!'][self.sprache])
             #---------------------------------------------    
             ## Schreibe Werte:
             #---------------------------------------------
