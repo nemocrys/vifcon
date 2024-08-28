@@ -51,7 +51,7 @@ class SerialMock:
 class NemoAchseLin(QObject):
     signal_PID  = pyqtSignal(float, float, bool, float)
 
-    def __init__(self, sprache, config, config_dat, com_dict, test, neustart, multilog_aktiv, add_Ablauf_function, name="Nemo-Achse-Linear", typ = 'Antrieb'):
+    def __init__(self, sprache, config, config_dat, com_dict, test, neustart, multilog_aktiv, add_Ablauf_function, typ_Widget, name="Nemo-Achse-Linear", typ = 'Antrieb'):
         """ Erstelle Nemo-Achse Lin Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
         Args:
@@ -63,8 +63,9 @@ class NemoAchseLin(QObject):
             neustart (bool):                    Neustart Modus, Startkonfigurationen werden übersprungen
             multilog_aktiv (bool):              Multilog-Read/Send Aktiviert
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
+            typ_Widget (obj):                   Typ-Widget dieses Gerätes (Nutzung für Pop-Up-Fenster)
             name (str, optional):               device name.
-            typ (str, optional):                device name.
+            typ (str, optional):                device typ.
         """
         super().__init__()
 
@@ -78,6 +79,7 @@ class NemoAchseLin(QObject):
         self.neustart                   = neustart
         self.multilog_OnOff             = multilog_aktiv
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
+        self.typ_Widget                 = typ_Widget
         self.device_name                = name
         self.typ                        = typ
 
@@ -105,6 +107,8 @@ class NemoAchseLin(QObject):
         self.uGs = self.config["limits"]['minPos']
         self.oGv = self.config["limits"]['maxSpeed']
         self.uGv = self.config["limits"]['minSpeed']
+        ### PID:
+        self.unit_PIDIn = self.config['PID']['Input_Size_unit']
 
         ## Andere:
         self.value_name = {'IWs': 0, 'IWsd':0, 'IWv': 0, 'SWv': 0, 'SWs':0, 'oGs':0, 'uGs': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0}
@@ -155,6 +159,7 @@ class NemoAchseLin(QObject):
         self.Log_Text_Port_3    = ['Antwort der Test-Abfrage war None. Bearbeitung nicht möglich!',                         'The answer to the test query was None. Processing not possible!']
         self.Log_Text_Port_4    = ['Bei der Werte-Umwandlung ist ein Fehler aufgetreten!',                                  'An error occurred during value conversion!']
         self.Log_Text_Port_5    = ['Fehlerbeschreibung:',                                                                   'Error description:']
+        self.Log_Text_PID_str   = ['Start des PID-Threads!',                                                                                                                                                                'Start of the PID thread!']
         Log_Text_PID_N1         = ['Die Konfiguration',                                                                                                                                                                     'The configuration']
         Log_Text_PID_N2         = ['existiert nicht! Möglich sind nur VV, VM, MM oder MV. Nutzung von Default VV!',                                                                                                         'does not exist! Only VV, VM, MM or MV are possible. Use default VV!']
         Log_Text_PID_N2_1       = ['ist für das Gerät noch nicht umgesetzt! Nutzung von Default VV!',                                                                                                                       'is not yet implemented for the device! Use of default VV!']
@@ -178,6 +183,13 @@ class NemoAchseLin(QObject):
         self.Log_Text_PID_N20   = ['? - tatsächlicher Wert war',                                                                                                                                                            '°C - tatsächlicher Wert war']
         Log_Text_PID_N21        = ['Multilog Verbindung wurde in Config als Abgestellt gewählt! Eine Nutzung der Werte-Herkunft mit VM, MV oder MM ist so nicht möglich! Nutzung von Default VV!',                          'Multilog connection was selected as disabled in config! Using the value origin with VM, MV or MM is not possible! Use of default VV!']
         self.Log_Test_PID_N22   = ['?',                                                                                                                                                                                     '?']
+        self.Log_Text_LB_1      = ['Limitbereich',                                                                                                                                                                          'Limit range']
+        self.Log_Text_LB_4      = ['bis',                                                                                                                                                                                   'to']
+        self.Log_Text_LB_5      = ['nach Update',                                                                                                                                                                           'after update']
+        self.Log_Text_LB_6      = ['PID',                                                                                                                                                                                   'PID']
+        self.Log_Text_LB_7      = ['Output',                                                                                                                                                                                'Outout']
+        self.Log_Text_LB_8      = ['Input',                                                                                                                                                                                 'Input']
+        self.Log_Text_LB_unit   = ['mm/min',                                                                                                                                                                                'mm/min']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                       'Initialization Failed!']
@@ -267,7 +279,9 @@ class NemoAchseLin(QObject):
         # PID-Regler:
         #---------------------------------------
         ## PID-Regler:
-        self.PID = PID(self.sprache, self.device_name, self.config['PID'], self.oGv, self.uGv)
+        if self.uGv < 0:     controll_under_Null = 0
+        else:                controll_under_Null = self.uGv
+        self.PID = PID(self.sprache, self.device_name, self.config['PID'], self.oGv, controll_under_Null)
         self.PID_Option = self.config['PID']['Value_Origin'].upper()
         ## Info und Warnungen: --> Überarbeiten da VIFCON Istwert noch nicht vorhanden!
         if not self.multilog_OnOff and self.PID_Option in ['MV', 'MM', 'VM']:
@@ -310,6 +324,8 @@ class NemoAchseLin(QObject):
         self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max'] 
         self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
         self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
+        logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]}: {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_LB_unit[self.sprache]}')
+        logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]}: {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')   
         if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
             self.PID_Input_Error_Option = 'error'
@@ -343,15 +359,20 @@ class NemoAchseLin(QObject):
         # Update Limit:
         #++++++++++++++++++++++++++++++++++++++++++
         if write_Okay['Update Limit']:
+            
             ## Position:
             self.oGs = write_value['Limits'][0]
             self.uGs = write_value['Limits'][1]
             ## Geschwindigkeit/PID-Output:
             self.PID.OutMax = write_value['Limits'][2]
-            self.PID.OutMin = write_value['Limits'][3]
+            if write_value['Limits'][3] < 0:    self.PID.OutMin = 0
+            else:                               self.PID.OutMin = write_value['Limits'][3]
+            logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_LB_unit[self.sprache]}')
             ## PID-Input:
             self.PID_Input_Limit_Max = write_value['Limits'][4]
             self.PID_Input_Limit_Min = write_value['Limits'][5]
+            logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')
+            
             write_Okay['Update Limit'] = False
 
         #++++++++++++++++++++++++++++++++++++++++++
@@ -398,10 +419,12 @@ class NemoAchseLin(QObject):
             if self.akIWs >= self.oGs and not self.Auf_End:
                 self.Auf_End = True
                 logger.warning(f'{self.device_name} - {self.Log_Text_217_str[self.sprache]}')
+                self.typ_Widget.Message(self.Log_Text_217_str[self.sprache], 3, 450)
                 write_Okay['Stopp'] = True
             if self.akIWs <= self.uGs and not self.Ab_End:
                 self.Ab_End = True
                 logger.warning(f'{self.device_name} - {self.Log_Text_218_str[self.sprache]}')
+                self.typ_Widget.Message(self.Log_Text_218_str[self.sprache], 3, 450)
                 write_Okay['Stopp'] = True
             if self.akIWs > self.uGs and self.akIWs < self.oGs:
                 self.Auf_End = False

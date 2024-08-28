@@ -148,6 +148,8 @@ class PIAchseWidget(QWidget):
         st_s_str                = ['XXX.XX mm',                                                                                                 'XXX.XX mm']
         s_einzel_str            = ['s',                                                                                                         's']
         v_einzel_str            = ['v',                                                                                                         'v']
+        self.einheit_s_einzel   = ['mm',                                                                                                        'mm']
+        self.einheit_v_einzel   = ['mm/s',                                                                                                      'mm/s']
         ## Fehlermeldungen: 
         self.err_0_str          = ['Fehler!',                                                                                                   'Error!']
         self.err_1_str          = ['Beide Felder benötigen\neine EINGABE!!',                                                                    'Both fields require\nan INPUT!!']
@@ -191,6 +193,11 @@ class PIAchseWidget(QWidget):
         self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                     'Update configuration (update limits):']
         self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
         self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                          'Error reason (Problem with recipe configuration)']
+        self.Log_Text_LB_1      = ['Limitbereich',                                                                                              'Limit range']
+        self.Log_Text_LB_2      = ['Geschwindigkeit',                                                                                           'Velocity']
+        self.Log_Text_LB_3      = ['Position',                                                                                                  'Position']
+        self.Log_Text_LB_4      = ['bis',                                                                                                       'to']
+        self.Log_Text_LB_5      = ['nach Update',                                                                                               'after update']
         ## Ablaufdatei: 
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -240,6 +247,9 @@ class PIAchseWidget(QWidget):
         logger.info(f"{self.device_name} - {self.Log_Text_28_str[self.sprache]}") if self.init else logger.warning(f"{self.device_name} - {self.Log_Text_29_str[self.sprache]}")
         if self.neustart: logger.info(f"{self.device_name} - {self.Log_Text_30_str[self.sprache]}") 
         logger.info(f"{self.device_name} - {self.Log_Text_45_str[self.sprache]}") if self.mode == 0 else (logger.info(f"{self.device_name} - {self.Log_Text_46_str[self.sprache]}") if self.mode == 1 else (logger.info(f"{self.device_name} - {self.Log_Text_47_str[self.sprache]}") if self.mode == 2 else logger.warning(f"{self.device_name} - {self.Log_Text_48_str[self.sprache]}"))) 
+        ## Limit-Bereiche:
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]}: {self.uGv} {self.Log_Text_LB_4[self.sprache]} {self.oGv} {self.einheit_v_einzel[self.sprache]}')
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]}: {self.uGPos} {self.Log_Text_LB_4[self.sprache]} {self.oGPos} {self.einheit_s_einzel[self.sprache]}')
 
         #---------------------------------------
         # GUI:
@@ -516,14 +526,14 @@ class PIAchseWidget(QWidget):
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
-        self.curveDict      = {'IWs': '', 'IWv': '', 'oGs': '', 'uGs': '', 'oGv': '', 'uGv': '', 'Rezv': ''}        # Kurven
+        self.curveDict      = {'IWs': '', 'IWv': '', 'oGs': '', 'uGs': '', 'oGv': '', 'uGv': '', 'Rezv': ''}                        # Kurven
         for kurve in self.kurven_dict:
             self.curveDict[kurve] = self.kurven_dict[kurve]
-        self.labelDict      = {'IWs': self.La_IstPos_wert,  'IWv': self.La_IstSpeed_wert}                            # Label
-        self.labelUnitDict  = {'IWs': 'mm',                 'IWv': 'mm/s'}                                           # Einheit
-        self.listDict       = {'IWs': self.posList,         'IWv': self.speedList}                                   # Werteliste
-        self.grenzListDict  = {'oGv': self.VoGList,         'uGv': self.VuGList,    'oGs': self.SoGList,    'uGs': self.SuGList}
-        self.grenzValueDict = {'oGv': self.oGv,             'uGv': self.uGv,        'oGs': self.oGPos,      'uGs': self.uGPos}
+        self.labelDict      = {'IWs': self.La_IstPos_wert,                  'IWv': self.La_IstSpeed_wert}                            # Label
+        self.labelUnitDict  = {'IWs': self.einheit_s_einzel[self.sprache],  'IWv': self.einheit_v_einzel[self.sprache]}              # Einheit
+        self.listDict       = {'IWs': self.posList,                         'IWv': self.speedList}                                   # Werteliste
+        self.grenzListDict  = {'oGv': self.VoGList,                         'uGv': self.VuGList,    'oGs': self.SoGList,    'uGs': self.SuGList}
+        self.grenzValueDict = {'oGv': self.oGv,                             'uGv': self.uGv,        'oGs': self.oGPos,      'uGs': self.uGPos}
 
         ## Plot-Skalierungsfaktoren:
         self.skalFak_dict = {}
@@ -942,6 +952,9 @@ class PIAchseWidget(QWidget):
         self.uGPos  = config['devices'][self.device_name]["limits"]['minPos']
         self.oGv    = config['devices'][self.device_name]["limits"]['maxSpeed']
         self.uGv    = config['devices'][self.device_name]["limits"]['minSpeed']
+
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGv} {self.Log_Text_LB_4[self.sprache]} {self.oGv} {self.einheit_v_einzel[self.sprache]}')
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGPos} {self.Log_Text_LB_4[self.sprache]} {self.oGPos} {self.einheit_s_einzel[self.sprache]}')
 
     ##########################################
     # Reaktion auf Rezepte:

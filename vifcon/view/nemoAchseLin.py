@@ -145,9 +145,9 @@ class NemoAchseLinWidget(QWidget):
         s_einzel_str            = ['s',                                                                                                         's']
         v_einzel_str            = ['v',                                                                                                         'v']
         x_einzel_str            = ['x',                                                                                                         'x']
-        einheit_s_einzel        = ['mm',                                                                                                        'mm']
-        einheit_v_einzel        = ['mm/min',                                                                                                    'mm/min']
-        einheit_x_einzel        = [f'{self.unit_PIDIn}',                                                                                        f'{self.unit_PIDIn}']
+        self.einheit_s_einzel   = ['mm',                                                                                                        'mm']
+        self.einheit_v_einzel   = ['mm/min',                                                                                                    'mm/min']
+        self.einheit_x_einzel   = [f'{self.unit_PIDIn}',                                                                                        f'{self.unit_PIDIn}']
         PID_Von_1               = ['Wert von Multilog',                                                                                         'Value of Multilog']
         PID_Von_2               = ['Wert von VIFCON',                                                                                           'Value ofVIFCON']
         PID_Zusatz              = ['ex,',                                                                                                       'ex,']
@@ -169,7 +169,7 @@ class NemoAchseLinWidget(QWidget):
         self.err_16_str         = ['Rezept läuft!\nRezept Start gesperrt!',                                                                     'Recipe running!\nRecipe start blocked!']
         self.err_21_str         = ['Fehler in der Rezept konfiguration\nder Config-Datei! Bitte beheben und Neueinlesen!',                      'Error in the recipe configuration of\nthe config file! Please fix and re-read!']
         self.err_PID_1_str      = ['Die Bewegungsrichtung',                                                                                     'The direction of movement']
-        self.err_PID_2_str      = ['exestiert nicht!\nGenutzt werden kann nur H und U!',                                                        'does not exist!\nOnly H and U can be used!']
+        self.err_PID_2_str      = ['exestiert nicht!\nGenutzt werden kann nur UP und DOWN!',                                                    'does not exist!\nOnly UP and DOWN can be used!']
         self.err_PID_3_str      = ['Der PID-Modus benötigt eine\nAngabe der Bewegungsrichtung!',                                                'The PID mode requires a specification\nof the direction of movement!']
         ## Status:          
         status_1_str            = ['Status: Inaktiv',                                                                                           'Status: Inactive']
@@ -206,6 +206,11 @@ class NemoAchseLinWidget(QWidget):
         self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
         self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                          'Error reason (Problem with recipe configuration)']
         self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liegt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',  'The value in the config is outside the limit range! Switching value is set to minimum limit!']
+        self.Log_Text_LB_1      = ['Limitbereich',                                                                                              'Limit range']
+        self.Log_Text_LB_2      = ['Geschwindigkeit',                                                                                           'Velocity']
+        self.Log_Text_LB_3      = ['Position',                                                                                                  'Position']
+        self.Log_Text_LB_4      = ['bis',                                                                                                       'to']
+        self.Log_Text_LB_5      = ['nach Update',                                                                                               'after update']
         ## Ablaufdatei: 
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -249,7 +254,10 @@ class NemoAchseLinWidget(QWidget):
         logger.info(f"{self.device_name} - {self.Log_Text_28_str[self.sprache]}") if self.init else logger.warning(f"{self.device_name} - {self.Log_Text_29_str[self.sprache]}")
         if self.neustart: logger.info(f"{self.device_name} - {self.Log_Text_30_str[self.sprache]}") 
         if self.config['start']['invert']: logger.warning(f'{self.device_name} - {self.Log_Text_181_str[self.sprache]}')
-        
+        ## Limit-Bereiche:
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]}: {self.uGv} {self.Log_Text_LB_4[self.sprache]} {self.oGv} {self.einheit_v_einzel[self.sprache]}')
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]}: {self.uGs} {self.Log_Text_LB_4[self.sprache]} {self.oGs} {self.einheit_s_einzel[self.sprache]}')
+
         #---------------------------------------
         # GUI:
         #---------------------------------------
@@ -592,14 +600,14 @@ class NemoAchseLinWidget(QWidget):
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
-        self.curveDict      = {'IWs': '', 'IWv': '', 'SWv': '', 'SWs': '', 'oGv': '', 'uGv': '', 'oGs': '', 'uGs':'', 'Rezv': '', 'IWsd': '', 'SWTPID':'', 'IWTPID':'', 'Rezx': ''}                                                                                                                                                          # Kurven
+        self.curveDict      = {'IWs': '', 'IWv': '', 'SWv': '', 'SWs': '', 'oGv': '', 'uGv': '', 'oGs': '', 'uGs':'', 'Rezv': '', 'IWsd': '', 'SWTPID':'', 'IWTPID':'', 'Rezx': ''}                                                                                                                                                                                 # Kurven
         for kurve in self.kurven_dict:
             self.curveDict[kurve] = self.kurven_dict[kurve]
-        self.labelDict      = {'IWs': self.La_IstPos_wert,                                  'IWv': self.La_IstSpeed_wert,           'SWv':self.La_SollSpeed_wert,                                       'IWsd': self.La_IstPosOr_wert,          'SWxPID': self.La_SollPID_wert,             'IWxPID': self.La_IstPID_wert}                   # Label
-        self.labelUnitDict  = {'IWs': einheit_s_einzel[self.sprache],                       'IWv': einheit_v_einzel[self.sprache],  'SWv':einheit_v_einzel[self.sprache],                               'IWsd': einheit_s_einzel[self.sprache], 'SWxPID': einheit_x_einzel[self.sprache],   'IWxPID': einheit_x_einzel[self.sprache]}        # Einheit
-        self.listDict       = {'IWs': self.posList,                                         'IWv': self.speedList,                  'SWv':self.sollspeedList,               'SWs':self.sollposList,     'IWsd': self.posListOr,                 'SWxPID': self.sollxPID,                    'IWxPID': self.istxPID}                          # Werteliste
-        self.grenzListDict  = {'oGv': self.VoGList,        'uGv': self.VuGList,             'oGs':self.SoGList,                     'uGs':self.SuGList}
-        self.grenzValueDict = {'oGv': self.oGv,            'uGv': self.uGv,                 'oGs':self.oGs,                         'uGs':self.uGs}
+        self.labelDict      = {'IWs': self.La_IstPos_wert,                                  'IWv': self.La_IstSpeed_wert,               'SWv':self.La_SollSpeed_wert,                                       'IWsd': self.La_IstPosOr_wert,                  'SWxPID': self.La_SollPID_wert,                     'IWxPID': self.La_IstPID_wert}                      # Label
+        self.labelUnitDict  = {'IWs': self.einheit_s_einzel[self.sprache],                  'IWv': self.einheit_v_einzel[self.sprache], 'SWv':self.einheit_v_einzel[self.sprache],                          'IWsd': self.einheit_s_einzel[self.sprache],    'SWxPID': self.einheit_x_einzel[self.sprache],      'IWxPID': self.einheit_x_einzel[self.sprache]}      # Einheit
+        self.listDict       = {'IWs': self.posList,                                         'IWv': self.speedList,                      'SWv':self.sollspeedList,                   'SWs':self.sollposList, 'IWsd': self.posListOr,                         'SWxPID': self.sollxPID,                            'IWxPID': self.istxPID}                             # Werteliste
+        self.grenzListDict  = {'oGv': self.VoGList,        'uGv': self.VuGList,             'oGs':self.SoGList,                         'uGs':self.SuGList}
+        self.grenzValueDict = {'oGv': self.oGv,            'uGv': self.uGv,                 'oGs':self.oGs,                             'uGs':self.uGs}
 
         ## Plot-Skalierungsfaktoren:
         self.skalFak_dict = {}
@@ -985,6 +993,9 @@ class NemoAchseLinWidget(QWidget):
         self.oGx = config['devices'][self.device_name]['PID']['Input_Limit_max']
         self.uGx = config['devices'][self.device_name]['PID']['Input_Limit_min']
 
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGv} {self.Log_Text_LB_4[self.sprache]} {self.oGv} {self.einheit_v_einzel[self.sprache]}')
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGs} {self.Log_Text_LB_4[self.sprache]} {self.oGs} {self.einheit_s_einzel[self.sprache]}')
+
         self.write_task['Update Limit']     = True
         self.write_value['Limits']          = [self.oGs, self.uGs, self.oGv, self.uGv, self.oGx, self.uGx]
 
@@ -1018,10 +1029,10 @@ class NemoAchseLinWidget(QWidget):
                     if self.PID_cb.isChecked():
                         self.write_value['PID-Sollwert'] = self.value_list[self.step]
 
-                        if self.move_list[self.step] == 'H':
+                        if self.move_list[self.step] == 'UP':
                             self.write_task['Hoch'] = True
                             self.write_task['Runter'] = False
-                        elif self.move_list[self.step] == 'U':
+                        elif self.move_list[self.step] == 'DOWN':
                             self.write_task['Runter'] = True
                             self.write_task['Hoch'] = False
                     else:
@@ -1106,10 +1117,10 @@ class NemoAchseLinWidget(QWidget):
             if self.PID_cb.isChecked():
                 self.write_value['PID-Sollwert'] = self.value_list[self.step]
 
-                if self.move_list[self.step] == 'H':
+                if self.move_list[self.step] == 'UP':
                     self.write_task['Hoch'] = True
                     self.write_task['Runter'] = False
-                elif self.move_list[self.step] == 'U':
+                elif self.move_list[self.step] == 'DOWN':
                     self.write_task['Runter'] = True
                     self.write_task['Hoch'] = False
             else:
@@ -1191,7 +1202,7 @@ class NemoAchseLinWidget(QWidget):
                         werte = rez_dat[n].split(';')
                         if werte[2].strip() == 'r': sNum = 4
                         elif werte[2].strip() == 's': sNum = 3
-                        if not werte[sNum].upper().strip() in ['H', 'U']:  
+                        if not werte[sNum].upper().strip() in ['UP', 'DOWN']:  
                             self.Fehler_Output(1, self.La_error_1, f'{self.err_PID_1_str[self.sprache]} {werte[sNum].upper()} {self.err_PID_2_str[self.sprache]}')
                             return False
                     except:

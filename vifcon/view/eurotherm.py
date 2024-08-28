@@ -135,8 +135,8 @@ class EurothermWidget(QWidget):
         PID_Von_1               = ['Wert von Multilog',                                                                                                                                                                                     'Value of Multilog']
         PID_Von_2               = ['Wert von VIFCON',                                                                                                                                                                                       'Value ofVIFCON']
         PID_Zusatz              = ['ex,',                                                                                                                                                                                                   'ex,']
-        T_unit_einzel           = ['°C',                                                                                                                                                                                                    '°C']
-        P_unit_einzel           = ['%',                                                                                                                                                                                                     '%']
+        self.T_unit_einzel      = ['°C',                                                                                                                                                                                                    '°C']
+        self.P_unit_einzel      = ['%',                                                                                                                                                                                                     '%']
         ## Fehlermeldungen:                                                                                                                                                                                     
         self.err_0_str          = ['Fehler!',                                                                                                                                                                                               'Error!']                   
         self.err_1_str          = ['Keine Eingabe!',                                                                                                                                                                                        'No input!']
@@ -196,6 +196,11 @@ class EurothermWidget(QWidget):
         self.Log_Text_EPID_4    = ['Beim Vorbereiten des Sendens der neuen PID-Parameter gab es einen Fehler!',                                                                                                                             'There was an error while preparing to send the new PID parameters!']
         self.Log_Text_EPID_5    = ['Einlese-Fehler der\nneuen Eurotherm PID-Parameter!',                                                                                                                                                    'Error reading the\nnew Eurotherm PID parameters!']
         self.Log_Text_EPID_6    = ['Fehlergrund (PID-Parameter):',                                                                                                                                                                          'Reason for error (PID parameter):']
+        self.Log_Text_LB_1      = ['Limitbereich',                                                                                                                                                                                          'Limit range']
+        self.Log_Text_LB_2      = ['Temperatur',                                                                                                                                                                                            'Temperatur']
+        self.Log_Text_LB_3      = ['Operating Point (Leistung)',                                                                                                                                                                            'Operating Point (Power)']
+        self.Log_Text_LB_4      = ['bis',                                                                                                                                                                                                   'to']
+        self.Log_Text_LB_5      = ['nach Update',                                                                                                                                                                                           'after update']
         ## Ablaufdatei:                                                                             
         self.Text_19_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da keine Eingabe.',                                                                                                                                   'Input field error message: Sending failed because there was no input.']
         self.Text_20_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da Eingabe die Grenzen überschreitet.',                                                                                                               'Input field error message: Send failed because input exceeds limits.']
@@ -238,8 +243,8 @@ class EurothermWidget(QWidget):
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = True
-        self.write_task  = {'Soll-Temperatur': False, 'Operating point':False, 'Auto_Mod': False, 'Manuel_Mod': False, 'Init':False, 'Start': False, 'EuRa': False, 'EuRa_Reset': False, 'Read_HO': False, 'Write_HO': False, 'PID-Update': False, 'Read_PID': False}
-        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID': False, 'PID-Sollwert': 0, 'PID_Rezept_Mode_OP': False, 'PID_Rez': -1, 'PID-Update': [0, 0, 0]}
+        self.write_task  = {'Soll-Temperatur': False, 'Operating point':False, 'Auto_Mod': False, 'Manuel_Mod': False, 'Init':False, 'Start': False, 'EuRa': False, 'EuRa_Reset': False, 'Read_HO': False, 'Write_HO': False, 'PID-Update': False, 'Read_PID': False, 'Update Limit': False}
+        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID': False, 'PID-Sollwert': 0, 'PID_Rezept_Mode_OP': False, 'PID_Rez': -1, 'PID-Update': [0, 0, 0], 'Limits': [0, 0, 0, 0]} # Limits: oGOp, uGOp, oGx, uGx
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -255,6 +260,9 @@ class EurothermWidget(QWidget):
         if self.config['start']['sicherheit'] and self.init: 
             self.typ_widget.Message(self.puF_HO_str_2[self.sprache], 3, 450)  
         logger.info(f'{self.device_name} - {self.Log_Text_245_str[self.sprache]}') if self.config['start']["ramp_start_value"].upper() == 'IST' else (logger.info(f'{self.device_name} - {self.Log_Text_246_str[self.sprache]}') if self.config['start']["ramp_start_value"].upper() == 'SOLL' else logger.warning(f'{self.device_name} - {self.Log_Text_247_str[self.sprache]}'))
+        ## Limit-Bereiche:
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]}: {self.uGST} {self.Log_Text_LB_4[self.sprache]} {self.oGST}{self.T_unit_einzel[self.sprache]}')
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]}: {self.uGOp} {self.Log_Text_LB_4[self.sprache]} {self.oGOp} {self.P_unit_einzel[self.sprache]}')
 
         #---------------------------------------    
         # GUI:
@@ -510,7 +518,7 @@ class EurothermWidget(QWidget):
         for kurve in self.kurven_dict:
                 self.curveDict[kurve] = self.kurven_dict[kurve] 
         self.labelDict      = {'IWT': self.La_IstTemp_wert,                                                'IWOp': self.La_IstPow_wert,      'SWT': self.La_SollTemp_wert}                              # Label
-        self.labelUnitDict  = {'IWT': T_unit_einzel[self.sprache],                                         'IWOp': P_unit_einzel[self.sprache]}                                                         # Einheit
+        self.labelUnitDict  = {'IWT': self.T_unit_einzel[self.sprache],                                    'IWOp': self.P_unit_einzel[self.sprache]}                                                    # Einheit
         self.listDict       = {'IWT': self.istTpList,       'SWT': self.sollTpList,                        'IWOp': self.opList,              'SWTPID':self.sollTPID,        'IWTPID':self.istTPID}      # Werte-Listen
         self.grenzListDict  = {'oGT': self.ToGList,         'uGT': self.TuGList,    'oGOp': self.OpoGList, 'uGOp': self.OpuGList}
         self.grenzValueDict = {'oGT': self.oGST,            'uGT': self.uGST,       'oGOp': self.oGOp,     'uGOp': self.uGOp}
@@ -799,6 +807,15 @@ class EurothermWidget(QWidget):
         ### Ausgangsleistung (Operating Point)
         self.oGOp = config['devices'][self.device_name]["limits"]['opMax']
         self.uGOp = config['devices'][self.device_name]["limits"]['opMin']
+        ### PID-Input-Output:
+        self.oGx = config['devices'][self.device_name]['PID']['Input_Limit_max']
+        self.uGx = config['devices'][self.device_name]['PID']['Input_Limit_min']
+
+        self.write_task['Update Limit']     = True
+        self.write_value['Limits']          = [self.oGOp, self.uGOp, self.oGx, self.uGx]
+
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGST} {self.Log_Text_LB_4[self.sprache]} {self.oGST}{self.T_unit_einzel[self.sprache]}')
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGOp} {self.Log_Text_LB_4[self.sprache]} {self.oGOp} {self.P_unit_einzel[self.sprache]}')
 
         if not self.config['start']['sicherheit'] and self.init:
             self.write_task['Write_HO'] = True

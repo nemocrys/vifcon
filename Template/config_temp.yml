@@ -572,6 +572,7 @@ devices:
                                                                           # Im PID-Modus benötigt es noch einen Wert am Ende der Schritte:
                                                                           #    - diese geben die Bewegungsrichtung an
                                                                           #    - im Normalen-Betrieb wird die Richtung anhand des Vorzeichens erkannt
+                                                                          #    - Möglich: UP, DOWN (Nutzung von upper im Code!)
                                                                           # Schritte/Steigung wird bei Sprung nicht benötigt!
                                                                           # Steigung: r - z.B. 2    --> 2 mm/min Sollwertsteigung je Sekunde (Sprünge)
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
@@ -580,9 +581,9 @@ devices:
                                                                           # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
                                                                           # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
       PID_Test:
-        n1: 20 ; 74 ; s ; H
-        n2: 20 ; 75 ; s ; U
-        n3: 100 ; 74 ; r ; 10 ; H
+        n1: 20 ; 74 ; s ; UP
+        n2: 20 ; 75 ; s ; Down
+        n3: 100 ; 74 ; r ; 10 ; DOWN
       v_Test:
         n1: 20 ; 3 ; s
         n2: 20 ; -3 ; s
@@ -667,15 +668,16 @@ devices:
                                                                           # Im PID-Modus benötigt es noch einen Wert am Ende der Schritte:
                                                                           #    - diese geben die Bewegungsrichtung an
                                                                           #    - im Normalen-Betrieb wird die Richtung anhand des Vorzeichens erkannt
+                                                                          #    - Möglich: CW, CCW (Nutzung von upper im Code!)
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
                                                                           #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
                                                                           #                         3. In der Datei dürfen nur die Schritte stehen!
                                                                           # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
                                                                           # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
       PID_Test:
-        n1: 20 ; 74 ; s ; L
-        n2: 20 ; 75 ; s ; R
-        n3: 100 ; 74 ; r ; 10 ; L
+        n1: 20 ; 74 ; s ; CW
+        n2: 20 ; 75 ; s ; CCW
+        n3: 100 ; 74 ; r ; 10 ; CW
       v_Test:
         n1: 20 ; 3 ; s
         n2: 20 ; -3 ; s
@@ -758,6 +760,7 @@ devices:
                                                                           # Im PID-Modus benötigt es noch einen Wert am Ende der Schritte:
                                                                           #    - diese geben die Bewegungsrichtung an
                                                                           #    - im Normalen-Betrieb wird die Richtung anhand des Vorzeichens erkannt
+                                                                          #    - Möglich: UP, DOWN (Nutzung von upper im Code!)
                                                                           # Schritte/Steigung wird bei Sprung nicht benötigt!
                                                                           # Steigung: r - z.B. 2    --> 2 mm/min Sollwertsteigung je Sekunde (Sprünge)
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
@@ -837,8 +840,8 @@ devices:
       minSpeed: -100                                                      # Minimale Geschwindigkeit [1/min]
     GUI:
       legend: Rezv ; IWv ; SWv ; IWw ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
-                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Unbekannt, PID- PID-Modus
-                                                                          # Eingebaut: Rezv, IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Externe-PID-Input-Größe, PID- PID-Modus
+                                                                          # Eingebaut: Rezv, Rezx , IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID
     defaults:
       startSpeed: 1                                                       # Startgeschwindigkeit [1/min]
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (1/min), Art der Rampe , Schritte/Steigung ((1/min)/s)
@@ -848,6 +851,7 @@ devices:
                                                                           # Im PID-Modus benötigt es noch einen Wert am Ende der Schritte:
                                                                           #    - diese geben die Bewegungsrichtung an
                                                                           #    - im Normalen-Betrieb wird die Richtung anhand des Vorzeichens erkannt
+                                                                          #    - Möglich: CW, CCW (Nutzung von upper im Code!)
                                                                           # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
                                                                           #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
                                                                           #                         3. In der Datei dürfen nur die Schritte stehen!

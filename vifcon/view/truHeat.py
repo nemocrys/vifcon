@@ -141,6 +141,10 @@ class TruHeatWidget(QWidget):
         U_einzel_str            = ['U',                                                                                                         'U']
         f_einzel_str            = ['f',                                                                                                         'f']
         P_einzel_str            = ['P',                                                                                                         'P']
+        self.einheit_I_einzel   = ['A',                                                                                                         'A']
+        self.einheit_U_einzel   = ['V',                                                                                                         'V']
+        self.einheit_P_einzel   = ['kW',                                                                                                        'kW']
+        self.einheit_f_einzel   = ['kHz',                                                                                                       'kHz']
         ## Fehlermeldungen:   
         self.err_0_str          = ['Fehler!',                                                                                                   'Error!']                  
         self.err_1_str          = ['Keine Eingabe!',                                                                                            'No input!']
@@ -179,6 +183,12 @@ class TruHeatWidget(QWidget):
         self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                     'Update configuration (update limits):']
         self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
         self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                          'Error reason (Problem with recipe configuration)']
+        self.Log_Text_LB_1      = ['Limitbereich',                                                                                              'Limit range']
+        self.Log_Text_LB_2      = ['Strom',                                                                                                     'Current']
+        self.Log_Text_LB_3      = ['Spannung',                                                                                                  'Voltage']
+        self.Log_Text_LB_3_1    = ['Leistung',                                                                                                  'Power']
+        self.Log_Text_LB_4      = ['bis',                                                                                                       'to']
+        self.Log_Text_LB_5      = ['nach Update',                                                                                               'after update']
         ## Ablaufdatei:
         self.Text_13_str        = ['Auswahl Leistung senden.',                                                                                  'Send power selection.']
         self.Text_14_str        = ['Auswahl Spannung senden.',                                                                                  'Send voltage selection.']
@@ -231,6 +241,10 @@ class TruHeatWidget(QWidget):
             print(self.ExPrint_str[self.sprache])
         if not self.init and not self.config['start']["readTime"] == 0: logger.warning(f"{self.device_name} - {self.Log_Text_33_str[self.sprache]}")
         logger.info(f"{self.device_name} - {self.Log_Text_34_str[self.sprache]}") if self.stMode == 'P' else (logger.info(f"{self.device_name} - {self.Log_Text_35_str[self.sprache]}") if self.stMode == 'U' else (logger.info(f"{self.device_name} - {self.Log_Text_36_str[self.sprache]}") if self.stMode == 'I' else logger.info(f"{self.device_name} - {self.Log_Text_37_str[self.sprache]}")))        
+        ## Limit-Bereiche:
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]}: {self.uGI} {self.Log_Text_LB_4[self.sprache]} {self.oGI} {self.einheit_I_einzel[self.sprache]}')
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]}: {self.uGU} {self.Log_Text_LB_4[self.sprache]} {self.oGU} {self.einheit_U_einzel[self.sprache]}')
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3_1[self.sprache]}: {self.uGP} {self.Log_Text_LB_4[self.sprache]} {self.oGP} {self.einheit_P_einzel[self.sprache]}')
 
         #---------------------------------------    
         # GUI:
@@ -510,11 +524,11 @@ class TruHeatWidget(QWidget):
         self.curveDict      = {'IWP': '', 'IWU': '', 'IWI': '', 'IWf': '', 'SWP': '', 'SWU': '', 'SWI': '', 'oGI':'', 'uGI':'', 'oGU':'', 'uGU':'', 'oGP':'', 'uGP':'', 'RezI':'', 'RezU':'', 'RezP':''}                         # Kurven
         for kurve in self.kurven_dict: 
             self.curveDict[kurve] = self.kurven_dict[kurve]
-        self.labelDict      = {'IWP': self.La_IstPow_wert,  'IWU': self.La_IstVoltage_wert,    'IWI': self.La_IstCurrent_wert,   'IWf': self.La_IstFre_wert}                                                                     # Label
-        self.labelUnitDict  = {'IWP': 'kW',                 'IWU': 'V',                        'IWI': 'A',                       'IWf': 'kHz'}                                                                                   # Einheit
-        self.listDict       = {'IWP': self.IWPList,         'IWU': self.IWUList,               'IWI': self.IWIList,              'IWf': self.IWfList,        'SWP': self.SWPList,  'SWU': self.SWUList,  'SWI': self.SWIList}    # Werte-Listen
-        self.grenzListDict  = {'oGP': self.PoGList,         'uGP': self.PuGList,                'oGU': self.UoGList,             'uGU': self.UuGList,        'oGI': self.IoGList,  'uGI': self.IuGList}
-        self.grenzValueDict = {'oGP': self.oGP,             'uGP': self.uGP,                    'oGU': self.oGU,                 'uGU': self.uGU,            'oGI': self.oGI,      'uGI': self.uGI}
+        self.labelDict      = {'IWP': self.La_IstPow_wert,                                  'IWU': self.La_IstVoltage_wert,                              'IWI': self.La_IstCurrent_wert,                'IWf': self.La_IstFre_wert}                                                                     # Label
+        self.labelUnitDict  = {'IWP': self.einheit_P_einzel[self.sprache],                  'IWU': self.einheit_U_einzel[self.sprache],                  'IWI': self.einheit_I_einzel[self.sprache],    'IWf': self.einheit_f_einzel[self.sprache]}                                                     # Einheit
+        self.listDict       = {'IWP': self.IWPList,                                         'IWU': self.IWUList,                                         'IWI': self.IWIList,                           'IWf': self.IWfList,        'SWP': self.SWPList,  'SWU': self.SWUList,  'SWI': self.SWIList}    # Werte-Listen
+        self.grenzListDict  = {'oGP': self.PoGList,     'uGP': self.PuGList,                'oGU': self.UoGList,             'uGU': self.UuGList,        'oGI': self.IoGList,  'uGI': self.IuGList}
+        self.grenzValueDict = {'oGP': self.oGP,         'uGP': self.uGP,                    'oGU': self.oGU,                 'uGU': self.uGU,            'oGI': self.oGI,      'uGI': self.uGI}
 
         ## Plot-Skalierungsfaktoren:
         self.skalFak_dict = {}
@@ -763,6 +777,10 @@ class TruHeatWidget(QWidget):
         ### Sollspannung:
         self.oGU = config['devices'][self.device_name]["limits"]['maxU']        
         self.uGU = config['devices'][self.device_name]["limits"]['minU']
+
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGI} {self.Log_Text_LB_4[self.sprache]} {self.oGI} {self.einheit_I_einzel[self.sprache]}')
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGU} {self.Log_Text_LB_4[self.sprache]} {self.oGU} {self.einheit_U_einzel[self.sprache]}')
+        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3_1[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGP} {self.Log_Text_LB_4[self.sprache]} {self.oGP} {self.einheit_P_einzel[self.sprache]}')
 
     ##########################################
     # Betrachtung der Labels und Plots:

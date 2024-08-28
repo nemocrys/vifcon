@@ -172,6 +172,12 @@ class Eurotherm(QObject):
         self.Log_Text_PID_N25   = ['Senden der PID-Parameter am Start ist Fehlgeschlagen. Um es erneut zu versuchen überprüfe die Config-Datei und nutze das Menü!',                                                        'Sending PID parameters at startup failed. To try again check the config file and use the menu!']   
         self.Log_Extra          = ['Vor Änderung',                                                                                                                                                                          'Before change']
         self.Log_Extra_2        = ['Nach Änderung',                                                                                                                                                                         'After change']
+        self.Log_Text_LB_1      = ['Limitbereich',                                                                                                                                                                          'Limit range']
+        self.Log_Text_LB_4      = ['bis',                                                                                                                                                                                   'to']
+        self.Log_Text_LB_5      = ['nach Update',                                                                                                                                                                           'after update']
+        self.Log_Text_LB_6      = ['PID',                                                                                                                                                                                   'PID']
+        self.Log_Text_LB_7      = ['Output',                                                                                                                                                                                'Outout']
+        self.Log_Text_LB_8      = ['Input',                                                                                                                                                                                 'Input']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -273,6 +279,8 @@ class Eurotherm(QObject):
         self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max'] 
         self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
         self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
+        logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]}: {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_156_str[self.sprache]}')
+        logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]}: {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max}{self.Log_Text_145_str[self.sprache]}')    
         if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
             self.PID_Input_Error_Option = 'error'
@@ -313,7 +321,9 @@ class Eurotherm(QObject):
             write_Okay (dict):  beinhaltet Boolsche Werte für das was beschrieben werden soll!
             write_value (dict): beinhaltet die Werte die geschrieben werden sollen
         '''
+        #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         # Erwinge das Setzen der Variablen um den Endzustand sicher herzustellen:
+        #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         if self.Save_End_State and not self.done_ones:
             write_Okay['EuRa_Reset']        = True
             write_Okay['Manuel_Mod']        = True   
@@ -322,12 +332,31 @@ class Eurotherm(QObject):
             write_value['Rez_OPTemp']       = 0 
             self.done_ones                  = True
 
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Update Limit:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if write_Okay['Update Limit']:
+            ## PID-Output:
+            self.PID.OutMax = write_value['Limits'][0]
+            self.PID.OutMin = write_value['Limits'][1]
+            logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_156_str[self.sprache]}')
+            ## PID-Input:
+            self.PID_Input_Limit_Max = write_value['Limits'][2]
+            self.PID_Input_Limit_Min = write_value['Limits'][3]
+            logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max}{self.Log_Text_145_str[self.sprache]}')
+
+            write_Okay['Update Limit'] = False
+
+        #++++++++++++++++++++++++++++++++++++++++++    
         # Normaler Betrieb:
+        #++++++++++++++++++++++++++++++++++++++++++
         if not write_value ['PID']:  
             # Sollwertn Lesen (OP oder Temp):
             sollwert = write_value['Sollwert']
             PID_write_OP = False
+        #++++++++++++++++++++++++++++++++++++++++++
         # PID-Regler:
+        #++++++++++++++++++++++++++++++++++++++++++
         elif write_value['PID']:
             #---------------------------------------------
             ## Auswahl Istwert:

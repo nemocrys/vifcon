@@ -51,7 +51,7 @@ class SerialMock:
 class NemoAchseRot(QObject):
     signal_PID  = pyqtSignal(float, float, bool, float)
 
-    def __init__(self, sprache, config, config_dat, com_dict, test, neustart, multilog_aktiv, add_Ablauf_function, name="Nemo-Achse-Rotation", typ = 'Antrieb'):
+    def __init__(self, sprache, config, config_dat, com_dict, test, neustart, multilog_aktiv, add_Ablauf_function, typ_Widget, name="Nemo-Achse-Rotation", typ = 'Antrieb'):
         """ Erstelle Nemo-Achse Rot Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
         Args:
@@ -63,8 +63,9 @@ class NemoAchseRot(QObject):
             neustart (bool):                    Neustart Modus, Startkonfigurationen werden übersprungen
             multilog_aktiv (bool):              Multilog-Read/Send Aktiviert
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
+            typ_Widget (obj):                   Typ-Widget dieses Gerätes (Nutzung für Pop-Up-Fenster)
             name (str, optional):               device name.
-            typ (str, optional):                device name.
+            typ (str, optional):                device typ.
         """
         super().__init__()
 
@@ -78,6 +79,7 @@ class NemoAchseRot(QObject):
         self.neustart                   = neustart
         self.multilog_OnOff             = multilog_aktiv
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
+        self.typ_Widget                 = typ_Widget
         self.device_name                = name
         self.typ                        = typ
 
@@ -104,6 +106,9 @@ class NemoAchseRot(QObject):
         self.uGw = self.config["limits"]['minWinkel']
         self.oGv = self.config["limits"]['maxSpeed']
         self.uGv = self.config["limits"]['minSpeed']
+        ### PID:
+        self.unit_PIDIn = self.config['PID']['Input_Size_unit']
+
 
         ## Andere:
         self.value_name = {'IWv': 0, 'IWw':0, 'SWv': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0}
@@ -175,6 +180,13 @@ class NemoAchseRot(QObject):
         self.Log_Text_PID_N20   = ['? - tatsächlicher Wert war',                                                                                                                                                            '°C - tatsächlicher Wert war']
         Log_Text_PID_N21        = ['Multilog Verbindung wurde in Config als Abgestellt gewählt! Eine Nutzung der Werte-Herkunft mit VM, MV oder MM ist so nicht möglich! Nutzung von Default VV!',                          'Multilog connection was selected as disabled in config! Using the value origin with VM, MV or MM is not possible! Use of default VV!']
         self.Log_Test_PID_N22   = ['?',                                                                                                                                                                                     '?']
+        self.Log_Text_LB_1      = ['Limitbereich',                                                                                                                                                                          'Limit range']
+        self.Log_Text_LB_4      = ['bis',                                                                                                                                                                                   'to']
+        self.Log_Text_LB_5      = ['nach Update',                                                                                                                                                                           'after update']
+        self.Log_Text_LB_6      = ['PID',                                                                                                                                                                                   'PID']
+        self.Log_Text_LB_7      = ['Output',                                                                                                                                                                                'Outout']
+        self.Log_Text_LB_8      = ['Input',                                                                                                                                                                                 'Input']
+        self.Log_Text_LB_unit   = ['1/min',                                                                                                                                                                                 '1/min']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -264,7 +276,9 @@ class NemoAchseRot(QObject):
         # PID-Regler:
         #---------------------------------------
         ## PID-Regler:
-        self.PID = PID(self.sprache, self.device_name, self.config['PID'], self.oGv, self.uGv)
+        if self.uGv < 0:     controll_under_Null = 0
+        else:                controll_under_Null = self.uGv
+        self.PID = PID(self.sprache, self.device_name, self.config['PID'], self.oGv, controll_under_Null)
         self.PID_Option = self.config['PID']['Value_Origin'].upper()
         ## Info und Warnungen: --> Überarbeiten da VIFCON Istwert noch nicht vorhanden!
         if not self.multilog_OnOff and self.PID_Option in ['MV', 'MM', 'VM']:
@@ -307,6 +321,8 @@ class NemoAchseRot(QObject):
         self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max'] 
         self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
         self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
+        logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]}: {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_LB_unit[self.sprache]}')
+        logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]}: {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')   
         if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
             self.PID_Input_Error_Option = 'error'
@@ -352,10 +368,14 @@ class NemoAchseRot(QObject):
             self.uGw = write_value['Limits'][1]
             ## Geschwindigkeit/PID-Output:
             self.PID.OutMax = write_value['Limits'][2]
-            self.PID.OutMin = write_value['Limits'][3]
+            if write_value['Limits'][3] < 0:    self.PID.OutMin = 0
+            else:                               self.PID.OutMin = write_value['Limits'][3]
+            logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_LB_unit[self.sprache]}')
             ## PID-Input:
             self.PID_Input_Limit_Max = write_value['Limits'][4]
             self.PID_Input_Limit_Min = write_value['Limits'][5]
+            logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')
+            
             write_Okay['Update Limit'] = False
 
         #++++++++++++++++++++++++++++++++++++++++++
@@ -404,10 +424,12 @@ class NemoAchseRot(QObject):
                 if self.akIWw >= self.oGw and not self.CW_End:
                     self.CW_End = True
                     logger.warning(f'{self.device_name} - {self.Log_Text_220_str[self.sprache]}')
+                    self.typ_Widget.Message(self.Log_Text_220_str[self.sprache], 3, 450)
                     write_Okay['Stopp'] = True
                 if self.akIWw <= self.uGw and not self.CCW_End:
                     self.CCW_End = True
                     logger.warning(f'{self.device_name} - {self.Log_Text_221_str[self.sprache]}')
+                    self.typ_Widget.Message(self.Log_Text_221_str[self.sprache], 3, 450)
                     write_Okay['Stopp'] = True
                 if self.akIWw > self.uGw and self.akIWw < self.oGw:
                     self.CW_End = False
