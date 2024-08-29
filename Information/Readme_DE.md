@@ -133,9 +133,6 @@ Im Ordner **[Information](../Information)** befinden sich weitere Dokumente, die
 3. Konfiguration
     - [Zeige En](Config_En.md) 
     - [Zeige De](Config_DE.md)
-4. Funktions-Beschreibungen
-    - [Zeige En](Funktionen_En.md) 
-    - [Zeige De](Funktionen_DE.md) 
 
 ## Letzte Änderung
 

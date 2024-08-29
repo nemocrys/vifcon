@@ -85,7 +85,7 @@ class NemoAchseLin(QObject):
 
         ## Aus Config:
         ### Zum Start:
-        self.init       = self.config['start']['init']                                # Initialisierung
+        self.init       = self.config['start']['init']                            # Initialisierung
         self.messZeit   = self.config['start']["readTime"]                        # Auslesezeit
         self.v_invert   = self.config['start']['invert']                          # Invertierung bei True der Geschwindigkeit
         self.Ist        = self.config['PID']["start_ist"] 
@@ -95,13 +95,13 @@ class NemoAchseLin(QObject):
         self.vF_ist     = self.config['parameter']['Vorfaktor_Ist']               # Vorfaktor Istgeschwindigkeit
         self.vF_soll    = self.config['parameter']['Vorfaktor_Soll']              # Vorfaktor Istgeschwindigkeit
         ### Register:
-        self.reg_h                  = self.config['register']['hoch']                            # Fahre hoch Coil Rergister
-        self.reg_r                  = self.config['register']['runter']                          # Fahre runter Coil Register
-        self.reg_s                  = self.config['register']['stopp']                           # Stoppe Coil Register
-        self.start_Lese_Register    = self.config['register']['lese_st_Reg']       # Input Register Start-Register
-        self.start_write_v          = self.config['register']['write_v_Reg']             # Holding Register Start-Register
-        self.reg_PLim               = self.config['register']['posLimReg']                    # Startregister für Limits
-        self.Status_Reg             = self.config['register']['statusReg']                  # Startregister für Status
+        self.reg_h                  = self.config['register']['hoch']             # Fahre hoch Coil Rergister
+        self.reg_r                  = self.config['register']['runter']           # Fahre runter Coil Register
+        self.reg_s                  = self.config['register']['stopp']            # Stoppe Coil Register
+        self.start_Lese_Register    = self.config['register']['lese_st_Reg']      # Input Register Start-Register
+        self.start_write_v          = self.config['register']['write_v_Reg']      # Holding Register Start-Register
+        self.reg_PLim               = self.config['register']['posLimReg']        # Startregister für Limits
+        self.Status_Reg             = self.config['register']['statusReg']        # Startregister für Status
         ### Limits:
         self.oGs = self.config["limits"]['maxPos']
         self.uGs = self.config["limits"]['minPos']
@@ -359,7 +359,6 @@ class NemoAchseLin(QObject):
         # Update Limit:
         #++++++++++++++++++++++++++++++++++++++++++
         if write_Okay['Update Limit']:
-            
             ## Position:
             self.oGs = write_value['Limits'][0]
             self.uGs = write_value['Limits'][1]
@@ -748,7 +747,7 @@ class NemoAchseLin(QObject):
         PID_x_unit = self.config['PID']['Input_Size_unit']
         self.filename = f"{pfad}/{self.device_name}.csv"
         units = f"# datetime,s,mm,mm,mm/min,mm/min,mm,mm,mm,{PID_x_unit},{PID_x_unit},\n"
-        header = "time_abs,time_rel,Ist-Position-sim,Ist-Position-real,Ist-Geschwindigkeit,Soll-Geschwindigkeit,Soll-Position,max.Pos.,min.Pos.,Soll-x_PID-Modus,Ist-x_PID-Modus,\n"
+        header = "time_abs,time_rel,Ist-Position-sim,Ist-Position-real,Ist-Geschwindigkeit,Soll-Geschwindigkeit,Soll-Position,max.Pos.,min.Pos.,Soll-x_PID-Modus_A,Ist-x_PID-Modus_A,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
             with open(self.filename, "w", encoding="utf-8") as f:
@@ -774,7 +773,7 @@ class NemoAchseLin(QObject):
         with open(self.filename, "a", encoding="utf-8") as f:
             f.write(f'{line}\n')
     
-     ##########################################
+    ##########################################
     # PID-Regler:
     ##########################################
     def PID_Update(self):

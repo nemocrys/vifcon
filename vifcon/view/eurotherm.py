@@ -187,7 +187,7 @@ class EurothermWidget(QWidget):
         self.Log_Text_246_str   = ['Die Erste Rampe Startet beim Sollwert!',                                                                                                                                                                'The first ramp starts at the setpoint!']
         self.Log_Text_247_str   = ['Die Einstellung für die Erste Rampe ist fehlerhaft! Möglich sind nur SOLL und IST!! Default IST.',                                                                                                      'The setting for the first ramp is incorrect! Only SOLL and IST are possible!! Default IST.']
         self.Log_Text_248_str   = ['Das Rampen Segment er kann nicht im PID-Modus angewendet werden!',                                                                                                                                      'The ramp segment er cannot be used in PID mode!']
-        self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liebt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',                                                                                              'The value in the config is outside the limit range! Switching value is set to minimum limit!']
+        self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liegt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',                                                                                              'The value in the config is outside the limit range! Switching value is set to minimum limit!']
         self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                                                                                                                       'Error reason (reading recipe):']
         self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                                                                                                                      'Error reason (Problem with recipe configuration)']
         self.Log_Text_EPID_1    = ['Update Konfiguration (Update PID-Parameter Eurotherm):',                                                                                                                                                'Update configuration (update PID parameters Eurotherm):']
@@ -882,7 +882,7 @@ class EurothermWidget(QWidget):
             x_value (list):     Werte für die x-Achse
         '''
 
-        ### PID-Modus - Werte Anzeige und Farbe:
+        ## PID-Modus - Werte Anzeige und Farbe:
         if self.color_Aktiv:
             if self.PID_cb.isChecked():
                 self.labelDict['IWT'].setStyleSheet(f"color: {self.color[6]}")  # Istwert PID
@@ -895,7 +895,7 @@ class EurothermWidget(QWidget):
                 self.labelDict['SWT'].setStyleSheet(f"color: {self.color[1]}")  # Sollwert PID
                 self.RB_choise_Temp.setStyleSheet(f"color: {self.color[1]}")
 
-        ### Kurven Update:
+        ## Kurven Update:
         self.data.update({'Time' : x_value[-1]})                    
         self.data.update(value_dict)   
         
@@ -915,13 +915,13 @@ class EurothermWidget(QWidget):
                 y = [a * faktor for a in self.listDict[messung]]
                 self.curveDict[messung].setData(x_value, y)
 
-        # Grenz-Kurven:
-        ## Update Grenzwert-Dictionary:
+        ## Grenz-Kurven:
+        ### Update Grenzwert-Dictionary:
         self.grenzValueDict['oGT']  = self.oGST * self.skalFak['Temp']
         self.grenzValueDict['uGT']  = self.uGST * self.skalFak['Temp']
         self.grenzValueDict['oGOp'] = self.oGOp * self.skalFak['Op']
         self.grenzValueDict['uGOp'] = self.uGOp * self.skalFak['Op']
-        ## Update-Kurven:
+        ### Update-Kurven:
         for kurve in self.kurven_dict:
             if kurve in self.grenzListDict:
                 self.grenzListDict[kurve].append(float(self.grenzValueDict[kurve]))

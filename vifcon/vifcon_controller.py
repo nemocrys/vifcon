@@ -168,7 +168,7 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                 #---------------------------------------
                 # Schreibe Werte:
                 #---------------------------------------
-                if 'Eurotherm' in self.device_name or 'Nemo-Achse-Rotation' in self.device_name:     # Wenn alle PID haben dann Zeile nicht notwendig
+                if not 'PI-Achse' in self.device_name:
                     if self.device.PID.PID_speere and self.device_widget.write_value['PID']:
                         self.device_widget.PID_cb.setChecked(False)
                         self.device_widget.PID_ON_OFF()
@@ -527,7 +527,7 @@ class Controller(QObject):
                     color = color_Gen_n
                 elif device_typ == 'Antrieb':
                     color = color_Ant_n
-                for n in range(color,color+10,1):
+                for n in range(color,color+13,1):
                     try:
                         ak_color.append(COLORS[n])
                     except Exception as e:
@@ -572,7 +572,7 @@ class Controller(QObject):
                         device = TruHeat(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name) 
                         widget = TruHeatWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.add_Ablauf, device_name)
                         #### Farben-Option:
-                        color_Gen_n = color_Gen_n + 10
+                        color_Gen_n = color_Gen_n + 13
                 elif device_typ == 'Antrieb':
                     if 'PI-Achse' in device_name:
                         #### Objekte erstellen:
@@ -581,7 +581,7 @@ class Controller(QObject):
                             start_werte = device.read() 
                         else:
                             start_werte = {'IWv': '?', 'IWs': '?'}
-                        widget = PIAchseWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, start_werte, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        widget = PIAchseWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, start_werte, self.neustart, self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
                         #### Farben-Option:
                         color_Ant_n = color_Ant_n + 3
                     elif 'Nemo-Achse-Linear' in device_name:
@@ -620,7 +620,7 @@ class Controller(QObject):
                 if not 'Nemo-Gase' in device_name:
                     try:
                         self.main_window.add_menu('Limit', device_name, widget.update_Limit, widget.init)
-                        if 'Eurotherm' in device_name or 'Nemo-Achse-Rotation' in device_name:  # später anpassen!
+                        if not 'PI-Achse' in device_name: 
                             self.main_window.add_menu('VIFCON-PID', device_name, device.PID.update_VPID_Para, widget.init)
                             device.PID.config_dat = config
                             device.PID.widget = widget
@@ -797,7 +797,7 @@ class Controller(QObject):
         # Beennde PID:
         #////////////////////////////////////////////////////////////
         for device in self.widgets:
-            if 'Eurotherm' in device or 'Nemo-Achse-Rotation' in device:
+            if not 'PI-Achse' in device:
                 self.widgets[device].write_value['PID'] = False 
                 self.devices[device].PIDThread.quit()
                 self.devices[device].timer_PID.stop()

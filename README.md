@@ -132,9 +132,6 @@ The **[Information](Information)** folder contains further documents that descri
 4. Config
     - [Show En](Information/Config_En.md) 
     - [Show De](Information/Config_DE.md)
-5. Function descriptions
-    - [Show En](Information/Funktionen_En.md) 
-    - [Show De](Information/Funktionen_DE.md) 
 
 ## Last change
 

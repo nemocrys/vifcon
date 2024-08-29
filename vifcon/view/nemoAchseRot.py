@@ -862,7 +862,7 @@ class NemoAchseRotWidget(QWidget):
         ## PID-Modus - Werte Anzeige und Farbe:
         if self.PID_cb.isChecked():
             self.La_SollSpeed.setText(self.x_str[self.sprache])
-            if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[5]}")
+            if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[4]}")
         else:
             self.La_SollSpeed.setText(self.v_str[self.sprache])
             if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[2]}")

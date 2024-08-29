@@ -431,7 +431,9 @@ class Eurotherm(QObject):
             if self.mode_aktiv:
                 self.Rez_OP = write_value['PID_Rez']
 
+        #++++++++++++++++++++++++++++++++++++++++++
         # Schreiben:
+        #++++++++++++++++++++++++++++++++++++++++++
         ## Ändere Modus:
         if write_Okay['Auto_Mod'] and not write_value['PID']:
             self.write_read_answer('SW>', '0000', self.write_Modus)                

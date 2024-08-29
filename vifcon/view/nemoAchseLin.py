@@ -36,7 +36,6 @@ from PyQt5.QtCore import (
     QTimer,
 
 )
-
 import pyqtgraph as pg
 
 ## Allgemein:
@@ -334,13 +333,13 @@ class NemoAchseLinWidget(QWidget):
         #### Soll-Größe PID-Modus:
         self.La_SollPID_text = QLabel(f'{sollwert_str[self.sprache]}-{sx_str[self.sprache]} ')
         self.La_SollPID_wert = QLabel(st_x_str[self.sprache])
-        if self.color_Aktiv: self.La_SollPID_text.setStyleSheet(f"color: {self.color[4]}")
-        if self.color_Aktiv: self.La_SollPID_wert.setStyleSheet(f"color: {self.color[4]}")
+        if self.color_Aktiv: self.La_SollPID_text.setStyleSheet(f"color: {self.color[6]}")
+        if self.color_Aktiv: self.La_SollPID_wert.setStyleSheet(f"color: {self.color[6]}")
         #### Ist-Größe PID-Modus:
         self.La_IstPID_text = QLabel(f'{istwert_str[self.sprache]}-{sx_str[self.sprache]} ')
         self.La_IstPID_wert = QLabel(st_x_str[self.sprache])
-        if self.color_Aktiv: self.La_IstPID_text.setStyleSheet(f"color: {self.color[5]}")
-        if self.color_Aktiv: self.La_IstPID_wert.setStyleSheet(f"color: {self.color[5]}")
+        if self.color_Aktiv: self.La_IstPID_text.setStyleSheet(f"color: {self.color[7]}")
+        if self.color_Aktiv: self.La_IstPID_wert.setStyleSheet(f"color: {self.color[7]}")
 
         ### Knöpfe:
         #### Bewegung:
@@ -518,18 +517,18 @@ class NemoAchseLinWidget(QWidget):
         origin = self.config['PID']['Value_Origin'].upper()
         ### Istwert:
         PID_Export_Ist = ''
-        if origin[0] == 'V':        PID_Label_Ist = PID_Von_2[sprache]
+        if origin[0] == 'V': PID_Label_Ist = PID_Von_2[sprache]
         elif origin [0] == 'M':     
-            PID_Label_Ist = PID_Von_1[sprache]
+            PID_Label_Ist  = PID_Von_1[sprache]
             PID_Export_Ist = PID_Zusatz[sprache]
-        else:                       PID_Label_Ist = PID_Von_2[sprache]
+        else:                PID_Label_Ist = PID_Von_2[sprache]
         ### Sollwert
         PID_Export_Soll = ''
-        if origin[1] == 'V':        PID_Label_Soll = PID_Von_2[sprache]
+        if origin[1] == 'V':  PID_Label_Soll = PID_Von_2[sprache]
         elif origin [1] == 'M':     
-            PID_Label_Soll = PID_Von_1[sprache]
+            PID_Label_Soll  = PID_Von_1[sprache]
             PID_Export_Soll = PID_Zusatz[sprache]
-        else:                       PID_Label_Soll = PID_Von_2[sprache]
+        else:                 PID_Label_Soll = PID_Von_2[sprache]
         
         ### Start Wert:
         self.write_value['PID-Sollwert'] = self.config['PID']['start_soll']
@@ -702,13 +701,13 @@ class NemoAchseLinWidget(QWidget):
             La_error.setStyleSheet(f"color: red; font-weight: bold")
             zusatz = f'({self.str_Size_1[self.sprache]})' if La_error == self.La_error_1 else (f'({self.str_Size_2[self.sprache]})' if La_error == self.La_error_2 else '')
             log_vorberietung = error_Message_Log_GUI.replace("\n"," ") 
-            logger.error(f'{self.device_name} - {log_vorberietung} {zusatz}')
+            logger.error(f'{device_name} - {log_vorberietung} {zusatz}')
         else:
             La_error.setText(self.err_13_str[self.sprache])
             La_error.setToolTip('')
             La_error.setStyleSheet(f"color: black; font-weight: normal")
         if not error_Message_Ablauf == '':
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {error_Message_Ablauf}') 
+                self.add_Text_To_Ablauf_Datei(f'{device_name} - {error_Message_Ablauf}') 
 
     ##########################################
     # Reaktion auf Buttons:

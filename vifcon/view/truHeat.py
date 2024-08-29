@@ -87,21 +87,26 @@ class TruHeatWidget(QWidget):
         self.init   = self.config['start']['init']
         self.stMode = self.config['start']['start_modus']
         ### Limits:
-        ### Sollleistung:
+        #### Sollleistung:
         self.oGP = self.config["limits"]['maxP']        
         self.uGP = self.config["limits"]['minP']
-        ### Sollstrom:
+        #### Sollstrom:
         self.oGI = self.config["limits"]['maxI']        
         self.uGI = self.config["limits"]['minI']
-        ### Sollspannung:
+        #### Sollspannung:
         self.oGU = self.config["limits"]['maxU']        
         self.uGU = self.config["limits"]['minU']
+        #### PID:
+        self.oGx = self.config['PID']['Input_Limit_max']
+        self.uGx = self.config['PID']['Input_Limit_min']
         ### GUI:
         self.legenden_inhalt = self.config['GUI']['legend'].split(';')
         self.legenden_inhalt = [a.strip() for a in self.legenden_inhalt]    # sollten Unnötige Leerzeichen vorhanden sein, so werden diese entfernt!
         self.color_Aktiv = self.typ_widget.color_On
         ### Rezepte:
         self.rezept_config = self.config["rezepte"]
+        ### PID-Modus:
+        self.unit_PIDIn  = self.config['PID']['Input_Size_unit']
 
         ## Faktoren Skalierung:
         self.skalFak = self.typ_widget.Faktor
@@ -117,7 +122,7 @@ class TruHeatWidget(QWidget):
         # Sprach-Einstellung:
         #--------------------------------------- 
         ## Werte:
-        sollwert_str            = ['Soll',                                                                                                      'Set']
+        self.sollwert_str       = ['Soll',                                                                                                      'Set']
         istwert_str             = ['Ist',                                                                                                       'Is']
         ## Knöpfe:                                                              
         send_str                = ['Sende',                                                                                                     'Send']
@@ -125,26 +130,40 @@ class TruHeatWidget(QWidget):
         rez_ende_str            = ['Rezept Beenden',                                                                                            'Finish recipe']
         ## Checkbox:    
         cb_sync_str             = ['Sync',                                                                                                      'Sync']
+        cb_PID                  = ['PID',                                                                                                       'PID']
         ## Einheiten mit Größe: 
-        P_str                   = ['P in kW:',                                                                                                  'P in kW:']
-        U_str                   = ['U in V:',                                                                                                   'U in V:']
-        I_str                   = ['I in A:',                                                                                                   'I in A:']
+        self.P_str              = ['P in kW:',                                                                                                  'P in kW:']
+        self.U_str              = ['U in V:',                                                                                                   'U in V:']
+        self.I_str              = ['I in A:',                                                                                                   'I in A:']
+        self.x_str              = [f'x in {self.unit_PIDIn}:',                                                                                  f'x in {self.unit_PIDIn}:']
         sP_str                  = ['P:',                                                                                                        'P:']
         sU_str                  = ['U:',                                                                                                        'U:']
         sI_str                  = ['I:',                                                                                                        'I:']
         sf_str                  = ['f:',                                                                                                        'f:']
+        self.sx_str             = ['PID:',                                                                                                      'PID:']
         st_P_str                = ['XXX.XX kW',                                                                                                 'XXX.XX kW']
         st_U_str                = ['XXX.XX V',                                                                                                  'XXX.XX V']
         st_I_str                = ['XXX.XX A',                                                                                                  'XXX.XX A']
         st_f_str                = ['XXX.XX kHz',                                                                                                'XXX.XX kHz']
+        st_x_str                = [f'XXX.XX {self.unit_PIDIn}',                                                                                 f'XXX.XX {self.unit_PIDIn}'] 
+        st_Wsoll_str            = ['(XXX.XX)',                                                                                                  '(XXX.XX)']
         I_einzel_str            = ['I',                                                                                                         'I']
         U_einzel_str            = ['U',                                                                                                         'U']
         f_einzel_str            = ['f',                                                                                                         'f']
         P_einzel_str            = ['P',                                                                                                         'P']
+        x_einzel_str            = ['x',                                                                                                         'x']
         self.einheit_I_einzel   = ['A',                                                                                                         'A']
         self.einheit_U_einzel   = ['V',                                                                                                         'V']
         self.einheit_P_einzel   = ['kW',                                                                                                        'kW']
         self.einheit_f_einzel   = ['kHz',                                                                                                       'kHz']
+        self.einheit_x_einzel   = [f'{self.unit_PIDIn}',                                                                                        f'{self.unit_PIDIn}']
+        PID_Von_1               = ['Wert von Multilog',                                                                                         'Value of Multilog']
+        PID_Von_2               = ['Wert von VIFCON',                                                                                           'Value ofVIFCON']
+        PID_Zusatz              = ['ex,',                                                                                                       'ex,']
+        self.PID_Out            = ['PID-Out.',  'PID-Out.']
+        self.PID_Out_P          = ['(P):',      '(P):']
+        self.PID_Out_I          = ['(I):',      '(I):']
+        self.PID_Out_U          = ['(U):',      '(U):']
         ## Fehlermeldungen:   
         self.err_0_str          = ['Fehler!',                                                                                                   'Error!']                  
         self.err_1_str          = ['Keine Eingabe!',                                                                                            'No input!']
@@ -181,8 +200,15 @@ class TruHeatWidget(QWidget):
         self.Log_Text_39_str    = ['Rezept:',                                                                                                   'Recipe:']
         self.Log_Text_40_str    = ['Rezept Inhalt:',                                                                                            'Recipe content:']
         self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                     'Update configuration (update limits):']
-        self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
-        self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                          'Error reason (Problem with recipe configuration)']
+        self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liegt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',                                                                                              'The value in the config is outside the limit range! Switching value is set to minimum limit!']
+        self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                                                                                                                       'Error reason (reading recipe):']
+        self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                                                                                                                      'Error reason (Problem with recipe configuration)']
+        self.Log_Text_EPID_1    = ['Update Konfiguration (Update PID-Parameter Eurotherm):',                                                                                                                                                'Update configuration (update PID parameters Eurotherm):']
+        self.Log_Text_EPID_2    = ['Der Wert',                                                                                                                                                                                              'The value']
+        self.Log_Text_EPID_3    = ['liegt außerhalb des Bereiches 0 bis 99999! Senden verhindert!',                                                                                                                                         'is outside the range 0 to 99999! Sending prevented!']
+        self.Log_Text_EPID_4    = ['Beim Vorbereiten des Sendens der neuen PID-Parameter gab es einen Fehler!',                                                                                                                             'There was an error while preparing to send the new PID parameters!']
+        self.Log_Text_EPID_5    = ['Einlese-Fehler der\nneuen Eurotherm PID-Parameter!',                                                                                                                                                    'Error reading the\nnew Eurotherm PID parameters!']
+        self.Log_Text_EPID_6    = ['Fehlergrund (PID-Parameter):',                                                                                                                                                                          'Reason for error (PID parameter):']
         self.Log_Text_LB_1      = ['Limitbereich',                                                                                              'Limit range']
         self.Log_Text_LB_2      = ['Strom',                                                                                                     'Current']
         self.Log_Text_LB_3      = ['Spannung',                                                                                                  'Voltage']
@@ -213,6 +239,10 @@ class TruHeatWidget(QWidget):
         self.Text_89_str        = ['Knopf betätigt - Beende Rezept - Keine Wirkung, da kein aktives Rezept!',                                   'Button pressed - End recipe - No effect because there is no active recipe!']
         self.Text_90_str        = ['Sicherer Endzustand wird hergestellt! Auslösung des Stopp-Knopfes!',                                        'Safe final state is established! Stop button is activated!']
         self.Text_91_str        = ['Rezept Beenden - Sicherer Endzustand',                                                                      'Recipe Ends - Safe End State']
+        self.Text_PID_1         = ['Wechsel in PID-Modus.',                                                                                     'Switch to PID mode.']
+        self.Text_PID_2         = ['Wechsel in Eurotherm-Regel-Modus.',                                                                         'Switch to Eurotherm control mode.']
+        self.Text_PID_3         = ['Moduswechsel! Auslösung des Stopp-Knopfes aus Sicherheitsgründen!',                                         'Mode change! Stop button triggered for safety reasons!']
+        self.Text_PID_4         = ['Rezept Beenden! Wechsel des Modus!',                                                                        'End recipe! Change mode!']
         ## Print:   
         self.ExPrint_str        = ['ACHTUNG: Keine regelmäßigen Lese-Befehle - RS232-User watchdog deaktivieren (auf Null stellen)!',           'ATTENTION: No regular read commands - deactivate RS232 user watchdog (set to zero)!']
         ## Message-Box:
@@ -223,8 +253,8 @@ class TruHeatWidget(QWidget):
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = True
-        self.write_task = {'Soll-Leistung': False, 'Soll-Strom': False, 'Soll-Spannung': False, 'Init':False, 'Ein': False, 'Aus': False, 'Start':False}
-        self.write_value = {'Sollwert': 0}
+        self.write_task  = {'Soll-Leistung': False, 'Soll-Strom': False, 'Soll-Spannung': False, 'Init':False, 'Ein': False, 'Aus': False, 'Start':False, 'Update Limit': False}
+        self.write_value = {'Sollwert': 0, 'Limits': [0, 0, 0, 0, False], 'PID': False, 'PID-Sollwert': 0, 'Limit Unit':self.einheit_P_einzel[self.sprache], 'PID Output-Size': 'P'} # Limits: oGWahl, uGWahl, oGx, uGx, Input Update True?
 
         if self.init and not self.neustart:
             self.write_task['Start'] = True
@@ -269,9 +299,9 @@ class TruHeatWidget(QWidget):
         self.layer_layout.setRowMinimumHeight(4, 40)    # Error-Nachricht
 
         ### Spaltenbreiten:
-        self.layer_layout.setColumnMinimumWidth(0, 100)
-        self.layer_layout.setColumnMinimumWidth(1, 105)
-        self.layer_layout.setColumnMinimumWidth(3, 120)
+        self.layer_layout.setColumnMinimumWidth(0, 120)
+        self.layer_layout.setColumnMinimumWidth(1, 150)
+        self.layer_layout.setColumnMinimumWidth(3, 160)
         #________________________________________
         ## Widgets:
         ### Eingabefelder:
@@ -287,16 +317,19 @@ class TruHeatWidget(QWidget):
         ### Checkbox:
         self.Auswahl = QCheckBox(cb_sync_str[self.sprache])
 
+        self.PID_cb  = QCheckBox(cb_PID[self.sprache])
+        self.PID_cb.clicked.connect(self.PID_ON_OFF)
+
         ### Radiobutton:
-        self.RB_choise_Pow = QRadioButton(f'{sollwert_str[self.sprache]}-{P_str[self.sprache]} ')
+        self.RB_choise_Pow = QRadioButton(f'{self.sollwert_str[self.sprache]}-{self.P_str[self.sprache]} ')
         if self.color_Aktiv: self.RB_choise_Pow.setStyleSheet(f"color: {self.color[0]}")
         self.RB_choise_Pow.clicked.connect(self.BlassOutUI)
 
-        self.RB_choise_Voltage = QRadioButton(f'{sollwert_str[self.sprache]}-{U_str[self.sprache]} ')
+        self.RB_choise_Voltage = QRadioButton(f'{self.sollwert_str[self.sprache]}-{self.U_str[self.sprache]} ')
         if self.color_Aktiv: self.RB_choise_Voltage.setStyleSheet(f"color: {self.color[1]}")
         self.RB_choise_Voltage.clicked.connect(self.BlassOutPI)
 
-        self.RB_choise_Current = QRadioButton(f'{sollwert_str[self.sprache]}-{I_str[self.sprache]} ')
+        self.RB_choise_Current = QRadioButton(f'{self.sollwert_str[self.sprache]}-{self.I_str[self.sprache]} ')
         if self.color_Aktiv: self.RB_choise_Current.setStyleSheet(f"color: {self.color[2]}")
         self.RB_choise_Current.clicked.connect(self.BlassOutPU)
 
@@ -329,6 +362,23 @@ class TruHeatWidget(QWidget):
         if self.color_Aktiv: self.La_IstFre_wert.setStyleSheet(f"color: {self.color[6]}")
         #### Fehlernachrichten:
         self.La_error = QLabel(self.err_13_str[self.sprache])
+        #### Soll-Größe PID-Modus:
+        self.La_SollPID_text = QLabel(f'{self.sollwert_str[self.sprache]}-{self.sx_str[self.sprache]} ')
+        self.La_SollPID_wert = QLabel(st_x_str[self.sprache])
+        if self.color_Aktiv: self.La_SollPID_text.setStyleSheet(f"color: {self.color[10]}")
+        if self.color_Aktiv: self.La_SollPID_wert.setStyleSheet(f"color: {self.color[10]}")
+        #### Ist-Größe PID-Modus:
+        self.La_IstPID_text = QLabel(f'{istwert_str[self.sprache]}-{self.sx_str[self.sprache]} ')
+        self.La_IstPID_wert = QLabel(st_x_str[self.sprache])
+        if self.color_Aktiv: self.La_IstPID_text.setStyleSheet(f"color: {self.color[11]}")
+        if self.color_Aktiv: self.La_IstPID_wert.setStyleSheet(f"color: {self.color[11]}")
+        #### Soll-Größen:
+        self.La_SollP_wert = QLabel(st_Wsoll_str[self.sprache])
+        if self.color_Aktiv: self.La_SollP_wert.setStyleSheet(f"color: {self.color[0]}")
+        self.La_SollU_wert = QLabel(st_Wsoll_str[self.sprache])
+        if self.color_Aktiv: self.La_SollU_wert.setStyleSheet(f"color: {self.color[1]}")
+        self.La_SollI_wert = QLabel(st_Wsoll_str[self.sprache])
+        if self.color_Aktiv: self.La_SollI_wert.setStyleSheet(f"color: {self.color[2]}")
 
         ### Knöpfe:
         #### Senden:
@@ -389,6 +439,21 @@ class TruHeatWidget(QWidget):
 
         self.btn_Rezept_layout.setContentsMargins(0,0,0,0)      # left, top, right, bottom
 
+        #### Soll-Werte und Eingabefeld:
+        wid_list       = [[self.LE_Pow, self.La_SollP_wert], [self.LE_Voltage, self.La_SollU_wert], [self.LE_Current, self.La_SollI_wert]]
+        group_wid_list = []
+        for n in wid_list:
+            wid_group_Soll  = QWidget()
+            wid_Soll_layout = QHBoxLayout()
+            wid_group_Soll.setLayout(wid_Soll_layout)
+            wid_Soll_layout.setSpacing(5)
+
+            wid_Soll_layout.addWidget(n[0])
+            wid_Soll_layout.addWidget(n[1])
+
+            wid_Soll_layout.setContentsMargins(0,0,0,0)
+            group_wid_list.append(wid_group_Soll) # P, U, I
+
         #### First-Row:
         self.first_row_group  = QWidget()
         self.first_row_layout = QHBoxLayout()
@@ -397,8 +462,37 @@ class TruHeatWidget(QWidget):
 
         self.first_row_layout.addWidget(self.La_name)
         self.first_row_layout.addWidget(self.Auswahl)
+        self.first_row_layout.addWidget(self.PID_cb)
 
         self.first_row_layout.setContentsMargins(0,0,0,0)      # left, top, right, bottom
+        
+        #### Label-Werte:
+        W_spalte = 80
+
+        label_list      = [self.La_IstPow_text, self.La_IstVoltage_text, self.La_IstCurrent_text, self.La_IstFre_text, self.La_IstPID_text, self.La_SollPID_text]
+        label_unit_list = [self.La_IstPow_wert, self.La_IstVoltage_wert, self.La_IstCurrent_wert, self.La_IstFre_wert, self.La_IstPID_wert, self.La_SollPID_wert]
+        widget_list     = []
+        count = 0
+        
+        for n in label_list:
+            W = QWidget()
+            W_layout = QGridLayout()
+            W.setLayout(W_layout)
+            W_layout.addWidget(n, 0 , 0)
+            W_layout.addWidget(label_unit_list[count], 0 , 1 , alignment=Qt.AlignLeft)
+            W_layout.setContentsMargins(0,0,0,0)
+            W_layout.setColumnMinimumWidth(0, W_spalte)
+            widget_list.append(W)
+            count += 1
+        
+        self.V = QWidget()
+        self.V_layout = QVBoxLayout()
+        self.V.setLayout(self.V_layout)
+        self.V_layout.setSpacing(0)
+        for n in widget_list:
+            self.V_layout.addWidget(n)
+        self.V_layout.setContentsMargins(0,0,0,0)
+        
         #________________________________________
         ## Platzierung der einzelnen Widgets im Layout:
         self.layer_layout.addWidget(self.first_row_group,       0, 0, 1, 5, alignment=Qt.AlignLeft)  # Reihe, Spalte, RowSpan, ColumSpan, Ausrichtung
@@ -406,18 +500,11 @@ class TruHeatWidget(QWidget):
         self.layer_layout.addWidget(self.RB_choise_Voltage,     2, 0)
         self.layer_layout.addWidget(self.RB_choise_Current,     3, 0)
         self.layer_layout.addWidget(self.btn_send_value,        4, 0) 
-        self.layer_layout.addWidget(self.LE_Pow,                1, 1)
-        self.layer_layout.addWidget(self.LE_Voltage,            2, 1)
-        self.layer_layout.addWidget(self.LE_Current,            3, 1)
+        self.layer_layout.addWidget(group_wid_list[0],          1, 1, alignment=Qt.AlignLeft)
+        self.layer_layout.addWidget(group_wid_list[1],          2, 1, alignment=Qt.AlignLeft)
+        self.layer_layout.addWidget(group_wid_list[2],          3, 1, alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(self.La_error,              4, 1) 
-        self.layer_layout.addWidget(self.La_IstPow_text,        1, 2)
-        self.layer_layout.addWidget(self.La_IstVoltage_text,    2, 2)
-        self.layer_layout.addWidget(self.La_IstCurrent_text,    3, 2)
-        self.layer_layout.addWidget(self.La_IstFre_text,        4, 2)
-        self.layer_layout.addWidget(self.La_IstPow_wert,        1, 3, alignment=Qt.AlignLeft)
-        self.layer_layout.addWidget(self.La_IstVoltage_wert,    2, 3, alignment=Qt.AlignLeft)
-        self.layer_layout.addWidget(self.La_IstCurrent_wert,    3, 3, alignment=Qt.AlignLeft)
-        self.layer_layout.addWidget(self.La_IstFre_wert,        4, 3, alignment=Qt.AlignLeft)
+        self.layer_layout.addWidget(self.V,                     1, 2, 4, 2, alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(self.btn_group_Rezept,      1, 4, 3, 1, alignment=Qt.AlignTop)
         self.layer_layout.addWidget(self.btn_group,             1, 5, 4, 1, alignment=Qt.AlignTop)
         #________________________________________
@@ -427,13 +514,14 @@ class TruHeatWidget(QWidget):
         self.btn_Ein.setIconSize(QSize(50, 50))
 
         ### Eingabefelder (Line Edit):
-        self.LE_Pow.setFixedWidth(100)
+        width = 70
+        self.LE_Pow.setFixedWidth(width)
         self.LE_Pow.setFixedHeight(25)
 
-        self.LE_Voltage.setFixedWidth(100)
+        self.LE_Voltage.setFixedWidth(width)
         self.LE_Voltage.setFixedHeight(25)
 
-        self.LE_Current.setFixedWidth(100)
+        self.LE_Current.setFixedWidth(width)
         self.LE_Current.setFixedHeight(25)
 
         ### Rezpt-Funktionen:
@@ -448,23 +536,46 @@ class TruHeatWidget(QWidget):
         #---------------------------------------
         # Kurven:
         #---------------------------------------
+        ## PID-Modus:
+        origin = self.config['PID']['Value_Origin'].upper()
+        ### Istwert:
+        PID_Export_Ist = ''
+        if origin[0] == 'V': PID_Label_Ist = PID_Von_2[sprache]
+        elif origin [0] == 'M':     
+            PID_Label_Ist  = PID_Von_1[sprache]
+            PID_Export_Ist = PID_Zusatz[sprache]
+        else:                PID_Label_Ist = PID_Von_2[sprache]
+        ### Sollwert
+        PID_Export_Soll = ''
+        if origin[1] == 'V':  PID_Label_Soll = PID_Von_2[sprache]
+        elif origin [1] == 'M':     
+            PID_Label_Soll  = PID_Von_1[sprache]
+            PID_Export_Soll = PID_Zusatz[sprache]
+        else:                 PID_Label_Soll = PID_Von_2[sprache]
+
+        ### Start Wert:
+        self.write_value['PID-Sollwert'] = self.config['PID']['start_soll']
+
         kurv_dict = {                                                                   # Wert: [Achse, Farbe/Stift, Name]
-            'IWI':  ['a1', pg.mkPen(self.color[5], width=2),                            f'{truheat} - {I_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'SWI':  ['a1', pg.mkPen(self.color[2]),                                     f'{truheat} - {I_einzel_str[self.sprache]}<sub>{sollwert_str[self.sprache]}</sub>'],
-            'IWU':  ['a1', pg.mkPen(self.color[4], width=2),                            f'{truheat} - {U_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'SWU':  ['a1', pg.mkPen(self.color[1]),                                     f'{truheat} - {U_einzel_str[self.sprache]}<sub>{sollwert_str[self.sprache]}</sub>'],
-            'IWP':  ['a2', pg.mkPen(self.color[3], width=2),                            f'{truheat} - {P_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'SWP':  ['a2', pg.mkPen(self.color[0]),                                     f'{truheat} - {P_einzel_str[self.sprache]}<sub>{sollwert_str[self.sprache]}</sub>'],
-            'IWf':  ['a2', pg.mkPen(self.color[6], width=2),                            f'{truheat} - {f_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'oGI':  ['a1', pg.mkPen(color=self.color[5], style=Qt.DashLine),            f'{truheat} - {I_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGI':  ['a1', pg.mkPen(color=self.color[5], style=Qt.DashDotDotLine),      f'{truheat} - {I_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'oGU':  ['a1', pg.mkPen(color=self.color[4], style=Qt.DashLine),            f'{truheat} - {U_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGU':  ['a1', pg.mkPen(color=self.color[4], style=Qt.DashDotDotLine),      f'{truheat} - {U_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'oGP':  ['a2', pg.mkPen(color=self.color[3], style=Qt.DashLine),            f'{truheat} - {P_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGP':  ['a2', pg.mkPen(color=self.color[3], style=Qt.DashDotDotLine),      f'{truheat} - {P_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'RezI': ['a1', pg.mkPen(color=self.color[9], width=3, style=Qt.DotLine),    f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{I_einzel_str[self.sprache]}</sub>'],
-            'RezU': ['a1', pg.mkPen(color=self.color[8], width=3, style=Qt.DotLine),    f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{U_einzel_str[self.sprache]}</sub>'],
-            'RezP': ['a2', pg.mkPen(color=self.color[7], width=3, style=Qt.DotLine),    f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{P_einzel_str[self.sprache]}</sub>']
+            'IWI':      ['a1', pg.mkPen(self.color[5], width=2),                            f'{truheat} - {I_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'SWI':      ['a1', pg.mkPen(self.color[2]),                                     f'{truheat} - {I_einzel_str[self.sprache]}<sub>{self.sollwert_str[self.sprache]}</sub>'],
+            'IWU':      ['a1', pg.mkPen(self.color[4], width=2),                            f'{truheat} - {U_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'SWU':      ['a1', pg.mkPen(self.color[1]),                                     f'{truheat} - {U_einzel_str[self.sprache]}<sub>{self.sollwert_str[self.sprache]}</sub>'],
+            'IWP':      ['a2', pg.mkPen(self.color[3], width=2),                            f'{truheat} - {P_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'SWP':      ['a2', pg.mkPen(self.color[0]),                                     f'{truheat} - {P_einzel_str[self.sprache]}<sub>{self.sollwert_str[self.sprache]}</sub>'],
+            'IWf':      ['a2', pg.mkPen(self.color[6], width=2),                            f'{truheat} - {f_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'oGI':      ['a1', pg.mkPen(color=self.color[5], style=Qt.DashLine),            f'{truheat} - {I_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGI':      ['a1', pg.mkPen(color=self.color[5], style=Qt.DashDotDotLine),      f'{truheat} - {I_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'oGU':      ['a1', pg.mkPen(color=self.color[4], style=Qt.DashLine),            f'{truheat} - {U_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGU':      ['a1', pg.mkPen(color=self.color[4], style=Qt.DashDotDotLine),      f'{truheat} - {U_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'oGP':      ['a2', pg.mkPen(color=self.color[3], style=Qt.DashLine),            f'{truheat} - {P_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGP':      ['a2', pg.mkPen(color=self.color[3], style=Qt.DashDotDotLine),      f'{truheat} - {P_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'RezI':     ['a1', pg.mkPen(color=self.color[9], width=3, style=Qt.DotLine),    f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{I_einzel_str[self.sprache]}</sub>'],
+            'RezU':     ['a1', pg.mkPen(color=self.color[8], width=3, style=Qt.DotLine),    f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{U_einzel_str[self.sprache]}</sub>'],
+            'RezP':     ['a2', pg.mkPen(color=self.color[7], width=3, style=Qt.DotLine),    f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{P_einzel_str[self.sprache]}</sub>'],
+            'SWxPID':   ['a1', pg.mkPen(self.color[10], width=2, style=Qt.DashDotLine),     f'{PID_Label_Soll} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{self.sollwert_str[self.sprache]}</sub>'], 
+            'IWxPID':   ['a1', pg.mkPen(self.color[11], width=2, style=Qt.DashDotLine),     f'{PID_Label_Ist} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
+            'Rezx':     ['a1', pg.mkPen(color=self.color[12], width=3, style=Qt.DotLine),   f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{x_einzel_str[self.sprache]}</sub>'],
         }
         
         ## Kurven erstellen:
@@ -510,7 +621,10 @@ class TruHeatWidget(QWidget):
         self.SWIList     = []
         self.SWUList     = []
         self.SWPList     = []
-        # ### Grenzen
+        
+        self.sollxPID    = []
+        self.istxPID     = []
+        ### Grenzen
         self.IoGList     = []
         self.IuGList     = []
         self.PoGList     = []
@@ -521,12 +635,12 @@ class TruHeatWidget(QWidget):
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
-        self.curveDict      = {'IWP': '', 'IWU': '', 'IWI': '', 'IWf': '', 'SWP': '', 'SWU': '', 'SWI': '', 'oGI':'', 'uGI':'', 'oGU':'', 'uGU':'', 'oGP':'', 'uGP':'', 'RezI':'', 'RezU':'', 'RezP':''}                         # Kurven
+        self.curveDict      = {'IWP': '', 'IWU': '', 'IWI': '', 'IWf': '', 'SWP': '', 'SWU': '', 'SWI': '', 'oGI':'', 'uGI':'', 'oGU':'', 'uGU':'', 'oGP':'', 'uGP':'', 'RezI':'', 'RezU':'', 'RezP':'', 'SWTPID':'', 'IWTPID':'', 'Rezx': ''}                                                                                                                                                                              # Kurven
         for kurve in self.kurven_dict: 
             self.curveDict[kurve] = self.kurven_dict[kurve]
-        self.labelDict      = {'IWP': self.La_IstPow_wert,                                  'IWU': self.La_IstVoltage_wert,                              'IWI': self.La_IstCurrent_wert,                'IWf': self.La_IstFre_wert}                                                                     # Label
-        self.labelUnitDict  = {'IWP': self.einheit_P_einzel[self.sprache],                  'IWU': self.einheit_U_einzel[self.sprache],                  'IWI': self.einheit_I_einzel[self.sprache],    'IWf': self.einheit_f_einzel[self.sprache]}                                                     # Einheit
-        self.listDict       = {'IWP': self.IWPList,                                         'IWU': self.IWUList,                                         'IWI': self.IWIList,                           'IWf': self.IWfList,        'SWP': self.SWPList,  'SWU': self.SWUList,  'SWI': self.SWIList}    # Werte-Listen
+        self.labelDict      = {'IWP': self.La_IstPow_wert,                                  'IWU': self.La_IstVoltage_wert,                              'IWI': self.La_IstCurrent_wert,                'IWf': self.La_IstFre_wert,                       'IWxPID': self.La_IstPID_wert,                 'SWxPID': self.La_SollPID_wert, 'SWP': self.La_SollP_wert,  'SWU': self.La_SollU_wert,  'SWI': self.La_SollI_wert}  # Label
+        self.labelUnitDict  = {'IWP': self.einheit_P_einzel[self.sprache],                  'IWU': self.einheit_U_einzel[self.sprache],                  'IWI': self.einheit_I_einzel[self.sprache],    'IWf': self.einheit_f_einzel[self.sprache],       'IWxPID': self.einheit_x_einzel[self.sprache], 'SWxPID': self.einheit_x_einzel[self.sprache]}                                                                      # Einheit
+        self.listDict       = {'IWP': self.IWPList,                                         'IWU': self.IWUList,                                         'IWI': self.IWIList,                           'IWf': self.IWfList,                              'IWxPID': self.istxPID,                        'SWxPID': self.sollxPID,        'SWP': self.SWPList,        'SWU': self.SWUList,        'SWI': self.SWIList}        # Werte-Listen
         self.grenzListDict  = {'oGP': self.PoGList,     'uGP': self.PuGList,                'oGU': self.UoGList,             'uGU': self.UuGList,        'oGI': self.IoGList,  'uGI': self.IuGList}
         self.grenzValueDict = {'oGP': self.oGP,         'uGP': self.uGP,                    'oGU': self.oGU,                 'uGU': self.uGU,            'oGI': self.oGI,      'uGI': self.uGI}
 
@@ -541,6 +655,8 @@ class TruHeatWidget(QWidget):
                 self.skalFak_dict.update({size: self.skalFak['Voltage']})
             if 'Wf' in size:
                 self.skalFak_dict.update({size: self.skalFak['Freq']})
+            if 'Wx' in size:
+                self.skalFak_dict.update({size: self.skalFak['PIDG']})
 
         #---------------------------------------
         # Timer:
@@ -606,25 +722,30 @@ class TruHeatWidget(QWidget):
     ##########################################
     # Fehlermedlung:
     ##########################################
-    def Fehler_Output(self, Fehler, error_Message_Log_GUI = '', error_Message_Ablauf = ''):
+    def Fehler_Output(self, Fehler, error_Message_Log_GUI = '', error_Message_Ablauf = '', device = ''):
         ''' Erstelle Fehler-Nachricht für GUI, Ablaufdatei und Logging
         Args:
             Fehler (bool):                  False -> o.k. (schwarz), True -> Fehler (rot, bold)
             error_Message_Log_GUI (str):    Nachricht die im Log und der GUI angezeigt wird
             error_Message_Ablauf (str):     Nachricht für die Ablaufdatei
-        ''' 
+            device (str):                   Wenn ein anderes Gerät genutzt wird (z.B. PID)
+        '''
+        if device == '':
+            device_name = self.device_name
+        else:
+            device_name = device 
         if Fehler:
             self.La_error.setText(self.err_0_str[self.sprache])
             self.La_error.setToolTip(error_Message_Log_GUI)  
             self.La_error.setStyleSheet(f"color: red; font-weight: bold")
             log_vorberietung = error_Message_Log_GUI.replace("\n"," ")
-            logger.error(f'{self.device_name} - {log_vorberietung}')
+            logger.error(f'{device_name} - {log_vorberietung}')
         else:
             self.La_error.setText(self.err_13_str[self.sprache])
             self.La_error.setToolTip('')
             self.La_error.setStyleSheet(f"color: black; font-weight: normal")
         if not error_Message_Ablauf == '':
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {error_Message_Ablauf}') 
+                self.add_Text_To_Ablauf_Datei(f'{device_name} - {error_Message_Ablauf}') 
         
     ##########################################
     # Reaktion auf Radio-Butttons:
@@ -663,35 +784,45 @@ class TruHeatWidget(QWidget):
         - Sage Programm Bescheid das Knopf betätigt wurde!
         '''
         if self.init:
-            # Wenn der Radio-Button der Solltemperatur gewählt ist:
+            ## Wenn der Radio-Button der Solltemperatur gewählt ist:
             if self.RB_choise_Pow.isChecked():
                 sollwert = self.LE_Pow.text().replace(",", ".")
-                self.write_task['Soll-Leistung'] = True
-                self.write_task['Soll-Spannung'] = False
+                if not self.PID_cb.isChecked():
+                    self.write_task['Soll-Leistung'] = True
+                self.write_task['Soll-Spannung'] = False 
                 self.write_task['Soll-Strom'] = False
                 oG, uG = self.oGP, self.uGP
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_16_str[self.sprache]}')
-            # Wenn der Radio-Button der Sollspannung gewählt ist:
+            ## Wenn der Radio-Button der Sollspannung gewählt ist:
             elif self.RB_choise_Voltage.isChecked():
                 sollwert = self.LE_Voltage.text().replace(",", ".")
                 self.write_task['Soll-Leistung'] = False
-                self.write_task['Soll-Spannung'] = True
+                if not self.PID_cb.isChecked():
+                    self.write_task['Soll-Spannung'] = True
                 self.write_task['Soll-Strom'] = False
                 oG, uG = self.oGU, self.uGU
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_17_str[self.sprache]}')
-            # Wenn der Radio-Button der Sollspannung gewählt ist:
+            ## Wenn der Radio-Button der Sollspannung gewählt ist:
             else:
                 sollwert = self.LE_Current.text().replace(",", ".")
                 self.write_task['Soll-Leistung'] = False
                 self.write_task['Soll-Spannung'] = False
-                self.write_task['Soll-Strom'] = True
+                if not self.PID_cb.isChecked():
+                    self.write_task['Soll-Strom'] = True
                 oG, uG = self.oGI, self.uGI
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_18_str[self.sprache]}')
+            # PID-Modus:
+            if self.PID_cb.isChecked():
+                self.write_task['Soll-Leistung'] = False
+                self.write_task['Soll-Spannung'] = False
+                self.write_task['Soll-Strom'] = False
+                oG, uG = self.oGx, self.uGx
             # Kontrolliere die Eingabe im Eingabefeld:
             sollwert = self.controll_value(sollwert, oG, uG)
             # Ist alles in Ordnung, dann Gebe dem Programm Bescheid, das es den Wert schreiben kann:
             if sollwert != -1:
-                self.write_value['Sollwert'] = sollwert
+                if not self.PID_cb.isChecked(): self.write_value['Sollwert']     = sollwert
+                else:                           self.write_value['PID-Sollwert'] = sollwert
             else:
                 self.write_task['Soll-Leistung'] = False
                 self.write_task['Soll-Spannung'] = False
@@ -745,21 +876,145 @@ class TruHeatWidget(QWidget):
                 logger.exception(f"{self.device_name} - {self.Log_Text_38_str[self.sprache]}")
                                 
         return -1
+    
+    ##########################################
+    # Reaktion Checkbox:
+    ##########################################    
+    def PID_ON_OFF(self):                       
+        if self.PID_cb.isChecked():
+            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
+            # Aufgaben setzen:
+            self.write_value['PID']          = True
+            self.write_task['Soll-Leistung'] = False
+            self.write_task['Soll-Spannung'] = False
+            self.write_task['Soll-Strom']    = False
 
+            # Zugriff freigeben, Speeren, GUI-ändern:
+            if self.RB_choise_Current.isChecked(): 
+                self.LE_Current.setEnabled(True)
+                self.LE_Pow.setEnabled(False)
+                self.LE_Voltage.setEnabled(False)
+                label = self.RB_choise_Current
+                self.write_value['Limit Unit']      = self.einheit_I_einzel
+                self.write_value['PID Output-Size'] = 'I'
+                uG, oG = self.uGI, self.oGI
+                if self.color_Aktiv: self.La_SollI_wert.setStyleSheet(f"color: {self.color[10]}")
+                self.La_SollPID_text.setText(f'{self.PID_Out[self.sprache]} {self.PID_Out_I[self.sprache]}')
+                color_Size = 2
+            elif self.RB_choise_Pow.isChecked():  
+                self.LE_Current.setEnabled(False)
+                self.LE_Pow.setEnabled(True)
+                self.LE_Voltage.setEnabled(False)
+                label = self.RB_choise_Pow
+                self.write_value['Limit Unit']      = self.einheit_P_einzel
+                self.write_value['PID Output-Size'] = 'P'
+                uG, oG = self.uGP, self.oGP
+                if self.color_Aktiv: self.La_SollP_wert.setStyleSheet(f"color: {self.color[10]}")
+                self.La_SollPID_text.setText(f'{self.PID_Out[self.sprache]} {self.PID_Out_P[self.sprache]}')
+                color_Size = 0
+            elif self.RB_choise_Voltage.isChecked():   
+                self.LE_Current.setEnabled(False)
+                self.LE_Pow.setEnabled(False)
+                self.LE_Voltage.setEnabled(True)
+                label = self.RB_choise_Voltage
+                self.write_value['Limit Unit']      = self.einheit_U_einzel
+                self.write_value['PID Output-Size'] = 'U'
+                uG, oG = self.uGU, self.oGU
+                if self.color_Aktiv: self.La_SollU_wert.setStyleSheet(f"color: {self.color[10]}")
+                self.La_SollPID_text.setText(f'{self.PID_Out[self.sprache]} {self.PID_Out_U[self.sprache]}')
+                color_Size = 1
+
+            label.setText(f'{self.sollwert_str[self.sprache]}-{self.x_str[self.sprache]}')
+            if self.color_Aktiv: label.setStyleSheet(f"color: {self.color[10]}")
+            if self.color_Aktiv: self.La_SollPID_text.setStyleSheet(f"color: {self.color[color_Size]}")
+            if self.color_Aktiv: self.La_SollPID_wert.setStyleSheet(f"color: {self.color[color_Size]}")
+
+            self.write_task['Update Limit'] = True
+            self.write_value['Limits']      = [oG, uG, self.oGx, self.uGx, False] 
+
+            # Zugriff sperren:
+            self.RB_choise_Pow.setEnabled(False)
+            self.RB_choise_Current.setEnabled(False)
+            self.RB_choise_Voltage.setEnabled(False)
+        else:
+            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
+            # Aufgaben setzen:
+            self.write_value['PID']          = False
+            self.write_task['Soll-Leistung'] = False
+            self.write_task['Soll-Spannung'] = False
+            self.write_task['Soll-Strom']    = False  
+            try:
+                valueP = float(str(self.config['PID']['umstell_wert_P'].replace(',', '.')))
+                valueI = float(str(self.config['PID']['umstell_wert_I'].replace(',', '.')))
+                valueU = float(str(self.config['PID']['umstell_wert_U'].replace(',', '.')))
+            except:
+                valueI = 2.5
+                valueP = 0
+                valueU = 0
+            if self.RB_choise_Current.isChecked():
+                self.LE_Current.setText(str(valueI))
+                if self.color_Aktiv: self.La_SollI_wert.setStyleSheet(f"color: {self.color[2]}")
+                oG    = self.oGI
+                uG    = self.uGI
+                Task  = 'Soll-Strom'
+                label = self.RB_choise_Current
+                text  = self.I_str
+                cn    = 2
+                value = valueI
+            elif self.RB_choise_Pow.isChecked():
+                self.LE_Pow.setText(str(valueP))
+                if self.color_Aktiv: self.La_SollP_wert.setStyleSheet(f"color: {self.color[0]}") 
+                oG    = self.oGP
+                uG    = self.uGP
+                Task  = 'Soll-Leistung'
+                label = self.RB_choise_Pow
+                text  = self.P_str
+                cn    = 0
+                value = valueP
+            elif self.RB_choise_Voltage.isChecked():
+                self.LE_Voltage.setText(str(valueU))
+                if self.color_Aktiv: self.La_SollU_wert.setStyleSheet(f"color: {self.color[1]}")
+                oG    = self.oGU
+                uG    = self.uGU
+                Task  = 'Soll-Spannung'
+                label = self.RB_choise_Voltage
+                text  = self.U_str
+                cn    = 1
+                value = valueU
+            if value > oG or value < uG:
+                logger.warning(f"{self.device_name} - {self.Log_Text_PID_Ex[self.sprache]}") 
+                self.write_value[Task] = uG
+            else:
+                self.write_value[Task] = value
+
+            # GUI-ändern:             
+            label.setText(f'{self.sollwert_str[self.sprache]}-{text[self.sprache]}')
+            if self.color_Aktiv: label.setStyleSheet(f"color: {self.color[cn]}")    
+            self.La_SollPID_text.setText(f'{self.sollwert_str[self.sprache]}-{self.sx_str[self.sprache]}') 
+            if self.color_Aktiv: self.La_SollPID_text.setStyleSheet(f"color: {self.color[10]}")
+            if self.color_Aktiv: self.La_SollPID_wert.setStyleSheet(f"color: {self.color[10]}")       
+
+            # Zugriff sperren; Zugriff freigeben:
+            self.RB_choise_Pow.setEnabled(True)
+            self.RB_choise_Current.setEnabled(True)
+            self.RB_choise_Voltage.setEnabled(True)
+            
     ##########################################
     # Reaktion auf übergeordnete Butttons:
     ##########################################
     def Stopp(self, n = 3):
         ''' Setzt den Eurotherm in einen Sicheren Zustand '''
-        if n == 5:
-            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
-        self.RezEnde(n)
-        self.THAus()
-        self.write_value['Sollwert'] = 0
-        self.write_task['Soll-Leistung'] = True
-        self.write_task['Soll-Spannung'] = True
-        self.write_task['Soll-Strom'] = True
-
+        if self.init:
+            if n == 5:  self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
+            self.RezEnde(n)
+            self.THAus()
+            self.write_value['Sollwert'] = 0
+            self.write_task['Soll-Leistung'] = True
+            self.write_task['Soll-Spannung'] = True
+            self.write_task['Soll-Strom'] = True
+        else:
+            self.Fehler_Output(1, self.err_4_str[self.sprache])
+    
     def update_Limit(self):
         '''Lese die Config und Update die Limits'''
 
@@ -777,6 +1032,25 @@ class TruHeatWidget(QWidget):
         ### Sollspannung:
         self.oGU = config['devices'][self.device_name]["limits"]['maxU']        
         self.uGU = config['devices'][self.device_name]["limits"]['minU']
+        ### PID-Input-Output:
+        self.oGx = config['devices'][self.device_name]['PID']['Input_Limit_max']
+        self.uGx = config['devices'][self.device_name]['PID']['Input_Limit_min']
+
+        if self.RB_choise_Current.isChecked():
+            oG    = self.oGI
+            uG    = self.uGI
+            self.write_value['Limit Unit']  = self.einheit_I_einzel
+        elif self.RB_choise_Pow.isChecked():
+            oG    = self.oGP
+            uG    = self.uGP
+            self.write_value['Limit Unit']  = self.einheit_P_einzel
+        elif self.RB_choise_Voltage.isChecked():
+            oG    = self.oGU
+            uG    = self.uGU
+            self.write_value['Limit Unit']  = self.einheit_u_einzel
+
+        self.write_task['Update Limit']     = True
+        self.write_value['Limits']          = [oG, uG, self.oGx, self.uGx, True]
 
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGI} {self.Log_Text_LB_4[self.sprache]} {self.oGI} {self.einheit_I_einzel[self.sprache]}')
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGU} {self.Log_Text_LB_4[self.sprache]} {self.oGU} {self.einheit_U_einzel[self.sprache]}')
@@ -793,27 +1067,43 @@ class TruHeatWidget(QWidget):
             x_value (list):     Werte für die x-Achse
         '''
 
+        ## Kurven Update:
         self.data.update({'Time' : x_value[-1]})         
         self.data.update(value_dict)   
 
         for messung in value_dict:
-            if not 'SW' in messung:
-               self.labelDict[messung].setText(f'{value_dict[messung]} {self.labelUnitDict[messung]}')
+            if 'SW' in messung:
+                if messung =='SWxPID':
+                    if   self.PID_cb.isChecked() and self.RB_choise_Current.isChecked():    self.labelDict['SWI'].setText(f'({value_dict[messung]})')
+                    elif self.PID_cb.isChecked() and self.RB_choise_Voltage.isChecked():    self.labelDict['SWU'].setText(f'({value_dict[messung]})')
+                    elif self.PID_cb.isChecked() and self.RB_choise_Pow.isChecked():        self.labelDict['SWP'].setText(f'({value_dict[messung]})')
+                    else:                                                                   self.labelDict[messung].setText(f'{value_dict[messung]} {self.labelUnitDict[messung]}')
+                if messung == 'SWI':
+                    if   self.PID_cb.isChecked() and self.RB_choise_Current.isChecked():    self.labelDict['SWxPID'].setText(f'{value_dict[messung]} {self.labelUnitDict["IWI"]}')
+                    else:                                                                   self.labelDict[messung].setText(f'({value_dict[messung]})')
+                if messung == 'SWP':
+                    if   self.PID_cb.isChecked() and self.RB_choise_Pow.isChecked():        self.labelDict['SWxPID'].setText(f'{value_dict[messung]} {self.labelUnitDict["IWP"]}')
+                    else:                                                                   self.labelDict[messung].setText(f'({value_dict[messung]})')
+                if messung == 'SWU':
+                    if   self.PID_cb.isChecked() and self.RB_choise_Voltage.isChecked():    self.labelDict['SWxPID'].setText(f'{value_dict[messung]} {self.labelUnitDict["IWU"]}')
+                    else:                                                                   self.labelDict[messung].setText(f'({value_dict[messung]})')
+            else:
+                self.labelDict[messung].setText(f'{value_dict[messung]} {self.labelUnitDict[messung]}')
             self.listDict[messung].append(value_dict[messung])
             if not self.curveDict[messung] == '':
                 faktor = self.skalFak_dict[messung]
                 y = [a * faktor for a in self.listDict[messung]]
                 self.curveDict[messung].setData(x_value, y)
 
-        # Grenz-Kurven:
-        ## Update Grenzwert-Dictionary:
+        ## Grenz-Kurven:
+        ### Update Grenzwert-Dictionary:
         self.grenzValueDict['oGP'] = self.oGP * self.skalFak['Pow']
         self.grenzValueDict['uGP'] = self.uGP * self.skalFak['Pow']
         self.grenzValueDict['oGU'] = self.oGU * self.skalFak['Voltage']
         self.grenzValueDict['uGU'] = self.uGU * self.skalFak['Voltage']
         self.grenzValueDict['oGI'] = self.oGI * self.skalFak['Current']
         self.grenzValueDict['uGI'] = self.uGI * self.skalFak['Current']
-        ## Update-Kurven:
+        ### Update-Kurven:
         for kurve in self.kurven_dict:
             if kurve in self.grenzListDict:
                 self.grenzListDict[kurve].append(float(self.grenzValueDict[kurve]))
@@ -869,6 +1159,7 @@ class TruHeatWidget(QWidget):
         if not self.Rezept_Aktiv:
             if execute == 1: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_87_str[self.sprache]}')
             elif execute == 2: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_85_str[self.sprache]}')
+            
             # Variablen:
             self.step = 0
             self.Rezept_Aktiv = True
@@ -886,14 +1177,20 @@ class TruHeatWidget(QWidget):
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_24_str[self.sprache]} {self.cb_Rezept.currentText()} {self.rezept_datei}')                    
 
                 # Erstes Element senden und Kurve erstellen:
-                self.write_value['Sollwert'] = self.value_list[self.step]
-
-                if self.RB_choise_Pow.isChecked():
-                    self.write_task['Soll-Leistung'] = True
-                elif self.RB_choise_Voltage.isChecked():
-                    self.write_task['Soll-Spannung'] = True
-                elif self.RB_choise_Current.isChecked():
-                    self.write_task['Soll-Strom'] = True
+                if self.PID_cb.isChecked():
+                    self.write_value['PID-Sollwert'] = self.value_list[self.step]
+                    self.write_task['Soll-Leistung'] = False
+                    self.write_task['Soll-Spannung'] = False
+                    self.write_task['Soll-Strom']    = False
+                else:   
+                    self.write_value['Sollwert']     = self.value_list[self.step]
+                
+                    if self.RB_choise_Pow.isChecked():
+                        self.write_task['Soll-Leistung'] = True
+                    elif self.RB_choise_Voltage.isChecked():
+                        self.write_task['Soll-Spannung'] = True
+                    elif self.RB_choise_Current.isChecked():
+                        self.write_task['Soll-Strom'] = True
 
                 # Elemente GUI sperren:
                 self.cb_Rezept.setEnabled(False)
@@ -903,6 +1200,7 @@ class TruHeatWidget(QWidget):
                 self.RB_choise_Current.setEnabled(False)
                 self.btn_send_value.setEnabled(False)
                 self.Auswahl.setEnabled(False)
+                self.PID_cb.setEnabled(False)
 
                 # Timer Starten:
                 self.RezTimer.setInterval(int(abs(self.time_list[self.step]*1000)))
@@ -925,10 +1223,12 @@ class TruHeatWidget(QWidget):
 
             # Elemente GUI entsperren:
             self.cb_Rezept.setEnabled(True)
+            self.PID_cb.setEnabled(True)
             self.btn_rezept_start.setEnabled(True)
-            self.RB_choise_Pow.setEnabled(True)
-            self.RB_choise_Voltage.setEnabled(True)
-            self.RB_choise_Current.setEnabled(True)
+            if not self.PID_cb.isChecked():
+                self.RB_choise_Pow.setEnabled(True)
+                self.RB_choise_Voltage.setEnabled(True)
+                self.RB_choise_Current.setEnabled(True)
             self.btn_send_value.setEnabled(True)
             self.Auswahl.setEnabled(True)
 
@@ -955,14 +1255,20 @@ class TruHeatWidget(QWidget):
             self.RezTimer.setInterval(int(abs(self.time_list[self.step]*1000)))
 
             # Nächstes Element senden:
-            self.write_value['Sollwert'] = self.value_list[self.step]
+            if self.PID_cb.isChecked():
+                self.write_value['PID-Sollwert'] = self.value_list[self.step]
+                self.write_task['Soll-Leistung'] = False
+                self.write_task['Soll-Spannung'] = False
+                self.write_task['Soll-Strom']    = False
+            else:
+                self.write_value['Sollwert'] = self.value_list[self.step]
 
-            if self.RB_choise_Pow.isChecked():
-                self.write_task['Soll-Leistung'] = True
-            elif self.RB_choise_Voltage.isChecked():
-                self.write_task['Soll-Spannung'] = True
-            elif self.RB_choise_Current.isChecked():
-                self.write_task['Soll-Strom'] = True
+                if self.RB_choise_Pow.isChecked():
+                    self.write_task['Soll-Leistung'] = True
+                elif self.RB_choise_Voltage.isChecked():
+                    self.write_task['Soll-Spannung'] = True
+                elif self.RB_choise_Current.isChecked():
+                    self.write_task['Soll-Strom'] = True
     
     def Rezept_lesen_controll(self):
         ''' Rezept wird ausgelesen und kontrolliert. Bei Fehler werden die Fehlermeldungen beschrieben auf der GUI. 
@@ -988,6 +1294,11 @@ class TruHeatWidget(QWidget):
             uG = self.uGI
             oG = self.oGI
             ak_value = self.ak_value['IWI'] if not self.ak_value == {} else 0
+
+        ## PID-Limits:
+        if self.PID_cb.isChecked():
+            oG = self.oGx
+            uG = self.uGx 
 
         # Rezept lesen:
         rezept = self.cb_Rezept.currentText()  
@@ -1068,13 +1379,18 @@ class TruHeatWidget(QWidget):
 
         anzeigeI = True
         anzeigeP = True      
-        anzeigeU = True                         
-        try: self.curveDict['RezI'].setData(self.RezTimeList, self.RezValueList)
-        except: anzeigeI  = False
-        try: self.curveDict['RezU'].setData(self.RezTimeList, self.RezValueList)
-        except: anzeigeU = False   
-        try: self.curveDict['RezP'].setData(self.RezTimeList, self.RezValueList)
-        except: anzeigeP = False                          
+        anzeigeU = True
+        anzeigex = True
+        if self.PID_cb.isChecked():                        
+            try: self.curveDict['Rezx'].setData(self.RezTimeList, self.RezValueList)
+            except: anzeigex  = False      
+        else:                     
+            try: self.curveDict['RezI'].setData(self.RezTimeList, self.RezValueList)
+            except: anzeigeI  = False
+            try: self.curveDict['RezU'].setData(self.RezTimeList, self.RezValueList)
+            except: anzeigeU = False   
+            try: self.curveDict['RezP'].setData(self.RezTimeList, self.RezValueList)
+            except: anzeigeP = False                          
         
         # Startzeit bestimmen:
         ak_time_1 = datetime.datetime.now(datetime.timezone.utc).astimezone()                # Aktuelle Zeit Absolut
@@ -1098,25 +1414,34 @@ class TruHeatWidget(QWidget):
                 i += 1            
             
             # Kurve erstellen mit Skalierungsfaktor und Kurve Anzeigen:
+            # Kurve erstellen mit Skalierungsfaktor:
+            
             ## Leistung, Strom oder Spannung:
-            if self.RB_choise_Pow.isChecked():
-                faktor = self.skalFak['Pow']
-                y = [a * faktor for a in self.RezValueList]
-                if anzeigeP:
-                    self.curveDict['RezP'].setData(self.RezTimeList, y)
-                    self.typ_widget.plot.achse_2.autoRange()                    # Rezept Achse 2 wird nicht fertig angezeigt, aus dem Grund wird dies durchgeführt! Beim Enden wird die AutoRange Funktion von base_classes.py durchgeführt. Bewegung des Plots sind mit der Lösung nicht machbar!!
-                                                                                # Plot wird nur an Achse 1 (links) angepasst!
-            elif self.RB_choise_Voltage.isChecked():
-                faktor = self.skalFak['Voltage']
-                y = [a * faktor for a in self.RezValueList]
-                if anzeigeU:
-                    self.curveDict['RezU'].setData(self.RezTimeList, y)
-                    self.typ_widget.plot.achse_1.autoRange()
+            if not self.PID_cb.isChecked():
+                if self.RB_choise_Pow.isChecked():
+                    faktor = self.skalFak['Pow']
+                    y = [a * faktor for a in self.RezValueList]
+                    if anzeigeP:
+                        self.curveDict['RezP'].setData(self.RezTimeList, y)
+                        self.typ_widget.plot.achse_2.autoRange()                    # Rezept Achse 2 wird nicht fertig angezeigt, aus dem Grund wird dies durchgeführt! Beim Enden wird die AutoRange Funktion von base_classes.py durchgeführt. Bewegung des Plots sind mit der Lösung nicht machbar!!
+                                                                                    # Plot wird nur an Achse 1 (links) angepasst!
+                elif self.RB_choise_Voltage.isChecked():
+                    faktor = self.skalFak['Voltage']
+                    y = [a * faktor for a in self.RezValueList]
+                    if anzeigeU:
+                        self.curveDict['RezU'].setData(self.RezTimeList, y)
+                        self.typ_widget.plot.achse_1.autoRange()
+                else:
+                    faktor = self.skalFak['Current']
+                    y = [a * faktor for a in self.RezValueList]
+                    if anzeigeI:
+                        self.curveDict['RezI'].setData(self.RezTimeList, y)
+                        self.typ_widget.plot.achse_1.autoRange()
             else:
-                faktor = self.skalFak['Current']
+                faktor = self.skalFak['PIDG']
                 y = [a * faktor for a in self.RezValueList]
-                if anzeigeI:
-                    self.curveDict['RezI'].setData(self.RezTimeList, y)
+                if anzeigex:
+                    self.curveDict['Rezx'].setData(self.RezTimeList, y)
                     self.typ_widget.plot.achse_1.autoRange()
 
         return error                                                                    
@@ -1162,6 +1487,11 @@ class TruHeatWidget(QWidget):
 ## Bereich für alten Code, denn man noch nicht vollkommen löschen will,
 ## da dieser später vieleicht wieder ergänzt wird!!
 '''
-
+                if   self.PID_cb.isChecked() and self.RB_choise_Current.isChecked() and messung == 'SWxPID':    self.labelDict['SWI'].setText(f'({value_dict[messung]})')
+                elif messung == 'SWI':                                                                          self.labelDict[messung].setText(f'({value_dict[messung]})')
+                if   self.PID_cb.isChecked() and self.RB_choise_Pow.isChecked() and messung == 'SWxPID':        self.labelDict['SWP'].setText(f'({value_dict[messung]})')
+                elif messung == 'SWP':                                                                          self.labelDict[messung].setText(f'({value_dict[messung]})')
+                if   self.PID_cb.isChecked() and self.RB_choise_Voltage.isChecked() and messung == 'SWxPID':    self.labelDict['SWU'].setText(f'({value_dict[messung]})')
+                elif messung == 'SWU':                                                                          self.labelDict[messung].setText(f'({value_dict[messung]})')
 
 '''
