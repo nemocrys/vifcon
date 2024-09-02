@@ -11,10 +11,23 @@ PI-Achse Gerät:
 # ++++++++++++++++++++++++++++
 # Bibliotheken:
 # ++++++++++++++++++++++++++++
+## GUI:
+from PyQt5.QtCore import (
+    pyqtSignal,
+    QThread,
+    QTimer,
+    QObject
+)
+
 ## Allgemein:
 import logging
 from serial import Serial, SerialException
 import time
+import math as m
+import threading
+
+## Eigene:
+from .PID import PID
 
 # ++++++++++++++++++++++++++++
 # Programm:
@@ -32,7 +45,9 @@ class SerialMock:
         return "".encode()
 
 
-class PIAchse:
+class PIAchse(QObject):
+    signal_PID  = pyqtSignal(float, float, bool, float)
+
     def __init__(self, sprache, config, com_dict, test, neustart, multilog_aktiv, add_Ablauf_function, name="PI-Achse", typ = 'Antrieb'):
         """ Erstelle PI-Achse Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
@@ -47,6 +62,7 @@ class PIAchse:
             name (str, optional):               device name.
             typ (str, optional):                device name.
         """
+        super().__init__()
 
         #---------------------------------------
         # Variablen:
@@ -60,23 +76,28 @@ class PIAchse:
         self.device_name                = name
         self.typ                        = typ
 
-        ## Andere:
-        self.akPos      = 0
-        self.value_name = {'IWs': 0, 'IWv': 0}
-
         ## Aus Config:
         self.mercury_model  = self.config['mercury_model']  
         self.read_TT        = self.config['read_TT_log']
         ### Zum Start:
         self.init           = self.config['start']['init']                    # Initialisierung
         self.messZeit       = self.config['start']["readTime"]                # Auslesezeit
+        self.Ist            = self.config['PID']["start_ist"] 
+        self.Soll           = self.config['PID']["start_soll"]
         ### Parameter:
-        self.cpm    = self.config["parameter"]['cpm']                       # Counts per mm
-        self.mvtime = self.config["parameter"]['mvtime']                    # Delay-Zeit MV-Befehl (Auslesen der Geschwindigkeit)
-        self.nKS    = self.config['parameter']['nKS_Aus']                   # Nachkommerstellen
+        self.cpm            = self.config["parameter"]['cpm']                       # Counts per mm
+        self.mvtime         = self.config["parameter"]['mvtime']                    # Delay-Zeit MV-Befehl (Auslesen der Geschwindigkeit)
+        self.nKS            = self.config['parameter']['nKS_Aus']                   # Nachkommerstellen
         ### Limits:
-        self.oGPos = self.config["limits"]['maxPos']
-        self.uGPos = self.config["limits"]['minPos']
+        self.oGPos          = self.config["limits"]['maxPos']
+        self.uGPos          = self.config["limits"]['minPos']
+        self.oGv            = self.config["limits"]['maxSpeed']
+        self.uGv            = self.config["limits"]['minSpeed']
+        ### PID:
+        self.unit_PIDIn = self.config['PID']['Input_Size_unit']
+        ## Andere:
+        self.akPos          = 0
+        self.value_name     = {'IWs': 0, 'IWv': 0, 'SWv': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist}
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -102,7 +123,37 @@ class PIAchse:
         self.Log_Text_163_str   = ['Version:',                                                                              'Version:']
         self.Log_Text_164_str   = ['Startposition:',                                                                        'Starting position:']
         self.Log_Text_165_str   = ['mm',                                                                                    'mm']
-
+        self.Log_Text_PID_str   = ['Start des PID-Threads!',                                                                                                                                                                'Start of the PID thread!']
+        Log_Text_PID_N1         = ['Die Konfiguration',                                                                                                                                                                     'The configuration']
+        Log_Text_PID_N2         = ['existiert nicht! Möglich sind nur VV, VM, MM oder MV. Nutzung von Default VV!',                                                                                                         'does not exist! Only VV, VM, MM or MV are possible. Use default VV!']
+        Log_Text_PID_N2_1       = ['ist für das Gerät noch nicht umgesetzt! Nutzung von Default VV!',                                                                                                                       'is not yet implemented for the device! Use of default VV!']
+        Log_Text_PID_N3         = ['Gewählter PID-Modus ist: ',                                                                                                                                                             'Selected PID mode is: ']
+        Log_Text_PID_N4         = ['Istwert von Multilog',                                                                                                                                                                  'Actual value from Multilog']
+        Log_Text_PID_N5         = ['Istwert von VIFCON',                                                                                                                                                                    'Actual value of VIFCON']
+        Log_Text_PID_N6         = ['Sollwert von Multilog',                                                                                                                                                                 'Setpoint from Multilog']
+        Log_Text_PID_N7         = ['Sollwert von VIFCON',                                                                                                                                                                   'Setpoint from VIFCON']
+        Log_Text_PID_N8         = ['Istwert wird von Multilog-Sensor',                                                                                                                                                      'Actual value is from multilog sensor']
+        Log_Text_PID_N9         = ['Sollwert wird von Multilog-Sensor',                                                                                                                                                     'Setpoint is from Multilog sensor']
+        Log_Text_PID_N10        = ['geliefert!',                                                                                                                                                                            'delivered!']
+        self.Log_Text_PID_N11   = ['Bei der Multilog-PID-Input-Variable gab es einen Fehler!',                                                                                                                              'There was an error with the multilog PID input variable!']
+        self.Log_Text_PID_N12   = ['Fehler Grund:',                                                                                                                                                                         'Error reason:']
+        Log_Text_PID_N13        = ['durch das Gerät',                                                                                                                                                                       'through the device']
+        self.Log_Text_PID_N14   = ['Input-Fehler: Input Werte sind NAN-Werte!',                                                                                                                                             'Input error: Input values ​​are NAN values!']
+        self.Log_Text_PID_N15   = ['Input Werte überschreiten das Maximum von',                                                                                                                                             'Input values ​​exceed the maximum of']
+        self.Log_Text_PID_N16   = ['Input Werte unterschreiten das Minimum von',                                                                                                                                            'Input values ​​fall below the minimum of']
+        self.Log_Text_PID_N17   = ['Input Fehler: Input-Wert ist nicht von Typ Int oder Float! Variablen Typ:',                                                                                                             'Input error: Input value is not of type Int or Float! Variable type:']
+        Log_Text_PID_N18        = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
+        self.Log_Text_PID_N19   = ['Auslesefehler bei Multilog-Dictionary!',                                                                                                                                                'Reading error in multilog dictionary!']
+        self.Log_Text_PID_N20   = ['? - tatsächlicher Wert war',                                                                                                                                                            '°C - tatsächlicher Wert war']
+        Log_Text_PID_N21        = ['Multilog Verbindung wurde in Config als Abgestellt gewählt! Eine Nutzung der Werte-Herkunft mit VM, MV oder MM ist so nicht möglich! Nutzung von Default VV!',                          'Multilog connection was selected as disabled in config! Using the value origin with VM, MV or MM is not possible! Use of default VV!']
+        self.Log_Test_PID_N22   = ['?',                                                                                                                                                                                     '?']
+        self.Log_Text_LB_1      = ['Limitbereich',                                                                                                                                                                          'Limit range']
+        self.Log_Text_LB_4      = ['bis',                                                                                                                                                                                   'to']
+        self.Log_Text_LB_5      = ['nach Update',                                                                                                                                                                           'after update']
+        self.Log_Text_LB_6      = ['PID',                                                                                                                                                                                   'PID']
+        self.Log_Text_LB_7      = ['Output',                                                                                                                                                                                'Outout']
+        self.Log_Text_LB_8      = ['Input',                                                                                                                                                                                 'Input']
+        self.Log_Text_LB_unit   = ['mm/s',                                                                                                                                                                                  'mm/s']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                       'Initialization Failed!']
@@ -141,6 +192,68 @@ class PIAchse:
         self.t1 = bytearray.fromhex(self.adv)                           # Adressauswahlcode vorbereiten zum senden
         self.t3 = bytearray.fromhex(steuer)                             # Befehl-Abschlusszeichen vorbereiten zum senden
 
+        #---------------------------------------
+        # PID-Regler:
+        #---------------------------------------
+        ## PID-Regler:
+        if self.uGv < 0:     controll_under_Null = 0
+        else:                controll_under_Null = self.uGv
+        self.PID = PID(self.sprache, self.device_name, self.config['PID'], self.oGv, controll_under_Null)
+        self.PID_Option = self.config['PID']['Value_Origin'].upper()
+        ## Info und Warnungen: --> Überarbeiten da VIFCON Istwert noch nicht vorhanden!
+        if not self.multilog_OnOff and self.PID_Option in ['MV', 'MM', 'VM']:
+            logger.warning(f'{self.device_name} - {Log_Text_PID_N21[sprache]}')
+            self.PID_Option = 'VV'
+        elif self.PID_Option in ['MM', 'VM']:
+            logger.warning(f'{self.device_name} - {Log_Text_PID_N1[sprache]} {self.PID_Option} {Log_Text_PID_N2_1[self.sprache]}')
+            self.PID_Option = 'VV'
+        elif self.PID_Option not in ['MV', 'VV']:
+            logger.warning(f'{self.device_name} - {Log_Text_PID_N1[sprache]} {self.PID_Option} {Log_Text_PID_N2[self.sprache]}')
+            self.PID_Option = 'VV'
+        ### Herkunft Istwert:
+        if self.PID_Option[0] == 'V':
+            teil_1 = Log_Text_PID_N5
+        elif self.PID_Option[0] == 'M':
+            teil_1 = Log_Text_PID_N4 
+        ### Herkunft Sollwert:
+        if self.PID_Option[1] == 'V':
+            teil_2 = Log_Text_PID_N7
+        elif self.PID_Option[1] == 'M':
+            teil_2 = Log_Text_PID_N6 
+        logger.info(f'{self.device_name} - {Log_Text_PID_N3[self.sprache]}{self.PID_Option} ({teil_1[self.sprache]}, {teil_2[self.sprache]})')
+
+        ## PID-Thread:
+        self.PIDThread = QThread()
+        self.PID.moveToThread(self.PIDThread)
+        logger.info(f'{self.device_name} - {self.Log_Text_PID_str[self.sprache]}') 
+        self.PIDThread.start()
+        self.signal_PID.connect(self.PID.InOutPID)
+        ## Timer:
+        self.timer_PID = QTimer()                                              # Reaktionszeittimer (ruft die Geräte auf, liest aber nur unter bestimmten Bedingungen!)
+        self.timer_PID.setInterval(self.config['PID']['sample'])
+        self.timer_PID.timeout.connect(self.PID_Update)
+        self.timer_PID.start()
+        ### PID-Timer Thread:
+        #self.PIDThreadTimer = threading.Thread(target=self.PID_Update)
+        #self.PIDThreadTimer.start()
+        ## Multilog-Lese-Variable für die Daten:
+        self.mult_data              = {}
+        self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max'] 
+        self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
+        self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
+        logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]}: {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_LB_unit[self.sprache]}')
+        logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]}: {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')   
+        if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
+            logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
+            self.PID_Input_Error_Option = 'error'
+        self.M_device               = self.config['multilog']['read_trigger'] 
+        self.sensor                 = self.config['PID']['Multilog_Sensor_Ist'] 
+        if self.PID_Option[0] == 'M':
+            logger.info(f'{Log_Text_PID_N8[self.sprache]} {self.sensor} {Log_Text_PID_N13[self.sprache]} {self.M_device} {Log_Text_PID_N10[self.sprache]}')
+        if self.PID_Option[1] == 'M':
+            logger.info(f'{Log_Text_PID_N9[self.sprache]} ... {Log_Text_PID_N13[self.sprache]} ... {Log_Text_PID_N10[self.sprache]}')
+        self.PID_Ist_Last = self.Ist
+
     ##########################################
     # Schnittstelle (Schreiben):
     ##########################################
@@ -151,32 +264,141 @@ class PIAchse:
             write_Okay (dict):  beinhaltet Boolsche Werte für das was beschrieben werden soll!
             write_value (dict): beinhaltet die Werte die geschrieben werden sollen
         '''
+        #++++++++++++++++++++++++++++++++++++++++++
         # Start:
+        #++++++++++++++++++++++++++++++++++++++++++
         if write_Okay['Start'] and not self.neustart:
             self.Start_Werte()
             write_Okay['Start'] = False
+        
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Update Limit:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if write_Okay['Update Limit']:
+            ## Geschwindigkeit/PID-Output:
+            self.PID.OutMax = write_value['Limits'][0]
+            if write_value['Limits'][1] < 0:    self.PID.OutMin = 0
+            else:                               self.PID.OutMin = write_value['Limits'][1]
+            logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_LB_unit[self.sprache]}')
+            ## PID-Input:
+            self.PID_Input_Limit_Max = write_value['Limits'][2]
+            self.PID_Input_Limit_Min = write_value['Limits'][3]
+            logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')
+            
+            write_Okay['Update Limit'] = False
+        
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Normaler Betrieb:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if not write_Okay['PID']:  
+            ## Sollwert Lesen (v):
+            speed_vorgabe = write_value['Speed']
+            PID_write_V = False
+        #++++++++++++++++++++++++++++++++++++++++++    
+        # PID-Regler:
+        #++++++++++++++++++++++++++++++++++++++++++
+        elif write_Okay['PID']:
+            #---------------------------------------------
+            ## Auswahl Istwert:
+            #---------------------------------------------
+            ### VIFCON:
+            if self.PID_Option[0] == 'V':
+                print(['Noch nicht vollkommen implementiert! Hier wird Istwert auf Sollwert gesetzt!', 'Not yet fully implemented! Here the actual value is set to the target value!'][self.sprache])
+                self.Ist = self.Soll
+            ### Multilog:
+            elif self.PID_Option[0] == 'M':
+                try:
+                    if self.sensor.lower() == 'no sensor':
+                        self.Ist = self.mult_data[self.M_device]
+                    else:
+                        self.Ist = self.mult_data[self.M_device][self.sensor]
+                except Exception as e:
+                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N19[self.sprache]}")
+                    logger.exception(f"{self.device_name} - {self.Log_Text_PID_N12[self.sprache]}")
+            ### Istwert Filter:
+            error_Input = False
+            try:
+                #### Nan-Werte:
+                if m.isnan(self.Ist):
+                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N14[self.sprache]}")
+                    error_Input = True
+                #### Kein Float oder Integer:
+                elif type(self.Ist) not in [int, float]:
+                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N17[self.sprache]} {type(self.Ist)}")
+                    error_Input = True
+                #### Input-Wert überschreitet Maximum:
+                elif self.Ist > self.PID_Input_Limit_Max:
+                    logger.debug(f"{self.device_name} - {self.Log_Text_PID_N15[self.sprache]} {self.PID_Input_Limit_Max} {self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Test_PID_N22[self.sprache]}")
+                    self.Ist = self.PID_Input_Limit_Max
+                #### Input-Wert unterschreitet Minimum:
+                elif self.Ist < self.PID_Input_Limit_Min:
+                    logger.debug(f"{self.device_name} - {self.Log_Text_PID_N16[self.sprache]} {self.PID_Input_Limit_Min} {self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Test_PID_N22[self.sprache]}")
+                    self.Ist = self.PID_Input_Limit_Min
+            except Exception as e:
+                error_Input = True
+                logger.warning(f"{self.device_name} - {self.Log_Text_PID_N11[self.sprache]}")
+                logger.exception(f"{self.device_name} - {self.Log_Text_PID_N12[self.sprache]}")
+            ### Fehler-Behandlung:
+            if error_Input:
+                #### Input auf Maximum setzen:
+                if self.PID_Input_Error_Option == 'max':
+                    self.Ist = self.PID_Input_Limit_Max
+                #### Input auf Minimum setzen:
+                elif self.PID_Input_Error_Option == 'min':
+                    self.Ist = self.PID_Input_Limit_Min
+                #### Input auf letzten Input setzen:
+                elif self.PID_Input_Error_Option == 'error':
+                    self.Ist = self.PID_Ist_Last
+            else:
+                self.PID_Ist_Last = self.Ist
+            #---------------------------------------------
+            ## Auswahl Sollwert:
+            #---------------------------------------------
+            ### VIFCON:
+            if self.PID_Option[1] == 'V':
+                self.Soll = write_value['PID-Sollwert']
+            ### MUltilog:
+            elif self.PID_Option[1] == 'M':
+                print(['Noch nicht Vorhanden!', 'Not available yet!'][self.sprache])
+            #---------------------------------------------    
+            ## Schreibe Werte:
+            #---------------------------------------------
+            speed_vorgabe = self.PID_Out * self.cpm
+            PID_write_V = True
 
+        #++++++++++++++++++++++++++++++++++++++++++
         # Sende Stopp:
+        #++++++++++++++++++++++++++++++++++++++++++
         if write_Okay['Stopp']:
             self.stopp()
             # Rücksetzen aller Bewegungen:
             write_Okay['Stopp'] = False
             write_Okay['Position'] = False
-            write_Okay['Speed'] = False                                    
+            write_Okay['Speed'] = False  
+        #++++++++++++++++++++++++++++++++++++++++++                                  
         # Schreiben, wenn nicht Stopp:
+        #++++++++++++++++++++++++++++++++++++++++++
         else:
             try:
+                ## Sende Position:
                 if write_Okay['Sende Position']:
                     fahre = round(write_value["Position"] * int(self.cpm))                                      # Befehl bekommt einen Integer!
                     Befehl = f'MR{fahre}'
                     self.serial.write(self.t1+Befehl.encode()+self.t3)
                     write_Okay['Sende Position'] = False
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_58_str[self.sprache]}')       
+                ## Sende Geschwindigkeit:
                 if write_Okay['Sende Speed']:
                     Befehl = f'SV{round(write_value["Speed"])}'
                     self.serial.write(self.t1+Befehl.encode()+self.t3)
                     write_Okay['Sende Speed'] = False 
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_59_str[self.sprache]}')      
+                ## PID-Modus:
+                elif PID_write_V:
+                    Befehl = f'SV{round(speed_vorgabe)}'
+                    self.serial.write(self.t1+Befehl.encode()+self.t3)
+                    PID_write_V = False
+                ## Sende Define-Home:
                 if write_Okay['Define Home']:
                     Befehl = 'DH'
                     self.serial.write(self.t1+Befehl.encode()+self.t3)
@@ -187,7 +409,9 @@ class PIAchse:
                 logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]}')           
         
+        #++++++++++++++++++++++++++++++++++++++++++
         # Lese Aktuelle Position aus:
+        #++++++++++++++++++++++++++++++++++++++++++
         if self.init:
             self.akPos = self.read_TP()
 
@@ -218,10 +442,18 @@ class PIAchse:
             speed = self.read_TV()
             self.value_name['IWv'] = speed          # Einheit: mm/s
 
+            # Lese Geschwindigkeit:
+            speedS = self.read_TY()
+            self.value_name['SWv'] = speedS         # Einheit: mm/s
+
             # Lese Zielposition in Log-Datei:
             if self.read_TT:
                 ziel = self.send_read_command('TT', 'T:')
                 logger.debug(f"{self.device_name} - {self.Log_Text_158_str[self.sprache]} {ziel/int(self.cpm)}")
+
+            # PID-Modus:
+            self.value_name['SWxPID'] = self.Soll
+            self.value_name['IWxPID'] = self.Ist
 
         except Exception as e:
             logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
@@ -236,6 +468,17 @@ class PIAchse:
             position (float):   aktuelle position
         '''
         position = self.send_read_command('TP', 'P:')
+        position = round(position/int(self.cpm), self.nKS)
+
+        return position
+    
+    def read_TY(self):
+        '''Lese die Aktuelle Programmierte Geschwindigkeit
+        
+        Return:
+            position (float):   aktuelle Sollgeschwindigkeit
+        '''
+        position = self.send_read_command('TY', 'Y:')
         position = round(position/int(self.cpm), self.nKS)
 
         return position
@@ -373,10 +616,11 @@ class PIAchse:
         Args:
             pfad (str, optional): Speicherort. Default ist "./".
         """
+        PID_x_unit = self.config['PID']['Input_Size_unit']
         self.filename = f"{pfad}/{self.device_name}.csv"
-        units = "# datetime,s,mm,mm/s,\n"
+        units = f"# datetime,s,mm,mm/s,mm/s,{PID_x_unit},{PID_x_unit},\n"
         #scaling = f"# -,-,{self.}"
-        header = "time_abs,time_rel,Ist-Position,Ist-Geschwindigkeit,\n"
+        header = "time_abs,time_rel,Ist-Position,Ist-Geschwindigkeit,Soll-Geschwindigkeit,Soll-x_PID-Modus_A,Ist-x_PID-Modus_A,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
             with open(self.filename, "w", encoding="utf-8") as f:
@@ -398,6 +642,15 @@ class PIAchse:
             line = line + f'{daten[size]},'
         with open(self.filename, "a", encoding="utf-8") as f:
             f.write(f'{line}\n')
+    
+    ##########################################
+    # PID-Regler:
+    ##########################################
+    def PID_Update(self):
+        '''PID-Regler-Thread-Aufruf'''
+        if not self.PID.PID_speere:
+            self.signal_PID.emit(self.Ist, self.Soll, False, 0)
+            self.PID_Out = self.PID.Output
     
 ##########################################
 # Verworfen:

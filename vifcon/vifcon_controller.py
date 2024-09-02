@@ -168,11 +168,10 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                 #---------------------------------------
                 # Schreibe Werte:
                 #---------------------------------------
-                if not 'PI-Achse' in self.device_name:
-                    if self.device.PID.PID_speere and self.device_widget.write_value['PID']:
-                        self.device_widget.PID_cb.setChecked(False)
-                        self.device_widget.PID_ON_OFF()
-                        self.device_widget.Fehler_Output(1, self.Log_Text_1_PID[self.sprache])
+                if self.device.PID.PID_speere and self.device_widget.write_task['PID']:
+                    self.device_widget.PID_cb.setChecked(False)
+                    self.device_widget.PID_ON_OFF()
+                    self.device_widget.Fehler_Output(1, self.Log_Text_1_PID[self.sprache])
                 #if self.device_widget.send_betätigt:                                               # Ruft nun immer die write Funktion auf!
                 if not self.test and not 'Nemo-Gase' in self.device_name:
                     self.device.write(self.device_widget.write_task, self.device_widget.write_value)    
@@ -583,7 +582,7 @@ class Controller(QObject):
                             start_werte = {'IWv': '?', 'IWs': '?'}
                         widget = PIAchseWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, start_werte, self.neustart, self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
                         #### Farben-Option:
-                        color_Ant_n = color_Ant_n + 3
+                        color_Ant_n = color_Ant_n + 6
                     elif 'Nemo-Achse-Linear' in device_name:
                         #### Objekte erstellen:
                         device = NemoAchseLin(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_typ_widget,  device_name) 
@@ -797,10 +796,9 @@ class Controller(QObject):
         # Beennde PID:
         #////////////////////////////////////////////////////////////
         for device in self.widgets:
-            if not 'PI-Achse' in device:
-                self.widgets[device].write_value['PID'] = False 
-                self.devices[device].PIDThread.quit()
-                self.devices[device].timer_PID.stop()
+            self.widgets[device].write_task['PID'] = False 
+            self.devices[device].PIDThread.quit()
+            self.devices[device].timer_PID.stop()
         #////////////////////////////////////////////////////////////
         # Sicheren Endzustand herstellen:
         #////////////////////////////////////////////////////////////

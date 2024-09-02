@@ -519,7 +519,7 @@ class NemoAchseLin(QObject):
             write_Okay['Runter'] = False
             write_Okay['Send'] = False
             self.fahre = False    
-            self.start_Time = 0                                      
+            self.start_Time = 0                                    
         #++++++++++++++++++++++++++++++++++++++++++                                      
         # Schreiben, wenn nicht Stopp:
         #++++++++++++++++++++++++++++++++++++++++++         

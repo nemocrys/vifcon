@@ -101,6 +101,8 @@ class PIAchseWidget(QWidget):
         self.uGPos  = self.config["limits"]['minPos']
         self.oGv    = self.config["limits"]['maxSpeed']
         self.uGv    = self.config["limits"]['minSpeed']
+        self.oGx    = self.config['PID']['Input_Limit_max']
+        self.uGx    = self.config['PID']['Input_Limit_min']
         ### GUI:
         self.legenden_inhalt = self.config['GUI']['legend'].split(';')
         self.legenden_inhalt = [a.strip() for a in self.legenden_inhalt]    # sollten Unnötige Leerzeichen vorhanden sein, so werden diese entfernt!
@@ -109,6 +111,8 @@ class PIAchseWidget(QWidget):
         self.rezept_config = self.config["rezepte"]
         ### Gamepad:
         self.Button_Link = self.config['gamepad_Button']
+        ### PID-Modus:
+        self.unit_PIDIn = self.config['PID']['Input_Size_unit']
 
         ## Faktoren Skalierung:
         self.skalFak = self.typ_widget.Faktor
@@ -125,6 +129,7 @@ class PIAchseWidget(QWidget):
         #--------------------------------------- 
         ## Werte:
         istwert_str             = ['Ist',                                                                                                       'Is']
+        sollwert_str            = ['Soll',                                                                                                      'Set']
         ## Label:                                                   
         self.pos_1_str          = ['Fahrweg',                                                                                                   'Route']
         self.pos_2_str          = ['Sollposition',                                                                                              'Target position']
@@ -140,16 +145,25 @@ class PIAchseWidget(QWidget):
         ## Checkbox:        
         cb_sync_str             = ['Sync',                                                                                                      'Sync']
         cb_gPad_str             = ['GPad',                                                                                                      'GPad']
+        cb_PID                  = ['PID',                                                                                                       'PID']
         ## Einheiten mit Größe:
         self.s_str              = ['in mm:',                                                                                                    'in mm:']
-        v_str                   = ['v in mm/s:',                                                                                                'v in mm/s:']
+        self.x_str              = [f'x in {self.unit_PIDIn}:',                                                                                  f'x in {self.unit_PIDIn}:']
+        self.v_str              = ['v in mm/s:',                                                                                                'v in mm/s:']
         sv_str                  = ['v:',                                                                                                        'v:']
+        sx_str                  = ['PID:',                                                                                                      'PID:']
         st_v_str                = ['XXX.XX mm/s',                                                                                               'XXX.XX mm/s']
         st_s_str                = ['XXX.XX mm',                                                                                                 'XXX.XX mm']
+        st_x_str                = [f'XXX.XX {self.unit_PIDIn}',                                                                                 f'XXX.XX {self.unit_PIDIn}'] 
         s_einzel_str            = ['s',                                                                                                         's']
         v_einzel_str            = ['v',                                                                                                         'v']
+        x_einzel_str            = ['x',                                                                                                         'x']
         self.einheit_s_einzel   = ['mm',                                                                                                        'mm']
         self.einheit_v_einzel   = ['mm/s',                                                                                                      'mm/s']
+        self.einheit_x_einzel   = [f'{self.unit_PIDIn}',                                                                                        f'{self.unit_PIDIn}']
+        PID_Von_1               = ['Wert von Multilog',                                                                                         'Value of Multilog']
+        PID_Von_2               = ['Wert von VIFCON',                                                                                           'Value ofVIFCON']
+        PID_Zusatz              = ['ex,',                                                                                                       'ex,']
         ## Fehlermeldungen: 
         self.err_0_str          = ['Fehler!',                                                                                                   'Error!']
         self.err_1_str          = ['Beide Felder benötigen\neine EINGABE!!',                                                                    'Both fields require\nan INPUT!!']
@@ -168,6 +182,10 @@ class PIAchseWidget(QWidget):
         self.err_15_str         = ['Wähle ein Rezept!',                                                                                         'Choose a recipe!']
         self.err_16_str         = ['Rezept läuft!\nRezept Start gesperrt!',                                                                     'Recipe running!\nRecipe start blocked!']
         self.err_21_str         = ['Fehler in der Rezept konfiguration\nder Config-Datei! Bitte beheben und Neueinlesen!',                      'Error in the recipe configuration of\nthe config file! Please fix and re-read!']
+        self.err_22_str         = ['Eingabe darf nicht negativ sein!\nNegativer Limit Bereich nur bei Rezept-Modus zu nutzen!',                 'Input must not be negative!\nNegative limit range can only be used in recipe mode!']            
+        self.err_PID_1_str      = ['Die Bewegungsrichtung',                                                                                     'The direction of movement']
+        self.err_PID_2_str      = ['exestiert nicht!\nGenutzt werden kann nur UP und DOWN!',                                                    'does not exist!\nOnly UP and DOWN can be used!']
+        self.err_PID_3_str      = ['Der PID-Modus benötigt eine\nAngabe der Bewegungsrichtung!',                                                'The PID mode requires a specification\nof the direction of movement!']
         ## Plot-Legende:                                                    
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
@@ -193,6 +211,7 @@ class PIAchseWidget(QWidget):
         self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                     'Update configuration (update limits):']
         self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
         self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                          'Error reason (Problem with recipe configuration)']
+        self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liegt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',  'The value in the config is outside the limit range! Switching value is set to minimum limit!']
         self.Log_Text_LB_1      = ['Limitbereich',                                                                                              'Limit range']
         self.Log_Text_LB_2      = ['Geschwindigkeit',                                                                                           'Velocity']
         self.Log_Text_LB_3      = ['Position',                                                                                                  'Position']
@@ -226,6 +245,11 @@ class PIAchseWidget(QWidget):
         self.Text_89_str        = ['Knopf betätigt - Beende Rezept - Keine Wirkung auf Rezept-Funktion, jedoch Auslösung des Stopp-Knopfes!',   'Button pressed - End recipe - No effect on recipe function, but triggers the stop button!']
         self.Text_90_str        = ['Sicherer Endzustand wird hergestellt! Auslösung des Stopp-Knopfes!',                                        'Safe final state is established! Stop button is activated!']
         self.Text_91_str        = ['Rezept Beenden - Sicherer Endzustand',                                                                      'Recipe Ends - Safe End State']
+        self.Text_PID_1         = ['Wechsel in PID-Modus.',                                                                                     'Switch to PID mode.']
+        self.Text_PID_2         = ['Wechsel in Eurotherm-Regel-Modus.',                                                                         'Switch to Eurotherm control mode.']
+        self.Text_PID_3         = ['Moduswechsel! Auslösung des Stopp-Knopfes aus Sicherheitsgründen!',                                         'Mode change! Stop button triggered for safety reasons!']
+        self.Text_PID_4         = ['Rezept Beenden! Wechsel des Modus!',                                                                        'End recipe! Change mode!']
+        self.Text_ExLimit_str   = ['Eingabefeld Fehlermeldung: Senden fehlgeschlagen, da Negativer Wert!',                                      'Input field error message: Sending failed because of negative value!']
         ## Extra:
         self.abLauf_Button_r    = ['rechter Knopf',                                                                                             'right button']
         self.abLauf_Button_l    = ['linker Knopf',                                                                                              'left button']    
@@ -234,8 +258,8 @@ class PIAchseWidget(QWidget):
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = False
-        self.write_task = {'Stopp': False, 'Sende Position': False, 'Sende Speed': False, 'Init':False, 'Define Home': False, 'Start':False}
-        self.write_value = {'Position': 0, 'Speed': 0}
+        self.write_task  = {'Stopp': False, 'Sende Position': False, 'Sende Speed': False, 'Init':False, 'Define Home': False, 'Start':False, 'Update Limit': False, 'PID': False}
+        self.write_value = {'Position': 0, 'Speed': 0, 'Limits': [0, 0, 0, 0], 'PID-Sollwert': 0} # Limits: oGv, uGv, oGx, uGx
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -298,7 +322,7 @@ class PIAchseWidget(QWidget):
         ### Spaltenbreiten:
         self.layer_layout.setColumnMinimumWidth(0, 120)
         self.layer_layout.setColumnMinimumWidth(2, 60)
-        self.layer_layout.setColumnMinimumWidth(4, 100)
+        self.layer_layout.setColumnMinimumWidth(4, 140)
         #________________________________________
         ## Widgets:
         ### Eingabefelder:
@@ -314,6 +338,9 @@ class PIAchseWidget(QWidget):
         
         if not gamepad_aktiv:
             self.gamepad.setEnabled(False)
+
+        self.PID_cb  = QCheckBox(cb_PID[self.sprache])
+        self.PID_cb.clicked.connect(self.PID_ON_OFF)
 
         ### Label:
         #### Titel-Gerät:
@@ -333,6 +360,24 @@ class PIAchseWidget(QWidget):
         if self.color_Aktiv: self.La_IstSpeed_wert.setStyleSheet(f"color: {self.color[1]}")
         #### Sollposition:
         self.La_SollPos_text = QLabel(f'{self.pos_1_str[self.sprache]} {self.s_str[self.sprache]}')
+        #### Soll-Geschwindigkeit:
+        self.La_SollSpeed = QLabel(self.v_str[self.sprache])
+        if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[3]}")
+
+        self.La_SollSpeed_text = QLabel(f'{sollwert_str[self.sprache]}-{sv_str[self.sprache]} ')
+        self.La_SollSpeed_wert = QLabel(st_v_str[self.sprache])
+        if self.color_Aktiv: self.La_SollSpeed_text.setStyleSheet(f"color: {self.color[3]}")
+        if self.color_Aktiv: self.La_SollSpeed_wert.setStyleSheet(f"color: {self.color[3]}")
+        #### Soll-Größe PID-Modus:
+        self.La_SollPID_text = QLabel(f'{sollwert_str[self.sprache]}-{sx_str[self.sprache]} ')
+        self.La_SollPID_wert = QLabel(st_x_str[self.sprache])
+        if self.color_Aktiv: self.La_SollPID_text.setStyleSheet(f"color: {self.color[4]}")
+        if self.color_Aktiv: self.La_SollPID_wert.setStyleSheet(f"color: {self.color[4]}")
+        #### Ist-Größe PID-Modus:
+        self.La_IstPID_text = QLabel(f'{istwert_str[self.sprache]}-{sx_str[self.sprache]} ')
+        self.La_IstPID_wert = QLabel(st_x_str[self.sprache])
+        if self.color_Aktiv: self.La_IstPID_text.setStyleSheet(f"color: {self.color[5]}")
+        if self.color_Aktiv: self.La_IstPID_wert.setStyleSheet(f"color: {self.color[5]}")
 
         ### Knöpfe:
         #### Bewegungen:
@@ -427,22 +472,52 @@ class PIAchseWidget(QWidget):
         self.first_row_layout.addWidget(self.La_name)
         self.first_row_layout.addWidget(self.Auswahl)
         self.first_row_layout.addWidget(self.gamepad)
+        self.first_row_layout.addWidget(self.PID_cb)
 
         self.first_row_layout.setContentsMargins(0,0,0,0)      # left, top, right, bottom
+        
+        #### Label-Werte:
+        W_spalte = 80
+
+        label_list      = [self.La_IstSpeed_text, self.La_SollSpeed_text, self.La_IstPos_text, self.La_IstPID_text, self.La_SollPID_text]
+        label_unit_list = [self.La_IstSpeed_wert, self.La_SollSpeed_wert, self.La_IstPos_wert, self.La_IstPID_wert, self.La_SollPID_wert]
+        widget_list     = []
+        count = 0
+        
+        for n in label_list:
+            W = QWidget()
+            W_layout = QGridLayout()
+            W.setLayout(W_layout)
+            W_layout.addWidget(n, 0 , 0)
+            W_layout.addWidget(label_unit_list[count], 0 , 1 , alignment=Qt.AlignLeft)
+            W_layout.setContentsMargins(0,0,0,0)
+            W_layout.setColumnMinimumWidth(0, W_spalte)
+            widget_list.append(W)
+            count += 1
+        
+        self.V = QWidget()
+        self.V_layout = QVBoxLayout()
+        self.V.setLayout(self.V_layout)
+        self.V_layout.setSpacing(0)
+        for n in widget_list:
+            self.V_layout.addWidget(n)
+        self.V_layout.setContentsMargins(0,0,0,0)
+        
         #________________________________________
         ## Platzierung der einzelnen Widgets im Layout:
         self.layer_layout.addWidget(self.first_row_group,                   0, 0, 1, 6, alignment=Qt.AlignLeft)
-        self.layer_layout.addWidget(QLabel(v_str[self.sprache]),            1, 0)
+        self.layer_layout.addWidget(self.La_SollSpeed,                      1, 0)
         self.layer_layout.addWidget(self.La_SollPos_text,                   2, 0)      
         self.layer_layout.addWidget(self.btn_group_move,                    3, 0, 1, 4, alignment=Qt.AlignLeft)                     # Reihe, Spalte, RowSpan, ColumSpan, Ausrichtung                     
         self.layer_layout.addWidget(self.LE_Speed,                          1, 1)
         self.layer_layout.addWidget(self.LE_Pos,                            2, 1)      
         self.layer_layout.addWidget(self.La_error_1,                        1, 2,       alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(self.La_error_2,                        2, 2,       alignment=Qt.AlignLeft)
-        self.layer_layout.addWidget(self.La_IstSpeed_text,                  1, 3)
-        self.layer_layout.addWidget(self.La_IstPos_text,                    2, 3)
-        self.layer_layout.addWidget(self.La_IstSpeed_wert,                  1, 4,       alignment=Qt.AlignLeft)     
-        self.layer_layout.addWidget(self.La_IstPos_wert,                    2, 4,       alignment=Qt.AlignLeft)
+        self.layer_layout.addWidget(self.V,                                 1, 3, 2, 2, alignment=Qt.AlignLeft)
+        #self.layer_layout.addWidget(self.La_IstSpeed_text,                  1, 3)
+        #self.layer_layout.addWidget(self.La_IstPos_text,                    2, 3)
+        #self.layer_layout.addWidget(self.La_IstSpeed_wert,                  1, 4,       alignment=Qt.AlignLeft)     
+        #self.layer_layout.addWidget(self.La_IstPos_wert,                    2, 4,       alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(self.btn_group_Rezept,                  1, 5, 4, 1, alignment=Qt.AlignTop)
         #________________________________________
         ## Größen (Size) - Widgets:
@@ -471,14 +546,37 @@ class PIAchseWidget(QWidget):
         #---------------------------------------
         # Kurven:
         #---------------------------------------
+        ## PID-Modus:
+        origin = self.config['PID']['Value_Origin'].upper()
+        ### Istwert:
+        PID_Export_Ist = ''
+        if origin[0] == 'V': PID_Label_Ist = PID_Von_2[sprache]
+        elif origin [0] == 'M':     
+            PID_Label_Ist  = PID_Von_1[sprache]
+            PID_Export_Ist = PID_Zusatz[sprache]
+        else:                PID_Label_Ist = PID_Von_2[sprache]
+        ### Sollwert
+        PID_Export_Soll = ''
+        if origin[1] == 'V':  PID_Label_Soll = PID_Von_2[sprache]
+        elif origin [1] == 'M':     
+            PID_Label_Soll  = PID_Von_1[sprache]
+            PID_Export_Soll = PID_Zusatz[sprache]
+        else:                 PID_Label_Soll = PID_Von_2[sprache]
+
+        ### Start Wert:
+        self.write_value['PID-Sollwert'] = self.config['PID']['start_soll']
+
         kurv_dict = {                                                               # Wert: [Achse, Farbe/Stift, Name]
-            'IWs':  ['a1', pg.mkPen(self.color[0], width=2),                         f'{piAchse} - {s_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'IWv':  ['a2', pg.mkPen(self.color[1], width=2),                         f'{piAchse} - {v_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'oGs':  ['a1', pg.mkPen(color=self.color[0], style=Qt.DashLine),         f'{piAchse} - {s_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGs':  ['a1', pg.mkPen(color=self.color[0], style=Qt.DashDotDotLine),   f'{piAchse} - {s_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'oGv':  ['a2', pg.mkPen(color=self.color[1], style=Qt.DashLine),         f'{piAchse} - {v_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGv':  ['a2', pg.mkPen(color=self.color[1], style=Qt.DashDotDotLine),   f'{piAchse} - {v_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'Rezv': ['a2', pg.mkPen(color=self.color[2], width=3, style=Qt.DotLine), f'{piAchse} - {rezept_Label_str[self.sprache]}<sub>{v_einzel_str[self.sprache]}</sub>'],
+            'IWs':      ['a1', pg.mkPen(self.color[0], width=2),                         f'{piAchse} - {s_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'IWv':      ['a2', pg.mkPen(self.color[1], width=2),                         f'{piAchse} - {v_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'oGs':      ['a1', pg.mkPen(color=self.color[0], style=Qt.DashLine),         f'{piAchse} - {s_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGs':      ['a1', pg.mkPen(color=self.color[0], style=Qt.DashDotDotLine),   f'{piAchse} - {s_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'oGv':      ['a2', pg.mkPen(color=self.color[1], style=Qt.DashLine),         f'{piAchse} - {v_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGv':      ['a2', pg.mkPen(color=self.color[1], style=Qt.DashDotDotLine),   f'{piAchse} - {v_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'Rezv':     ['a2', pg.mkPen(color=self.color[2], width=3, style=Qt.DotLine), f'{piAchse} - {rezept_Label_str[self.sprache]}<sub>{v_einzel_str[self.sprache]}</sub>'],
+            'SWv':      ['a2', pg.mkPen(self.color[3], width=2),                         f'{piAchse} - {v_einzel_str[self.sprache]}<sub>{sollwert_str[self.sprache]}</sub>'],
+            'SWxPID':   ['a1', pg.mkPen(self.color[4], width=2, style=Qt.DashDotLine),   f'{PID_Label_Soll} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
+            'IWxPID':   ['a1', pg.mkPen(self.color[5], width=2, style=Qt.DashDotLine),   f'{PID_Label_Ist} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
         }
 
         ## Kurven erstellen:
@@ -515,8 +613,12 @@ class PIAchseWidget(QWidget):
 
         ## Kurven-Daten-Listen:
         ### Messgrößen:
-        self.posList    = []       
-        self.speedList  = []     
+        self.posList        = []       
+        self.speedList      = []     
+        self.speedSollList  = []
+
+        self.sollxPID       = []
+        self.istxPID        = []
         ### Grenzen:
         self.VoGList    = []
         self.VuGList    = []
@@ -526,12 +628,12 @@ class PIAchseWidget(QWidget):
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
-        self.curveDict      = {'IWs': '', 'IWv': '', 'oGs': '', 'uGs': '', 'oGv': '', 'uGv': '', 'Rezv': ''}                        # Kurven
+        self.curveDict      = {'IWs': '', 'IWv': '', 'oGs': '', 'uGs': '', 'oGv': '', 'uGv': '', 'Rezv': '', 'SWxPID':'', 'IWxPID':'', 'SWv': ''}                                                                                                                              # Kurven
         for kurve in self.kurven_dict:
             self.curveDict[kurve] = self.kurven_dict[kurve]
-        self.labelDict      = {'IWs': self.La_IstPos_wert,                  'IWv': self.La_IstSpeed_wert}                            # Label
-        self.labelUnitDict  = {'IWs': self.einheit_s_einzel[self.sprache],  'IWv': self.einheit_v_einzel[self.sprache]}              # Einheit
-        self.listDict       = {'IWs': self.posList,                         'IWv': self.speedList}                                   # Werteliste
+        self.labelDict      = {'IWs': self.La_IstPos_wert,                  'IWv': self.La_IstSpeed_wert,               'SWv': self.La_SollSpeed_wert,              'IWxPID': self.La_IstPID_wert,                 'SWxPID': self.La_SollPID_wert,}                            # Label
+        self.labelUnitDict  = {'IWs': self.einheit_s_einzel[self.sprache],  'IWv': self.einheit_v_einzel[self.sprache], 'SWv': self.einheit_v_einzel[self.sprache], 'IWxPID': self.einheit_x_einzel[self.sprache], 'SWxPID': self.einheit_x_einzel[self.sprache]}              # Einheit
+        self.listDict       = {'IWs': self.posList,                         'IWv': self.speedList,                      'SWv': self.speedSollList,                  'IWxPID': self.istxPID,                        'SWxPID': self.sollxPID,}                                   # Werteliste
         self.grenzListDict  = {'oGv': self.VoGList,                         'uGv': self.VuGList,    'oGs': self.SoGList,    'uGs': self.SuGList}
         self.grenzValueDict = {'oGv': self.oGv,                             'uGv': self.uGv,        'oGs': self.oGPos,      'uGs': self.uGPos}
 
@@ -542,6 +644,8 @@ class PIAchseWidget(QWidget):
                 self.skalFak_dict.update({size: self.skalFak['Pos']})
             if 'Wv' in size:
                 self.skalFak_dict.update({size: self.skalFak['Speed_1']})
+            if 'Wx' in size:
+                self.skalFak_dict.update({size: self.skalFak['PIDA']})
 
         #---------------------------------------
         # Timer:
@@ -611,27 +715,32 @@ class PIAchseWidget(QWidget):
     ##########################################
     # Fehlermedlung:
     ##########################################
-    def Fehler_Output(self, Fehler, La_error, error_Message_Log_GUI = '', error_Message_Ablauf = ''):
+    def Fehler_Output(self, Fehler, La_error, error_Message_Log_GUI = '', error_Message_Ablauf = '', device = ''):
         ''' Erstelle Fehler-Nachricht für GUI, Ablaufdatei und Logging
         Args:
             Fehler (bool):                  False -> o.k. (schwarz), True -> Fehler (rot, bold)
             La_error (PyQt-Label):          Label das beschrieben werden soll (Objekt)
             error_Message_Log_GUI (str):    Nachricht die im Log und der GUI angezeigt wird
             error_Message_Ablauf (str):     Nachricht für die Ablaufdatei
+            device (str):                   Wenn ein anderes Gerät genutzt wird (z.B. PID)
         ''' 
+        if device == '':
+            device_name = self.device_name
+        else:
+            device_name = device 
         if Fehler:
             La_error.setText(self.err_0_str[self.sprache])
             La_error.setToolTip(error_Message_Log_GUI)  
             La_error.setStyleSheet(f"color: red; font-weight: bold")
             zusatz = f'({self.str_Size_1[self.sprache]})' if La_error == self.La_error_1 else (f'({self.str_Size_2[self.sprache]})' if La_error == self.La_error_2 else '')
             log_vorberietung = error_Message_Log_GUI.replace("\n"," ") 
-            logger.error(f'{self.device_name} - {log_vorberietung} {zusatz}')
+            logger.error(f'{device_name} - {log_vorberietung} {zusatz}')
         else:
             La_error.setText(self.err_13_str[self.sprache])
             La_error.setToolTip('')
             La_error.setStyleSheet(f"color: black; font-weight: normal")
         if not error_Message_Ablauf == '':
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {error_Message_Ablauf}') 
+                self.add_Text_To_Ablauf_Datei(f'{device_name} - {error_Message_Ablauf}') 
 
     ##########################################
     # Reaktion auf Radio-Buttons:
@@ -681,23 +790,21 @@ class PIAchseWidget(QWidget):
              
     def Stopp(self, n = 3):
         '''Halte Achse an'''
-        if n == 5:
-            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
-        self.RezEnde(n)
-
         if self.init:
+            if n == 3:      self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_33_str[self.sprache]}')
+            elif n == 5:    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
+            elif n == 6:    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_3[self.sprache]}')
+            self.RezEnde(n)
             # Sende Befehl:
             self.write_task['Stopp'] = True
             #self.send_betätigt = True
-            if n == 3:
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_33_str[self.sprache]}')
             logger.debug(f"{self.device_name} - {self.Log_Text_49_str[self.sprache]}")
 
             # Entriegelung der Bewegungsknöpfe:
             self.Achse_steht = True
                 
             # Timer start:
-            if self.mode == 1:
+            if self.mode == 1 and not self.PID_cb.isChecked():
                 self.timer_rigel.stop()
         else:
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
@@ -724,36 +831,42 @@ class PIAchseWidget(QWidget):
                 self.Achse_steht = False
 
                 # Berechnung der Zeit:
-                try:
-                    time = pos/speed                                        # mm/(mm/s)
-                except Exception as e:
-                    logger.exception(f"{self.device_name} - {self.Log_Text_50_str[self.sprache]}")
-                    time = 0.01 
+                if not self.PID_cb.isChecked():
+                    try:
+                        time = pos/speed                                        # mm/(mm/s)
+                    except Exception as e:
+                        logger.exception(f"{self.device_name} - {self.Log_Text_50_str[self.sprache]}")
+                        time = 0.01 
 
-                self.time_Riegel = abs(time)                                # Für Gamepad   
-                self.timer_rigel.setInterval(abs(round(time*1000)))         # Timer in Millisekunden
+                    self.time_Riegel = abs(time)                                # Für Gamepad   
+                    self.timer_rigel.setInterval(abs(round(time*1000)))         # Timer in Millisekunden
 
                 # Geschwindigkeit:
-                self.write_task['Sende Speed'] = True
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_35_str[self.sprache]} {round(speed)} {self.Text_36_str[self.sprache]}')           
-                speed = speed * self.cpm                                    # Umrechnung in counts/s
-                self.write_value['Speed'] = speed
-            
+                if not self.PID_cb.isChecked():
+                    self.write_task['Sende Speed'] = True
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_35_str[self.sprache]} {round(speed)} {self.Text_36_str[self.sprache]}')           
+                    speed = speed * self.cpm                                    # Umrechnung in counts/s
+                    self.write_value['Speed'] = speed
+                else:
+                    self.write_task['Sende Speed'] = False
+                    self.write_value['PID-Sollwert'] = speed
                 # Position:
                 self.write_task['Sende Position'] = True
                 self.write_value['Position'] = pos
                 logger.debug(f"{self.device_name} - {self.Log_Text_51_str[self.sprache]} {pos}!")
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_37_str[self.sprache]} {round(pos)} {self.Text_38_str[self.sprache]}')                        
-                # Verriegeln der Bewegungsknöpfe:
-                if self.mode != 0:
-                    self.btn_left.setEnabled(False)
-                    self.btn_right.setEnabled(False) 
+                
+                if not self.PID_cb.isChecked():
+                    # Verriegeln der Bewegungsknöpfe:
+                    if self.mode != 0:
+                        self.btn_left.setEnabled(False)
+                        self.btn_right.setEnabled(False) 
 
-                # Timer start:
-                if self.mode == 1 and not gamepad:
-                    self.timer_rigel.start()
-                elif self.mode == 2:
-                    self.losgefahren = True
+                    # Timer start:
+                    if self.mode == 1 and not gamepad:
+                        self.timer_rigel.start()
+                    elif self.mode == 2:
+                        self.losgefahren = True
             else:
                 self.write_task['Sende Speed'] = False
                 self.write_task['Sende Position'] = False
@@ -804,11 +917,13 @@ class PIAchseWidget(QWidget):
             self.Fehler_Output(1, self.La_error_1, self.err_1_str[self.sprache])
             self.Fehler_Output(1, self.La_error_2, self.err_1_str[self.sprache], self.Text_40_str[self.sprache])      
         else:  
-            # Kontrolle Position:                                                                                                 
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # Kontrolle Position:  
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                                                                               
             try:
-                # Umwandeln Position:
+                ## Umwandeln Position:
                 pos_value = float(pos_value)
-                # Bei Relativer Bewegung muss der Wert Positiv sein:
+                ## Bei Relativer Bewegung muss der Wert Positiv sein:
                 if self.RB_choise_relPos.isChecked():                                           
                     if pos_value < 0:      
                         self.Fehler_Output(1, self.La_error_2, self.err_8_str[self.sprache], self.Text_41_str[self.sprache])                                                                                 
@@ -817,30 +932,36 @@ class PIAchseWidget(QWidget):
                         if sign == 'Minus':                                                                     # Kontrolliere Bewegungsrichtung
                             pos_value = pos_value * -1
                         newPos = pos_value + self.akPos                                                         # Berechnung der neuen Position zur aktuellen Position
-                # Bei Absoluter Bewegung:
+                ## Bei Absoluter Bewegung:
                 elif self.RB_choise_absPos.isChecked():                      
                     newPos = pos_value
-                # Kontrolliere die Grenzen/Limits:
+                ## Kontrolliere die Grenzen/Limits:
                 if newPos < self.uGPos or newPos > self.oGPos:   
                     self.Fehler_Output(1, self.La_error_2, f'{self.err_2_str[self.sprache]} {self.uGPos} {self.err_3_str[self.sprache]} {self.oGPos}', self.Text_42_str[self.sprache])                                                               
-                # Alles in Ordnung mit der Eingabe:
+                ## Alles in Ordnung mit der Eingabe:
                 else:       
                     self.Fehler_Output(0, self.La_error_2)                                                                                   
-                    # Berechne Fahrweg für die Absolute Bewegung:
+                    ### Berechne Fahrweg für die Absolute Bewegung:
                     if self.RB_choise_absPos.isChecked():                                        
                         pos_value = pos_value - self.akPos   
                     pos_okay = True                                                           
                     #return pos_value
-            # Eingabe ist falsch:
+            ## Eingabe ist falsch:
             except Exception as e:
                 self.Fehler_Output(1, self.La_error_2, self.err_5_str[self.sprache], self.Text_43_str[self.sprache])    
                 logger.exception(f"{self.device_name} - {self.Log_Text_53_str[self.sprache]}")                                                                                                       
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # Kontrolle Geschwindigkeit:
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            if self.PID_cb.isChecked(): oG, uG = self.oGx, self.uGx
+            else:                       oG, uG = self.oGv, self.uGv
             try:
                 # Umwandeln Geschwindigkeit:
                 speed_value = float(speed_value)
-                if speed_value < self.uGv or speed_value > self.oGv:  
-                    self.Fehler_Output(1, self.La_error_1, f'{self.err_2_str[self.sprache]} {self.uGv} {self.err_3_str[self.sprache]} {self.oGv}', self.Text_42_str[self.sprache])                                                                  
+                if speed_value < uG or speed_value > oG:  
+                    self.Fehler_Output(1, self.La_error_1, f'{self.err_2_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG}', self.Text_42_str[self.sprache])                                                                  
+                elif speed_value < 0:
+                    self.Fehler_Output(1, self.La_error_1, self.err_22_str[self.sprache], self.Text_ExLimit_str[self.sprache])
                 else:
                     self.Fehler_Output(0, self.La_error_1)
                     speed_okay = True
@@ -854,6 +975,45 @@ class PIAchseWidget(QWidget):
         # Rückgabe bei Fehler:
         return '', ''      
 
+    ##########################################
+    # Reaktion Checkbox:
+    ##########################################    
+    def PID_ON_OFF(self):                       
+        if self.PID_cb.isChecked():
+            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
+            # Aufgaben setzen:
+            self.write_task['PID'] = True
+            self.write_task['Sende Speed'] = False
+            self.Stopp(6)
+            # Ändere GUI:
+            self.btn_rezept_start.setEnabled(False)
+            self.btn_rezept_ende.setEnabled(False)
+
+            self.La_SollSpeed.setText(f'{self.x_str[self.sprache]}')
+            if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[4]}")
+        else:
+            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
+            # Aufgaben setzen:
+            self.write_task['PID'] = False
+            self.write_task['Sende Speed'] = False  
+            self.Stopp(6)
+            try:
+                value = float(str(self.config['PID']['umstell_wert'].replace(',', '.')))
+            except:
+                value = 0
+            self.LE_Speed.setText(str(value))
+            if value > self.oGv or value < self.uGv:
+                logger.warning(f"{self.device_name} - {self.Log_Text_PID_Ex[self.sprache]}") 
+                self.write_value['Speed'] = self.uGv
+            else:
+                self.write_value['Speed'] = value
+            # Ändere GUI:
+            self.btn_rezept_start.setEnabled(True)
+            self.btn_rezept_ende.setEnabled(True)
+
+            self.La_SollSpeed.setText(f'{self.v_str[self.sprache]}')
+            if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[3]}")
+        
     ##########################################
     # Betrachtung der Labels und Plots:
     ##########################################
@@ -952,9 +1112,14 @@ class PIAchseWidget(QWidget):
         self.uGPos  = config['devices'][self.device_name]["limits"]['minPos']
         self.oGv    = config['devices'][self.device_name]["limits"]['maxSpeed']
         self.uGv    = config['devices'][self.device_name]["limits"]['minSpeed']
+        self.oGx    = config['devices'][self.device_name]['PID']['Input_Limit_max']
+        self.uGx    = config['devices'][self.device_name]['PID']['Input_Limit_min']
 
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGv} {self.Log_Text_LB_4[self.sprache]} {self.oGv} {self.einheit_v_einzel[self.sprache]}')
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGPos} {self.Log_Text_LB_4[self.sprache]} {self.oGPos} {self.einheit_s_einzel[self.sprache]}')
+
+        self.write_task['Update Limit']     = True
+        self.write_value['Limits']          = [self.oGv, self.uGv, self.oGx, self.uGx]
 
     ##########################################
     # Reaktion auf Rezepte:

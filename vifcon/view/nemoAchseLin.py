@@ -240,7 +240,7 @@ class NemoAchseLinWidget(QWidget):
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = False
-        self.write_task = {'Stopp': False, 'Hoch': False, 'Runter': False, 'Init':False, 'Define Home': False, 'Send': False, 'Start':False, 'Update Limit': False, 'PID': False,}
+        self.write_task = {'Stopp': False, 'Hoch': False, 'Runter': False, 'Init':False, 'Define Home': False, 'Send': False, 'Start':False, 'Update Limit': False, 'PID': False}
         self.write_value = {'Speed': 0, 'Limits': [0, 0, 0, 0, 0, 0], 'PID-Sollwert': 0} # Limits: oGs, uGs, oGv, uGv, oGx, uGx
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
