@@ -240,8 +240,8 @@ class NemoAchseLinWidget(QWidget):
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = False
-        self.write_task = {'Stopp': False, 'Hoch': False, 'Runter': False, 'Init':False, 'Define Home': False, 'Send': False, 'Start':False, 'Update Limit': False}
-        self.write_value = {'Speed': 0, 'Limits': [0, 0, 0, 0, 0, 0], 'PID': False, 'PID-Sollwert': 0} # Limits: oGs, uGs, oGv, uGv, oGx, uGx
+        self.write_task = {'Stopp': False, 'Hoch': False, 'Runter': False, 'Init':False, 'Define Home': False, 'Send': False, 'Start':False, 'Update Limit': False, 'PID': False,}
+        self.write_value = {'Speed': 0, 'Limits': [0, 0, 0, 0, 0, 0], 'PID-Sollwert': 0} # Limits: oGs, uGs, oGv, uGv, oGx, uGx
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -832,13 +832,13 @@ class NemoAchseLinWidget(QWidget):
         if self.PID_cb.isChecked():
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
             # Aufgaben setzen:
-            self.write_value['PID'] = True
+            self.write_task['PID'] = True
             self.write_task['Send'] = False
             self.Stopp(6)
         else:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
             # Aufgaben setzen:
-            self.write_value['PID'] = False
+            self.write_task['PID'] = False
             self.write_task['Send'] = False  
             self.Stopp(6)
             try:

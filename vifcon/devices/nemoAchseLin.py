@@ -432,14 +432,14 @@ class NemoAchseLin(QObject):
         #++++++++++++++++++++++++++++++++++++++++++
         # Normaler Betrieb:
         #++++++++++++++++++++++++++++++++++++++++++
-        if not write_value ['PID']:  
+        if not write_Okay['PID']:  
             ## Sollwert Lesen (v):
             speed_vorgabe = write_value['Speed']
             PID_write_V = False
         #++++++++++++++++++++++++++++++++++++++++++    
         # PID-Regler:
         #++++++++++++++++++++++++++++++++++++++++++
-        elif write_value['PID']:
+        elif write_Okay['PID']:
             #---------------------------------------------
             ## Auswahl Istwert:
             #---------------------------------------------

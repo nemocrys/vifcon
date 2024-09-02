@@ -360,14 +360,14 @@ class TruHeat(QObject):
         #++++++++++++++++++++++++++++++++++++++++++
         # Normaler Betrieb:
         #++++++++++++++++++++++++++++++++++++++++++
-        if not write_value['PID']:  
+        if not write_Okay['PID']:  
             ## Sollwert Lesen (v):
             sollwert = write_value['Sollwert']      # in eine Zahl umgewandelter Wert (Float)
             PID_write_wert = False
         #++++++++++++++++++++++++++++++++++++++++++    
         # PID-Regler:
         #++++++++++++++++++++++++++++++++++++++++++
-        elif write_value['PID']:
+        elif write_Okay['PID']:
             #---------------------------------------------
             ## Auswahl Istwert:
             #---------------------------------------------

@@ -240,8 +240,8 @@ class NemoAchseRotWidget(QWidget):
         #---------------------------------------
         # Konfigurationen für das Senden:
         #---------------------------------------
-        self.write_task = {'Stopp': False, 'CCW': False, 'CW': False, 'Init':False, 'Define Home': False, 'Start':False, 'Send':False, 'Update Limit': False}
-        self.write_value = {'Speed': 0, 'EndRot':False, 'Limits': [0, 0, 0, 0, 0, 0], 'PID': False, 'PID-Sollwert': 0} # Limits: oGw, uGw, oGv, uGv, oGx, uGx
+        self.write_task = {'Stopp': False, 'CCW': False, 'CW': False, 'Init':False, 'Define Home': False, 'Start':False, 'Send':False, 'Update Limit': False, 'PID': False, 'EndRot':False}
+        self.write_value = {'Speed': 0, 'Limits': [0, 0, 0, 0, 0, 0], 'PID-Sollwert': 0} # Limits: oGw, uGw, oGv, uGv, oGx, uGx
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -771,22 +771,22 @@ class NemoAchseRotWidget(QWidget):
     ##########################################    
     def Rotation_Nonstopp(self):                       
         if self.EndRot.isChecked():
-            self.write_value['EndRot'] = True
+            self.write_task['EndRot'] = True
         else:
-            self.write_value['EndRot'] = False
+            self.write_task['EndRot'] = False
             self.typ_widget.Message(self.Pop_up_EndRot[self.sprache], 3, 500)
 
     def PID_ON_OFF(self):                       
         if self.PID_cb.isChecked():
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
             # Aufgaben setzen:
-            self.write_value['PID'] = True
+            self.write_task['PID'] = True
             self.write_task['Send'] = False
             self.Stopp(6)
         else:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
             # Aufgaben setzen:
-            self.write_value['PID'] = False
+            self.write_task['PID'] = False
             self.write_task['Send'] = False  
             self.Stopp(6)
             try:

@@ -355,7 +355,7 @@ class NemoAchseRot(QObject):
         #++++++++++++++++++++++++++++++++++++++++++
         # Kontinuierlische Rotation:
         #++++++++++++++++++++++++++++++++++++++++++
-        if write_value['EndRot']:
+        if write_Okay['EndRot']:
             self.CW_End = False
             self.CCW_End = False
 
@@ -419,7 +419,7 @@ class NemoAchseRot(QObject):
             elif self.rechne == 'Sub':
                 self.akIWw = self.akIWw - pos
             ## Endlose Rotation Ein/Aus:
-            if not write_value['EndRot']:
+            if not write_Okay['EndRot']:
                 # Kontrolliere die Grenzen:
                 if self.akIWw >= self.oGw and not self.CW_End:
                     self.CW_End = True
@@ -438,14 +438,14 @@ class NemoAchseRot(QObject):
         #++++++++++++++++++++++++++++++++++++++++++
         # Normaler Betrieb:
         #++++++++++++++++++++++++++++++++++++++++++
-        if not write_value ['PID']:  
+        if not write_Okay['PID']:  
             ## Sollwert Lesen (v):
             speed_vorgabe = write_value['Speed']
             PID_write_V = False
         #++++++++++++++++++++++++++++++++++++++++++    
         # PID-Regler:
         #++++++++++++++++++++++++++++++++++++++++++
-        elif write_value['PID']:
+        elif write_Okay['PID']:
             #---------------------------------------------
             ## Auswahl Istwert:
             #---------------------------------------------

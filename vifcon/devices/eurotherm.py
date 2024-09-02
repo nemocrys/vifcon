@@ -350,14 +350,14 @@ class Eurotherm(QObject):
         #++++++++++++++++++++++++++++++++++++++++++    
         # Normaler Betrieb:
         #++++++++++++++++++++++++++++++++++++++++++
-        if not write_value ['PID']:  
+        if not write_Okay['PID']:  
             # Sollwertn Lesen (OP oder Temp):
             sollwert = write_value['Sollwert']
             PID_write_OP = False
         #++++++++++++++++++++++++++++++++++++++++++
         # PID-Regler:
         #++++++++++++++++++++++++++++++++++++++++++
-        elif write_value['PID']:
+        elif write_Okay['PID']:
             #---------------------------------------------
             ## Auswahl Istwert:
             #---------------------------------------------
@@ -427,7 +427,7 @@ class Eurotherm(QObject):
             #---------------------------------------------
             ## Rezept-Modus:
             #---------------------------------------------
-            self.mode_aktiv = write_value['PID_Rezept_Mode_OP']
+            self.mode_aktiv = write_Okay['PID_Rezept_Mode_OP']
             if self.mode_aktiv:
                 self.Rez_OP = write_value['PID_Rez']
 
@@ -435,10 +435,10 @@ class Eurotherm(QObject):
         # Schreiben:
         #++++++++++++++++++++++++++++++++++++++++++
         ## Ändere Modus:
-        if write_Okay['Auto_Mod'] and not write_value['PID']:
+        if write_Okay['Auto_Mod'] and not write_Okay['PID']:
             self.write_read_answer('SW>', '0000', self.write_Modus)                
             write_Okay['Auto_Mod'] = False
-        elif write_Okay['Manuel_Mod'] or write_value['PID']:
+        elif write_Okay['Manuel_Mod'] or write_Okay['PID']:
             ## Immer beim Umsachalten, wenn die Sicherheit auf True steht wird der HO ausgelesen:
             value_HO = self.check_HO()
             if value_HO != '':

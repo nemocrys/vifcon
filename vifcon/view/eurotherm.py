@@ -243,8 +243,8 @@ class EurothermWidget(QWidget):
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = True
-        self.write_task  = {'Soll-Temperatur': False, 'Operating point':False, 'Auto_Mod': False, 'Manuel_Mod': False, 'Init':False, 'Start': False, 'EuRa': False, 'EuRa_Reset': False, 'Read_HO': False, 'Write_HO': False, 'PID-Update': False, 'Read_PID': False, 'Update Limit': False}
-        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID': False, 'PID-Sollwert': 0, 'PID_Rezept_Mode_OP': False, 'PID_Rez': -1, 'PID-Update': [0, 0, 0], 'Limits': [0, 0, 0, 0]} # Limits: oGOp, uGOp, oGx, uGx
+        self.write_task  = {'Soll-Temperatur': False, 'Operating point':False, 'Auto_Mod': False, 'Manuel_Mod': False, 'Init':False, 'Start': False, 'EuRa': False, 'EuRa_Reset': False, 'Read_HO': False, 'Write_HO': False, 'PID': False, 'PID_Rezept_Mode_OP': False, 'PID-Update': False, 'Read_PID': False, 'Update Limit': False}
+        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID-Sollwert': 0, 'PID_Rez': -1, 'PID-Update': [0, 0, 0], 'Limits': [0, 0, 0, 0]} # Limits: oGOp, uGOp, oGx, uGx
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -661,7 +661,7 @@ class EurothermWidget(QWidget):
         if self.PID_cb.isChecked():
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
             # Aufgaben setzen:
-            self.write_value['PID'] = True
+            self.write_task['PID'] = True
             self.write_task['Manuel_Mod'] = True
             self.write_task['Operating point'] = False  # Beim Umschalten keine Sollwerte anpassen!
             self.write_task['Soll-Temperatur'] = False
@@ -679,7 +679,7 @@ class EurothermWidget(QWidget):
         else:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
             # Aufgaben setzen:
-            self.write_value['PID'] = False
+            self.write_task['PID'] = False
             self.write_task['Operating point'] = True  # Beim Umschalten keine Sollwerte anpassen bzw. OP auf einen Wert setzen!
             try:
                 value = float(str(self.config['PID']['umstell_wert'].replace(',', '.')))
@@ -1009,7 +1009,7 @@ class EurothermWidget(QWidget):
                     # OP Als Erster Schritt:
                     if self.Art_list[self.step] == 'op':
                         if self.PID_cb.isChecked():
-                            self.write_value['PID_Rezept_Mode_OP'] = True
+                            self.write_task['PID_Rezept_Mode_OP'] = True
                             self.write_value['PID_Rez'] = self.value_list_op[self.step]
                         else:
                             self.write_task['Auto_Mod'] = False
@@ -1066,7 +1066,7 @@ class EurothermWidget(QWidget):
 
                 # Variablen:
                 self.Rezept_Aktiv = False
-                self.write_value['PID_Rezept_Mode_OP'] = False
+                self.write_task['PID_Rezept_Mode_OP'] = False
                 self.write_value['PID_Rez'] = -1
 
                 ## Am Ende oder bei Abbruch:
@@ -1129,7 +1129,7 @@ class EurothermWidget(QWidget):
                 ## Wenn op-Schritt, dann stelle Manuellen Modus ein und sende den OP-Wert:
                 if 'op' in self.Art_list[self.step]:
                     if self.PID_cb.isChecked():
-                        self.write_value['PID_Rezept_Mode_OP'] = True
+                        self.write_task['PID_Rezept_Mode_OP'] = True
                         self.write_value['PID_Rez'] = self.value_list_op[self.step]
                     else:
                         self.write_task['Auto_Mod'] = False
@@ -1139,7 +1139,7 @@ class EurothermWidget(QWidget):
                             self.write_value['Rez_OPTemp'] = self.value_list_op[self.step]
                         self.op_Mod = True
                 else:
-                    self.write_value['PID_Rezept_Mode_OP'] = False
+                    self.write_task['PID_Rezept_Mode_OP'] = False
                     self.write_value['PID_Rez'] = -1
             elif self.Art_list[self.step] == 'er':
                 ## Kontrolliere ob der vorherige Schritt ein op-Schritt war:

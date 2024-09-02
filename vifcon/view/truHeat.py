@@ -253,8 +253,8 @@ class TruHeatWidget(QWidget):
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = True
-        self.write_task  = {'Soll-Leistung': False, 'Soll-Strom': False, 'Soll-Spannung': False, 'Init':False, 'Ein': False, 'Aus': False, 'Start':False, 'Update Limit': False}
-        self.write_value = {'Sollwert': 0, 'Limits': [0, 0, 0, 0, False], 'PID': False, 'PID-Sollwert': 0, 'Limit Unit':self.einheit_P_einzel[self.sprache], 'PID Output-Size': 'P'} # Limits: oGWahl, uGWahl, oGx, uGx, Input Update True?
+        self.write_task  = {'Soll-Leistung': False, 'Soll-Strom': False, 'Soll-Spannung': False, 'Init':False, 'Ein': False, 'Aus': False, 'Start':False, 'Update Limit': False, 'PID': False}
+        self.write_value = {'Sollwert': 0, 'Limits': [0, 0, 0, 0, False], 'PID-Sollwert': 0, 'Limit Unit':self.einheit_P_einzel[self.sprache], 'PID Output-Size': 'P'} # Limits: oGWahl, uGWahl, oGx, uGx, Input Update True?
 
         if self.init and not self.neustart:
             self.write_task['Start'] = True
@@ -884,7 +884,7 @@ class TruHeatWidget(QWidget):
         if self.PID_cb.isChecked():
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
             # Aufgaben setzen:
-            self.write_value['PID']          = True
+            self.write_task['PID']          = True
             self.write_task['Soll-Leistung'] = False
             self.write_task['Soll-Spannung'] = False
             self.write_task['Soll-Strom']    = False
@@ -939,7 +939,7 @@ class TruHeatWidget(QWidget):
         else:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
             # Aufgaben setzen:
-            self.write_value['PID']          = False
+            self.write_task['PID']          = False
             self.write_task['Soll-Leistung'] = False
             self.write_task['Soll-Spannung'] = False
             self.write_task['Soll-Strom']    = False  
