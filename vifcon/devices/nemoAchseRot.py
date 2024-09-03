@@ -51,7 +51,7 @@ class SerialMock:
 class NemoAchseRot(QObject):
     signal_PID  = pyqtSignal(float, float, bool, float)
 
-    def __init__(self, sprache, config, config_dat, com_dict, test, neustart, multilog_aktiv, add_Ablauf_function, typ_Widget, name="Nemo-Achse-Rotation", typ = 'Antrieb'):
+    def __init__(self, sprache, config, config_dat, com_dict, test, neustart, multilog_aktiv, add_Ablauf_function, name="Nemo-Achse-Rotation", typ = 'Antrieb'):
         """ Erstelle Nemo-Achse Rot Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
         Args:
@@ -63,7 +63,6 @@ class NemoAchseRot(QObject):
             neustart (bool):                    Neustart Modus, Startkonfigurationen werden übersprungen
             multilog_aktiv (bool):              Multilog-Read/Send Aktiviert
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
-            typ_Widget (obj):                   Typ-Widget dieses Gerätes (Nutzung für Pop-Up-Fenster)
             name (str, optional):               device name.
             typ (str, optional):                device typ.
         """
@@ -79,7 +78,6 @@ class NemoAchseRot(QObject):
         self.neustart                   = neustart
         self.multilog_OnOff             = multilog_aktiv
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
-        self.typ_Widget                 = typ_Widget
         self.device_name                = name
         self.typ                        = typ
 
@@ -145,8 +143,8 @@ class NemoAchseRot(QObject):
         self.Log_Text_214_str   = ['Antriebs Startwert:',                                                                                                                                                                   'Drive start value:']
         self.Log_Text_215_str   = ['°',                                                                                                                                                                                      '°']
         self.Log_Text_219_str   = ['Knopf kann nicht ausgeführt werden da Limit erreicht!',                                                                                                                                 'Button cannot be executed because limit has been reached!']         
-        self.Log_Text_220_str   = ['Maximum Limit erreicht! (CW)!',                                                                                                                                                         'Maximum limit reached! (CW)!']
-        self.Log_Text_221_str   = ['Minimum Limit erreicht! (CCW)!',                                                                                                                                                        'Minimum limit reached! (CCW)!']
+        self.Log_Text_220_str   = ['Maximum Limit erreicht! (CW)',                                                                                                                                                          'Maximum limit reached! (CW)']
+        self.Log_Text_221_str   = ['Minimum Limit erreicht! (CCW)',                                                                                                                                                         'Minimum limit reached! (CCW)']
         self.Log_Text_249_str   = ['CW',                                                                                                                                                                                    'CW']
         self.Log_Text_250_str   = ['CCW',                                                                                                                                                                                   'CCW']
         self.Log_Text_Info_1    = ['Der Vorfaktor für die Istgeschwindigkeit beträgt:',                                                                                                                                     'The prefactor for the actual speed is:']
@@ -177,9 +175,9 @@ class NemoAchseRot(QObject):
         self.Log_Text_PID_N17   = ['Input Fehler: Input-Wert ist nicht von Typ Int oder Float! Variablen Typ:',                                                                                                             'Input error: Input value is not of type Int or Float! Variable type:']
         Log_Text_PID_N18        = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
         self.Log_Text_PID_N19   = ['Auslesefehler bei Multilog-Dictionary!',                                                                                                                                                'Reading error in multilog dictionary!']
-        self.Log_Text_PID_N20   = ['? - tatsächlicher Wert war',                                                                                                                                                            '°C - tatsächlicher Wert war']
+        self.Log_Text_PID_N20   = [f'{self.unit_PIDIn} - tatsächlicher Wert war',                                                                                                                                           f'{self.unit_PIDIn} - tatsächlicher Wert war']
         Log_Text_PID_N21        = ['Multilog Verbindung wurde in Config als Abgestellt gewählt! Eine Nutzung der Werte-Herkunft mit VM, MV oder MM ist so nicht möglich! Nutzung von Default VV!',                          'Multilog connection was selected as disabled in config! Using the value origin with VM, MV or MM is not possible! Use of default VV!']
-        self.Log_Test_PID_N22   = ['?',                                                                                                                                                                                     '?']
+        self.Log_Test_PID_N22   = [f'{self.unit_PIDIn}',                                                                                                                                                                    f'{self.unit_PIDIn}']
         self.Log_Text_LB_1      = ['Limitbereich',                                                                                                                                                                          'Limit range']
         self.Log_Text_LB_4      = ['bis',                                                                                                                                                                                   'to']
         self.Log_Text_LB_5      = ['nach Update',                                                                                                                                                                           'after update']
@@ -424,12 +422,10 @@ class NemoAchseRot(QObject):
                 if self.akIWw >= self.oGw and not self.CW_End:
                     self.CW_End = True
                     logger.warning(f'{self.device_name} - {self.Log_Text_220_str[self.sprache]}')
-                    self.typ_Widget.Message(self.Log_Text_220_str[self.sprache], 3, 450)
                     write_Okay['Stopp'] = True
                 if self.akIWw <= self.uGw and not self.CCW_End:
                     self.CCW_End = True
                     logger.warning(f'{self.device_name} - {self.Log_Text_221_str[self.sprache]}')
-                    self.typ_Widget.Message(self.Log_Text_221_str[self.sprache], 3, 450)
                     write_Okay['Stopp'] = True
                 if self.akIWw > self.uGw and self.akIWw < self.oGw:
                     self.CW_End = False
@@ -476,11 +472,11 @@ class NemoAchseRot(QObject):
                     error_Input = True
                 #### Input-Wert überschreitet Maximum:
                 elif self.Ist > self.PID_Input_Limit_Max:
-                    logger.debug(f"{self.device_name} - {self.Log_Text_PID_N15[self.sprache]} {self.PID_Input_Limit_Max} {self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Test_PID_N22[self.sprache]}")
+                    logger.debug(f"{self.device_name} - {self.Log_Text_PID_N15[self.sprache]} {self.PID_Input_Limit_Max} {self.Log_Text_PID_N20[self.sprache]} {self.Ist} {self.Log_Test_PID_N22[self.sprache]}")
                     self.Ist = self.PID_Input_Limit_Max
                 #### Input-Wert unterschreitet Minimum:
                 elif self.Ist < self.PID_Input_Limit_Min:
-                    logger.debug(f"{self.device_name} - {self.Log_Text_PID_N16[self.sprache]} {self.PID_Input_Limit_Min} {self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Test_PID_N22[self.sprache]}")
+                    logger.debug(f"{self.device_name} - {self.Log_Text_PID_N16[self.sprache]} {self.PID_Input_Limit_Min} {self.Log_Text_PID_N20[self.sprache]} {self.Ist} {self.Log_Test_PID_N22[self.sprache]}")
                     self.Ist = self.PID_Input_Limit_Min
             except Exception as e:
                 error_Input = True

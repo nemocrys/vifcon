@@ -97,6 +97,8 @@ class PIAchse(QObject):
         self.unit_PIDIn = self.config['PID']['Input_Size_unit']
         ## Andere:
         self.akPos          = 0
+        self.Min_End        = False
+        self.Max_End        = False
         self.value_name     = {'IWs': 0, 'IWv': 0, 'SWv': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist}
 
         #--------------------------------------- 
@@ -144,9 +146,9 @@ class PIAchse(QObject):
         self.Log_Text_PID_N17   = ['Input Fehler: Input-Wert ist nicht von Typ Int oder Float! Variablen Typ:',                                                                                                             'Input error: Input value is not of type Int or Float! Variable type:']
         Log_Text_PID_N18        = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
         self.Log_Text_PID_N19   = ['Auslesefehler bei Multilog-Dictionary!',                                                                                                                                                'Reading error in multilog dictionary!']
-        self.Log_Text_PID_N20   = ['? - tatsächlicher Wert war',                                                                                                                                                            '°C - tatsächlicher Wert war']
+        self.Log_Text_PID_N20   = [f'{self.unit_PIDIn} - tatsächlicher Wert war',                                                                                                                                           f'{self.unit_PIDIn} - tatsächlicher Wert war']
         Log_Text_PID_N21        = ['Multilog Verbindung wurde in Config als Abgestellt gewählt! Eine Nutzung der Werte-Herkunft mit VM, MV oder MM ist so nicht möglich! Nutzung von Default VV!',                          'Multilog connection was selected as disabled in config! Using the value origin with VM, MV or MM is not possible! Use of default VV!']
-        self.Log_Test_PID_N22   = ['?',                                                                                                                                                                                     '?']
+        self.Log_Test_PID_N22   = [f'{self.unit_PIDIn}',                                                                                                                                                                    f'{self.unit_PIDIn}']
         self.Log_Text_LB_1      = ['Limitbereich',                                                                                                                                                                          'Limit range']
         self.Log_Text_LB_4      = ['bis',                                                                                                                                                                                   'to']
         self.Log_Text_LB_5      = ['nach Update',                                                                                                                                                                           'after update']
@@ -154,14 +156,16 @@ class PIAchse(QObject):
         self.Log_Text_LB_7      = ['Output',                                                                                                                                                                                'Outout']
         self.Log_Text_LB_8      = ['Input',                                                                                                                                                                                 'Input']
         self.Log_Text_LB_unit   = ['mm/s',                                                                                                                                                                                  'mm/s']
-        ## Ablaufdatei:
-        self.Text_51_str        = ['Initialisierung!',                                                                      'Initialization!']
-        self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                       'Initialization Failed!']
-        self.Text_58_str        = ['Befehl MR erfolgreich gesendet!',                                                       'MR command sent successfully!']
-        self.Text_59_str        = ['Befehl SV erfolgreich gesendet!',                                                       'SV command sent successfully!']
-        self.Text_60_str        = ['Befehl DH erfolgreich gesendet!',                                                       'DH command sent successfully!']
-        self.Text_61_str        = ['Das Senden ist fehlgeschlagen!',                                                        'Sending failed!']
-        self.Text_62_str        = ['Achse wurde erfolgreich angehalten!',                                                   'Axis was stopped successfully!']
+        self.Log_Text_217_str   = ['Maximum Limit erreicht!',                                                                                                                                                               'Maximum limit reached!']
+        self.Log_Text_218_str   = ['Minimum Limit erreicht!',                                                                                                                                                               'Minimum limit reached!']
+        ## Ablaufdatei:                                                                                             
+        self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
+        self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
+        self.Text_58_str        = ['Befehl MR erfolgreich gesendet!',                                                                                                                                                       'MR command sent successfully!']
+        self.Text_59_str        = ['Befehl SV erfolgreich gesendet!',                                                                                                                                                       'SV command sent successfully!']
+        self.Text_60_str        = ['Befehl DH erfolgreich gesendet!',                                                                                                                                                       'DH command sent successfully!']
+        self.Text_61_str        = ['Das Senden ist fehlgeschlagen!',                                                                                                                                                        'Sending failed!']
+        self.Text_62_str        = ['Achse wurde erfolgreich angehalten!',                                                                                                                                                   'Axis was stopped successfully!']
 
         #---------------------------------------
         # Schnittstelle:
@@ -281,10 +285,12 @@ class PIAchse(QObject):
             else:                               self.PID.OutMin = write_value['Limits'][1]
             logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_LB_unit[self.sprache]}')
             ## PID-Input:
-            self.PID_Input_Limit_Max = write_value['Limits'][2]
-            self.PID_Input_Limit_Min = write_value['Limits'][3]
+            self.PID_Input_Limit_Max = write_value['Limits'][4]
+            self.PID_Input_Limit_Min = write_value['Limits'][5]
             logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')
-            
+            ## Position:
+            self.oGPos = write_value['Limits'][2]
+            self.uGPos = write_value['Limits'][3]
             write_Okay['Update Limit'] = False
         
         #++++++++++++++++++++++++++++++++++++++++++
@@ -365,6 +371,28 @@ class PIAchse(QObject):
             #---------------------------------------------
             speed_vorgabe = self.PID_Out * self.cpm
             PID_write_V = True
+        
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Lese Aktuelle Position aus:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if self.init:
+            self.akPos = self.read_TX('TP', 'P:')
+
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Limit Kontrolle:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if self.akPos > self.oGPos and not self.Max_End:
+            self.Max_End = True
+            logger.warning(f'{self.device_name} - {self.Log_Text_217_str[self.sprache]}')
+            write_Okay['Stopp'] = True
+        if self.akPos < self.uGPos and not self.Min_End:
+            self.Min_End = True
+            logger.warning(f'{self.device_name} - {self.Log_Text_218_str[self.sprache]}')
+            write_Okay['Stopp'] = True
+        if self.akPos > self.uGPos and self.akPos < self.oGPos:
+            self.Max_End = False
+            self.Min_End = False
+
 
         #++++++++++++++++++++++++++++++++++++++++++
         # Sende Stopp:
@@ -404,16 +432,14 @@ class PIAchse(QObject):
                     self.serial.write(self.t1+Befehl.encode()+self.t3)
                     write_Okay['Define Home'] = False 
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_60_str[self.sprache]}')
+                    if self.oGPos == 0:        self.Max_End = True
+                    else:                      self.Max_End = False                       
+                    if self.uGPos == 0:        self.Min_End = True                    
+                    else:                      self.Min_End = False
             except Exception as e:
                 logger.warning(f"{self.device_name} - {self.Log_Text_76_str[self.sprache]}")
                 logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]}')           
-        
-        #++++++++++++++++++++++++++++++++++++++++++
-        # Lese Aktuelle Position aus:
-        #++++++++++++++++++++++++++++++++++++++++++
-        if self.init:
-            self.akPos = self.read_TP()
 
     def stopp(self):
         ''' Halte Motor an und setze STA-LED auf rot ''' 
@@ -435,15 +461,15 @@ class PIAchse(QObject):
         '''
         try:
             # Lese Ist-Position:
-            position = self.read_TP()
+            position = self.read_TX('TP','P:')
             self.value_name['IWs'] = position       # Einheit: mm
 
             # Lese Geschwindigkeit:
-            speed = self.read_TV()
+            speed = self.read_TX('TV', 'V:')
             self.value_name['IWv'] = speed          # Einheit: mm/s
 
             # Lese Geschwindigkeit:
-            speedS = self.read_TY()
+            speedS = self.read_TX('TY', 'Y:')
             self.value_name['SWv'] = speedS         # Einheit: mm/s
 
             # Lese Zielposition in Log-Datei:
@@ -460,43 +486,28 @@ class PIAchse(QObject):
             logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
 
         return self.value_name
-
-    def read_TP(self):
-        '''Lese die Aktuelle Position
-        
-        Return:
-            position (float):   aktuelle position
-        '''
-        position = self.send_read_command('TP', 'P:')
-        position = round(position/int(self.cpm), self.nKS)
-
-        return position
     
-    def read_TY(self):
-        '''Lese die Aktuelle Programmierte Geschwindigkeit
-        
+    def read_TX(self, komando, start_str):
+        '''Lese die Anfrage an das Gerät aus
+        Args:
+            komando (str):      Befehl für die Anfrage (z.B. TP, TY, TV, TT)
+            start_str (str):    Beginn der Antwort     (z.B. P:, Y:, V:, T:)
         Return:
-            position (float):   aktuelle Sollgeschwindigkeit
+            ans (float):   aktuelle Antwort des Gerätes
         '''
-        position = self.send_read_command('TY', 'Y:')
-        position = round(position/int(self.cpm), self.nKS)
+        # Geschwindigkeit hängt vom Modell ab:
+        delay = 0.01
+        if komando == 'TV' and self.mercury_model == 'C862':
+            komando = f'TV{self.mvtime}'
+            delay = self.mvtime/1000
 
-        return position
+        # Senden und Auslesen:
+        ans = self.send_read_command(komando, start_str, delay)
+        if komando == 'TV' and self.mercury_model == 'C862':
+            ans = ans*1000/self.mvtime
+        ans = round(ans/int(self.cpm), self.nKS)
 
-    def read_TV(self):
-        '''Lese die Aktuelle Geschwindigkeit
-        
-        Return:
-            speed (float):  aktuelle Geschwindigkeit
-        '''
-        if self.mercury_model == 'C862':
-            speed = self.send_read_command(f'TV{self.mvtime}', 'V:', self.mvtime/1000) 
-            speed = speed*1000/self.mvtime
-        elif self.mercury_model == 'C863':
-            speed = self.send_read_command(f'TV', 'V:')   
-        speed = round(speed/int(self.cpm), self.nKS) 
-
-        return speed
+        return ans
 
     def send_read_command(self, Befehl, Antwortbegin, delay = 0.01):
         ''' Sendet den Lese-Befehl an die Achse.
@@ -604,7 +615,7 @@ class PIAchse(QObject):
         self.serial.write(self.t1+'TP'.encode()+self.t3)
         ant = self.serial.readline().decode()
         if 'P:' in ant:
-            self.akPos = self.read_TP()
+            self.akPos = self.read_TX('TP', 'P:')
             logger.info(f"{self.device_name} - {self.Log_Text_164_str[self.sprache]} {self.akPos} {self.Log_Text_165_str[self.sprache]}")
 
 ###################################################
@@ -661,3 +672,39 @@ class PIAchse(QObject):
 
 
 '''
+    # def read_TP(self):
+    #     '''Lese die Aktuelle Position
+        
+    #     Return:
+    #         position (float):   aktuelle position
+    #     '''
+    #     position = self.send_read_command('TP', 'P:')
+    #     position = round(position/int(self.cpm), self.nKS)
+
+    #     return position
+    
+    # def read_TY(self):
+    #     '''Lese die Aktuelle Programmierte Geschwindigkeit
+        
+    #     Return:
+    #         position (float):   aktuelle Sollgeschwindigkeit
+    #     '''
+    #     position = self.send_read_command('TY', 'Y:')
+    #     position = round(position/int(self.cpm), self.nKS)
+
+    #     return position
+
+    # def read_TV(self):
+    #     '''Lese die Aktuelle Geschwindigkeit
+        
+    #     Return:
+    #         speed (float):  aktuelle Geschwindigkeit
+    #     '''
+    #     if self.mercury_model == 'C862':
+    #         speed = self.send_read_command(f'TV{self.mvtime}', 'V:', self.mvtime/1000) 
+    #         speed = speed*1000/self.mvtime
+    #     elif self.mercury_model == 'C863':
+    #         speed = self.send_read_command(f'TV', 'V:')   
+    #     speed = round(speed/int(self.cpm), self.nKS) 
+
+    #     return speed

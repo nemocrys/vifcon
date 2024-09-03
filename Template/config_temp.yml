@@ -187,10 +187,30 @@ devices:
       parity: N
       timeout: 0.1
     multilog:
-      write_trigger: Vifcon_generator                                   # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen)                                       
-      write_port: 53000                                                 # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
-      read_trigger: DAQ-6510                                            # Hole von Multilog: Gerätebezeichnung aus Multilog
-      read_port: 0                                                      # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
+      write_trigger: Vifcon_generator                                     # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen)                                       
+      write_port: 53000                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      read_trigger: IGA-6-23-adv                                          # Hole von Multilog: Gerätebezeichnung aus Multilog
+      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
+    PID:                                                                  # Erstellung eines PID-Reglers
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
+                                                                          # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil []
+      ki: 0.003                                                           # I-Anteil []
+      kd: 0.16                                                            # D-Anteil []
+      sample: 150                                                         # Sample-Time [ms]
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht)
+      start_soll: 0                                                       # Start-Sollwert [°C]
+      umstell_wert_P: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (P-Wert)
+      umstell_wert_I: 2,5                                                 # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (I-Wert)
+      umstell_wert_U: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (U-Wert)
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+      Input_Limit_max: 100                                                # Maximum Limit für Input 
+      Input_Limit_min: 0                                                  # Minimum Limit für Input 
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist)
+      Input_Size_unit: mm                                                 # Einheit der Input-Größe
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] 
     limits:
       maxI: 35                                                          # Maximaler Strom [A]     (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 49)
       minI: 2.5                                                         # Minimaler Strom [A]     (SIMIN (minimaler Sollwert für den Ausgangsstrom) - Betriebsanleitung Generator S. 155 - Befehl 49)
@@ -199,9 +219,10 @@ devices:
       maxU: 1200                                                        # Maximale Spannung [V]   (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 51)
       minU: 0                                                           # Minimale Spannung [V]   (SUMIN (minimaler Sollwert für die Kondensatorspannung - Betriebsanleitung Generator S. 155 - Befehl 51)
     GUI:
-      legend: RezI ; RezU ; RezP ; IWU ; IWI ; IWP ; SWI ; SWU ; SWP    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
-                                                                        # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, P - Leistung, I - Strom, U - Spannung, f - Frequenz, Rez - Rezept
-                                                                        # Eingebaut: RezI, RezU, RezP, IWI, IWU, IWP, IWf, SWI, SWU, SWP, uGI, oGI, uGU, oGU, uGP, oGP
+      legend: RezI ; RezU ; RezP ; Rezx ; IWU ; IWI ; IWP ; SWI ; SWU ; SWP ; IWf ; IWxPID ; SWxPID 
+                                                                        # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                        # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, P - Leistung, I - Strom, U - Spannung, f - Frequenz, Rez - Rezept, x - PID-Input-Größe, PID - PID-Modus-Kurven
+                                                                        # Eingebaut: RezI, RezU, RezP, Rezx, IWI, IWU, IWP, IWf, SWI, SWU, SWP, uGI, oGI, uGU, oGU, uGP, oGP, IWxPID, SWxPID
     defaults:
       startCurrent: 2.5                                                 # Strom bei Programmstart [A]
       startPow: 11.2                                                    # Leistung bei Programmstart [kW]
@@ -254,6 +275,24 @@ devices:
       write_port: 54629                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
       read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
       read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
+    PID:                                                                  # Erstellung eines PID-Reglers
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
+                                                                          # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil []
+      ki: 0.003                                                           # I-Anteil []
+      kd: 0.16                                                            # D-Anteil []
+      sample: 150                                                         # Sample-Time [ms]
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht)
+      start_soll: 0                                                       # Start-Sollwert [°C]
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld)
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+      Input_Limit_max: 100                                                # Maximum Limit für Input 
+      Input_Limit_min: 0                                                  # Minimum Limit für Input 
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist)
+      Input_Size_unit: 'mm'                                               # Einheit der Input-Größe
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] 
     parameter:
       adv: '0133'                                                         # Adressauswahlcode
       cpm: 29752                                                          # Counts per mm
@@ -267,9 +306,9 @@ devices:
     GUI:
       bewegung: 'z'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter
       piSymbol: 'Un'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus)
-      legend: Rezv ; IWs ; IWv                                            # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
-                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept
-                                                                          # Eingebaut: Rezv, IWs, IWv, uGv, oGv, uGs, oGs
+      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID
     defaults:
       startSpeed: 2                                                       # Startgeschwindigkeit [mm/s]
       startPos: 0                                                         # Startposition/Startfahrweg [mm]
@@ -319,10 +358,28 @@ devices:
       parity: N
       timeout: 0.1
     multilog:
-      write_trigger: pi2                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi
-      write_port: 0 # 54628                                               # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
-      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
-      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
+      write_trigger: Pi1                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi
+      write_port: 51301                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      read_trigger: IGA-6-23-adv                                          # Hole von Multilog: Gerätebezeichnung aus Multilog
+      read_port: 56000                                                    # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
+    PID:                                                                  # Erstellung eines PID-Reglers
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
+                                                                          # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil []
+      ki: 0.003                                                           # I-Anteil []
+      kd: 0.16                                                            # D-Anteil []
+      sample: 150                                                         # Sample-Time [ms]
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht)
+      start_soll: 0                                                       # Start-Sollwert [°C]
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld)
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+      Input_Limit_max: 100                                                # Maximum Limit für Input 
+      Input_Limit_min: 0                                                  # Minimum Limit für Input 
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist)
+      Input_Size_unit: 'mm'                                               # Einheit der Input-Größe
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] 
     parameter:
       adv: '0131'                                                         # Adressauswahlcode
       cpm: 29586                                                          # Counts per mm
@@ -336,9 +393,9 @@ devices:
     GUI:
       bewegung: 'y'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter
       piSymbol: 'Re'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus)
-      legend: Rezv ; IWs ; IWv ; uGs ; oGs ; uGv ; oGv                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
-                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept
-                                                                          # Eingebaut: Rezv, IWs, IWv, uGv, oGv, uGs, oGs
+      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID
     defaults: 
       startSpeed: 2                                                       # Startgeschwindigkeit [mm/s]
       startPos: 0                                                         # Startposition/Startfahrweg [mm]
@@ -391,6 +448,24 @@ devices:
       write_port: 54629                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
       read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
       read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
+    PID:                                                                  # Erstellung eines PID-Reglers
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
+                                                                          # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil []
+      ki: 0.003                                                           # I-Anteil []
+      kd: 0.16                                                            # D-Anteil []
+      sample: 150                                                         # Sample-Time [ms]
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht)
+      start_soll: 0                                                       # Start-Sollwert [°C]
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld)
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+      Input_Limit_max: 100                                                # Maximum Limit für Input 
+      Input_Limit_min: 0                                                  # Minimum Limit für Input 
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist)
+      Input_Size_unit: 'mm'                                               # Einheit der Input-Größe
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] 
     parameter:
       adv: '0130'                                                         # Adressauswahlcode
       cpm: 29586                                                          # Counts per mm
@@ -404,9 +479,9 @@ devices:
     GUI:
       bewegung: 'x'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter
       piSymbol: 'Vo'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus)
-      legend: Rezv ; IWs ; IWv                                            # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
-                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept
-                                                                          # Eingebaut: Rezv, IWs, IWv, uGv, oGv, uGs, oGs
+      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID
     defaults:
       startSpeed: 2                                                       # Startgeschwindigkeit [mm/s]
       startPos: 0                                                         # Startposition/Startfahrweg [mm]
@@ -459,6 +534,24 @@ devices:
       write_port: 54630                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
       read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
       read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
+    PID:                                                                  # Erstellung eines PID-Reglers
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
+                                                                          # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil []
+      ki: 0.003                                                           # I-Anteil []
+      kd: 0.16                                                            # D-Anteil []
+      sample: 150                                                         # Sample-Time [ms]
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht)
+      start_soll: 0                                                       # Start-Sollwert [°C]
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld)
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+      Input_Limit_max: 100                                                # Maximum Limit für Input 
+      Input_Limit_min: 0                                                  # Minimum Limit für Input 
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist)
+      Input_Size_unit: 'mm'                                               # Einheit der Input-Größe
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] 
     parameter:
       adv: '0132'                                                         # Adressauswahlcode
       cpm: 29752                                                          # Counts per mm
@@ -472,9 +565,9 @@ devices:
     GUI:
       bewegung: 'z'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter
       piSymbol: 'Ob'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus)
-      legend: Rezv ; IWs ; IWv                                            # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
-                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept
-                                                                          # Eingebaut: Rezv, IWs, IWv, uGv, oGv, uGs, oGs
+      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID
     defaults:
       startSpeed: 2                                                       # Startgeschwindigkeit [mm/s]
       startPos: 0                                                         # Startposition/Startfahrweg [mm]

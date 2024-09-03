@@ -168,10 +168,11 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                 #---------------------------------------
                 # Schreibe Werte:
                 #---------------------------------------
-                if self.device.PID.PID_speere and self.device_widget.write_task['PID']:
-                    self.device_widget.PID_cb.setChecked(False)
-                    self.device_widget.PID_ON_OFF()
-                    self.device_widget.Fehler_Output(1, self.Log_Text_1_PID[self.sprache])
+                if not 'Nemo-Gase' in self.device_name:
+                    if self.device.PID.PID_speere and self.device_widget.write_task['PID']:
+                        self.device_widget.PID_cb.setChecked(False)
+                        self.device_widget.PID_ON_OFF()
+                        self.device_widget.Fehler_Output(1, self.Log_Text_1_PID[self.sprache])
                 #if self.device_widget.send_betätigt:                                               # Ruft nun immer die write Funktion auf!
                 if not self.test and not 'Nemo-Gase' in self.device_name:
                     self.device.write(self.device_widget.write_task, self.device_widget.write_value)    
@@ -185,7 +186,7 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                     self.device_widget.akPos = self.device.akPos
                     # Wenn Modus 2 ausgewählt, werden die Knöpfe der GUI bei der Achse bei 0 mm/s entriegelt!
                     if self.device_widget.mode == 2 and self.device_widget.losgefahren:
-                        self.device_widget.check_verriegelung(self.device.read_TV())
+                        self.device_widget.check_verriegelung(self.device.read_TX('TV', 'V:'))
                 if 'Eurotherm' in self.device_name and self.device.config['start']['sicherheit'] == True:
                     # So bald sich im Gerät der HO ändert und die Leistung ausgewählt wurde oder der Menü-Knopf gedrückt wird, wird auch im Widget die Leistung geändert!
                     self.device_widget.oGOp = self.device.oGOp
@@ -585,13 +586,13 @@ class Controller(QObject):
                         color_Ant_n = color_Ant_n + 6
                     elif 'Nemo-Achse-Linear' in device_name:
                         #### Objekte erstellen:
-                        device = NemoAchseLin(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_typ_widget,  device_name) 
+                        device = NemoAchseLin(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf,  device_name) 
                         widget = NemoAchseLinWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
                         #### Farben-Option:
                         color_Ant_n = color_Ant_n + 9
                     elif 'Nemo-Achse-Rotation' in device_name:
                         #### Objekte erstellen:
-                        device = NemoAchseRot(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_typ_widget, device_name) 
+                        device = NemoAchseRot(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name) 
                         widget = NemoAchseRotWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
                         #### Farben-Option:
                         color_Ant_n = color_Ant_n + 7
@@ -796,9 +797,10 @@ class Controller(QObject):
         # Beennde PID:
         #////////////////////////////////////////////////////////////
         for device in self.widgets:
-            self.widgets[device].write_task['PID'] = False 
-            self.devices[device].PIDThread.quit()
-            self.devices[device].timer_PID.stop()
+            if not 'Nemo-Gase' in device:
+                self.widgets[device].write_task['PID'] = False 
+                self.devices[device].PIDThread.quit()
+                self.devices[device].timer_PID.stop()
         #////////////////////////////////////////////////////////////
         # Sicheren Endzustand herstellen:
         #////////////////////////////////////////////////////////////

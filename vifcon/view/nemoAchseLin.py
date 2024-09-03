@@ -828,13 +828,17 @@ class NemoAchseLinWidget(QWidget):
     ##########################################
     # Reaktion Checkbox:
     ##########################################    
-    def PID_ON_OFF(self):                       
+    def PID_ON_OFF(self):        
+        '''PID-Modus toggeln'''               
         if self.PID_cb.isChecked():
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
             # Aufgaben setzen:
             self.write_task['PID'] = True
             self.write_task['Send'] = False
             self.Stopp(6)
+            # GUI ändern:
+            self.La_SollSpeed.setText(self.x_str[self.sprache])
+            if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[6]}")
         else:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
             # Aufgaben setzen:
@@ -851,7 +855,10 @@ class NemoAchseLinWidget(QWidget):
                 self.write_value['Speed'] = self.uGv
             else:
                 self.write_value['Speed'] = value
-
+            # GUI ändern:
+            self.La_SollSpeed.setText(self.v_str[self.sprache])
+            if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[2]}")
+            
     ##########################################
     # Betrachtung der Labels und Plots:
     ##########################################
@@ -862,14 +869,6 @@ class NemoAchseLinWidget(QWidget):
             value_dict (dict):  Dictionary mit den aktuellen Werten!
             x_value (list):     Werte für die x-Achse
         '''
-
-        ## PID-Modus - Werte Anzeige und Farbe:
-        if self.PID_cb.isChecked():
-            self.La_SollSpeed.setText(self.x_str[self.sprache])
-            if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[6]}")
-        else:
-            self.La_SollSpeed.setText(self.v_str[self.sprache])
-            if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[2]}")
                
         ## Kurven Update:
         self.data.update({'Time' : x_value[-1]})                    

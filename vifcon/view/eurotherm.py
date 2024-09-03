@@ -657,7 +657,8 @@ class EurothermWidget(QWidget):
     ##########################################
     # Reaktion auf Checkbox:
     ##########################################
-    def PID_ON_OFF(self):                       
+    def PID_ON_OFF(self):  
+        '''PID-Modus toggeln'''                     
         if self.PID_cb.isChecked():
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
             # Aufgaben setzen:
@@ -668,6 +669,11 @@ class EurothermWidget(QWidget):
 
             # GUI ändern:
             self.RB_choise_Temp.setChecked(True) 
+            if self.color_Aktiv:
+                self.labelDict['IWT'].setStyleSheet(f"color: {self.color[6]}")  # Istwert PID
+                self.La_IstTemp_text.setStyleSheet(f"color: {self.color[6]}")
+                self.labelDict['SWT'].setStyleSheet(f"color: {self.color[5]}")  # Sollwert PID
+                self.RB_choise_Temp.setStyleSheet(f"color: {self.color[5]}")
 
             # Zugriff freigeben:
             self.LE_Temp.setEnabled(True)
@@ -699,7 +705,14 @@ class EurothermWidget(QWidget):
             self.RB_choise_Temp.setEnabled(True)
             self.RB_choise_Pow.setChecked(True) 
 
-            #self.typ_widget.Message(self.Pop_up_EndRot[self.sprache], 3, 500)
+            # GUI ändern:
+            if self.color_Aktiv:
+                self.labelDict['IWT'].setStyleSheet(f"color: {self.color[0]}")  # Istwert PID
+                self.La_IstTemp_text.setStyleSheet(f"color: {self.color[0]}")  
+                self.labelDict['SWT'].setStyleSheet(f"color: {self.color[1]}")  # Sollwert PID
+                self.RB_choise_Temp.setStyleSheet(f"color: {self.color[1]}")
+
+            #self.typ_widget.Message(self.Pop_up_EndRot[self.sprache], 3, 500)             
 
     ##########################################
     # Reaktion auf Butttons:
@@ -779,8 +792,7 @@ class EurothermWidget(QWidget):
     def Stopp(self, n = 3):
         ''' Setzt den Eurotherm in einen Sicheren Zustand '''
         if self.init:
-            if n == 5:
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
+            if n == 5: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
             self.PID_cb.setChecked(False)
             self.PID_ON_OFF()
             self.RezEnde(excecute=n)
@@ -881,19 +893,6 @@ class EurothermWidget(QWidget):
             value_dict (dict):  Dictionary mit den aktuellen Werten!
             x_value (list):     Werte für die x-Achse
         '''
-
-        ## PID-Modus - Werte Anzeige und Farbe:
-        if self.color_Aktiv:
-            if self.PID_cb.isChecked():
-                self.labelDict['IWT'].setStyleSheet(f"color: {self.color[6]}")  # Istwert PID
-                self.La_IstTemp_text.setStyleSheet(f"color: {self.color[6]}")
-                self.labelDict['SWT'].setStyleSheet(f"color: {self.color[5]}")  # Sollwert PID
-                self.RB_choise_Temp.setStyleSheet(f"color: {self.color[5]}")
-            else:
-                self.labelDict['IWT'].setStyleSheet(f"color: {self.color[0]}")  # Istwert PID
-                self.La_IstTemp_text.setStyleSheet(f"color: {self.color[0]}")  
-                self.labelDict['SWT'].setStyleSheet(f"color: {self.color[1]}")  # Sollwert PID
-                self.RB_choise_Temp.setStyleSheet(f"color: {self.color[1]}")
 
         ## Kurven Update:
         self.data.update({'Time' : x_value[-1]})                    

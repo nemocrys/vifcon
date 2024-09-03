@@ -259,7 +259,7 @@ class PIAchseWidget(QWidget):
         #---------------------------------------
         #self.send_betätigt = False
         self.write_task  = {'Stopp': False, 'Sende Position': False, 'Sende Speed': False, 'Init':False, 'Define Home': False, 'Start':False, 'Update Limit': False, 'PID': False}
-        self.write_value = {'Position': 0, 'Speed': 0, 'Limits': [0, 0, 0, 0], 'PID-Sollwert': 0} # Limits: oGv, uGv, oGx, uGx
+        self.write_value = {'Position': 0, 'Speed': 0, 'Limits': [0, 0, 0, 0, 0, 0], 'PID-Sollwert': 0} # Limits: oGv, uGv, oGPos, uGPos, oGx, uGx
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -802,6 +802,7 @@ class PIAchseWidget(QWidget):
 
             # Entriegelung der Bewegungsknöpfe:
             self.Achse_steht = True
+            self.entriegel_Knopf()
                 
             # Timer start:
             if self.mode == 1 and not self.PID_cb.isChecked():
@@ -937,7 +938,7 @@ class PIAchseWidget(QWidget):
                     newPos = pos_value
                 ## Kontrolliere die Grenzen/Limits:
                 if newPos < self.uGPos or newPos > self.oGPos:   
-                    self.Fehler_Output(1, self.La_error_2, f'{self.err_2_str[self.sprache]} {self.uGPos} {self.err_3_str[self.sprache]} {self.oGPos}', self.Text_42_str[self.sprache])                                                               
+                    self.Fehler_Output(1, self.La_error_2, f'{self.err_2_str[self.sprache]} {self.uGPos} {self.err_3_str[self.sprache]} {self.oGPos} {self.einheit_s_einzel[self.sprache]}', self.Text_42_str[self.sprache])                                                               
                 ## Alles in Ordnung mit der Eingabe:
                 else:       
                     self.Fehler_Output(0, self.La_error_2)                                                                                   
@@ -953,13 +954,13 @@ class PIAchseWidget(QWidget):
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # Kontrolle Geschwindigkeit:
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if self.PID_cb.isChecked(): oG, uG = self.oGx, self.uGx
-            else:                       oG, uG = self.oGv, self.uGv
+            if self.PID_cb.isChecked(): oG, uG, unit = self.oGx, self.uGx, self.einheit_x_einzel[self.sprache]
+            else:                       oG, uG, unit = self.oGv, self.uGv, self.einheit_v_einzel[self.sprache]
             try:
                 # Umwandeln Geschwindigkeit:
                 speed_value = float(speed_value)
                 if speed_value < uG or speed_value > oG:  
-                    self.Fehler_Output(1, self.La_error_1, f'{self.err_2_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG}', self.Text_42_str[self.sprache])                                                                  
+                    self.Fehler_Output(1, self.La_error_1, f'{self.err_2_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG} {unit}', self.Text_42_str[self.sprache])                                                                  
                 elif speed_value < 0:
                     self.Fehler_Output(1, self.La_error_1, self.err_22_str[self.sprache], self.Text_ExLimit_str[self.sprache])
                 else:
@@ -978,7 +979,8 @@ class PIAchseWidget(QWidget):
     ##########################################
     # Reaktion Checkbox:
     ##########################################    
-    def PID_ON_OFF(self):                       
+    def PID_ON_OFF(self):  
+        '''PID-Modus toggeln'''                     
         if self.PID_cb.isChecked():
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
             # Aufgaben setzen:
@@ -1119,7 +1121,7 @@ class PIAchseWidget(QWidget):
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGPos} {self.Log_Text_LB_4[self.sprache]} {self.oGPos} {self.einheit_s_einzel[self.sprache]}')
 
         self.write_task['Update Limit']     = True
-        self.write_value['Limits']          = [self.oGv, self.uGv, self.oGx, self.uGx]
+        self.write_value['Limits']          = [self.oGv, self.uGv, self.oGPos, self.uGPos, self.oGx, self.uGx]
 
     ##########################################
     # Reaktion auf Rezepte:
@@ -1164,6 +1166,7 @@ class PIAchseWidget(QWidget):
                     self.RB_choise_relPos.setEnabled(False)
                     self.RB_choise_absPos.setEnabled(False)
                     self.Auswahl.setEnabled(False)
+                    self.PID_cb.setEnabled(False)
 
                     # Timer Starten:
                     self.RezTimer.setInterval(int(abs(self.time_list[self.step]*1000)))
@@ -1199,6 +1202,7 @@ class PIAchseWidget(QWidget):
                 self.RB_choise_relPos.setEnabled(True)
                 self.RB_choise_absPos.setEnabled(True)
                 self.Auswahl.setEnabled(True)
+                self.PID_cb.setEnabled(True)
 
                 # Variablen:
                 self.Rezept_Aktiv = False

@@ -880,7 +880,8 @@ class TruHeatWidget(QWidget):
     ##########################################
     # Reaktion Checkbox:
     ##########################################    
-    def PID_ON_OFF(self):                       
+    def PID_ON_OFF(self):  
+        '''PID-Modus toggeln'''                     
         if self.PID_cb.isChecked():
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
             # Aufgaben setzen:
@@ -1006,6 +1007,8 @@ class TruHeatWidget(QWidget):
         ''' Setzt den Eurotherm in einen Sicheren Zustand '''
         if self.init:
             if n == 5:  self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
+            self.PID_cb.setChecked(False)
+            self.PID_ON_OFF()
             self.RezEnde(n)
             self.THAus()
             self.write_value['Sollwert'] = 0

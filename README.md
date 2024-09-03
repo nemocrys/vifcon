@@ -56,7 +56,7 @@ VIFCON is started by calling [vifcon_main.py](vifcon_main.py).
 python .\vifcon_main.py
 ```
 
-To view VIFCON without devices or to get a first impression of the control system, the template can be used. Vi#IFCON is started as follows:
+To view VIFCON without devices or to get a first impression of the control system, the template can be used. VIFCON is started as follows:
 ```
 python .\vifcon_main.py -t -c ./Template/config_temp.yml
 ```
