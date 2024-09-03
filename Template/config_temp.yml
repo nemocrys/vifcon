@@ -1,6 +1,7 @@
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 time:
   dt-main: 150                                                            # Reaktionszeit [ms]
+  timeout_exit: 10                                                        # Timeout für die Thread-Abarbeitung bei Exit [s] -> ACHTUNG: Nicht zu niedrig setzen, da der Sichere Endzustand sonst eventuell nicht erreicht werden kann!!!! (Default: 10 s)
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Function_Skip:                                                            # Skip die folgenden Funktionen
   Multilog_Link: 0                                                        # Multilog-Verbindung: True - On, False - Off
