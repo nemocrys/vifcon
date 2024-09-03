@@ -299,66 +299,67 @@ class Controller(QObject):
             self.sprache = 1
         
         ## Variablen:
-        main_window_tab_1_str   = ['Steuerung'  ,                                                                                                       'Control']
-        main_window_tab_2_str   = ['Überwachung',                                                                                                       'Monitoring']
-        TypA                    = ['Antriebe',                                                                                                          'Drives']
-        TypG                    = ['Generatoren und Regler',                                                                                            'Generators and Controllers']
+        main_window_tab_1_str   = ['Steuerung'  ,                                                                                                                                           'Control']
+        main_window_tab_2_str   = ['Überwachung',                                                                                                                                           'Monitoring']
+        TypA                    = ['Antriebe',                                                                                                                                              'Drives']
+        TypG                    = ['Generatoren und Regler',                                                                                                                                'Generators and Controllers']
         ## Logging:                                                     
-        self.Log_Text_6_str     = ["Initialisiere VIFCON",                                                                                              'Initialize VIFCON']
-        self.Log_Text_7_str     = ['Konfiguration:',                                                                                                    'Configuration:']
-        self.Log_Text_8_str     = ["Test Modus aktiv.",                                                                                                 "Test mode active."]
-        self.Log_Text_9_str     = ['In der Config stimmt etwas nicht! Default Ein: Nur Warning in Konsole möglich.',                                    'Something is wrong in the config! Default On: Only warning in console possible.']
-        self.Log_Text_10_str    = ['in QMutex',                                                                                                         'in QMutex']
-        self.Log_Text_11_str    = ['Das Gerät konnte nicht in der Menüleiste Initialisierung erstellt werden!',                                         'The device could not be created in the initialization menu bar!']
-        self.Log_Text_12_str    = ["Bereite Threads vor",                                                                                               "Prepare threads"]
-        self.Log_Text_13_str    = ['in Thread',                                                                                                         'in thread']
-        self.Log_Text_14_str    = ['Start des Sampling-Timers',                                                                                         'Start of the sampling timer']
-        self.Log_Text_15_str    = ['Update GUI von',                                                                                                    'Update GUI from']
-        self.Log_Text_16_str    = ['Fehler beim Updaten der GUI im Gerät',                                                                              'Error updating the GUI in the device']
-        self.Log_Text_17_str    = ["Aufruf der Threads!",                                                                                               "Calling the Threads!"]
-        self.Log_Text_18_str    = ['Beende Thread',                                                                                                     'Quitting thread']
-        self.Log_Text_19_str    = ['Schließe Port am Gerät',                                                                                            'Close port on device']
-        self.Log_Text_20_str    = ['Kopiere Config-Datei in',                                                                                           'Copy config file to']
-        self.Log_Text_21_str    = ['Kopiere Logging Datei in',                                                                                          'Copy logging file into']
-        self.Log_Text_22_str    = ['Speichere Plot des',                                                                                                'Save plot of']
-        self.Log_Text_23_str    = ['Typs in',                                                                                                           'type in']
-        self.Log_Text_24_str    = ['Stoppe alle Achsen!',                                                                                               'Stop all axes!']
-        self.Log_Text_25_str    = ['Achsen sollen synchron fahren!',                                                                                    'Axes should move synchronously!']
-        self.Log_Text_26_str    = ['Synchro Rezept!',                                                                                                   'Synchro recipe!']
-        self.Log_Text_27_str    = ['Update Konfiguration (Update Rezepte):',                                                                            'Update configuration (update recipes):']
-        self.Log_Text_203_str   = ['Synchro Rezept Abschaltung!',                                                                                       'Synchro recipe shutdown!']
-        self.Log_Text_204_str   = ['Das Gerät konnte nicht in der Menüleiste Limit oder Update VIFCON-PID-Parameter erstellt werden!',                  'The device could not be created in the menu bar Limit or Update VIFCON PID parameters!']
-        self.Log_Text_208_str   = ['Beende Multilog Verbindung und Beende den Thread:',                                                                 'Close Multilog connection and end the thread:']
-        self.Log_Text_222_str   = ['Der Aufbau mit dem Gamepad ist fehlgeschlagen!',                                                                    'The setup with the gamepad failed!']
-        self.Log_Text_223_str   = ['Start des Gamepad-Threads!',                                                                                        'Start of the gamepad thread!']
-        self.Log_Text_251_str   = ['Main-Window Größe (x-Koordinate, y-Koordinate, Breite, Höhe)',                                                      'Main window size (x coordinate, y coordinate, width, height)']
-        self.Log_Text_252_str   = ['Geräte-Widget Größe (x-Koordinate, y-Koordinate, Breite, Höhe)',                                                    'Device widget size (x-coordinate, y-coordinate, width, height)']
-        self.Log_Text_End_str   = ['Beenden Betätigt - Sicheren Zustand herstellen, Threads beenden, Ports schließen, Dateien und Plots speichern',     'Exit Activated - Establish a safe state, terminate threads, close ports, save files and plots']
-        self.Log_Text_300_str   = ['Anwendung Schließen - Aufruf Exit - Von:',                                                                          'Application Close - Call Exit - From:']  
-        self.Log_Text_301_str   = ['bis',                                                                                                               'to']        
-        self.Log_Text_302_str   = ['Gesamtdauer:',                                                                                                      'Total duration:']
-        self.Log_Text_303_str   = ['s',                                                                                                                 's']
-        self.Log_Text_304_str   = ['Aufruf der Threads bzw. der Funktion ckeck_device:',                                                                'Calling the threads or the function ckeck_device:']
-        self.Log_Text_305_str   = ['Startzeit:',                                                                                                        'Start time:']
-        self.Log_Text_S_GUI     = ['Speichere die aktuell sichtbare GUI in',                                                                            'Save the currently visible GUI in']
-        self.Log_Text_Color     = ['Definierte Farben aufgebraucht! Folgend werden nun neue zufällige Farben für die Kurven verwendet!',                'Defined colors used up! New random colors will now be used for the curves!']
+        self.Log_Text_6_str     = ["Initialisiere VIFCON",                                                                                                                                  'Initialize VIFCON']
+        self.Log_Text_7_str     = ['Konfiguration:',                                                                                                                                        'Configuration:']
+        self.Log_Text_8_str     = ["Test Modus aktiv.",                                                                                                                                     "Test mode active."]
+        self.Log_Text_9_str     = ['In der Config stimmt etwas nicht! Default Ein: Nur Warning in Konsole möglich.',                                                                        'Something is wrong in the config! Default On: Only warning in console possible.']
+        self.Log_Text_10_str    = ['in QMutex',                                                                                                                                             'in QMutex']
+        self.Log_Text_11_str    = ['Das Gerät konnte nicht in der Menüleiste Initialisierung erstellt werden!',                                                                             'The device could not be created in the initialization menu bar!']
+        self.Log_Text_12_str    = ["Bereite Threads vor",                                                                                                                                   "Prepare threads"]
+        self.Log_Text_13_str    = ['in Thread',                                                                                                                                             'in thread']
+        self.Log_Text_14_str    = ['Start des Sampling-Timers',                                                                                                                             'Start of the sampling timer']
+        self.Log_Text_15_str    = ['Update GUI von',                                                                                                                                        'Update GUI from']
+        self.Log_Text_16_str    = ['Fehler beim Updaten der GUI im Gerät',                                                                                                                  'Error updating the GUI in the device']
+        self.Log_Text_17_str    = ["Aufruf der Threads!",                                                                                                                                   "Calling the Threads!"]
+        self.Log_Text_18_str    = ['Beende Thread',                                                                                                                                         'Quitting thread']
+        self.Log_Text_19_str    = ['Schließe Port am Gerät',                                                                                                                                'Close port on device']
+        self.Log_Text_20_str    = ['Kopiere Config-Datei in',                                                                                                                               'Copy config file to']
+        self.Log_Text_21_str    = ['Kopiere Logging Datei in',                                                                                                                              'Copy logging file into']
+        self.Log_Text_22_str    = ['Speichere Plot des',                                                                                                                                    'Save plot of']
+        self.Log_Text_23_str    = ['Typs in',                                                                                                                                               'type in']
+        self.Log_Text_24_str    = ['Stoppe alle Achsen!',                                                                                                                                   'Stop all axes!']
+        self.Log_Text_25_str    = ['Achsen sollen synchron fahren!',                                                                                                                        'Axes should move synchronously!']
+        self.Log_Text_26_str    = ['Synchro Rezept!',                                                                                                                                       'Synchro recipe!']
+        self.Log_Text_27_str    = ['Update Konfiguration (Update Rezepte):',                                                                                                                'Update configuration (update recipes):']
+        self.Log_Text_203_str   = ['Synchro Rezept Abschaltung!',                                                                                                                           'Synchro recipe shutdown!']
+        self.Log_Text_204_str   = ['Das Gerät konnte nicht in der Menüleiste Limit oder Update VIFCON-PID-Parameter erstellt werden!',                                                      'The device could not be created in the menu bar Limit or Update VIFCON PID parameters!']
+        self.Log_Text_208_str   = ['Beende Multilog Verbindung und Beende den Thread:',                                                                                                     'Close Multilog connection and end the thread:']
+        self.Log_Text_222_str   = ['Der Aufbau mit dem Gamepad ist fehlgeschlagen!',                                                                                                        'The setup with the gamepad failed!']
+        self.Log_Text_223_str   = ['Start des Gamepad-Threads!',                                                                                                                            'Start of the gamepad thread!']
+        self.Log_Text_251_str   = ['Main-Window Größe (x-Koordinate, y-Koordinate, Breite, Höhe)',                                                                                          'Main window size (x coordinate, y coordinate, width, height)']
+        self.Log_Text_252_str   = ['Geräte-Widget Größe (x-Koordinate, y-Koordinate, Breite, Höhe)',                                                                                        'Device widget size (x-coordinate, y-coordinate, width, height)']
+        self.Log_Text_End_str   = ['Beenden Betätigt - Sicheren Zustand herstellen, Threads beenden, Ports schließen, Dateien und Plots speichern',                                         'Exit Activated - Establish a safe state, terminate threads, close ports, save files and plots']
+        self.Log_Text_300_str   = ['Anwendung Schließen - Aufruf Exit - Von:',                                                                                                              'Application Close - Call Exit - From:']  
+        self.Log_Text_301_str   = ['bis',                                                                                                                                                   'to']        
+        self.Log_Text_302_str   = ['Gesamtdauer:',                                                                                                                                          'Total duration:']
+        self.Log_Text_303_str   = ['s',                                                                                                                                                     's']
+        self.Log_Text_304_str   = ['Aufruf der Threads bzw. der Funktion ckeck_device:',                                                                                                    'Calling the threads or the function ckeck_device:']
+        self.Log_Text_305_str   = ['Startzeit:',                                                                                                                                            'Start time:']
+        self.Log_Text_S_GUI     = ['Speichere die aktuell sichtbare GUI in',                                                                                                                'Save the currently visible GUI in']
+        self.Log_Text_Color     = ['Definierte Farben aufgebraucht! Folgend werden nun neue zufällige Farben für die Kurven verwendet!',                                                    'Defined colors used up! New random colors will now be used for the curves!']
+        self.Log_Text_Exit_str  = ['Die Timeout-Zeit wurde erreicht! Bearbeitung der Threads wird auf False gesetzt! Beachte das der Sichere Endzustand eventuell nicht erreicht wurde!!',  'The timeout has been reached! Thread processing is set to false! Note that the safe end state may not have been reached!!']
         ## Error:
-        self.err_Text_1         = ['Zu hohe Verzeichnisanzahl.',                                                                                        "Too high directory count."]
-        self.err_Text_2         = ['Synchron Modus benötigt\nAbsolute Positionierung (PI-Achse)!!',                                                     'Synchronous mode requires\nabsolute positioning (PI axis)!!']
-        ## Ablaufdatei:
-        self.Text_2_str         = ['Ablauf der Messung:',                                                                                               'Measuring process:']
-        self.Text_3_str         = ['Werteingaben und Knopfberührungen',                                                                                 'Value entries and button touches']
-        self.Text_4_str         = ['Exit-Knopf betätigt - Programm beendet!',                                                                           'Exit button pressed - program ended!']
-        self.Text_5_str         = ['Knopf betätigt - Alle',                                                                                             'Button pressed - All']
-        self.Text_6_str         = ['stoppen!',                                                                                                          'stop!']
-        self.Text_7_str         = ['Knopf betätigt - Synchrones Achsen Fahren!',                                                                        'Button pressed - synchronous axis movement!']
-        self.Text_8_str         = ['Menü-Knopf betätigt - Synchro Rezepte Start!',                                                                      'Menu button pressed - Synchro recipes start!']
-        self.Text_9_str         = ['Menü-Knopf betätigt - Rezepte Neu einlesen!',                                                                       'Menu button pressed - re-read recipes!']
-        self.Text_79_str        = ['Menü-Knopf betätigt - Synchro Rezepte Ende!',                                                                       'Menu button pressed - Synchro recipes end!']
+        self.err_Text_1         = ['Zu hohe Verzeichnisanzahl.',                                                                                                                            "Too high directory count."]
+        self.err_Text_2         = ['Synchron Modus benötigt\nAbsolute Positionierung (PI-Achse)!!',                                                                                         'Synchronous mode requires\nabsolute positioning (PI axis)!!']
+        ## Ablaufdatei:                                  
+        self.Text_2_str         = ['Ablauf der Messung:',                                                                                                                                   'Measuring process:']
+        self.Text_3_str         = ['Werteingaben und Knopfberührungen',                                                                                                                     'Value entries and button touches']
+        self.Text_4_str         = ['Exit-Knopf betätigt - Programm beendet!',                                                                                                               'Exit button pressed - program ended!']
+        self.Text_5_str         = ['Knopf betätigt - Alle',                                                                                                                                 'Button pressed - All']
+        self.Text_6_str         = ['stoppen!',                                                                                                                                              'stop!']
+        self.Text_7_str         = ['Knopf betätigt - Synchrones Achsen Fahren!',                                                                                                            'Button pressed - synchronous axis movement!']
+        self.Text_8_str         = ['Menü-Knopf betätigt - Synchro Rezepte Start!',                                                                                                          'Menu button pressed - Synchro recipes start!']
+        self.Text_9_str         = ['Menü-Knopf betätigt - Rezepte Neu einlesen!',                                                                                                           'Menu button pressed - re-read recipes!']
+        self.Text_79_str        = ['Menü-Knopf betätigt - Synchro Rezepte Ende!',                                                                                                           'Menu button pressed - Synchro recipes end!']
         ## Menü:
-        EuHO_Menu_str           = ['&HO lesen',                                                                                                         'Read &HO']
-        EuPIDS_Menu_str         = ['PID-Parameter &schreiben',                                                                                          '&Write PID parameters']
-        EuPIDR_Menu_str         = ['PID-Paramete&r lesen',                                                                                              '&Read PID parameters']
+        EuHO_Menu_str           = ['&HO lesen',                                                                                                                                             'Read &HO']
+        EuPIDS_Menu_str         = ['PID-Parameter &schreiben',                                                                                                                              '&Write PID parameters']
+        EuPIDR_Menu_str         = ['PID-Paramete&r lesen',                                                                                                                                  '&Read PID parameters']
 
         #--------------------------------------------------------------------------
         # Logging-Datei erstellen:
@@ -834,12 +835,25 @@ class Controller(QObject):
             sampler.exit = True
         ## Thread abschließen:
         ''' Info: Durch das Gamepad (pygame) kann es zu Verzögerungen kommen! Noch überarbeiten!'''
+        ### Timeout setzen:
+        try:    timeout = float(str(self.config["time"]["timeout_exit"]).replace(',','.')) 
+        except: timeout = 10    # Sekunden      
+        ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
+        ### While-Schleife um die Threads sicher abzuarbeiten:
         while 1: 
             not_done = False
             for sampler in self.samplers:
                 if not sampler.end_done:
                     not_done = True
             if not not_done:
+                break
+            #### Timeout:
+            self.time = datetime.datetime.now(datetime.timezone.utc).astimezone()
+            timediff = (self.time - ak_time).total_seconds()                                                       
+            if timediff >= timeout:
+                logger.warning(self.Log_Text_Exit_str[self.sprache])
+                for sampler in self.samplers:
+                    sampler.port = False
                 break
         #////////////////////////////////////////////////////////////
         # Beende die Threads - Teil 2:

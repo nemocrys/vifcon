@@ -441,7 +441,7 @@ class Eurotherm(QObject):
         elif write_Okay['Manuel_Mod'] or write_Okay['PID']:
             ## Immer beim Umsachalten, wenn die Sicherheit auf True steht wird der HO ausgelesen:
             value_HO = self.check_HO()
-            if value_HO != '':
+            if value_HO != '' and value_HO != m.nan:
                 self.oGOp = value_HO
             self.write_read_answer('SW>', '8000', self.write_Modus)
             write_Okay['Manuel_Mod'] = False
@@ -485,8 +485,13 @@ class Eurotherm(QObject):
             elif write_Okay[auswahl] and auswahl == 'EuRa_Reset':
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_78_str[self.sprache]}')
                 ### Lese aktuellen Sollwert:
-                self.serial.write(self.read_soll_temperatur.encode())
-                soll_temperatur = float(self.serial.readline().decode()[3:-2])
+                try:    
+                    self.serial.write(self.read_soll_temperatur.encode())
+                    soll_temperatur = float(self.serial.readline().decode()[3:-2])
+                except Exception as e: 
+                    soll_temperatur = self.value_name['IWT']    # setze letzten gemessenen Istwert als Sollwert ein!!
+                    logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]} ({self.read_soll_temperatur.encode()})")
+                    logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
                 ### Übergebe diesem Eurotherm:
                 self.write_read_answer('SL', str(soll_temperatur), self.write_temperatur)
                 ### Reset des Programms:
@@ -495,7 +500,7 @@ class Eurotherm(QObject):
             ## Lese Maximum OP:
             elif write_Okay[auswahl] and auswahl == 'Read_HO':
                 value_HO = self.check_HO()
-                if value_HO != '':
+                if value_HO != '' and value_HO != m.nan:
                     self.oGOp = value_HO
                 write_Okay[auswahl] = False
             ## Schreibe Maximum OP.
@@ -631,8 +636,13 @@ class Eurotherm(QObject):
         Return:
             ans (float):    Antwort des Gerätes in Float umgefandelt
         '''
-        self.serial.write(befehl.encode())
-        ans = float(self.serial.readline().decode()[3:-2])
+        try:
+            self.serial.write(befehl.encode())
+            ans = float(self.serial.readline().decode()[3:-2])
+        except Exception as e: 
+            ans = m.nan         # Input-Filter fängt das ab!
+            logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]} ({befehl.encode()})")
+            logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
         return ans
 
     def check_HO(self):
