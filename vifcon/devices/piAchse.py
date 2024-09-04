@@ -397,7 +397,6 @@ class PIAchse(QObject):
             self.Max_End = False
             self.Min_End = False
 
-
         #++++++++++++++++++++++++++++++++++++++++++
         # Sende Stopp:
         #++++++++++++++++++++++++++++++++++++++++++
