@@ -97,6 +97,7 @@ class PIAchse(QObject):
         self.unit_PIDIn = self.config['PID']['Input_Size_unit']
         ## Andere:
         self.akPos          = 0
+        self.last_Pos       = 0
         self.Min_End        = False
         self.Max_End        = False
         self.value_name     = {'IWs': 0, 'IWv': 0, 'SWv': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist}
@@ -109,6 +110,7 @@ class PIAchse(QObject):
         self.Log_Text_61_str    = ['Aufbau Schnittstelle des Geräts fehlgeschlagen! Programm wird beendet!',                'Setup of the device interface failed! Program will end!']
         self.Log_Text_62_str    = ['Fehler Grund (Schnittstellen Aufbau):',                                                 'Error reason (interface structure):']
         self.Log_Text_64_str    = ['Das Gerät konnte nicht ausgelesen werden.',                                             'The device could not be read.']
+        self.Log_Text_64_1_str  = ['Das Gerät konnte nicht angesprochen werden.',                                           'The device could not be addressed.']
         self.Log_Text_68_str    = ['Das Gerät konnte nicht initialisiert werden!',                                          'The device could not be initialized!']
         self.Log_Text_69_str    = ['Fehler Grund (Initialisierung):',                                                       'Error reason (initialization):']
         self.Log_Text_70_str    = ['Initialisierung aufheben! Gerät abtrennen!',                                            'Cancel initialization! Disconnect device!']
@@ -377,6 +379,8 @@ class PIAchse(QObject):
         #++++++++++++++++++++++++++++++++++++++++++
         if self.init:
             self.akPos = self.read_TX('TP', 'P:')
+            if self.akPos == m.nan: self.akPos = self.last_Pos
+            else:                   self.last_Pos = self.akPos
 
         #++++++++++++++++++++++++++++++++++++++++++
         # Limit Kontrolle:
@@ -444,11 +448,19 @@ class PIAchse(QObject):
     def stopp(self):
         ''' Halte Motor an und setze STA-LED auf rot ''' 
         Befehl = 'AB'                                                                                            
-        self.serial.write(self.t1+Befehl.encode()+self.t3)
+        try: 
+            self.serial.write(self.t1+Befehl.encode()+self.t3)
+        except Exception as e:
+            logger.warning(f"{self.device_name} - {self.Log_Text_64_1_str[self.sprache]} ({Befehl})")
+            logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")
         time.sleep(0.1)                                                 # Kurze Verzögerung, damit der Motor stehen bleiben kann und die Zielposition geupdatet werden kann
         Befehl = 'MF'
-        self.serial.write(self.t1+Befehl.encode()+self.t3)              # Status Lampe leuchtet nun Rot
-        self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_62_str[self.sprache]}')          
+        try: 
+            self.serial.write(self.t1+Befehl.encode()+self.t3)              # Status Lampe leuchtet nun Rot
+            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_62_str[self.sprache]}') 
+        except Exception as e:
+            logger.warning(f"{self.device_name} - {self.Log_Text_64_1_str[self.sprache]} ({Befehl})")
+            logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")         
 
     ##########################################
     # Schnittstelle (lesen):
@@ -501,11 +513,12 @@ class PIAchse(QObject):
             komando = f'TV{self.mvtime}'
             delay = self.mvtime/1000
 
-        # Senden und Auslesen:
+        # Senden und Auslesen:                                              
         ans = self.send_read_command(komando, start_str, delay)
-        if komando == 'TV' and self.mercury_model == 'C862':
-            ans = ans*1000/self.mvtime
-        ans = round(ans/int(self.cpm), self.nKS)
+        if not ans == m.nan:
+            if komando == 'TV' and self.mercury_model == 'C862':
+                ans = ans*1000/self.mvtime
+            ans = round(ans/int(self.cpm), self.nKS)
 
         return ans
 
@@ -520,24 +533,29 @@ class PIAchse(QObject):
             ant (int):                        Umgewandelte Zahl 
         '''
         n = 0
-        self.serial.write(self.t1+Befehl.encode()+self.t3)
-        time.sleep(delay)
-        ant = self.serial.readline().decode()
-        ant = self.entferneSteuerzeichen(ant)
-        while n != 10:
-            if Antwortbegin in ant and len(ant) == 13:
-                ant = self.wertSchneiden(ant, Antwortbegin)
-                break
-            else:
-                logger.warning(f'{self.Log_Text_159_str[self.sprache]} {n} {self.Log_Text_160_str[self.sprache]} ({Befehl})')
-                n += 1
+        try:
             self.serial.write(self.t1+Befehl.encode()+self.t3)
             time.sleep(delay)
             ant = self.serial.readline().decode()
             ant = self.entferneSteuerzeichen(ant)
-                
-            if n == 10:
-                ant = ''
+            while n != 10:
+                if Antwortbegin in ant and len(ant) == 13:
+                    ant = self.wertSchneiden(ant, Antwortbegin)
+                    break
+                else:
+                    logger.warning(f'{self.Log_Text_159_str[self.sprache]} {n} {self.Log_Text_160_str[self.sprache]} ({Befehl})')
+                    n += 1
+                self.serial.write(self.t1+Befehl.encode()+self.t3)
+                time.sleep(delay)
+                ant = self.serial.readline().decode()
+                ant = self.entferneSteuerzeichen(ant)
+                    
+                if n == 10:
+                    ant = m.nan
+        except:
+            logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]} ({Befehl})")
+            logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
+            ant = m.nan
         return ant
 
     def entferneSteuerzeichen(self, String):
@@ -596,27 +614,37 @@ class PIAchse(QObject):
 
     def Start_Werte(self):
         '''Lese und Schreibe bestimmte Werte bei Start des Gerätes!'''
-        ## Board Adresse:
-        self.serial.write(self.t1+'TB'.encode()+self.t3)
-        ant_TB = self.serial.readline().decode()
-        ant_TB = self.entferneSteuerzeichen(ant_TB)
-        logger.info(f"{self.device_name} - {self.Log_Text_161_str[self.sprache]} {ant_TB}")
-        ## Status:
-        self.serial.write(self.t1+'TS'.encode()+self.t3)
-        ant_ST = self.serial.readline().decode()
-        ant_ST = self.entferneSteuerzeichen(ant_ST)
-        logger.info(f"{self.device_name} - {self.Log_Text_162_str[self.sprache]} {ant_ST}")
-        ## Version:
-        self.serial.write(self.t1+'VE'.encode()+self.t3)
-        ant_VE = self.serial.readline().decode()
-        ant_VE = self.entferneSteuerzeichen(ant_VE)
-        logger.info(f"{self.device_name} - {self.Log_Text_163_str[self.sprache]} {ant_VE}")
-        ## Start-Position auslesen:
-        self.serial.write(self.t1+'TP'.encode()+self.t3)
-        ant = self.serial.readline().decode()
-        if 'P:' in ant:
-            self.akPos = self.read_TX('TP', 'P:')
-            logger.info(f"{self.device_name} - {self.Log_Text_164_str[self.sprache]} {self.akPos} {self.Log_Text_165_str[self.sprache]}")
+        try:
+            ## Board Adresse:
+            self.serial.write(self.t1+'TB'.encode()+self.t3)
+            ant_TB = self.serial.readline().decode()
+            ant_TB = self.entferneSteuerzeichen(ant_TB)
+            logger.info(f"{self.device_name} - {self.Log_Text_161_str[self.sprache]} {ant_TB}")
+            ## Status:
+            self.serial.write(self.t1+'TS'.encode()+self.t3)
+            ant_ST = self.serial.readline().decode()
+            ant_ST = self.entferneSteuerzeichen(ant_ST)
+            logger.info(f"{self.device_name} - {self.Log_Text_162_str[self.sprache]} {ant_ST}")
+            ## Version:
+            self.serial.write(self.t1+'VE'.encode()+self.t3)
+            ant_VE = self.serial.readline().decode()
+            ant_VE = self.entferneSteuerzeichen(ant_VE)
+            logger.info(f"{self.device_name} - {self.Log_Text_163_str[self.sprache]} {ant_VE}")
+            ## Start-Position auslesen:
+            self.serial.write(self.t1+'TP'.encode()+self.t3)
+            ant = self.serial.readline().decode()
+            if 'P:' in ant:
+                self.akPos = self.read_TX('TP', 'P:')
+                if self.akPos == m.nan:
+                    self.akPos = self.last_Pos
+                    zusatz = '(Error Nan)'
+                else: 
+                    zusatz = ''
+                    self.last_Pos = self.akPos
+                logger.info(f"{self.device_name} - {self.Log_Text_164_str[self.sprache]} {self.akPos} {self.Log_Text_165_str[self.sprache]} {zusatz}")
+        except:
+            logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
+            logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
 
 ###################################################
 # Messdatendatei erstellen und beschrieben:

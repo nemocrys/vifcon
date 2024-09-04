@@ -626,7 +626,7 @@ class Eurotherm(QObject):
             logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
 
         return self.value_name
-    
+        
     def read_einzeln(self, befehl):
         ''' Zusammenfassung der einzelnen Sende-Befehle
         
@@ -839,3 +839,19 @@ class Eurotherm(QObject):
 
 
 '''
+
+    # def read_Filter(self, wert):
+    #     '''Prüfe den Wert auf Richtigkeit: Abfangen von nicht Float- oder Int-Werten!
+    #     Args:
+    #         wert (float):               Überprüfe die Richtigkeit des Float- oder Int-Wertes
+    #     Return:
+    #        wert oder m.nan (Bool):      Bei Fehler wird Nan zurück gegeben! Wenn alles Okay wird der gesendete Wert zurückgegeben!
+    #     '''
+    #     self.Log_Text_Nan_str_1 = ['Der Wert', 'The value']
+    #     self.Log_Text_Nan_str_2 = ['hat den Typ String. Wert wird auf Nan gesetzt!', 'has the type String. Value is set to Nan!']
+
+    #     var_type = type(wert)
+    #     if var_type == str:
+    #         logger.warning(f"{self.device_name} - {self.Log_Text_Nan_str_1[self.sprache]} {wert} {self.Log_Text_Nan_str_2[self.sprache]}")
+    #         return m.nan
+    #     return wert

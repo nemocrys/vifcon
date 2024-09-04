@@ -106,7 +106,8 @@ class PIAchseWidget(QWidget):
         ### GUI:
         self.legenden_inhalt = self.config['GUI']['legend'].split(';')
         self.legenden_inhalt = [a.strip() for a in self.legenden_inhalt]    # sollten Unnötige Leerzeichen vorhanden sein, so werden diese entfernt!
-        self.color_Aktiv = self.typ_widget.color_On
+        self.color_Aktiv     = self.typ_widget.color_On
+        self.BTN_BW_grün     = self.config['GUI']['knopf_anzeige'] if type(self.config['GUI']['knopf_anzeige']) == bool or self.config['GUI']['knopf_anzeige'] in [0,1] else 0
         ### Rezepte:
         self.rezept_config = self.config["rezepte"]
         ### Gamepad:
@@ -123,6 +124,7 @@ class PIAchseWidget(QWidget):
         ## Weitere:
         self.Rezept_Aktiv = False
         self.data = {}
+        self.Richtung = 'Stopp'
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -757,6 +759,11 @@ class PIAchseWidget(QWidget):
         if self.Achse_steht and self.mode != 0:
             self.btn_left.setEnabled(True)
             self.btn_right.setEnabled(True)
+        elif not self.Achse_steht and self.BTN_BW_grün:
+            if self.Richtung == 'rechts' or self.Richtung == 'Stopp':
+                self.btn_right.setIcon(QIcon(self.icon_2.replace('.png', '_Ein.png')))
+            if self.Richtung == 'links':
+                self.btn_left.setIcon(QIcon(self.icon_1.replace('.png', '_Ein.png')))
 
     def absPos(self):
         ''' Auswahl absolute Position! '''
@@ -769,7 +776,7 @@ class PIAchseWidget(QWidget):
 
         if self.Achse_steht and self.mode != 0:
             self.btn_left.setEnabled(True)
-            self.btn_right.setEnabled(False)
+            self.btn_right.setEnabled(False) 
 
     ##########################################
     # Reaktion auf Buttons:
@@ -779,14 +786,14 @@ class PIAchseWidget(QWidget):
         Args:
             gamepad (bool):     Auslösung von Gamepad
         '''
-        self.links_rechts(self.abLauf_Button_l[self.sprache], self.links, gamepad)
+        self.links_rechts(self.abLauf_Button_l[self.sprache], self.links, 'links', gamepad)
 
     def fahre_rechts(self, gamepad = False):
         '''Reaktion auf den Rechten Knopf
         Args:
             gamepad (bool):     Auslösung von Gamepad
         '''
-        self.links_rechts(self.abLauf_Button_r[self.sprache], self.rechts, gamepad)
+        self.links_rechts(self.abLauf_Button_r[self.sprache], self.rechts, 'rechts', gamepad)
              
     def Stopp(self, n = 3):
         '''Halte Achse an'''
@@ -795,6 +802,7 @@ class PIAchseWidget(QWidget):
             elif n == 5:    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
             elif n == 6:    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_3[self.sprache]}')
             self.RezEnde(n)
+            self.Richtung = 'Stopp'
             # Sende Befehl:
             self.write_task['Stopp'] = True
             #self.send_betätigt = True
@@ -811,13 +819,14 @@ class PIAchseWidget(QWidget):
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
             self.Fehler_Output(1, self.La_error_2, self.err_4_str[self.sprache])
 
-    def links_rechts(self, Knopf, Ausrichtung, gamepad):
+    def links_rechts(self, Knopf, Ausrichtung, Ausrichtung_btn, gamepad):
         ''' Ausführung der beiden Bewegungsknöpfe!
 
         Args:
-            Knopf (str):        Welcher Knopf wird verwendet (Ablaufdatei)
-            Ausrichtung (str):  Vorzeichen
-            gamepad (bool):     Auslösung von Gamepad
+            Knopf (str):            Welcher Knopf wird verwendet (Ablaufdatei)
+            Ausrichtung (str):      Vorzeichen
+            Ausrichtung_btn (str):  Linker Knopf oder Rechter Knopf
+            gamepad (bool):         Auslösung von Gamepad
         ''' 
 
         if self.init:
@@ -868,9 +877,24 @@ class PIAchseWidget(QWidget):
                         self.timer_rigel.start()
                     elif self.mode == 2:
                         self.losgefahren = True
+                ## Icon Änderung bei Bewegung:
+                if not self.RB_choise_absPos.isChecked() and self.BTN_BW_grün:
+                    if Ausrichtung_btn == 'links':    
+                        self.btn_left.setIcon(QIcon(self.icon_1.replace('.png', '_Ein.png')))
+                        if self.mode == 0: self.btn_right.setIcon(QIcon(self.icon_2))
+                    elif Ausrichtung_btn == 'rechts': 
+                        self.btn_right.setIcon(QIcon(self.icon_2.replace('.png', '_Ein.png')))
+                        if self.mode == 0: self.btn_left.setIcon(QIcon(self.icon_1))
+                    self.Richtung = Ausrichtung_btn
+                else:
+                    self.Richtung = 'Abs.Pos.'
             else:
                 self.write_task['Sende Speed'] = False
                 self.write_task['Sende Position'] = False
+                if not self.RB_choise_absPos.isChecked() and self.BTN_BW_grün:
+                    self.btn_left.setIcon(QIcon(self.icon_1))
+                    self.btn_right.setIcon(QIcon(self.icon_2))
+                self.Richtung = 'Stopp'
         else:
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
             self.Fehler_Output(1, self.La_error_2, self.err_4_str[self.sprache])
@@ -1060,7 +1084,10 @@ class PIAchseWidget(QWidget):
         '''
         self.btn_left.setEnabled(True)
         if not self.RB_choise_absPos.isChecked():
-            self.btn_right.setEnabled(True) 
+            self.btn_right.setEnabled(True)
+            if self.BTN_BW_grün:
+                self.btn_left.setIcon(QIcon(self.icon_1))
+                self.btn_right.setIcon(QIcon(self.icon_2)) 
         if not gamepad:
             self.timer_rigel.stop()
         self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_44_str[self.sprache]}')         
@@ -1074,6 +1101,9 @@ class PIAchseWidget(QWidget):
             self.btn_left.setEnabled(True)
             if not self.RB_choise_absPos.isChecked():
                 self.btn_right.setEnabled(True) 
+                if self.BTN_BW_grün:
+                    self.btn_left.setIcon(QIcon(self.icon_1))
+                    self.btn_right.setIcon(QIcon(self.icon_2)) 
 
     ##########################################
     # Reaktion auf Initialsierung:
@@ -1435,6 +1465,6 @@ class PIAchseWidget(QWidget):
 ## Bereich für alten Code, denn man noch nicht vollkommen löschen will,
 ## da dieser später vieleicht wieder ergänzt wird!!
 '''
-
+    self.btn_left.setStyleSheet("background-color: green")
 
 '''

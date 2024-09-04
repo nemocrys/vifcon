@@ -100,8 +100,8 @@ devices:
       read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
       read_port: 56000                                                    # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     PID:                                                                  # Erstellung eines PID-Reglers
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte
-                                                                          # VV: Istwerte und Sollwerte durch VIFCON gestellt 
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+                                                                          # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 200                                                             # P-Anteil []
       ki: 0,3                                                             # I-Anteil []
       kd: 0                                                               # D-Anteil []
@@ -193,7 +193,7 @@ devices:
       read_trigger: IGA-6-23-adv                                          # Hole von Multilog: Gerätebezeichnung aus Multilog
       read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     PID:                                                                  # Erstellung eines PID-Reglers
-      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
                                                                           # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil []
       ki: 0.003                                                           # I-Anteil []
@@ -261,7 +261,7 @@ devices:
                                                                           #               Messung wird nicht gestartet! 
                                                                           # Start-Werte:  Board Adresse, Status, Version, Start-Position
       mode: 1                                                             # Modus für Entriegelung der Bewegungsknöpfe: 0 - Keine Verrrigelung, 1 - Entriegelung durch Timer, 2 - Entriegelung bei erreichen von 0 mm/s
-    ende: False                                                           # End-Bedingung (Programm-Exit Knopf):
+    ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
                                                                           # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
                                                                           # False - Nichts wird getann!
     serial-interface:
@@ -277,7 +277,7 @@ devices:
       read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
       read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     PID:                                                                  # Erstellung eines PID-Reglers
-      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
                                                                           # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil []
       ki: 0.003                                                           # I-Anteil []
@@ -300,13 +300,16 @@ devices:
       mvtime: 25                                                          # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV)
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte!   
     limits:
-      maxPos: 100                                                         # Positionsgrenze Maximum [mm]
-      minPos: -100                                                        # Positionsgrenze Minimum [mm]
+      maxPos: 0                                                           # Positionsgrenze Maximum [mm]
+      minPos: -50                                                         # Positionsgrenze Minimum [mm]
       maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s]
       minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s]
     GUI:
       bewegung: 'z'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter
       piSymbol: 'Un'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus)
+      knopf_anzeige: 0                                                    # Anzeige das der Knopf betätigt wurde! Default: False
+                                                                          # Mode 0: Knöpfe bleiben Grün, bis andere Richtung oder Stopp betätigt werden!
+                                                                          # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
       legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
                                                                           # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID
@@ -359,12 +362,12 @@ devices:
       parity: N
       timeout: 0.1
     multilog:
-      write_trigger: Pi1                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi
-      write_port: 51301                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
-      read_trigger: IGA-6-23-adv                                          # Hole von Multilog: Gerätebezeichnung aus Multilog
-      read_port: 56000                                                    # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
+      write_trigger: Pi2                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi
+      write_port: 51302                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
+      read_trigger: Series-600                                            # Hole von Multilog: Gerätebezeichnung aus Multilog
+      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     PID:                                                                  # Erstellung eines PID-Reglers
-      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
                                                                           # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil []
       ki: 0.003                                                           # I-Anteil []
@@ -374,7 +377,7 @@ devices:
       start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht)
       start_soll: 0                                                       # Start-Sollwert [°C]
       umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld)
-      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+      Multilog_Sensor_Ist: Pyro_h1                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
       Input_Limit_max: 100                                                # Maximum Limit für Input 
       Input_Limit_min: 0                                                  # Minimum Limit für Input 
@@ -394,6 +397,9 @@ devices:
     GUI:
       bewegung: 'y'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter
       piSymbol: 'Re'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus)
+      knopf_anzeige: 0                                                    # Anzeige das der Knopf betätigt wurde! Default: False
+                                                                          # Mode 0: Knöpfe bleiben Grün, bis andere Richtung oder Stopp betätigt werden!
+                                                                          # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
       legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
                                                                           # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID
@@ -450,7 +456,7 @@ devices:
       read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
       read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     PID:                                                                  # Erstellung eines PID-Reglers
-      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
                                                                           # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil []
       ki: 0.003                                                           # I-Anteil []
@@ -480,6 +486,9 @@ devices:
     GUI:
       bewegung: 'x'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter
       piSymbol: 'Vo'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus)
+      knopf_anzeige: 0                                                    # Anzeige das der Knopf betätigt wurde! Default: False
+                                                                          # Mode 0: Knöpfe bleiben Grün, bis andere Richtung oder Stopp betätigt werden!
+                                                                          # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
       legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
                                                                           # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID
@@ -536,7 +545,7 @@ devices:
       read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
       read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     PID:                                                                  # Erstellung eines PID-Reglers
-      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
                                                                           # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil []
       ki: 0.003                                                           # I-Anteil []
@@ -566,6 +575,9 @@ devices:
     GUI:
       bewegung: 'z'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter
       piSymbol: 'Ob'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus)
+      knopf_anzeige: 0                                                    # Anzeige das der Knopf betätigt wurde! Default: False
+                                                                          # Mode 0: Knöpfe bleiben Grün, bis andere Richtung oder Stopp betätigt werden!
+                                                                          # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
       legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
                                                                           # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID
@@ -621,7 +633,7 @@ devices:
       read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
       read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     PID:                                                                  # Erstellung eines PID-Reglers
-      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
                                                                           # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil []
       ki: 0.003                                                           # I-Anteil []
@@ -716,8 +728,8 @@ devices:
       read_trigger: IGA-6-23-adv                                          # Hole von Multilog: Gerätebezeichnung aus Multilog
       read_port: 56000
     PID:                                                                  # Erstellung eines PID-Reglers
-      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
-                                                                          # VV: Istwerte und Sollwerte durch VIFCON gestellt 
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+                                                                          # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil []
       ki: 0.003                                                           # I-Anteil []
       kd: 0.16                                                            # D-Anteil []
@@ -809,7 +821,7 @@ devices:
       read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog
       read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt!
     PID:                                                                  # Erstellung eines PID-Reglers
-      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
                                                                           # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil []
       ki: 0.003                                                           # I-Anteil []
@@ -899,8 +911,8 @@ devices:
       read_trigger: IGA-6-23-adv                                          # Hole von Multilog: Gerätebezeichnung aus Multilog
       read_port: 0
     PID:                                                                  # Erstellung eines PID-Reglers
-      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV)
-                                                                          # VV: Istwerte und Sollwerte durch VIFCON gestellt 
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+                                                                          # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil []
       ki: 0.003                                                           # I-Anteil []
       kd: 0.16                                                            # D-Anteil []
