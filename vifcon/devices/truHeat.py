@@ -89,28 +89,9 @@ class TruHeat(QObject):
         self.umI = 1000                                         # Strom in A
         self.umf = 1                                            # Frequenz in kHz
 
-        ## Aus Config:
-        ### Zum Start:
-        self.init       = self.config['start']['init']           # Initialisierung
-        self.messZeit   = self.config['start']["readTime"]       # Auslesezeit
-        self.adress     = self.config['start']['ad']             # Generatoradresse
-        self.wdT        = self.config['start']['watchdog_Time']  # Watchdog-Zeit in ms
-        self.Delay_sT   = self.config['start']['send_Delay']     # Sende Delay in ms
-        self.startMod   = self.config['start']['start_modus'] 
-        self.Ist        = self.config['PID']["start_ist"] 
-        self.Soll       = self.config['PID']["start_soll"]        
-        ### Limits:
-        self.oGP = self.config["limits"]['maxP']
-        self.uGP = self.config["limits"]['minP']
-        self.oGI = self.config["limits"]['maxI']
-        self.uGI = self.config["limits"]['minI']
-        self.oGU = self.config["limits"]['maxU']
-        self.uGU = self.config["limits"]['minU']
+        ## Aus Config (ohne Kontrolle):
         ### PID:
         self.unit_PIDIn = self.config['PID']['Input_Size_unit']
-
-        ## Werte Dictionary:
-        self.value_name = {'IWP': 0, 'IWU': 0, 'IWI': 0, 'IWf': 0, 'SWP': 0, 'SWU': 0, 'SWI': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist}
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -215,12 +196,48 @@ class TruHeat(QObject):
         self.Log_Text_LB_7      = ['Output',                                                                                                                                                                                'Outout']
         self.Log_Text_LB_8      = ['Input',                                                                                                                                                                                 'Input']
         self.Log_Text_PID1_str  = ['Die PID-Start-Modus aus der Config-Datei existiert nicht! Setze auf Default P! Fehlerhafter Eintrag:',                                                                                  'The PID start mode from the config file does not exist! Set to default P! Incorrect entry:']
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                                                                                                      'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                                                                                         'Possible values:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                                                                                              'Default is used:']
+        self.Log_Nan_1_Float    = ['Wert ist nicht vom Type Float! Setze Wert auf Nan!',                                                                                                                                    'Value is not of type Float! Set value to Nan!']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
         self.Text_53_str        = ['Wert wurde angenommen (ACK)!',                                                                                                                                                          'Value was accepted (ACK)!']
         self.Text_54_str        = ['Wert wurde nicht angenommen (NAK)!',                                                                                                                                                    'Value was not accepted (NAK)!']
         self.Text_55_str        = ['Senden fehlgeschlagen (Keine Antwort)!',                                                                                                                                                'Sending failed (no response)!']
+        
+        #---------------------------------------------------------
+        # Konfigurationskontrolle und Konfigurationsvariablen:
+        #---------------------------------------------------------
+        ## Zum Start:
+        self.init       = self.config['start']['init']           # Initialisierung
+        self.messZeit   = self.config['start']["readTime"]       # Auslesezeit
+        self.adress     = self.config['start']['ad']             # Generatoradresse
+        self.wdT        = self.config['start']['watchdog_Time']  # Watchdog-Zeit in ms
+        self.Delay_sT   = self.config['start']['send_Delay']     # Sende Delay in ms
+        self.startMod   = self.config['start']['start_modus'] 
+        self.Ist        = self.config['PID']["start_ist"] 
+        self.Soll       = self.config['PID']["start_soll"]        
+        ## Limits:
+        self.oGP = self.config["limits"]['maxP']
+        self.uGP = self.config["limits"]['minP']
+        self.oGI = self.config["limits"]['maxI']
+        self.uGI = self.config["limits"]['minI']
+        self.oGU = self.config["limits"]['maxU']
+        self.uGU = self.config["limits"]['minU']
+        ## Schnittstelle Extra:
+        self.Loop = self.config['serial-loop-read']
+
+        ## Config-Fehler und Defaults:
+        if not type(self.Loop) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} serial-loop-read - {self.Log_Pfad_conf_2[self.sprache]} Integer - {self.Log_Pfad_conf_3[self.sprache]} 10')
+            self.Loop = 10
+
+        #---------------------------------------
+        # Werte Dictionary:
+        #---------------------------------------
+        self.value_name = {'IWP': 0, 'IWU': 0, 'IWI': 0, 'IWf': 0, 'SWP': 0, 'SWU': 0, 'SWI': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist}
 
         #---------------------------------------
         # Schnittstelle:
@@ -554,9 +571,10 @@ class TruHeat(QObject):
 
         # Senden des Befehls und Auslesen der Antwort:
         while_n = 0
-        while while_n != 10:
+        while while_n != self.Loop:
             ans_list = []
             ## Senden
+            error = False
             try:
                 for n in write_list:
                     self.serial.write(bytearray.fromhex(n))
@@ -564,59 +582,61 @@ class TruHeat(QObject):
             except Exception as e:
                 logger.warning(f"{self.device_name} - {self.Log_Text_76_str[self.sprache]}")
                 logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")
+                error = True
 
-            ## Lese Antwort (Kontrolle des Eingangs des Befehls):
-            for byte_bef in range(1,6):                         # ACK, Header, Befehl, Quittierungsnachricht, CS
-                ans = self.serial.read()                        # Notiz: eventuell wird noch ein Try-Except gebraucht!
-                ans_list.append(ans)
-                #time.sleep(0.1)
-            logging.debug(f"{self.device_name} - {self.Log_Text_78_str[self.sprache]} {ans_list}")
-            if ans_list[0] == b'\x06':
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_53_str[self.sprache]}')             
-                logging.debug(f"{self.device_name} - {self.Log_Text_79_str[self.sprache]} {befehl} - {self.Log_Text_80_str[self.sprache]}")
-                ans_list.pop(0)
-                ### Prüfe-Checksumme:
-                key_alt = b'\x00'                               # Vieleicht noch in Funktion da 2mal gebraucht
-                for n in ans_list:
-                    key = self.byte_xor(key_alt, n)
-                    key_alt = key
-                if key == b'\x00':
-                    ans_list.pop(-1)
-                    logging.debug(f"{self.device_name} - {self.Log_Text_81_str[self.sprache]}")
-                    self.serial.write(bytearray.fromhex('06'))  # bestätigte das alles in Ordnung ist!
-                    # Quittierungsmedlung ansehen:
-                    quittierung = int(ans_list[2].hex(),16)
-                    if quittierung == 0:
-                        logging.debug(f"{self.device_name} - {self.Log_Text_82_str[self.sprache]}")
-                    elif quittierung == 2:
-                        logging.warning(f"{self.device_name} - {self.Log_Text_83_str[self.sprache]}")
-                    elif quittierung == 4:
-                        logging.warning(f"{self.device_name} - {self.Log_Text_84_str[self.sprache]}")
-                    elif quittierung == 5:
-                        logging.warning(f"{self.device_name} - {self.Log_Text_85_str[self.sprache]}")
-                    elif quittierung == 7:
-                        logging.warning(f"{self.device_name} - {self.Log_Text_86_str[self.sprache]}")
-                    elif quittierung == 9:
-                        logging.warning(f"{self.device_name} - {self.Log_Text_87_str[self.sprache]}")
-                    elif quittierung == 22:
-                        logging.warning(f"{self.device_name} - {self.Log_Text_88_str[self.sprache]}")
-                    elif quittierung == 99:
-                        logging.warning(f"{self.device_name} - {self.Log_Text_89_str[self.sprache]}")
-                    break   
-            elif ans_list[0] == b'\x15':
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_54_str[self.sprache]}')       
-                logging.warning(f"{self.device_name} - {self.Log_Text_79_str[self.sprache]} {befehl} - {self.Log_Text_90_str[self.sprache]}")
-            else:
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_55_str[self.sprache]}')  
-                logging.warning(f"{self.device_name} - {self.Log_Text_79_str[self.sprache]} {befehl} - {self.Log_Text_91_str[self.sprache]}")
-            
+            if not error:
+                ## Lese Antwort (Kontrolle des Eingangs des Befehls):
+                for byte_bef in range(1,6):                         # ACK, Header, Befehl, Quittierungsnachricht, CS
+                    ans = self.serial.read()                        # Notiz: eventuell wird noch ein Try-Except gebraucht!
+                    ans_list.append(ans)
+                    #time.sleep(0.1)
+                logging.debug(f"{self.device_name} - {self.Log_Text_78_str[self.sprache]} {ans_list}")
+                if ans_list[0] == b'\x06':
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_53_str[self.sprache]}')             
+                    logging.debug(f"{self.device_name} - {self.Log_Text_79_str[self.sprache]} {befehl} - {self.Log_Text_80_str[self.sprache]}")
+                    ans_list.pop(0)
+                    ### Prüfe-Checksumme:
+                    key_alt = b'\x00'                               # Vieleicht noch in Funktion da 2mal gebraucht
+                    for n in ans_list:
+                        key = self.byte_xor(key_alt, n)
+                        key_alt = key
+                    if key == b'\x00':
+                        ans_list.pop(-1)
+                        logging.debug(f"{self.device_name} - {self.Log_Text_81_str[self.sprache]}")
+                        self.serial.write(bytearray.fromhex('06'))  # bestätigte das alles in Ordnung ist!
+                        # Quittierungsmedlung ansehen:
+                        quittierung = int(ans_list[2].hex(),16)
+                        if quittierung == 0:
+                            logging.debug(f"{self.device_name} - {self.Log_Text_82_str[self.sprache]}")
+                        elif quittierung == 2:
+                            logging.warning(f"{self.device_name} - {self.Log_Text_83_str[self.sprache]}")
+                        elif quittierung == 4:
+                            logging.warning(f"{self.device_name} - {self.Log_Text_84_str[self.sprache]}")
+                        elif quittierung == 5:
+                            logging.warning(f"{self.device_name} - {self.Log_Text_85_str[self.sprache]}")
+                        elif quittierung == 7:
+                            logging.warning(f"{self.device_name} - {self.Log_Text_86_str[self.sprache]}")
+                        elif quittierung == 9:
+                            logging.warning(f"{self.device_name} - {self.Log_Text_87_str[self.sprache]}")
+                        elif quittierung == 22:
+                            logging.warning(f"{self.device_name} - {self.Log_Text_88_str[self.sprache]}")
+                        elif quittierung == 99:
+                            logging.warning(f"{self.device_name} - {self.Log_Text_89_str[self.sprache]}")
+                        break   
+                elif ans_list[0] == b'\x15':
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_54_str[self.sprache]}')       
+                    logging.warning(f"{self.device_name} - {self.Log_Text_79_str[self.sprache]} {befehl} - {self.Log_Text_90_str[self.sprache]}")
+                else:
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_55_str[self.sprache]}')  
+                    logging.warning(f"{self.device_name} - {self.Log_Text_79_str[self.sprache]} {befehl} - {self.Log_Text_91_str[self.sprache]}")
+                
             # Kurze Verzögerung:
             time.sleep(self.Delay_sT/1000) # ms in s
             # Wiederhole Senden!
             while_n += 1 
             logging.debug(f"{self.device_name} - {self.Log_Text_79_str[self.sprache]} {befehl} - {self.Log_Text_92_str[self.sprache]} {while_n}")
 
-        if while_n == 10:
+        if while_n == self.Loop:
             logging.warning(f"{self.device_name} - {self.Log_Text_93_str[self.sprache]}")
 
     ##########################################
@@ -667,7 +687,7 @@ class TruHeat(QObject):
 
         # Senden und Auslesen:
         n = 0
-        while n != 10:
+        while n != self.Loop:
             ans_list = []
             ## Sende Befehl:
             for send_byte in write_list:
@@ -717,7 +737,7 @@ class TruHeat(QObject):
             logger.debug(f"{self.device_name} - {self.Log_Text_102_str[self.sprache]} {befehl} - {self.Log_Text_92_str[self.sprache]} {n}: {self.Log_Text_103_str[self.sprache]}")
 
         # Auswertung der Datenbytes:
-        if not n == 10:
+        if not n == self.Loop:
             ## Header und Anzahl Datenbytes:
             header_ans = ans_list[0].hex()                      # Umwandeln in Hex (Quelle: https://java2blog.com/print-bytes-as-hex-python/)
             anz_ans_DatBy = bin(int(header_ans,16))[-3:]        # Umwandeln in Binär (Quelle: https://www.geeksforgeeks.org/python-ways-to-convert-hex-into-binary/) und Anzahl Datenbytes auslesen                
@@ -750,8 +770,9 @@ class TruHeat(QObject):
                     dat_list.append(wert)
                 value = ''.join(dat_list)
         else:
-            value = -1                                          
+            value = m.nan                                        
         logger.debug(f"{self.device_name} - {self.Log_Text_104_str[self.sprache]} {value}")
+
         return value
             
     def read(self):
@@ -763,25 +784,46 @@ class TruHeat(QObject):
         try:
             # Lese Ist-Leistung:
             logger.debug(f"{self.device_name} - {self.Log_Text_105_str[self.sprache]}")
-            self.value_name['IWP'] = self.read_send(self.rbefIP, 2, self.resP, self.umP)    # Einheit: kW
+            value = self.read_send(self.rbefIP, 2, self.resP, self.umP)
+            value = value if type(value) == float else m.nan
+            if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} ({self.rbefIP})')
+            self.value_name['IWP'] = value                                                  # Einheit: kW
             # Lese Ist-Spannung:
             logger.debug(f"{self.device_name} - {self.Log_Text_106_str[self.sprache]}")
-            self.value_name['IWU'] = self.read_send(self.rbefIU, 2, self.resU, self.umU)    # Einheit: V 
+            value = self.read_send(self.rbefIU, 2, self.resU, self.umU)
+            value = value if type(value) == float else m.nan
+            if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} ({self.rbefIU})')
+            self.value_name['IWU'] = value                                                  # Einheit: V 
             # Lese Ist-Strom:
             logger.debug(f"{self.device_name} - {self.Log_Text_107_str[self.sprache]}")
-            self.value_name['IWI'] = self.read_send(self.rbefII, 2, self.resI, self.umI)    # Einheit: A
+            value = self.read_send(self.rbefII, 2, self.resI, self.umI)
+            if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} ({self.rbefII})')
+            value = value if type(value) == float else m.nan
+            self.value_name['IWI'] = value                                                  # Einheit: A
             # Lese Ist-Frequenz:
             logger.debug(f"{self.device_name} - {self.Log_Text_108_str[self.sprache]}")
-            self.value_name['IWf'] = self.read_send(self.rbefIf, 2, self.resf, self.umf)    # Einheit: kHz
+            value = self.read_send(self.rbefIf, 2, self.resf, self.umf)
+            value = value if type(value) == float else m.nan
+            if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} ({self.rbefIf})')
+            self.value_name['IWf'] = value                                                  # Einheit: kHz
             # Lese Soll-Leistung:
             logger.debug(f"{self.device_name} - {self.Log_Text_109_str[self.sprache]}")
-            self.value_name['SWP'] = self.read_send(self.rbefSP, 2, self.resP, self.umP)    # Einheit: kW
+            value = self.read_send(self.rbefSP, 2, self.resP, self.umP) 
+            value = value if type(value) == float else m.nan
+            if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} ({self.rbefSP})')
+            self.value_name['SWP'] = value                                                 # Einheit: kW
             # Lese Soll-Spannung:
             logger.debug(f"{self.device_name} - {self.Log_Text_110_str[self.sprache]}")
-            self.value_name['SWU'] = self.read_send(self.rbefSU, 2, self.resU, self.umU)    # Einheit: V
+            value = self.read_send(self.rbefSU, 2, self.resU, self.umU)
+            value = value if type(value) == float else m.nan
+            if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} ({self.rbefSU})')
+            self.value_name['SWU'] = value                                                 # Einheit: V
             # Lese Soll-Leistung:
             logger.debug(f"{self.device_name} - {self.Log_Text_111_str[self.sprache]}")
-            self.value_name['SWI'] = self.read_send(self.rbefSI, 2, self.resI, self.umI)    # Einheit: A
+            value = self.read_send(self.rbefSI, 2, self.resI, self.umI)
+            value = value if type(value) == float else m.nan
+            if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} ({self.rbefSI})')
+            self.value_name['SWI'] = value                                                 # Einheit: A
             # PID-Modus:
             self.value_name['SWxPID'] = self.Soll
             self.value_name['IWxPID'] = self.Ist
@@ -820,7 +862,10 @@ class TruHeat(QObject):
         ## Watchdog:
         self.write_read_answer(self.wWDT, self.wdT, 1, 1, '010')
         logger.info(f"{self.device_name} - {self.Log_Text_113_str[self.sprache]} {self.wdT} {self.Log_Text_114_str[self.sprache]}")
-        watchdog = self.read_send('91', 2, 1, 1, True)
+        value = self.read_send('91', 2, 1, 1, True)
+        value = value if type(value) == float else m.nan
+        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (91)')
+        watchdog = value
         logger.info(f"{self.device_name} - {self.Log_Text_115_str[self.sprache]} {watchdog} {self.Log_Text_114_str[self.sprache]}")
         if self.wdT != watchdog:
             logger.warning(f"{self.device_name} - {self.Log_Text_116_str[self.sprache]}")
@@ -828,34 +873,56 @@ class TruHeat(QObject):
         soft_version = self.read_send('C6', 11, 1, 1, False)
         logger.info(f"{self.device_name} - {self.Log_Text_117_str[self.sprache]} {soft_version}")
         ## Seriennummer Modul:
-        snr = self.read_send('C7', 4, 1, 1)
-        logger.info(f"{self.device_name} - {self.Log_Text_118_str[self.sprache]} {int(snr)}")
+        value = self.read_send('C7', 4, 1, 1)
+        value = value if type(value) == float else m.nan
+        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (C7)')
+        snr = value
+        logger.info(f"{self.device_name} - {self.Log_Text_118_str[self.sprache]} {int(snr) if not m.isnan(snr) else m.nan}")
         ## Netzteil-Typ:
         netzTyp = self.read_send('80', 21, 1, 1, False)
         logger.info(f"{self.device_name} - {self.Log_Text_119_str[self.sprache]} {netzTyp}")
         ## SIMIN und SUMIN:
-        simin = self.read_send('D0',2, self.resI, self.umI)
+        value = self.read_send('D0',2, self.resI, self.umI)
+        value = value if type(value) == float else m.nan
+        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (D0)')
+        simin = value
         logger.info(f"{self.device_name} - {self.Log_Text_120_str[self.sprache]} {simin}")
-        sumin = self.read_send('D2',2, self.resU, self.umU)
+        value = self.read_send('D2',2, self.resU, self.umU)
+        value = value if type(value) == float else m.nan
+        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (D2)')
+        sumin = value
         logger.info(f"{self.device_name} - {self.Log_Text_121_str[self.sprache]} {sumin}")
         ## Maximale Leistung (und Strom):
-        max_P = self.read_send('82',4, 100, self.umP)
+        value = self.read_send('82', 4, 100, self.umP)
+        value = value if type(value) == float else m.nan
+        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (82)')
+        max_P = value
         logger.info(f"{self.device_name} - {self.Log_Text_122_str[self.sprache]} {max_P} {self.Log_Text_123_str[self.sprache]}")
         ## Maximale Spannung:
-        max_U = self.read_send('CA',2, self.resU, self.umU)
+        value = self.read_send('CA',2, self.resU, self.umU)
+        value = value if type(value) == float else m.nan
+        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (CA)')
+        max_U = value
         logger.info(f"{self.device_name} - {self.Log_Text_124_str[self.sprache]} {max_U} {self.Log_Text_125_str[self.sprache]}")
         ## Maximaler Strom (Teil vom Kombi-Befehl):
-        max_I = self.read_send('CB',2, self.resI, self.umI)
+        value = self.read_send('CB',2, self.resI, self.umI)
+        value = value if type(value) == float else m.nan
+        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (CB)')
+        max_I = value
         logger.info(f"{self.device_name} - {self.Log_Text_126_str[self.sprache]} {max_I} {self.Log_Text_127_str[self.sprache]}")
         ## Aktives Interface:
         interface = {0:'Bedienpanel', 1:'RS-232' , 2:'PROFIBUS' , 3:'CANopen' , 4:'Terminal' , 5:'AD-Schnittstelle' , 6:'Regulus (Temp)', 7:'User 1' , 8:'User 2' , 9:'User 3' , 10:'User 4'}
-        ak_intF = self.read_send('9B',1, 1, 1)
-        try:
-            logger.info(f"{self.device_name} - {self.Log_Text_128_str[self.sprache]} {interface[ak_intF]}")
-        except:
-            logger.info(f"{self.device_name} - {self.Log_Text_129_str[self.sprache]} {ak_intF} | {self.Log_Text_130_str[self.sprache]} {interface}")
-        if ak_intF != 1 and ak_intF != 10:
-            logger.warning(f"{self.device_name} - {self.Log_Text_131_str[self.sprache]}")
+        value = self.read_send('9B',1, 1, 1)
+        value = value if type(value) == float else m.nan
+        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (9B)')
+        else:
+            ak_intF = value
+            try:
+                logger.info(f"{self.device_name} - {self.Log_Text_128_str[self.sprache]} {interface[ak_intF]}")
+            except:
+                logger.info(f"{self.device_name} - {self.Log_Text_129_str[self.sprache]} {ak_intF} | {self.Log_Text_130_str[self.sprache]} {interface}")
+            if ak_intF != 1 and ak_intF != 10:
+                logger.warning(f"{self.device_name} - {self.Log_Text_131_str[self.sprache]}")
 
     ###################################################
     # Messdatendatei erstellen und beschrieben:

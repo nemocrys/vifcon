@@ -107,7 +107,7 @@ class PIAchseWidget(QWidget):
         self.legenden_inhalt = self.config['GUI']['legend'].split(';')
         self.legenden_inhalt = [a.strip() for a in self.legenden_inhalt]    # sollten Unnötige Leerzeichen vorhanden sein, so werden diese entfernt!
         self.color_Aktiv     = self.typ_widget.color_On
-        self.BTN_BW_grün     = self.config['GUI']['knopf_anzeige'] if type(self.config['GUI']['knopf_anzeige']) == bool or self.config['GUI']['knopf_anzeige'] in [0,1] else 0
+        self.BTN_BW_grün     = self.config['GUI']['knopf_anzeige'] if type(self.config['GUI']['knopf_anzeige']) == bool or self.config['GUI']['knopf_anzeige'] in [0,1] else 'Error'
         ### Rezepte:
         self.rezept_config = self.config["rezepte"]
         ### Gamepad:
@@ -219,6 +219,9 @@ class PIAchseWidget(QWidget):
         self.Log_Text_LB_3      = ['Position',                                                                                                  'Position']
         self.Log_Text_LB_4      = ['bis',                                                                                                       'to']
         self.Log_Text_LB_5      = ['nach Update',                                                                                               'after update']
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                          'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                             'Possible values:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                  'Default is used:']
         ## Ablaufdatei: 
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -276,6 +279,11 @@ class PIAchseWidget(QWidget):
         ## Limit-Bereiche:
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]}: {self.uGv} {self.Log_Text_LB_4[self.sprache]} {self.oGv} {self.einheit_v_einzel[self.sprache]}')
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]}: {self.uGPos} {self.Log_Text_LB_4[self.sprache]} {self.oGPos} {self.einheit_s_einzel[self.sprache]}')
+
+        ## Config-Fehler und Defaults:
+        if self.BTN_BW_grün == 'Error': 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} knopf_anzeige - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False')
+            self.BTN_BW_grün = 0
 
         #---------------------------------------
         # GUI:
@@ -760,10 +768,8 @@ class PIAchseWidget(QWidget):
             self.btn_left.setEnabled(True)
             self.btn_right.setEnabled(True)
         elif not self.Achse_steht and self.BTN_BW_grün:
-            if self.Richtung == 'rechts' or self.Richtung == 'Stopp':
-                self.btn_right.setIcon(QIcon(self.icon_2.replace('.png', '_Ein.png')))
-            if self.Richtung == 'links':
-                self.btn_left.setIcon(QIcon(self.icon_1.replace('.png', '_Ein.png')))
+            if self.Richtung == 'rechts' or self.Richtung == 'Stopp':   self.btn_right.setIcon(QIcon(self.icon_2.replace('.png', '_Ein.png')))
+            if self.Richtung == 'links':                                self.btn_left.setIcon(QIcon(self.icon_1.replace('.png', '_Ein.png')))
 
     def absPos(self):
         ''' Auswahl absolute Position! '''

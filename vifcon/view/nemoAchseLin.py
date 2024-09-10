@@ -81,26 +81,11 @@ class NemoAchseLinWidget(QWidget):
         self.device_name                = nemoAchse
         self.typ                        = typ
 
-        ## Aus Config:
-        ### Zum Start:
-        self.init = self.config['start']['init']
-        ### Limits:
-        self.oGv = self.config["limits"]['maxSpeed']
-        self.uGv = self.config["limits"]['minSpeed']
-        self.oGs = self.config["limits"]['maxPos']
-        self.uGs = self.config["limits"]['minPos']
-        self.oGx = self.config['PID']['Input_Limit_max']
-        self.uGx = self.config['PID']['Input_Limit_min']
-        ### GUI:
-        self.legenden_inhalt = self.config['GUI']['legend'].split(';')
-        self.legenden_inhalt = [a.strip() for a in self.legenden_inhalt]    # sollten Unnötige Leerzeichen vorhanden sein, so werden diese entfernt!
-        self.color_Aktiv = self.typ_widget.color_On
+        ## Aus Config (ohne Kontrolle):
         ### Rezepte:
         self.rezept_config = self.config["rezepte"]
-        ### Gamepad:
-        self.Button_Link = self.config['gamepad_Button']
         ### PID-Modus:
-        self.unit_PIDIn = self.config['PID']['Input_Size_unit']
+        self.unit_PIDIn    = self.config['PID']['Input_Size_unit']
 
         ## Faktoren Skalierung:
         self.skalFak = self.typ_widget.Faktor
@@ -115,6 +100,8 @@ class NemoAchseLinWidget(QWidget):
         #--------------------------------------- 
         # Sprach-Einstellung:
         #--------------------------------------- 
+        ## Anlage:
+        self.nemo               = ['Nemo-Anlage',                                                                                               'Nemo facility']
         ## Werte:
         istwert_str             = ['Ist',                                                                                                       'Is']
         istwert2_str            = ['Ist-Sim',                                                                                                   'Is-Sim']
@@ -210,6 +197,9 @@ class NemoAchseLinWidget(QWidget):
         self.Log_Text_LB_3      = ['Position',                                                                                                  'Position']
         self.Log_Text_LB_4      = ['bis',                                                                                                       'to']
         self.Log_Text_LB_5      = ['nach Update',                                                                                               'after update']
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                          'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                             'Possible values:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                  'Default is used:']
         ## Ablaufdatei: 
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -235,12 +225,44 @@ class NemoAchseLinWidget(QWidget):
         self.Text_PID_2         = ['Wechsel in Eurotherm-Regel-Modus.',                                                                         'Switch to Eurotherm control mode.']
         self.Text_PID_3         = ['Moduswechsel! Auslösung des Stopp-Knopfes aus Sicherheitsgründen!',                                         'Mode change! Stop button triggered for safety reasons!']
         self.Text_PID_4         = ['Rezept Beenden! Wechsel des Modus!',                                                                        'End recipe! Change mode!']
-        
+
+        #---------------------------------------------------------
+        # Konfigurationskontrolle und Konfigurationsvariablen:
+        #---------------------------------------------------------
+        ## Übergeordnet:
+        self.Anlage = self.config['nemo-Version']
+        ## Zum Start:
+        self.init = self.config['start']['init']
+        ## Limits:
+        self.oGv = self.config["limits"]['maxSpeed']
+        self.uGv = self.config["limits"]['minSpeed']
+        self.oGs = self.config["limits"]['maxPos']
+        self.uGs = self.config["limits"]['minPos']
+        self.oGx = self.config['PID']['Input_Limit_max']
+        self.uGx = self.config['PID']['Input_Limit_min']
+        ## GUI:
+        self.legenden_inhalt = self.config['GUI']['legend'].split(';')
+        self.legenden_inhalt = [a.strip() for a in self.legenden_inhalt]    # sollten Unnötige Leerzeichen vorhanden sein, so werden diese entfernt!
+        self.color_Aktiv     = self.typ_widget.color_On
+        self.BTN_BW_grün     = self.config['GUI']['knopf_anzeige']
+        ## Rezepte:
+        self.rezept_config = self.config["rezepte"]
+        ## Gamepad:
+        self.Button_Link = self.config['gamepad_Button']
+
+        ## Config-Fehler und Defaults:
+        if not type(self.BTN_BW_grün) == bool and not self.BTN_BW_grün in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} knopf_anzeige - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False')
+            self.BTN_BW_grün = 0
+        if not self.Anlage in [1, 2]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nemo-Version - {self.Log_Pfad_conf_2[self.sprache]} [1, 2] - {self.Log_Pfad_conf_3[self.sprache]} 1')
+            self.Anlage = 1
+
         #---------------------------------------
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = False
-        self.write_task = {'Stopp': False, 'Hoch': False, 'Runter': False, 'Init':False, 'Define Home': False, 'Send': False, 'Start':False, 'Update Limit': False, 'PID': False}
+        self.write_task  = {'Stopp': False, 'Hoch': False, 'Runter': False, 'Init':False, 'Define Home': False, 'Send': False, 'Start':False, 'Update Limit': False, 'PID': False, 'Prio-Stopp': False}
         self.write_value = {'Speed': 0, 'Limits': [0, 0, 0, 0, 0, 0], 'PID-Sollwert': 0} # Limits: oGs, uGs, oGv, uGv, oGx, uGx
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
@@ -302,7 +324,7 @@ class NemoAchseLinWidget(QWidget):
 
         ### Label:
         #### Titel-Gerät:
-        self.La_name = QLabel(f'<b>{nemoAchse}</b>')
+        self.La_name = QLabel(f'<b>{nemoAchse}</b> ({self.nemo[self.sprache]} {self.Anlage})')
         #### Fehlernachrichten:
         self.La_error_1 = QLabel(self.err_13_str[self.sprache])
         #### Istwert Weg Simuliert:
@@ -343,11 +365,13 @@ class NemoAchseLinWidget(QWidget):
 
         ### Knöpfe:
         #### Bewegung:
-        self.btn_hoch = QPushButton(QIcon("./vifcon/icons/p_hoch.png"), '')
+        self.icon_hoch = "./vifcon/icons/p_hoch.png"
+        self.btn_hoch  = QPushButton(QIcon(self.icon_hoch), '')
         self.btn_hoch.setFlat(True)
         self.btn_hoch.clicked.connect(self.fahre_Hoch)
 
-        self.btn_runter = QPushButton(QIcon(QIcon("./vifcon/icons/p_runter.png")), '')
+        self.icon_runter = "./vifcon/icons/p_runter.png"
+        self.btn_runter  = QPushButton(QIcon(QIcon(self.icon_runter)), '')
         self.btn_runter.setFlat(True)
         self.btn_runter.clicked.connect(self.fahre_Runter)
         #### Stopp:
@@ -731,6 +755,9 @@ class NemoAchseLinWidget(QWidget):
                     self.write_value['Speed'] = ans
                 self.write_task['Hoch'] = True
                 self.write_task['Send'] = True
+                if self.BTN_BW_grün:
+                    self.btn_hoch.setIcon(QIcon(self.icon_hoch.replace('.png', '_Ein.png')))
+                    self.btn_runter.setIcon(QIcon(self.icon_runter))
         else:
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
 
@@ -747,6 +774,9 @@ class NemoAchseLinWidget(QWidget):
                     self.write_value['Speed'] = ans 
                 self.write_task['Runter'] = True
                 self.write_task['Send'] = True
+                if self.BTN_BW_grün:
+                    self.btn_hoch.setIcon(QIcon(self.icon_hoch))
+                    self.btn_runter.setIcon(QIcon(self.icon_runter.replace('.png', '_Ein.png')))
         else:
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
 
@@ -759,6 +789,9 @@ class NemoAchseLinWidget(QWidget):
             self.RezEnde(n)
             # Sende Befehl:
             self.write_task['Stopp'] = True
+            if self.BTN_BW_grün:
+                self.btn_hoch.setIcon(QIcon(self.icon_hoch))
+                self.btn_runter.setIcon(QIcon(self.icon_runter))
         else:
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
     
@@ -950,6 +983,11 @@ class NemoAchseLinWidget(QWidget):
        
         return byte_string[::-1]                    # [::-1] --> dreht String um! (Lowest Bit to Highest Bit)
 
+    def BTN_Back(self):
+        if self.BTN_BW_grün:
+            self.btn_hoch.setIcon(QIcon(self.icon_hoch))
+            self.btn_runter.setIcon(QIcon(self.icon_runter))
+
     ##########################################
     # Reaktion auf Initialsierung:
     ##########################################
@@ -1024,24 +1062,37 @@ class NemoAchseLinWidget(QWidget):
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_24_str[self.sprache]} {self.cb_Rezept.currentText()} {self.rezept_datei}') 
 
                     # Erstes Element senden:
+                    ## PID-Modus oder Normaler-Modus:
                     if self.PID_cb.isChecked():
                         self.write_value['PID-Sollwert'] = self.value_list[self.step]
 
                         if self.move_list[self.step] == 'UP':
                             self.write_task['Hoch'] = True
                             self.write_task['Runter'] = False
+                            self.richtung_Rez = 'Hoch'
                         elif self.move_list[self.step] == 'DOWN':
                             self.write_task['Runter'] = True
                             self.write_task['Hoch'] = False
+                            self.richtung_Rez = 'Runter'
                     else:
                         self.write_value['Speed'] = abs(self.value_list[self.step])
 
                         if self.value_list[self.step] < 0:             # Nachsehen: Wie was sich bei Hoch und Runter verhält bei Geschwindigkeit!
                             self.write_task['Runter'] = True
                             self.write_task['Hoch'] = False
+                            self.richtung_Rez = 'Runter'
                         else:
                             self.write_task['Hoch'] = True
                             self.write_task['Runter'] = False
+                            self.richtung_Rez = 'Hoch'
+                    ## Anzeige Betätigte Richtung:
+                    if self.BTN_BW_grün and self.write_task['Hoch']:
+                        self.btn_runter.setIcon(QIcon(self.icon_runter))
+                        self.btn_hoch.setIcon(QIcon(self.icon_hoch.replace('.png', '_Ein.png')))
+                    if self.BTN_BW_grün and self.write_task['Runter']:
+                        self.btn_hoch.setIcon(QIcon(self.icon_hoch))
+                        self.btn_runter.setIcon(QIcon(self.icon_runter.replace('.png', '_Ein.png')))
+                    ## bestätige Sende Wert:
                     self.write_task['Send'] = True
 
                     # Elemente GUI sperren:
@@ -1112,24 +1163,40 @@ class NemoAchseLinWidget(QWidget):
             self.RezTimer.setInterval(int(abs(self.time_list[self.step]*1000)))
 
             # Nächstes Element senden:
+            ## PID-Modus oder Normaler-Modus:
             if self.PID_cb.isChecked():
                 self.write_value['PID-Sollwert'] = self.value_list[self.step]
 
                 if self.move_list[self.step] == 'UP':
                     self.write_task['Hoch'] = True
                     self.write_task['Runter'] = False
+                    richtung = 'Hoch'
                 elif self.move_list[self.step] == 'DOWN':
                     self.write_task['Runter'] = True
                     self.write_task['Hoch'] = False
+                    richtung = 'Runter'
             else:
                 self.write_value['Speed'] = abs(self.value_list[self.step])
 
                 if self.value_list[self.step] < 0:
                     self.write_task['Runter'] = True
                     self.write_task['Hoch'] = False
+                    richtung = 'Runter'
                 else:
-                    self.write_task['Hoch'] = True
+                    self.write_task['Hoch']   = True
                     self.write_task['Runter'] = False
+                    richtung = 'Hoch'
+            ## Prio-Stopp bei Nemo-2-Anlage:
+            if self.Anlage == 2 and not self.richtung_Rez == richtung:
+                self.write_task['Prio-Stopp'] = True 
+            ## Anzeige Betätigte Richtung:
+            if self.BTN_BW_grün and self.write_task['Hoch']:
+                self.btn_runter.setIcon(QIcon(self.icon_runter))
+                self.btn_hoch.setIcon(QIcon(self.icon_hoch.replace('.png', '_Ein.png')))
+            if self.BTN_BW_grün and self.write_task['Runter']:
+                self.btn_hoch.setIcon(QIcon(self.icon_hoch))
+                self.btn_runter.setIcon(QIcon(self.icon_runter.replace('.png', '_Ein.png')))
+            ## Bestätige Sende Wert:
             self.write_task['Send'] = True
 
     def Rezept_lesen_controll(self):

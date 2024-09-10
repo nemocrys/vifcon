@@ -190,6 +190,8 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                 if 'Eurotherm' in self.device_name and self.device.config['start']['sicherheit'] == True:
                     # So bald sich im Gerät der HO ändert und die Leistung ausgewählt wurde oder der Menü-Knopf gedrückt wird, wird auch im Widget die Leistung geändert!
                     self.device_widget.oGOp = self.device.oGOp
+                if 'Nemo-Achse' in self.device_name and self.device.Limit_stop:
+                    self.device_widget.BTN_Back()
 
                 #---------------------------------------
                 # Lese Werte:
@@ -583,18 +585,24 @@ class Controller(QObject):
                         else:
                             start_werte = {'IWv': '?', 'IWs': '?'}
                         widget = PIAchseWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, start_werte, self.neustart, self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        device.Fehler_Out_funktion = widget.Fehler_Output
+                        device.er_label            = widget.La_error_1
                         #### Farben-Option:
                         color_Ant_n = color_Ant_n + 6
                     elif 'Nemo-Achse-Linear' in device_name:
                         #### Objekte erstellen:
                         device = NemoAchseLin(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf,  device_name) 
                         widget = NemoAchseLinWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        device.Fehler_Out_funktion = widget.Fehler_Output
+                        device.er_label            = widget.La_error_1
                         #### Farben-Option:
                         color_Ant_n = color_Ant_n + 9
                     elif 'Nemo-Achse-Rotation' in device_name:
                         #### Objekte erstellen:
                         device = NemoAchseRot(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name) 
                         widget = NemoAchseRotWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        device.Fehler_Out_funktion = widget.Fehler_Output
+                        device.er_label            = widget.La_error_1
                         #### Farben-Option:
                         color_Ant_n = color_Ant_n + 7
                     self.PadAchsenList.append(widget)

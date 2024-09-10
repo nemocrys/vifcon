@@ -62,10 +62,6 @@ class NemoGaseWidget:
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
         self.device_name                = nemoGase
         self.typ                        = typ
-        
-        ## Aus Config:
-        ### Zum Start:
-        self.init = self.config['start']['init']
 
         ## Dictionary:
         self.write_task     = {'Init':False}
@@ -75,36 +71,54 @@ class NemoGaseWidget:
         #--------------------------------------- 
         # Sprach-Einstellung:
         #--------------------------------------- 
+        ## Anlage:
+        self.nemo               = ['Nemo-Anlage',                       'Nemo facility']
         ## Überschriften und Größenbezeichnung:
-        ü1_str              = ['Durchfluss',                        'Flow']
-        ü2_str              = ['Druck',                             'Pressure']
-        ü3_str              = ['Status',                            'Status']
-        ü4_str              = ['Drehzahl',                          'Rotational frequency']             # Rotational speed, Rate of rotation
-        ## Status:                      
-        self.no_sta_str     = ['Kein Status!',                      'No Status!']
-        self.Stat_1_str     = ['Hand',                              'Manual']                           # Hand
-        self.Stat_2_str     = ['Auto',                              'Auto']                             # Auto
-        self.Stat_3_str     = ['Läuft',                             'Run']                              # Run
-        self.Stat_4_str     = ['Norm',                              'Norm']                             # Norm
-        self.Stat_5_str     = ['Warm',                              'Warm']                             # Warm
-        self.Stat_6_str     = ['Fehler',                            'Error']                            # Err
-        self.Stat_15_str    = ['Test-Modus Aktiv',                  'Test Mode Active']
+        ü1_str                  = ['Durchfluss',                        'Flow']
+        ü2_str                  = ['Druck',                             'Pressure']
+        ü3_str                  = ['Status',                            'Status']
+        ü4_str                  = ['Drehzahl',                          'Rotational frequency']             # Rotational speed, Rate of rotation
+        ## Status:                          
+        self.no_sta_str         = ['Kein Status!',                      'No Status!']
+        self.Stat_1_str         = ['Hand',                              'Manual']                           # Hand
+        self.Stat_2_str         = ['Auto',                              'Auto']                             # Auto
+        self.Stat_3_str         = ['Läuft',                             'Run']                              # Run
+        self.Stat_4_str         = ['Norm',                              'Norm']                             # Norm
+        self.Stat_5_str         = ['Warm',                              'Warm']                             # Warm
+        self.Stat_6_str         = ['Fehler',                            'Error']                            # Err
+        self.Stat_15_str        = ['Test-Modus Aktiv',                  'Test Mode Active']
         ## Geräte-Bezeichnung:                  
-        G1_F_str            = ['MFC24',                             'MFC24']
-        G2_F_str            = ['MFC25',                             'MFC25']
-        G3_F_str            = ['MFC26',                             'MFC26']
-        G4_F_str            = ['MFC27',                             'MFC27']
-        G5_D_str            = ['DM21',                              'DM21']
-        G6_D_str            = ['PP21',                              'PP21']
-        G7_D_str            = ['PP22',                              'PP22']
-        ## Einheit:                     
-        E1_F_str            = ['ml/min',                            'ml/min']
-        E2_D_str            = ['mbar',                              'mbar']
-        E3_n_str            = ['%',                                 '%']
+        G1_F_str                = ['MFC24',                             'MFC24']
+        G2_F_str                = ['MFC25',                             'MFC25']
+        G3_F_str                = ['MFC26',                             'MFC26']
+        G4_F_str                = ['MFC27',                             'MFC27']
+        G5_D_str                = ['DM21',                              'DM21']
+        G6_D_str                = ['PP21',                              'PP21']
+        G7_D_str                = ['PP22',                              'PP22']
+        ## Einheit:                         
+        E1_F_str                = ['ml/min',                            'ml/min']
+        E2_D_str                = ['mbar',                              'mbar']
+        E3_n_str                = ['%',                                 '%']
         ## Ablaufdatei:
-        self.Text_1_str     = ['Initialisierungsknopf betätigt.',   'Initialization button pressed.']
+        self.Text_1_str         = ['Initialisierungsknopf betätigt.',   'Initialization button pressed.']
         ## Logging:
-        self.Log_Text_1_str = ['Erstelle Widget.',                  'Create widget.']
+        self.Log_Text_1_str     = ['Erstelle Widget.',                  'Create widget.']
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',  'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                     'Possible values:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',          'Default is used:']
+        
+        #---------------------------------------------------------
+        # Konfigurationskontrolle und Konfigurationsvariablen:
+        #---------------------------------------------------------
+        ## Übergeordnet:
+        self.Anlage = self.config['nemo-Version']
+        ## Zum Start:
+        self.init = self.config['start']['init']
+
+        ## Config-Fehler und Defaults:
+        if not self.Anlage in [1, 2]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nemo-Version - {self.Log_Pfad_conf_2[self.sprache]} [1, 2] - {self.Log_Pfad_conf_3[self.sprache]} 1')
+            self.Anlage = 1
 
         #---------------------------------------    
         # GUI:
@@ -128,6 +142,7 @@ class NemoGaseWidget:
         ## Widgets:
         ### Label:
         #### Überschriften:
+        self.La_name = QLabel(f'<b>{nemoGase}</b> ({self.nemo[self.sprache]} {self.Anlage})')
         self.labelÜ1 = QLabel(f'<b>{ü1_str[self.sprache]}:</b>')
         self.labelÜ2 = QLabel(f'<b>{ü2_str[self.sprache]}:</b>')
         self.labelÜ3 = QLabel(f'<b>{ü3_str[self.sprache]}:</b>')
@@ -175,7 +190,8 @@ class NemoGaseWidget:
         self.DIlabelUnit_PP22 = QLabel(E3_n_str[self.sprache])
         #________________________________________
         ## Platzierung der einzelnen Widgets im Layout:
-        pos = 0
+        self.layer_layout.addWidget(self.La_name,               0,   0,  1, 3) 
+        pos = 1
         self.layer_layout.addWidget(self.labelÜ1,               pos,   0) 
         self.layer_layout.addWidget(self.FlabelSize_MFC24,      pos+1, 0)                          # Reihe, Spalte, Ausrichtung
         self.layer_layout.addWidget(self.FlabelValu_MFC24,      pos+1, 1)
@@ -191,7 +207,7 @@ class NemoGaseWidget:
         self.layer_layout.addWidget(self.FlabelUnit_MFC27,      pos+4, 2, alignment=Qt.AlignLeft)
         self.Leerzeile(pos+5)
 
-        pos = 6
+        pos = 7
         self.layer_layout.addWidget(self.labelÜ2,               pos,   0) 
         self.layer_layout.addWidget(self.DlabelSize_DM21,       pos+1, 0)
         self.layer_layout.addWidget(self.DlabelValu_DM21,       pos+1, 1)
@@ -207,7 +223,7 @@ class NemoGaseWidget:
         self.layer_layout.addWidget(self.DIlabelUnit_PP22,      pos+4, 2, alignment=Qt.AlignLeft)
         self.Leerzeile(pos+5)
         
-        pos = 12
+        pos = 13
         spa = 0
         self.layer_layout.addWidget(self.labelÜ3,               pos,   spa)
         self.layer_layout.addWidget(self.DSlabelSize_PP21,      pos+1, spa)

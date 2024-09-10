@@ -80,6 +80,8 @@ class NemoAchseLin(QObject):
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
         self.device_name                = name
         self.typ                        = typ
+        self.Fehler_Out_funktion        = None
+        self.er_label                   = None
 
         ## Aus Config:
         ### Zum Start:
@@ -201,6 +203,10 @@ class NemoAchseLin(QObject):
         self.Text_68_str        = ['Versuchen!',                                                                            'Attempts!']
         self.Text_69_str        = ['Geschwindigkeit erfolgreich gesendet!',                                                 'Speed sent successfully!']
         self.Text_70_str        = ['Befehl sende Geschwindigkeit fehlgeschlagen!',                                          'Command send speed failed!']
+        ## Fehler-Out:
+        self.Fehler_out_1       = ['Limit Hoch erreicht!\nStopp ausgelöst!',                                                'Limit high reached!\nStop triggered!']
+        self.Fehler_out_2       = ['Limit Runter erreicht!\nStopp ausgelöst!',                                              'Limit down reached!\nStop triggered!']
+        self.Fehler_out_3       = ['Limit erreicht!\nKnopf wird nicht ausgeführt!',                                         'Limit reached!\nButton is not executed!']
 
         #---------------------------------------
         # Schnittstelle:
@@ -416,14 +422,19 @@ class NemoAchseLin(QObject):
             if self.akIWs >= self.oGs and not self.Auf_End:
                 self.Auf_End = True
                 logger.warning(f'{self.device_name} - {self.Log_Text_217_str[self.sprache]}')
+                self.Fehler_Out_funktion(1, self.er_label, self.Fehler_out_1[self.sprache])
+                self.Limit_stop = True
                 write_Okay['Stopp'] = True
             if self.akIWs <= self.uGs and not self.Ab_End:
                 self.Ab_End = True
                 logger.warning(f'{self.device_name} - {self.Log_Text_218_str[self.sprache]}')
+                self.Fehler_Out_funktion(1, self.er_label, self.Fehler_out_2[self.sprache])
+                self.Limit_stop = True
                 write_Okay['Stopp'] = True
             if self.akIWs > self.uGs and self.akIWs < self.oGs:
                 self.Auf_End = False
                 self.Ab_End = False
+                self.Limit_stop = False
         
         #++++++++++++++++++++++++++++++++++++++++++
         # Normaler Betrieb:
@@ -503,6 +514,13 @@ class NemoAchseLin(QObject):
             #---------------------------------------------
             speed_vorgabe = self.PID_Out
             PID_write_V = True
+        
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Sende Prio-Stopp:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if write_Okay['Prio-Stopp']:
+            self.stopp()
+            write_Okay['Prio-Stopp'] = False
 
         #++++++++++++++++++++++++++++++++++++++++++
         # Sende Stopp:
@@ -545,7 +563,7 @@ class NemoAchseLin(QObject):
                             write_Okay['Hoch'] = False 
                         elif self.Auf_End and write_Okay['Hoch']:
                             logger.warning(f'{self.device_name} - {self.Log_Text_219_str[self.sprache]} ({self.Log_Text_247_str[self.sprache]})')
-                            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Log_Text_219_str[self.sprache]} ({self.Log_Text_247_str[self.sprache]})') 
+                            self.Fehler_Out_funktion(1, self.er_label, f'{self.Fehler_out_3[self.sprache]}\n{self.Log_Text_247_str[self.sprache]}', f'{self.Log_Text_219_str[self.sprache]} ({self.Log_Text_249_str[self.sprache]})')
                             write_Okay['Hoch'] = False     
                         if write_Okay['Runter'] and not self.Ab_End:
                             ans = self.serial.write_single_coil(self.reg_r, True)
@@ -561,7 +579,7 @@ class NemoAchseLin(QObject):
                             write_Okay['Runter'] = False  
                         elif self.Ab_End and write_Okay['Runter']:
                             logger.warning(f'{self.device_name} - {self.Log_Text_219_str[self.sprache]} ({self.Log_Text_248_str[self.sprache]})')
-                            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Log_Text_219_str[self.sprache]} ({self.Log_Text_248_str[self.sprache]})') 
+                            self.Fehler_Out_funktion(1, self.er_label, f'{self.Fehler_out_3[self.sprache]}\n{self.Log_Text_248_str[self.sprache]}', f'{self.Log_Text_219_str[self.sprache]} ({self.Log_Text_248_str[self.sprache]})')
                             write_Okay['Runter'] = False  
                     else:
                         write_Okay['Runter'] = False 

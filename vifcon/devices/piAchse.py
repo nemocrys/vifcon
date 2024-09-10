@@ -75,6 +75,8 @@ class PIAchse(QObject):
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
         self.device_name                = name
         self.typ                        = typ
+        self.Fehler_Out_funktion        = None
+        self.er_label                   = None
 
         ## Aus Config:
         self.mercury_model  = self.config['mercury_model']  
@@ -168,7 +170,10 @@ class PIAchse(QObject):
         self.Text_60_str        = ['Befehl DH erfolgreich gesendet!',                                                                                                                                                       'DH command sent successfully!']
         self.Text_61_str        = ['Das Senden ist fehlgeschlagen!',                                                                                                                                                        'Sending failed!']
         self.Text_62_str        = ['Achse wurde erfolgreich angehalten!',                                                                                                                                                   'Axis was stopped successfully!']
-
+        ## Fehler-Out:
+        self.Fehler_out_1       = ['Maximum Limit erreicht!\nStopp ausgelöst!',                                                                                                                                             'Maximum limit reached!\nStop triggered!']
+        self.Fehler_out_2       = ['Minimum Limit erreicht!\nStopp ausgelöst!',                                                                                                                                             'Minimum limit reached!\nStop triggered!']
+        
         #---------------------------------------
         # Schnittstelle:
         #---------------------------------------
@@ -388,10 +393,12 @@ class PIAchse(QObject):
         if self.akPos > self.oGPos and not self.Max_End:
             self.Max_End = True
             logger.warning(f'{self.device_name} - {self.Log_Text_217_str[self.sprache]}')
+            self.Fehler_Out_funktion(1, self.er_label, self.Fehler_out_1[self.sprache])
             write_Okay['Stopp'] = True
         if self.akPos < self.uGPos and not self.Min_End:
             self.Min_End = True
             logger.warning(f'{self.device_name} - {self.Log_Text_218_str[self.sprache]}')
+            self.Fehler_Out_funktion(1, self.er_label, self.Fehler_out_2[self.sprache])
             write_Okay['Stopp'] = True
         if self.akPos > self.uGPos and self.akPos < self.oGPos:
             self.Max_End = False

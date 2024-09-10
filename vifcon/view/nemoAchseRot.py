@@ -82,26 +82,11 @@ class NemoAchseRotWidget(QWidget):
         self.device_name                = nemoAchse
         self.typ                        = typ
 
-        ## Aus Config:
-        ### Zum Start:
-        self.init = self.config['start']['init']
-        ### Limits:
-        self.oGv = self.config["limits"]['maxSpeed']
-        self.uGv = self.config["limits"]['minSpeed']
-        self.oGw = self.config["limits"]['maxWinkel']
-        self.uGw = self.config["limits"]['minWinkel']
-        self.oGx = self.config['PID']['Input_Limit_max']
-        self.uGx = self.config['PID']['Input_Limit_min']
-        ### GUI:
-        self.legenden_inhalt = self.config['GUI']['legend'].split(';')
-        self.legenden_inhalt = [a.strip() for a in self.legenden_inhalt]    # sollten Unnötige Leerzeichen vorhanden sein, so werden diese entfernt!
-        self.color_Aktiv = self.typ_widget.color_On
+        ## Aus Config (ohne Kontrolle):
         ### Rezepte:
         self.rezept_config = self.config["rezepte"]
-        ### Gamepad:
-        self.Button_Link = self.config['gamepad_Button']
         ### PID-Modus:
-        self.unit_PIDIn = self.config['PID']['Input_Size_unit']
+        self.unit_PIDIn    = self.config['PID']['Input_Size_unit']
 
         ## Faktoren Skalierung:
         self.skalFak = self.typ_widget.Faktor
@@ -116,6 +101,8 @@ class NemoAchseRotWidget(QWidget):
         #--------------------------------------- 
         # Sprach-Einstellung:
         #--------------------------------------- 
+        ## Anlage:
+        self.nemo               = ['Nemo-Anlage',                                                                                               'Nemo facility']
         ## Werte:
         istwert_str             = ['Ist',                                                                                                       'Is']
         sollwert_str            = ['Soll',                                                                                                      'Set']
@@ -209,6 +196,9 @@ class NemoAchseRotWidget(QWidget):
         self.Log_Text_LB_3      = ['Winkel',                                                                                                    'Angle']
         self.Log_Text_LB_4      = ['bis',                                                                                                       'to']
         self.Log_Text_LB_5      = ['nach Update',                                                                                               'after update']
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                          'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                             'Possible values:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                  'Default is used:']
         ## Ablaufdatei: 
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -237,10 +227,41 @@ class NemoAchseRotWidget(QWidget):
         # Pop-Up-Fenster:
         self.Pop_up_EndRot      = ['Das kontinuierlische rotieren wurde beendet. Bitte beachte, dass zu diesem Zeitpunkt bereits ein Limit überschritten sein kann. In Fall der Überschreitung setze den Winkel auf Null, schalte die kontinuierlische Rotation wieder ein oder fahre in die andere Richtung. Wenn z.B. das CCW Limit erreicht wurde, so kann der Antrieb noch immer bis zum CW Limit fahren.',
                                    'Continuous rotation has ended. Please note that a limit may already have been exceeded at this point. If this limit is exceeded, set the angle to zero, switch continuous rotation back on or move in the other direction. If, for example, the CCW limit has been reached, the drive can still move up to the CW limit.']
+        
+        #---------------------------------------------------------
+        # Konfigurationskontrolle und Konfigurationsvariablen:
+        #---------------------------------------------------------
+        ## Übergeordnet:
+        self.Anlage = self.config['nemo-Version']
+        ## Zum Start:
+        self.init = self.config['start']['init']
+        ## Limits:
+        self.oGv = self.config["limits"]['maxSpeed']
+        self.uGv = self.config["limits"]['minSpeed']
+        self.oGw = self.config["limits"]['maxWinkel']
+        self.uGw = self.config["limits"]['minWinkel']
+        self.oGx = self.config['PID']['Input_Limit_max']
+        self.uGx = self.config['PID']['Input_Limit_min']
+        ## GUI:
+        self.legenden_inhalt = self.config['GUI']['legend'].split(';')
+        self.legenden_inhalt = [a.strip() for a in self.legenden_inhalt]    # sollten Unnötige Leerzeichen vorhanden sein, so werden diese entfernt!
+        self.color_Aktiv     = self.typ_widget.color_On
+        self.BTN_BW_grün     = self.config['GUI']['knopf_anzeige']
+        ## Gamepad:
+        self.Button_Link = self.config['gamepad_Button']
+        
+        ## Config-Fehler und Defaults:
+        if not type(self.BTN_BW_grün) == bool and not self.BTN_BW_grün in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} knopf_anzeige - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False')
+            self.BTN_BW_grün = 0
+        if not self.Anlage in [1, 2]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nemo-Version - {self.Log_Pfad_conf_2[self.sprache]} [1, 2] - {self.Log_Pfad_conf_3[self.sprache]} 1')
+            self.Anlage = 1
+        
         #---------------------------------------
         # Konfigurationen für das Senden:
         #---------------------------------------
-        self.write_task = {'Stopp': False, 'CCW': False, 'CW': False, 'Init':False, 'Define Home': False, 'Start':False, 'Send':False, 'Update Limit': False, 'PID': False, 'EndRot':False}
+        self.write_task  = {'Stopp': False, 'CCW': False, 'CW': False, 'Init':False, 'Define Home': False, 'Start':False, 'Send':False, 'Update Limit': False, 'PID': False, 'EndRot':False, 'Prio-Stopp': False}
         self.write_value = {'Speed': 0, 'Limits': [0, 0, 0, 0, 0, 0], 'PID-Sollwert': 0} # Limits: oGw, uGw, oGv, uGv, oGx, uGx
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
@@ -307,7 +328,7 @@ class NemoAchseRotWidget(QWidget):
 
         ### Label:
         #### Titel-Gerät:
-        self.La_name = QLabel(f'<b>{nemoAchse}</b>')
+        self.La_name = QLabel(f'<b>{nemoAchse}</b> ({self.nemo[self.sprache]} {self.Anlage})')
         #### Fehlernachrichten:
         self.La_error_1 = QLabel(self.err_13_str[self.sprache])
         #### Istwinkelgeschwindigkeit:
@@ -343,11 +364,13 @@ class NemoAchseRotWidget(QWidget):
 
         ### Knöpfe:
         #### Bewegung:
-        self.btn_cw = QPushButton(QIcon("./vifcon/icons/p_cw.png"), '')
+        self.icon_cw = "./vifcon/icons/p_cw.png"
+        self.btn_cw  = QPushButton(QIcon(self.icon_cw), '')
         self.btn_cw.setFlat(True)
         self.btn_cw.clicked.connect(self.fahre_cw)
 
-        self.btn_ccw = QPushButton(QIcon(QIcon("./vifcon/icons/p_ccw.png")), '')
+        self.icon_ccw = "./vifcon/icons/p_ccw.png"
+        self.btn_ccw  = QPushButton(QIcon(QIcon(self.icon_ccw)), '')
         self.btn_ccw.setFlat(True)
         self.btn_ccw.clicked.connect(self.fahre_ccw)
         #### Stopp:
@@ -712,6 +735,7 @@ class NemoAchseRotWidget(QWidget):
         '''Reaktion auf den Linken Knopf'''
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_49_str[self.sprache]}')
+            self.Fehler_Output(0, self.La_error_1) 
             ans = self.controll_value()
             if not ans == '':
                 if self.PID_cb.isChecked():
@@ -720,6 +744,9 @@ class NemoAchseRotWidget(QWidget):
                     self.write_value['Speed'] = ans
                 self.write_task['CW'] = True
                 self.write_task['Send'] = True
+                if self.BTN_BW_grün:
+                    self.btn_ccw.setIcon(QIcon(self.icon_ccw))
+                    self.btn_cw.setIcon(QIcon(self.icon_cw.replace('.png', '_Ein.png')))
         else:
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
 
@@ -727,6 +754,7 @@ class NemoAchseRotWidget(QWidget):
         '''Reaktion auf den Rechten Knopf'''
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_50_str[self.sprache]}')
+            self.Fehler_Output(0, self.La_error_1) 
             ans = self.controll_value()
             if not ans == '':
                 if self.PID_cb.isChecked():
@@ -735,6 +763,9 @@ class NemoAchseRotWidget(QWidget):
                     self.write_value['Speed'] = ans
                 self.write_task['CCW'] = True
                 self.write_task['Send'] = True
+                if self.BTN_BW_grün:
+                    self.btn_cw.setIcon(QIcon(self.icon_cw))
+                    self.btn_ccw.setIcon(QIcon(self.icon_ccw.replace('.png', '_Ein.png')))
         else:
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
              
@@ -747,6 +778,10 @@ class NemoAchseRotWidget(QWidget):
             self.RezEnde(n)
             # Sende Befehl:
             self.write_task['Stopp'] = True
+            if self.BTN_BW_grün:
+                self.btn_ccw.setIcon(QIcon(self.icon_ccw))
+                self.btn_cw.setIcon(QIcon(self.icon_cw))
+            self.Fehler_Output(0, self.La_error_1) 
         else:
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
 
@@ -949,6 +984,11 @@ class NemoAchseRotWidget(QWidget):
 
         return byte_string[::-1]   # [::-1] --> dreht String um! (Lowest Bit to Highest Bit)
 
+    def BTN_Back(self):
+        if self.BTN_BW_grün:
+            self.btn_cw.setIcon(QIcon(self.icon_cw))
+            self.btn_ccw.setIcon(QIcon(self.icon_ccw))
+
     ##########################################
     # Reaktion auf Initialsierung:
     ##########################################
@@ -1023,24 +1063,37 @@ class NemoAchseRotWidget(QWidget):
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_24_str[self.sprache]} {self.cb_Rezept.currentText()} {self.rezept_datei}') 
 
                     # Erstes Element senden:
+                    ## PID-Modus oder Normaler-Modus:
                     if self.PID_cb.isChecked():
                         self.write_value['PID-Sollwert'] = self.value_list[self.step]
 
                         if self.move_list[self.step] == 'CW':
                             self.write_task['CW'] = True
                             self.write_task['CCW'] = False
+                            self.richtung_Rez = 'CW'
                         elif self.move_list[self.step] == 'CCW':
                             self.write_task['CCW'] = True
                             self.write_task['CW'] = False
+                            self.richtung_Rez = 'CCW'
                     else:
                         self.write_value['Speed'] = abs(self.value_list[self.step]) 
 
                         if self.value_list[self.step] < 0:
                             self.write_task['CCW'] = True
                             self.write_task['CW'] = False
+                            self.richtung_Rez = 'CCW'
                         else:
                             self.write_task['CW'] = True
                             self.write_task['CCW'] = False
+                            self.richtung_Rez = 'CW'
+                    ## Anzeige Betätigte Richtung:
+                    if self.BTN_BW_grün and self.write_task['CW']:
+                        self.btn_ccw.setIcon(QIcon(self.icon_ccw))
+                        self.btn_cw.setIcon(QIcon(self.icon_cw.replace('.png', '_Ein.png')))
+                    if self.BTN_BW_grün and self.write_task['CCW']:
+                        self.btn_cw.setIcon(QIcon(self.icon_cw))
+                        self.btn_ccw.setIcon(QIcon(self.icon_ccw.replace('.png', '_Ein.png')))
+                    ## Bestätige Sende Wert:
                     self.write_task['Send'] = True
 
                     # Elemente GUI sperren:
@@ -1114,24 +1167,40 @@ class NemoAchseRotWidget(QWidget):
             self.RezTimer.setInterval(int(abs(self.time_list[self.step]*1000)))
 
             # Nächstes Element senden:
+            ## PID-Modus oder Normaler-Modus:
             if self.PID_cb.isChecked():
                 self.write_value['PID-Sollwert'] = self.value_list[self.step]
 
                 if self.move_list[self.step] == 'CW':
                     self.write_task['CW'] = True
                     self.write_task['CCW'] = False
+                    richtung = 'CW'
                 elif self.move_list[self.step] == 'CCW':
                     self.write_task['CCW'] = True
                     self.write_task['CW'] = False
+                    richtung = 'CCW'
             else:
                 self.write_value['Speed'] = abs(self.value_list[self.step]) 
 
                 if self.value_list[self.step] < 0:
                     self.write_task['CCW'] = True
                     self.write_task['CW'] = False
+                    richtung = 'CCW'
                 else:
                     self.write_task['CW'] = True
                     self.write_task['CCW'] = False
+                    richtung = 'CW'
+            ## Prio-Stopp bei Nemo-2-Anlage:
+            if self.Anlage == 2 and not self.richtung_Rez == richtung:
+                self.write_task['Prio-Stopp'] = True 
+            ## Anzeige Betätigte Richtung:
+            if self.BTN_BW_grün and self.write_task['CW']:
+                self.btn_ccw.setIcon(QIcon(self.icon_ccw))
+                self.btn_cw.setIcon(QIcon(self.icon_cw.replace('.png', '_Ein.png')))
+            if self.BTN_BW_grün and self.write_task['CCW']:
+                self.btn_cw.setIcon(QIcon(self.icon_cw))
+                self.btn_ccw.setIcon(QIcon(self.icon_ccw.replace('.png', '_Ein.png')))
+            ## Bestätige Sende Wert:
             self.write_task['Send'] = True
     
     def Rezept_lesen_controll(self):
