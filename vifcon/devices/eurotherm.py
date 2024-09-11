@@ -178,6 +178,7 @@ class Eurotherm(QObject):
         self.Log_Text_LB_6      = ['PID',                                                                                                                                                                                   'PID']
         self.Log_Text_LB_7      = ['Output',                                                                                                                                                                                'Outout']
         self.Log_Text_LB_8      = ['Input',                                                                                                                                                                                 'Input']
+        self.Log_Text_HO        = ['Die aktuelle maximale Ausgangsleistung (HO) ist folgendermaßen:',                                                                                                                       'The current maximum output power (HO) is as follows:']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -652,8 +653,10 @@ class Eurotherm(QObject):
             '' (str):           Fehlerfall
             max_pow (float):    Aktuelle maximale Ausgangsleistung 
         '''
+        read = self.read_einzeln(self.read_max_leistung)
+        logger.info(f'{self.device_name} - {self.Log_Text_HO[self.sprache]} {read} {self.Log_Text_156_str[self.sprache]}')
         if self.config['start']['sicherheit'] == True:
-            max_pow = self.read_einzeln(self.read_max_leistung)
+            max_pow = read
             return max_pow
         return ''
     

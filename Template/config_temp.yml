@@ -187,6 +187,7 @@ devices:
       stopbits: 1
       parity: N
       timeout: 0.1
+    serial-loop-read: 3                                                   # Anzahl der Wiederholung bei dem Auslesen der Antwort bei Fehlschlag!
     multilog:
       write_trigger: Vifcon_generator                                     # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen)                                       
       write_port: 53000                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur!
@@ -307,7 +308,7 @@ devices:
     GUI:
       bewegung: 'z'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter
       piSymbol: 'Un'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus)
-      knopf_anzeige: 0                                                    # Anzeige das der Knopf betätigt wurde! Default: False
+      knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False
                                                                           # Mode 0: Knöpfe bleiben Grün, bis andere Richtung oder Stopp betätigt werden!
                                                                           # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
       legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
@@ -603,6 +604,7 @@ devices:
   Nemo-Achse-Linear_Spindel:                                              # Muss "Nemo-Achse-Linear" enthalten! 
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
     typ: Antrieb
+    nemo-Version: 2                                                       # gewählte Anlage: 1, 2
     gamepad_Button: HubS                                                  # Verknüpfung Gamepad-Knöpfe und Achsen:
                                                                           # Möglich: HubS, HubT
                                                                           # HubS - X & B (Spindel) (Button) 
@@ -668,6 +670,7 @@ devices:
       maxSpeed: 4                                                         # Maximale Geschwindigkeit [mm/min]
       minSpeed: -4                                                        # Minimale Geschwindigkeit [mm/min]
     GUI:
+      knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False
       legend: Rezv ; Rezx ; IWs ; IWv ; SWv ; IWxPID ; SWxPID             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!), x - Externe-PID-Input-Größe, PID- PID-Modus
                                                                           # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID
@@ -698,6 +701,7 @@ devices:
   Nemo-Achse-Rotation_Spindel:                                            # Muss "Nemo-Achse-Rotation" enthalten! 
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
     typ: Antrieb
+    nemo-Version: 2                                                       # gewählte Anlage: 1, 2
     gamepad_Button: RotS                                                  # Verknüpfung Gamepad-Knöpfe und Achsen:
                                                                           # Möglich: RotS, RotT
                                                                           # RotS - Y & A (Spindel) (Button)
@@ -762,6 +766,7 @@ devices:
       maxSpeed: 4                                                         # Maximale Geschwindigkeit [1/min]
       minSpeed: -4                                                        # Minimale Geschwindigkeit [1/min]
     GUI:
+      knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False
       legend: Rezv ; Rezx ; IWv ; SWv ; IWw ; IWxPID ; SWxPID             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Externe-PID-Input-Größe, PID- PID-Modus
                                                                           # Eingebaut: Rezv, Rezx , IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID
@@ -792,6 +797,7 @@ devices:
   Nemo-Achse-Linear_Tiegel:                                               # Muss "Nemo-Achse-Linear" enthalten! 
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
     typ: Antrieb
+    nemo-Version: 1                                                       # gewählte Anlage: 1, 2
     gamepad_Button: HubT                                                  # Verknüpfung Gamepad-Knöpfe und Achsen:
                                                                           # Möglich: HubS, HubT
                                                                           # HubS - X & B (Spindel)
@@ -856,6 +862,7 @@ devices:
       maxSpeed: 100                                                       # Maximale Geschwindigkeit [mm/min]
       minSpeed: -100                                                      # Minimale Geschwindigkeit [mm/min]
     GUI:
+      knopf_anzeige: 0                                                    # Anzeige das der Knopf betätigt wurde! Default: False
       legend: Rezv ; Rezx ; IWs ; IWv ; SWv ; IWxPID ; SWxPID             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!), x - Externe-PID-Input-Größe, PID- PID-Modus
                                                                           # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID
@@ -881,6 +888,7 @@ devices:
   Nemo-Achse-Rotation_Tiegel:                                             # Muss "Nemo-Achse-Rotation" enthalten! 
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
     typ: Antrieb
+    nemo-Version: 1                                                       # gewählte Anlage: 1, 2
     gamepad_Button: RotT                                                  # Verknüpfung Gamepad-Knöpfe und Achsen:
                                                                           # Möglich: RotS, RotT
                                                                           # RotS - Y & A (Spindel) (Button)
@@ -945,6 +953,7 @@ devices:
       maxSpeed: 100                                                       # Maximale Geschwindigkeit [1/min]
       minSpeed: -100                                                      # Minimale Geschwindigkeit [1/min]
     GUI:
+      knopf_anzeige: 0                                                    # Anzeige das der Knopf betätigt wurde! Default: False
       legend: Rezv ; IWv ; SWv ; IWw ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Externe-PID-Input-Größe, PID- PID-Modus
                                                                           # Eingebaut: Rezv, Rezx , IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID
@@ -969,6 +978,7 @@ devices:
   Nemo-Gase_1:                                                            # Muss "Nemo-Gase" enthalten! 
     skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
     typ: Monitoring
+    nemo-Version: 1                                                       # gewählte Anlage: 1, 2
     start:
       readTime: 2                                                         # Auslesezeit [s]
       init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
