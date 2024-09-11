@@ -192,6 +192,7 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                     self.device_widget.oGOp = self.device.oGOp
                 if 'Nemo-Achse' in self.device_name and self.device.Limit_stop:
                     self.device_widget.BTN_Back()
+                    self.device.Limit_stop = False
 
                 #---------------------------------------
                 # Lese Werte:

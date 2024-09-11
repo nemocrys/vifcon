@@ -111,6 +111,7 @@ class NemoAchseLin(QObject):
         self.unit_PIDIn = self.config['PID']['Input_Size_unit']
 
         ## Andere:
+        self.Limit_stop = False
         self.value_name = {'IWs': 0, 'IWsd':0, 'IWv': 0, 'SWv': 0, 'SWs':0, 'oGs':0, 'uGs': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0}
 
         #--------------------------------------- 
@@ -148,7 +149,7 @@ class NemoAchseLin(QObject):
         self.Log_Text_214_str   = ['Antriebs Startwert:',                                                                   'Drive start value:']
         self.Log_Text_216_str   = ['mm',                                                                                    'mm']
         self.Log_Text_217_str   = ['Maximum Limit erreicht! (Hoch)',                                                        'Maximum limit reached! (Up)']
-        self.Log_Text_218_str   = ['Minimum Limit erreicht! (Down)',                                                        'Minimum limit reached! (Down)']
+        self.Log_Text_218_str   = ['Minimum Limit erreicht! (Runter)',                                                      'Minimum limit reached! (Down)']
         self.Log_Text_219_str   = ['Knopf kann nicht ausgeführt werden da Limit erreicht!',                                 'Button cannot be executed because limit has been reached!']         
         self.Log_Text_247_str   = ['Hoch',                                                                                  'Up']
         self.Log_Text_248_str   = ['Runter',                                                                                'Down']
@@ -563,7 +564,8 @@ class NemoAchseLin(QObject):
                             write_Okay['Hoch'] = False 
                         elif self.Auf_End and write_Okay['Hoch']:
                             logger.warning(f'{self.device_name} - {self.Log_Text_219_str[self.sprache]} ({self.Log_Text_247_str[self.sprache]})')
-                            self.Fehler_Out_funktion(1, self.er_label, f'{self.Fehler_out_3[self.sprache]}\n{self.Log_Text_247_str[self.sprache]}', f'{self.Log_Text_219_str[self.sprache]} ({self.Log_Text_249_str[self.sprache]})')
+                            self.Fehler_Out_funktion(1, self.er_label, f'{self.Fehler_out_3[self.sprache]}\n{self.Log_Text_247_str[self.sprache]}', f'{self.Log_Text_219_str[self.sprache]} ({self.Log_Text_247_str[self.sprache]})')
+                            self.Limit_stop    = True
                             write_Okay['Hoch'] = False     
                         if write_Okay['Runter'] and not self.Ab_End:
                             ans = self.serial.write_single_coil(self.reg_r, True)
@@ -580,6 +582,7 @@ class NemoAchseLin(QObject):
                         elif self.Ab_End and write_Okay['Runter']:
                             logger.warning(f'{self.device_name} - {self.Log_Text_219_str[self.sprache]} ({self.Log_Text_248_str[self.sprache]})')
                             self.Fehler_Out_funktion(1, self.er_label, f'{self.Fehler_out_3[self.sprache]}\n{self.Log_Text_248_str[self.sprache]}', f'{self.Log_Text_219_str[self.sprache]} ({self.Log_Text_248_str[self.sprache]})')
+                            self.Limit_stop      = True
                             write_Okay['Runter'] = False  
                     else:
                         write_Okay['Runter'] = False 

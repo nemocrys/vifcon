@@ -747,6 +747,7 @@ class NemoAchseLinWidget(QWidget):
         '''Reaktion auf den Linken Knopf'''
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_45_str[self.sprache]}')
+            self.Fehler_Output(0, self.La_error_1) 
             ans = self.controll_value()
             if not ans == '':
                 if self.PID_cb.isChecked():
@@ -765,7 +766,7 @@ class NemoAchseLinWidget(QWidget):
         '''Reaktion auf den Rechten Knopf'''
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_46_str[self.sprache]}')
-            self.write_task['Runter'] = True
+            self.Fehler_Output(0, self.La_error_1) 
             ans = self.controll_value()
             if not ans == '':
                 if self.PID_cb.isChecked():
@@ -792,6 +793,7 @@ class NemoAchseLinWidget(QWidget):
             if self.BTN_BW_grün:
                 self.btn_hoch.setIcon(QIcon(self.icon_hoch))
                 self.btn_runter.setIcon(QIcon(self.icon_runter))
+            self.Fehler_Output(0, self.La_error_1)
         else:
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
     

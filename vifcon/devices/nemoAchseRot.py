@@ -111,6 +111,7 @@ class NemoAchseRot(QObject):
 
 
         ## Andere:
+        self.Limit_stop = False
         self.value_name = {'IWv': 0, 'IWw':0, 'SWv': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0}
 
         #--------------------------------------- 
@@ -570,6 +571,7 @@ class NemoAchseRot(QObject):
                         elif self.CW_End and write_Okay['CW']:
                             logger.warning(f'{self.device_name} - {self.Log_Text_219_str[self.sprache]} ({self.Log_Text_249_str[self.sprache]})')
                             self.Fehler_Out_funktion(1, self.er_label, f'{self.Fehler_out_3[self.sprache]}\n{self.Log_Text_249_str[self.sprache]}', f'{self.Log_Text_219_str[self.sprache]} ({self.Log_Text_249_str[self.sprache]})')
+                            self.Limit_stop  = True
                             write_Okay['CW'] = False     
                         if write_Okay['CCW'] and not self.CCW_End:
                             ans = self.serial.write_single_coil(self.reg_ccw, True)
@@ -586,6 +588,7 @@ class NemoAchseRot(QObject):
                         elif self.CCW_End and write_Okay['CCW']:
                             logger.warning(f'{self.device_name} - {self.Log_Text_219_str[self.sprache]} ({self.Log_Text_250_str[self.sprache]})')
                             self.Fehler_Out_funktion(1, self.er_label, f'{self.Fehler_out_3[self.sprache]}\n{self.Log_Text_250_str[self.sprache]}', f'{self.Log_Text_219_str[self.sprache]} ({self.Log_Text_249_str[self.sprache]})') 
+                            self.Limit_stop   = True
                             write_Okay['CCW'] = False  
                     else:
                         write_Okay['CCW'] = False 
