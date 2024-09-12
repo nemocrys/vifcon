@@ -500,7 +500,7 @@ class Eurotherm(QObject):
                 write_Okay[auswahl] = False
             ## Lese Maximum OP:
             elif write_Okay[auswahl] and auswahl == 'Read_HO':
-                value_HO = self.check_HO()
+                value_HO = self.check_HO(True)
                 if value_HO != '' and value_HO != m.nan:
                     self.oGOp = value_HO
                 write_Okay[auswahl] = False
@@ -646,15 +646,17 @@ class Eurotherm(QObject):
             logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
         return ans
 
-    def check_HO(self):
+    def check_HO(self, Read_menu=False):
         ''' lese die maximale Ausgangsleistungs Grenze aus., wenn im Sicherheitsmodus.
-
+        Args:
+            Read_menu (bool):   Wenn True wurde der Aufruf im Menü betätigt -> logge Wert!
         Return:
             '' (str):           Fehlerfall
             max_pow (float):    Aktuelle maximale Ausgangsleistung 
         '''
         read = self.read_einzeln(self.read_max_leistung)
-        logger.info(f'{self.device_name} - {self.Log_Text_HO[self.sprache]} {read} {self.Log_Text_156_str[self.sprache]}')
+        if Read_menu:
+            logger.info(f'{self.device_name} - {self.Log_Text_HO[self.sprache]} {read} {self.Log_Text_156_str[self.sprache]}')
         if self.config['start']['sicherheit'] == True:
             max_pow = read
             return max_pow

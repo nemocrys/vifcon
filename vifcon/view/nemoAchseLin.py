@@ -200,6 +200,8 @@ class NemoAchseLinWidget(QWidget):
         self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                          'Configuration error in element:']
         self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                             'Possible values:']
         self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                  'Default is used:']
+        self.Log_Text_PS_1      = ['Auslösung des priorisierten Stopps! Richtungswechsel: Von',                                                 'Initiation of the prioritized stop! Change of direction: From']
+        self.Log_Text_PS_2      = ['zu',                                                                                                        'to']
         ## Ablaufdatei: 
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -225,6 +227,7 @@ class NemoAchseLinWidget(QWidget):
         self.Text_PID_2         = ['Wechsel in Eurotherm-Regel-Modus.',                                                                         'Switch to Eurotherm control mode.']
         self.Text_PID_3         = ['Moduswechsel! Auslösung des Stopp-Knopfes aus Sicherheitsgründen!',                                         'Mode change! Stop button triggered for safety reasons!']
         self.Text_PID_4         = ['Rezept Beenden! Wechsel des Modus!',                                                                        'End recipe! Change mode!']
+        self.Text_PS_1          = ['Priorisierter Stopp aktiviert!',                                                                            'Prioritized stop activated!']
 
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
@@ -1191,6 +1194,9 @@ class NemoAchseLinWidget(QWidget):
             ## Prio-Stopp bei Nemo-2-Anlage:
             if self.Anlage == 2 and not self.richtung_Rez == richtung:
                 self.write_task['Prio-Stopp'] = True 
+                logger.info(f'{self.device_name} - {self.Log_Text_PS_1[self.sprache]} {self.richtung_Rez} {self.Log_Text_PS_2[self.sprache]} {richtung}')
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PS_1[self.sprache]}')
+                self.richtung_Rez = richtung
             ## Anzeige Betätigte Richtung:
             if self.BTN_BW_grün and self.write_task['Hoch']:
                 self.btn_runter.setIcon(QIcon(self.icon_runter))
