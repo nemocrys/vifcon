@@ -86,6 +86,7 @@ class NemoGaseWidget:
         self.Stat_4_str         = ['Norm',                              'Norm']                             # Norm
         self.Stat_5_str         = ['Warm',                              'Warm']                             # Warm
         self.Stat_6_str         = ['Fehler',                            'Error']                            # Err
+        self.Stat_14_str        = ['Schnittstellenfehler',              'Interface error']
         self.Stat_15_str        = ['Test-Modus Aktiv',                  'Test Mode Active']
         ## Geräte-Bezeichnung:                  
         G1_F_str                = ['MFC24',                             'MFC24']
@@ -279,7 +280,7 @@ class NemoGaseWidget:
         status_1 = value_dict['PP21Status']
         status_1 = self.status_report_umwandlung(status_1)
         label_s1 = ''
-        status = [self.Stat_1_str[self.sprache], self.Stat_2_str[self.sprache], '', '', '', '', '', '', self.Stat_3_str[self.sprache], '', '', '', '', '', '', self.Stat_15_str[self.sprache]]
+        status = [self.Stat_1_str[self.sprache], self.Stat_2_str[self.sprache], '', '', '', '', '', '', self.Stat_3_str[self.sprache], '', '', '', '', '', self.Stat_14_str[self.sprache], self.Stat_15_str[self.sprache]]
         l = len(status_1)
         for n in range(0,l):
             if status_1[n] == '1':
@@ -295,7 +296,7 @@ class NemoGaseWidget:
         status_2 = value_dict['PP22Status']
         status_2 = self.status_report_umwandlung(status_2)
         label_s2 = ''
-        status = [self.Stat_1_str[self.sprache], self.Stat_2_str[self.sprache], '', '', '', '', '', '', self.Stat_3_str[self.sprache], self.Stat_4_str[self.sprache], self.Stat_5_str[self.sprache], self.Stat_6_str[self.sprache], '', '', '', self.Stat_15_str[self.sprache]]     # Lowest Bit zu Highest Bit
+        status = [self.Stat_1_str[self.sprache], self.Stat_2_str[self.sprache], '', '', '', '', '', '', self.Stat_3_str[self.sprache], self.Stat_4_str[self.sprache], self.Stat_5_str[self.sprache], self.Stat_6_str[self.sprache], '', '', self.Stat_14_str[self.sprache], self.Stat_15_str[self.sprache]]     # Lowest Bit zu Highest Bit
         l = len(status_2)
         for n in range(0,l):
             if status_2[n] == '1':
@@ -334,6 +335,9 @@ class NemoGaseWidget:
             status = '0000000' + status
             byte_list.append(status[-8:])
         elif status == '' and len(byte_list) == 1:
+            byte_list.append('00000000')
+        
+        if len(byte_list) == 1:
             byte_list.append('00000000')
 
         # Byte zusammensetzen in der richtigen Reihenfolge:

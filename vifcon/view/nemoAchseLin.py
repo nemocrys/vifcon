@@ -157,6 +157,9 @@ class NemoAchseLinWidget(QWidget):
         self.err_PID_1_str      = ['Die Bewegungsrichtung',                                                                                     'The direction of movement']
         self.err_PID_2_str      = ['exestiert nicht!\nGenutzt werden kann nur UP und DOWN!',                                                    'does not exist!\nOnly UP and DOWN can be used!']
         self.err_PID_3_str      = ['Der PID-Modus benötigt eine\nAngabe der Bewegungsrichtung!',                                                'The PID mode requires a specification\nof the direction of movement!']
+        self.Fehler_out_1       = ['Limit Hoch erreicht!\nStopp ausgelöst!',                                                                    'Limit high reached!\nStop triggered!']
+        self.Fehler_out_2       = ['Limit Runter erreicht!\nStopp ausgelöst!',                                                                  'Limit down reached!\nStop triggered!']
+        self.Fehler_out_3       = ['Limit erreicht!\nKnopf wird nicht ausgeführt!',                                                             'Limit reached!\nButton is not executed!']
         ## Status:          
         status_1_str            = ['Status: Inaktiv',                                                                                           'Status: Inactive']
         self.status_2_str       = ['Kein Status',                                                                                               'No Status']
@@ -173,6 +176,7 @@ class NemoAchseLinWidget(QWidget):
         self.sta_Bit9_str       = ['Achse Endlage unten (Hard.-End.)',                                                                          'Axis end position down (Hard.-End.)']
         self.sta_Bit10_str      = ['Software-Endlagen aus',                                                                                     'Software end positions']
         self.sta_Bit11_str      = ['Achse in Stopp',                                                                                            'Axis in stop']
+        self.sta_Bit14_str      = ['Schnittstellenfehler',                                                                                      'Interface error']
         self.sta_Bit15_str      = ['Test-Modus Aktiv',                                                                                          'Test Mode Active']
         ## Plot-Legende:                                                            
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
@@ -189,6 +193,9 @@ class NemoAchseLinWidget(QWidget):
         self.Log_Text_57_str    = ['Rezept hat folgende zu fahrende Positions-Abfolge:',                                                        'Recipe has the following position sequence to be driven:']
         self.Log_Text_181_str   = ['Die Geschwindigkeit wird Invertiert! Die Wahren Werte hätten ein anderes Vorzeichen!',                      'The speed is inverted! The true values would have a different sign!']
         self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                     'Update configuration (update limits):']
+        self.Log_Text_219_str   = ['Knopf kann nicht ausgeführt werden da Limit erreicht!',                                                     'Button cannot be executed because limit has been reached!']         
+        self.Log_Text_247_str   = ['Hoch',                                                                                                      'Up']
+        self.Log_Text_248_str   = ['Runter',                                                                                                    'Down']
         self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
         self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                          'Error reason (Problem with recipe configuration)']
         self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liegt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',  'The value in the config is outside the limit range! Switching value is set to minimum limit!']
@@ -626,7 +633,7 @@ class NemoAchseLinWidget(QWidget):
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
-        self.curveDict      = {'IWs': '', 'IWv': '', 'SWv': '', 'SWs': '', 'oGv': '', 'uGv': '', 'oGs': '', 'uGs':'', 'Rezv': '', 'IWsd': '', 'SWTPID':'', 'IWTPID':'', 'Rezx': ''}                                                                                                                                                                                 # Kurven
+        self.curveDict      = {'IWs': '', 'IWv': '', 'SWv': '', 'SWs': '', 'oGv': '', 'uGv': '', 'oGs': '', 'uGs':'', 'Rezv': '', 'IWsd': '', 'SWxPID':'', 'IWxPID':'', 'Rezx': ''}                                                                                                                                                                                 # Kurven
         for kurve in self.kurven_dict:
             self.curveDict[kurve] = self.kurven_dict[kurve]
         self.labelDict      = {'IWs': self.La_IstPos_wert,                                  'IWv': self.La_IstSpeed_wert,               'SWv':self.La_SollSpeed_wert,                                       'IWsd': self.La_IstPosOr_wert,                  'SWxPID': self.La_SollPID_wert,                     'IWxPID': self.La_IstPID_wert}                      # Label
@@ -939,7 +946,7 @@ class NemoAchseLinWidget(QWidget):
         status_1 = self.status_report_umwandlung(status_1)
 
         label_s1 = ''
-        status = [self.sta_Bit0_str[self.sprache], self.sta_Bit1_str[self.sprache] , self.sta_Bit2_str[self.sprache], self.sta_Bit3_str[self.sprache], self.sta_Bit4_str[self.sprache], self.sta_Bit5_str[self.sprache], self.sta_Bit6_str[self.sprache], self.sta_Bit7_str[self.sprache] , self.sta_Bit8_str[self.sprache] , self.sta_Bit9_str[self.sprache], self.sta_Bit10_str[self.sprache], self.sta_Bit11_str[self.sprache], '', '', '', self.sta_Bit15_str[self.sprache]]
+        status = [self.sta_Bit0_str[self.sprache], self.sta_Bit1_str[self.sprache] , self.sta_Bit2_str[self.sprache], self.sta_Bit3_str[self.sprache], self.sta_Bit4_str[self.sprache], self.sta_Bit5_str[self.sprache], self.sta_Bit6_str[self.sprache], self.sta_Bit7_str[self.sprache] , self.sta_Bit8_str[self.sprache] , self.sta_Bit9_str[self.sprache], self.sta_Bit10_str[self.sprache], self.sta_Bit11_str[self.sprache], '', '', self.sta_Bit14_str[self.sprache], self.sta_Bit15_str[self.sprache]]
         # status = ['Betriebsbereit', 'Achse referiert', 'Achse Fehler', 'Antrieb läuft', 'Antrieb läuft aufwärts', 'Antrieb läuft abwärts', 'Achse Position oben', 'Achse Position unten', 'Achse Endlage oben', 'Achse Endlage unten', 'Software-Endlagen aus', 'Achse in Stopp']
         l = len(status_1)
         for n in range(0,l):
@@ -980,15 +987,27 @@ class NemoAchseLinWidget(QWidget):
             byte_list.append(status[-8:])
         elif status == '' and len(byte_list) == 1:
             byte_list.append('00000000')
+        
+        if len(byte_list) == 1:
+            byte_list.append('00000000')
 
         # Byte zusammensetzen in der richtigen Reihenfolge:
         byte_string = ''
         for n in byte_list:
             byte_string = byte_string + n
-       
+        
         return byte_string[::-1]                    # [::-1] --> dreht String um! (Lowest Bit to Highest Bit)
 
-    def BTN_Back(self):
+    def BTN_Back(self, Text_Number):
+        ''' Mit der Funktion wird ein Limit-Stopp bzw. das Erreichen der Limits in der GUI bemerkbar gemacht!
+        Args:
+            Text_Number (int):  Nummer des Fehler Textes!
+        '''
+        if Text_Number == 0:    self.Fehler_Output(1, self.La_error_1, self.Fehler_out_1[self.sprache])
+        elif Text_Number == 1:  self.Fehler_Output(1, self.La_error_1, self.Fehler_out_2[self.sprache])
+        elif Text_Number == 2:  self.Fehler_Output(1, self.La_error_1, f'{self.Fehler_out_3[self.sprache]}\n{self.Log_Text_247_str[self.sprache]}', f'{self.Log_Text_219_str[self.sprache]} ({self.Log_Text_247_str[self.sprache]})')
+        elif Text_Number == 3:  self.Fehler_Output(1, self.La_error_1, f'{self.Fehler_out_3[self.sprache]}\n{self.Log_Text_248_str[self.sprache]}', f'{self.Log_Text_219_str[self.sprache]} ({self.Log_Text_248_str[self.sprache]})')
+        
         if self.BTN_BW_grün:
             self.btn_hoch.setIcon(QIcon(self.icon_hoch))
             self.btn_runter.setIcon(QIcon(self.icon_runter))

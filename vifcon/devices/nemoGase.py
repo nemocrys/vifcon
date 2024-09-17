@@ -16,6 +16,7 @@ import logging
 from pyModbusTCP.client import ModbusClient
 from pyModbusTCP import utils
 import time
+import math as m
 
 # ++++++++++++++++++++++++++++
 # Programm:
@@ -91,6 +92,8 @@ class NemoGase:
         self.Log_Text_Port_3    = ['Antwort der Test-Abfrage war None. Bearbeitung nicht möglich!',                         'The answer to the test query was None. Processing not possible!']
         self.Log_Text_Port_4    = ['Bei der Werte-Umwandlung ist ein Fehler aufgetreten!',                                  'An error occurred during value conversion!']
         self.Log_Text_Port_5    = ['Fehlerbeschreibung:',                                                                   'Error description:']
+        self.Log_Test_Ex_1      = ['Der Variablen-Typ der Größe',                                                           'The variable type of size']
+        self.Log_Test_Ex_2      = ['ist nicht Float! Setze Nan ein! Fehlerhafter Wert:',                                                       'is not Float! Insert Nan! Incorrect value:']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                          'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                           'Initialization Failed!']
@@ -143,10 +146,32 @@ class NemoGase:
             ans = self.serial.read_input_registers(self.start_Lese_Register, 18)
             logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
 
-            value_1 = self.umwandeln_Float(ans[0:14])   # MFC24, MFC25, MFC26, MFC27, DM21, PP21, PP22,
-            value_2 = self.umwandeln_Float(ans[-2:])    # PP22 Drehzahl
-            self.value_name['PP21Status'] = ans[14]   
-            self.value_name['PP22Status'] = ans[15]  
+            if not ans == None:
+                value_1 = self.umwandeln_Float(ans[0:14])   # MFC24, MFC25, MFC26, MFC27, DM21, PP21, PP22,
+                value_2 = self.umwandeln_Float(ans[-2:])    # PP22 Drehzahl
+            else:
+                value_1 = [m.nan, m.nan, m.nan, m.nan, m.nan, m.nan, m.nan] 
+                value_2 = [m.nan]
+            if not ans == None and type(ans[14]) == int: self.value_name['PP21Status'] = ans[14] 
+            else:                                        self.value_name['PP21Status'] = 64
+            if not ans == None and type(ans[15]) == int: self.value_name['PP22Status'] = ans[15] 
+            else:                                        self.value_name['PP22Status'] = 64
+
+            i = 0
+            value_Def = ['MFC24', 'MFC25', 'MFC26', 'MFC27', 'DM21', 'PP21', 'PP22']
+            for n in value_1:
+                if not type(n) == float:    
+                    value_1[i] = m.nan
+                    logger.warning(f'{self.Log_Test_Ex_1[self.sprache]} {value_Def[i]} {self.Log_Test_Ex_2[self.sprache]} {n}')
+                i += 1 
+            
+            i = 0
+            value_Def = ['PP22I']
+            for n in value_2:
+                if not type(n) == float:    
+                    value_2[i] = m.nan
+                    logger.warning(f'{self.Log_Test_Ex_1[self.sprache]} {value_Def[i]} {self.Log_Test_Ex_2[self.sprache]} {n}')
+                i += 1
 
             # Reiehnfolge: MFC24, MFC25, MFC26, MFC27, DM21, PP21, PP22, PP22I
             self.value_name['MFC24'] = value_1[0]   # Einheit: ml/min
@@ -286,6 +311,13 @@ class NemoGase:
 ## Bereich für alten Code, denn man noch nicht vollkommen löschen will,
 ## da dieser später vieleicht wieder ergänzt wird!!
 '''
-
+            a = round(random.uniform(0,50))
+            if a in [10, 20, 30, 40, 50]:  
+                exst = ['0.fffßfvvk', 50.1, 90.1] 
+                value_1 = []
+                for re in range(0,7,1):
+                    value_1.append(random.choice(exst))
+                print(value_1)
+                print('Fehler')
 
 '''

@@ -635,7 +635,7 @@ class TruHeatWidget(QWidget):
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
-        self.curveDict      = {'IWP': '', 'IWU': '', 'IWI': '', 'IWf': '', 'SWP': '', 'SWU': '', 'SWI': '', 'oGI':'', 'uGI':'', 'oGU':'', 'uGU':'', 'oGP':'', 'uGP':'', 'RezI':'', 'RezU':'', 'RezP':'', 'SWTPID':'', 'IWTPID':'', 'Rezx': ''}                                                                                                                                                                              # Kurven
+        self.curveDict      = {'IWP': '', 'IWU': '', 'IWI': '', 'IWf': '', 'SWP': '', 'SWU': '', 'SWI': '', 'oGI':'', 'uGI':'', 'oGU':'', 'uGU':'', 'oGP':'', 'uGP':'', 'RezI':'', 'RezU':'', 'RezP':'', 'SWxPID':'', 'IWxPID':'', 'Rezx': ''}                                                                                                                                                                              # Kurven
         for kurve in self.kurven_dict: 
             self.curveDict[kurve] = self.kurven_dict[kurve]
         self.labelDict      = {'IWP': self.La_IstPow_wert,                                  'IWU': self.La_IstVoltage_wert,                              'IWI': self.La_IstCurrent_wert,                'IWf': self.La_IstFre_wert,                       'IWxPID': self.La_IstPID_wert,                 'SWxPID': self.La_SollPID_wert, 'SWP': self.La_SollP_wert,  'SWU': self.La_SollU_wert,  'SWI': self.La_SollI_wert}  # Label

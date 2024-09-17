@@ -28,6 +28,7 @@ import datetime
 import time
 import math as m
 import threading
+import random
 
 ## Eigene:
 from .PID import PID
@@ -80,8 +81,6 @@ class NemoAchseRot(QObject):
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
         self.device_name                = name
         self.typ                        = typ
-        self.Fehler_Out_funktion        = None
-        self.er_label                   = None
 
         ## Aus Config:
         ### Zum Start:
@@ -111,8 +110,9 @@ class NemoAchseRot(QObject):
 
 
         ## Andere:
-        self.Limit_stop = False
-        self.value_name = {'IWv': 0, 'IWw':0, 'SWv': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0}
+        self.Limit_stop         = False
+        self.Limit_Stop_Text    = -1
+        self.value_name         = {'IWv': 0, 'IWw':0, 'SWv': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0}
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -188,6 +188,8 @@ class NemoAchseRot(QObject):
         self.Log_Text_LB_7      = ['Output',                                                                                                                                                                                'Outout']
         self.Log_Text_LB_8      = ['Input',                                                                                                                                                                                 'Input']
         self.Log_Text_LB_unit   = ['1/min',                                                                                                                                                                                 '1/min']
+        self.Log_Test_Ex_1      = ['Der Variablen-Typ der Größe',                                                           'The variable type of size']
+        self.Log_Test_Ex_2      = ['ist nicht Float! Setze Nan ein! Fehlerhafter Wert:',                                                       'is not Float! Insert Nan! Incorrect value:']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -201,10 +203,6 @@ class NemoAchseRot(QObject):
         self.Text_72_str        = ['Befehl Clock Wise erfolgreich gesendet!',                                                                                                                                               'Clock Wise command sent successfully!']
         self.Text_73_str        = ['Befehl Counter Clock Wise fehlgeschlagen!',                                                                                                                                             'Counter Clock Wise command failed!']
         self.Text_74_str        = ['Befehl Counter Clock Wise erfolgreich gesendet!',                                                                                                                                       'Counter Clock Wise command sent successfully!']
-        ## Fehler-Out:
-        self.Fehler_out_1       = ['Limit Clock Wise erreicht!\nStopp ausgelöst!',                                                                                                                                          'Limit Clock Wise reached!\nStop triggered!']
-        self.Fehler_out_2       = ['Limit Counter Clock Wise erreicht!\nStopp ausgelöst!',                                                                                                                                  'Limit Counter Clock Wise reached!\nStop triggered!']
-        self.Fehler_out_3       = ['Limit erreicht!\nKnopf wird nicht ausgeführt!',                                                                                                                                         'Limit reached!\nButton is not executed!']
 
         #---------------------------------------
         # Schnittstelle:
@@ -429,19 +427,20 @@ class NemoAchseRot(QObject):
                 if self.akIWw >= self.oGw and not self.CW_End:
                     self.CW_End = True
                     logger.warning(f'{self.device_name} - {self.Log_Text_220_str[self.sprache]}')
-                    self.Fehler_Out_funktion(1, self.er_label, self.Fehler_out_1[self.sprache])
-                    self.Limit_stop = True
-                    write_Okay['Stopp'] = True
+                    self.Limit_Stop_Text    = 0
+                    self.Limit_stop         = True
+                    write_Okay['Stopp']     = True
                 if self.akIWw <= self.uGw and not self.CCW_End:
                     self.CCW_End = True
                     logger.warning(f'{self.device_name} - {self.Log_Text_221_str[self.sprache]}')
-                    self.Fehler_Out_funktion(1, self.er_label, self.Fehler_out_2[self.sprache])
-                    self.Limit_stop = True
-                    write_Okay['Stopp'] = True
+                    self.Limit_Stop_Text    = 1
+                    self.Limit_stop         = True
+                    write_Okay['Stopp']     = True
                 if self.akIWw > self.uGw and self.akIWw < self.oGw:
-                    self.CW_End = False
-                    self.CCW_End = False
-                    self.Limit_stop = False
+                    self.CW_End             = False
+                    self.CCW_End            = False
+                    self.Limit_Stop_Text    = -1
+                    self.Limit_stop         = False
 
         #++++++++++++++++++++++++++++++++++++++++++
         # Normaler Betrieb:
@@ -565,14 +564,14 @@ class NemoAchseRot(QObject):
                                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_72_str[self.sprache]}')  
                                 ## Positionsbestimmung:
                                 self.start_Time = datetime.datetime.now(datetime.timezone.utc).astimezone()
-                                self.rechne = 'Add'
-                                self.fahre = True
+                                self.rechne     = 'Add'
+                                self.fahre      = True
                             write_Okay['CW'] = False 
                         elif self.CW_End and write_Okay['CW']:
                             logger.warning(f'{self.device_name} - {self.Log_Text_219_str[self.sprache]} ({self.Log_Text_249_str[self.sprache]})')
-                            self.Fehler_Out_funktion(1, self.er_label, f'{self.Fehler_out_3[self.sprache]}\n{self.Log_Text_249_str[self.sprache]}', f'{self.Log_Text_219_str[self.sprache]} ({self.Log_Text_249_str[self.sprache]})')
-                            self.Limit_stop  = True
-                            write_Okay['CW'] = False     
+                            self.Limit_Stop_Text    = 2
+                            self.Limit_stop         = True
+                            write_Okay['CW']        = False     
                         if write_Okay['CCW'] and not self.CCW_End:
                             ans = self.serial.write_single_coil(self.reg_ccw, True)
                             if not ans:
@@ -582,17 +581,17 @@ class NemoAchseRot(QObject):
                                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_74_str[self.sprache]}') 
                                 ## Positionsbestimmung:
                                 self.start_Time = datetime.datetime.now(datetime.timezone.utc).astimezone()
-                                self.rechne = 'Sub'
-                                self.fahre = True 
+                                self.rechne     = 'Sub'
+                                self.fahre      = True 
                             write_Okay['CCW'] = False  
                         elif self.CCW_End and write_Okay['CCW']:
                             logger.warning(f'{self.device_name} - {self.Log_Text_219_str[self.sprache]} ({self.Log_Text_250_str[self.sprache]})')
-                            self.Fehler_Out_funktion(1, self.er_label, f'{self.Fehler_out_3[self.sprache]}\n{self.Log_Text_250_str[self.sprache]}', f'{self.Log_Text_219_str[self.sprache]} ({self.Log_Text_249_str[self.sprache]})') 
-                            self.Limit_stop   = True
-                            write_Okay['CCW'] = False  
+                            self.Limit_Stop_Text    = 3
+                            self.Limit_stop         = True
+                            write_Okay['CCW']       = False  
                     else:
-                        write_Okay['CCW'] = False 
-                        write_Okay['CW'] = False      
+                        write_Okay['CCW']   = False 
+                        write_Okay['CW']    = False      
             except Exception as e:
                 logger.warning(f"{self.device_name} - {self.Log_Text_76_str[self.sprache]}")
                 logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")
@@ -671,13 +670,26 @@ class NemoAchseRot(QObject):
         value = self.umwandeln_Float(ans)
         multi = -1 if self.v_invert else 1                                       # Spindel ist invertiert
 
+        # Fehlerfall:
+        if value == []: value = [m.nan, m.nan]
+        
+        # Kontrolle der ausgelesenen Werte:
+        i = 0
+        value_Def = ['IWv', 'SWv']
+        for n in value:
+            if not type(n) == float:    
+                value[i] = m.nan
+                logger.warning(f'{self.Log_Test_Ex_1[self.sprache]} {value_Def[i]} {self.Log_Test_Ex_2[self.sprache]} {n}')
+            i += 1
+
         # Reiehnfolge: vIst, vSoll
         self.value_name['IWv'] = round(value[0]*self.vF_ist, self.nKS) * multi   # Vorfaktor beachten        # Einheit: 1/min
         self.value_name['SWv'] = round(value[1]*self.vF_soll, self.nKS)          # Vorfaktor beachten        # Einheit: 1/min
 
         # Lese: Status
         ans = self.serial.read_input_registers(self.Status_Reg, 1)
-        self.value_name['Status'] = ans[0]
+        if not ans == None and type(ans[0]) == int:     self.value_name['Status'] = ans[0]
+        else:                                       	self.value_name['Status'] = 64
 
         # Istwinkel:
         self.value_name['IWw'] = round(self.akIWw, self.nKS)                                                 # Einheit: °
@@ -827,6 +839,13 @@ class NemoAchseRot(QObject):
 ## Bereich für alten Code, denn man noch nicht vollkommen löschen will,
 ## da dieser später vieleicht wieder ergänzt wird!!
 '''
-
+        a = round(random.uniform(0,50))
+        if a in [10, 20, 30, 40, 50]:  
+            exst = ['0.fffßfvvk', 50.1, 90.1] 
+            value = []
+            for re in range(0,2,1):
+                value.append(random.choice(exst))
+            print(value)
+            print('Fehler')
 
 '''       

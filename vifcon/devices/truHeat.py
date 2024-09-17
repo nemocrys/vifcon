@@ -89,9 +89,39 @@ class TruHeat(QObject):
         self.umI = 1000                                         # Strom in A
         self.umf = 1                                            # Frequenz in kHz
 
-        ## Aus Config (ohne Kontrolle):
-        ### PID:
+        #---------------------------------------------------------
+        # Konfigurationskontrolle und Konfigurationsvariablen:
+        #---------------------------------------------------------
+        ## Einstellung für Log:
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                                                                                                      'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                                                                                         'Possible values:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                                                                                              'Default is used:']
+        
+        ## Zum Start:
+        self.init       = self.config['start']['init']           # Initialisierung
+        self.messZeit   = self.config['start']["readTime"]       # Auslesezeit
+        self.adress     = self.config['start']['ad']             # Generatoradresse
+        self.wdT        = self.config['start']['watchdog_Time']  # Watchdog-Zeit in ms
+        self.Delay_sT   = self.config['start']['send_Delay']     # Sende Delay in ms
+        self.startMod   = self.config['start']['start_modus'] 
+        self.Ist        = self.config['PID']["start_ist"] 
+        self.Soll       = self.config['PID']["start_soll"]        
+        ## Limits:
+        self.oGP = self.config["limits"]['maxP']
+        self.uGP = self.config["limits"]['minP']
+        self.oGI = self.config["limits"]['maxI']
+        self.uGI = self.config["limits"]['minI']
+        self.oGU = self.config["limits"]['maxU']
+        self.uGU = self.config["limits"]['minU']
+        ## Schnittstelle Extra:
+        self.Loop = self.config['serial-loop-read']
+        ## PID:
         self.unit_PIDIn = self.config['PID']['Input_Size_unit']
+
+        ## Config-Fehler und Defaults:
+        if not type(self.Loop) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} serial-loop-read - {self.Log_Pfad_conf_2[self.sprache]} Integer - {self.Log_Pfad_conf_3[self.sprache]} 10')
+            self.Loop = 10
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -196,9 +226,6 @@ class TruHeat(QObject):
         self.Log_Text_LB_7      = ['Output',                                                                                                                                                                                'Outout']
         self.Log_Text_LB_8      = ['Input',                                                                                                                                                                                 'Input']
         self.Log_Text_PID1_str  = ['Die PID-Start-Modus aus der Config-Datei existiert nicht! Setze auf Default P! Fehlerhafter Eintrag:',                                                                                  'The PID start mode from the config file does not exist! Set to default P! Incorrect entry:']
-        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                                                                                                      'Configuration error in element:']
-        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                                                                                         'Possible values:']
-        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                                                                                              'Default is used:']
         self.Log_Nan_1_Float    = ['Wert ist nicht vom Type Float! Setze Wert auf Nan!',                                                                                                                                    'Value is not of type Float! Set value to Nan!']
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
@@ -206,33 +233,6 @@ class TruHeat(QObject):
         self.Text_53_str        = ['Wert wurde angenommen (ACK)!',                                                                                                                                                          'Value was accepted (ACK)!']
         self.Text_54_str        = ['Wert wurde nicht angenommen (NAK)!',                                                                                                                                                    'Value was not accepted (NAK)!']
         self.Text_55_str        = ['Senden fehlgeschlagen (Keine Antwort)!',                                                                                                                                                'Sending failed (no response)!']
-        
-        #---------------------------------------------------------
-        # Konfigurationskontrolle und Konfigurationsvariablen:
-        #---------------------------------------------------------
-        ## Zum Start:
-        self.init       = self.config['start']['init']           # Initialisierung
-        self.messZeit   = self.config['start']["readTime"]       # Auslesezeit
-        self.adress     = self.config['start']['ad']             # Generatoradresse
-        self.wdT        = self.config['start']['watchdog_Time']  # Watchdog-Zeit in ms
-        self.Delay_sT   = self.config['start']['send_Delay']     # Sende Delay in ms
-        self.startMod   = self.config['start']['start_modus'] 
-        self.Ist        = self.config['PID']["start_ist"] 
-        self.Soll       = self.config['PID']["start_soll"]        
-        ## Limits:
-        self.oGP = self.config["limits"]['maxP']
-        self.uGP = self.config["limits"]['minP']
-        self.oGI = self.config["limits"]['maxI']
-        self.uGI = self.config["limits"]['minI']
-        self.oGU = self.config["limits"]['maxU']
-        self.uGU = self.config["limits"]['minU']
-        ## Schnittstelle Extra:
-        self.Loop = self.config['serial-loop-read']
-
-        ## Config-Fehler und Defaults:
-        if not type(self.Loop) == int:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} serial-loop-read - {self.Log_Pfad_conf_2[self.sprache]} Integer - {self.Log_Pfad_conf_3[self.sprache]} 10')
-            self.Loop = 10
 
         #---------------------------------------
         # Werte Dictionary:

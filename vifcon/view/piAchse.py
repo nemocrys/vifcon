@@ -188,6 +188,8 @@ class PIAchseWidget(QWidget):
         self.err_PID_1_str      = ['Die Bewegungsrichtung',                                                                                     'The direction of movement']
         self.err_PID_2_str      = ['exestiert nicht!\nGenutzt werden kann nur UP und DOWN!',                                                    'does not exist!\nOnly UP and DOWN can be used!']
         self.err_PID_3_str      = ['Der PID-Modus benötigt eine\nAngabe der Bewegungsrichtung!',                                                'The PID mode requires a specification\nof the direction of movement!']
+        self.Fehler_out_1       = ['Maximum Limit erreicht!\nStopp ausgelöst!',                                                                 'Maximum limit reached!\nStop triggered!']
+        self.Fehler_out_2       = ['Minimum Limit erreicht!\nStopp ausgelöst!',                                                                 'Minimum limit reached!\nStop triggered!']
         ## Plot-Legende:                                                    
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
@@ -821,6 +823,10 @@ class PIAchseWidget(QWidget):
             # Timer start:
             if self.mode == 1 and not self.PID_cb.isChecked():
                 self.timer_rigel.stop()
+            
+            # Fehler Output -> Okay:
+            self.Fehler_Output(0, self.La_error_1)
+            self.Fehler_Output(0, self.La_error_2)
         else:
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
             self.Fehler_Output(1, self.La_error_2, self.err_4_str[self.sprache])
@@ -834,7 +840,8 @@ class PIAchseWidget(QWidget):
             Ausrichtung_btn (str):  Linker Knopf oder Rechter Knopf
             gamepad (bool):         Auslösung von Gamepad
         ''' 
-
+        self.Fehler_Output(0, self.La_error_1)
+        self.Fehler_Output(0, self.La_error_2)
         if self.init:
             # Lese Einagbefelder aus und lasse den Wert kontrollieren:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {Knopf} {self.Text_34_str[self.sprache]}')
@@ -1079,6 +1086,17 @@ class PIAchseWidget(QWidget):
             if kurve in self.grenzListDict:
                 self.grenzListDict[kurve].append(float(self.grenzValueDict[kurve]))
                 self.kurven_dict[kurve].setData(x_value, self.grenzListDict[kurve]) 
+
+    def BTN_Back(self, Text_Number):
+        ''' Mit der Funktion wird ein Limit-Stopp bzw. das Erreichen der Limits in der GUI bemerkbar gemacht!
+        Args:
+            Text_Number (int):  Nummer des Fehler Textes!
+        '''
+        if Text_Number == 0:    self.Fehler_Output(1, self.La_error_1, self.Fehler_out_1[self.sprache])
+        elif Text_Number == 1:  self.Fehler_Output(1, self.La_error_1, self.Fehler_out_2[self.sprache])
+        # if self.BTN_BW_grün:
+        #     self.btn_hoch.setIcon(QIcon(self.icon_hoch))
+        #     self.btn_runter.setIcon(QIcon(self.icon_runter))
 
     ##########################################
     # Reaktion auf Verriegelungsmodus:
