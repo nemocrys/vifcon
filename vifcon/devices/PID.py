@@ -78,13 +78,6 @@ class PID(QObject):
         self.config = PID_config
         self.OutMax = Max
         self.OutMin = Min
-        ## Config:
-        self.kp                 = self.config['kp']
-        self.ki                 = self.config['ki']
-        self.kd                 = self.config['kd']
-        self.sample_time        = self.config['sample']                 # Sample-Zeit [ms]
-        self.sample_toleranz    = self.config['sample_tolleranz']       # erlaubte Tolleranz zur Sample-Zeit [ms]
-        self.debug_time         = self.config['debug_log_time']         # Abstand der Aufnahme der Debug-Log-Nachrichten [s]
         ## Startzeit:
         self.last_time          = datetime.datetime.now(datetime.timezone.utc).astimezone()
         self.log_time           = datetime.datetime.now(datetime.timezone.utc).astimezone()
@@ -96,6 +89,95 @@ class PID(QObject):
         ## Yaml-Datei:
         self.config_dat = None
         self.widget = None
+
+        #---------------------------------------------------------
+        # Konfigurationskontrolle und Konfigurationsvariablen:
+        #---------------------------------------------------------
+        ''' Die Kontrolle beinhaltet folgendes:
+        1. Kontrolle des Schlüssels mit Default-Vergabe!
+        2. Kontrolle der Variable wegen dem Inhalt mit Default-Vergabe!
+        '''
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Einstellung für Log:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                              'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                 'Possible values:']
+        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                       'The following types are possible:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                      'Default is used:']
+        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                            'Error reading config during configuration:']
+        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                          '; Set to default:']
+        self.Log_Pfad_conf_5_1  = ['; Register-Fehler -> Programm zu Ende!!!',                                                                      '; Register error -> program ends!!!']
+        self.Log_Pfad_conf_5_2  = ['; PID-Modus Aus!!',                                                                                             '; PID mode off!!']
+        self.Log_Pfad_conf_5_3  = ['; Multilog-Link Aus!!',                                                                                         '; Multilog-Link off!!']
+        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                  'Reason for error:']
+        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                        'Please correct and re-read config before use!']
+        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                          'Incorrect input:']
+        self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                                                                              'Incorrect type:']
+        self.Log_Pfad_conf_9    = ['Die Obergrenze ist kleiner als die Untergrenze! Setze die Limits auf Default:',                                 'The upper limit is smaller than the lower limit! Set the limits to default:']
+        self.Log_Pfad_conf_10   = ['zu',                                                                                                            'to']
+        self.Log_Pfad_conf_11   = ['Winkelgeschwindhigkeit',                                                                                        'Angular velocity']
+        self.Log_Pfad_conf_12   = ['PID-Eingang Istwert',                                                                                           'PID input actual value']
+        self.Log_Pfad_conf_13   = ['Winkel',                                                                                                        'Angle']
+        self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',   'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
+        
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ### Kontrolle:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.kp                 = self.config['kp']
+        except Exception as e: 
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_4[self.sprache]} PID|kp {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.kp = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: self.ki                 = self.config['ki']
+        except Exception as e: 
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_4[self.sprache]} PID|ki {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.ki = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: self.kd                 = self.config['kd']
+        except Exception as e: 
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_4[self.sprache]} PID|kd {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.kd = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: self.sample_time        = self.config['sample']                 # Sample-Zeit [ms]
+        except Exception as e: 
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_4[self.sprache]} PID|sample {self.Log_Pfad_conf_5[self.sprache]} 500')
+            logger.exception(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.sample_time = 500
+        #//////////////////////////////////////////////////////////////////////
+        try: self.sample_toleranz    = self.config['sample_tolleranz']       # erlaubte Tolleranz zur Sample-Zeit [ms]
+        except Exception as e: 
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_4[self.sprache]} PID|sample_tolleranz {self.Log_Pfad_conf_5[self.sprache]} 100')
+            logger.exception(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.sample_toleranz = 100
+        #//////////////////////////////////////////////////////////////////////
+        try: self.debug_time         = self.config['debug_log_time']         # Abstand der Aufnahme der Debug-Log-Nachrichten [s]
+        except Exception as e: 
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_4[self.sprache]} PID|debug_log_time {self.Log_Pfad_conf_5[self.sprache]} 5')
+            logger.exception(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.debug_time = 5
+        
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Config-Fehler und Defaults:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ### PID-Parameter werden weiter unten überprüft!!
+        ### Sample Zeit:
+        if not type(self.sample_time) == int or not self.sample_time >= 0:
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_1[self.sprache]} sample - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 500 - {self.Log_Pfad_conf_8[self.sprache]} {self.sample_time}')
+            self.sample_time = 500
+        ### Sample Zeit Toleranz:
+        if not type(self.sample_toleranz) == int or not self.sample_toleranz >= 0:
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_1[self.sprache]} sample_tolleranz - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 100 - {self.Log_Pfad_conf_8[self.sprache]} {self.sample_toleranz}')
+            self.sample_toleranz = 100
+        ### Debug-Zeit:
+        if not type(self.debug_time) == int or not self.debug_time >= 0:
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_1[self.sprache]} debug_log_time - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 5 - {self.Log_Pfad_conf_8[self.sprache]} {self.debug_time}')
+            self.debug_time = 5  
 
         #---------------------------------------
         # Informationen:
@@ -189,7 +271,27 @@ class PID(QObject):
             config = yaml.safe_load(f)
             logger.info(f"{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_15[self.sprache]} {config}")
         # Prüfe PID-Parameter:
-        error, kp, ki, kd = self.check_PID_Parameter(config['devices'][self.device]['PID']['kp'], config['devices'][self.device]['PID']['ki'], config['devices'][self.device]['PID']['kd'])
+        try:kp_conf                 = config['devices'][self.device]['PID']['kp']
+        except Exception as e: 
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_4[self.sprache]} PID|kp {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_6[self.sprache]}')
+            kp_conf = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: ki_conf                 = config['devices'][self.device]['PID']['ki']
+        except Exception as e: 
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_4[self.sprache]} PID|ki {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_6[self.sprache]}')
+            ki_conf = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: kd_conf                 = config['devices'][self.device]['PID']['kd']
+        except Exception as e: 
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_4[self.sprache]} PID|kd {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_6[self.sprache]}')
+            kd_conf = 0
+        error, kp, ki, kd = self.check_PID_Parameter(kp_conf, ki_conf, kd_conf)
 
         if self.PID_speere and error:
             if 'Achse' in self.device:   self.widget.Fehler_Output(1, self.widget.La_error_1, self.Log_PID_16[self.sprache], device = f'{self.Log_PID_0[self.sprache]} ({self.device})')

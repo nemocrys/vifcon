@@ -51,17 +51,18 @@ logger = logging.getLogger(__name__)
 
 
 class TruHeatWidget(QWidget):
-    def __init__(self, sprache, Frame_Anzeige, widget, line_color, config, config_dat, neustart, add_Ablauf_function, truheat = 'TruHeat', typ = 'Generator', parent=None):
+    def __init__(self, sprache, Frame_Anzeige, widget, line_color, config, config_dat, neustart, multilog_aktiv, add_Ablauf_function, truheat = 'TruHeat', typ = 'Generator', parent=None):
         """GUI widget of TruHeat generator.
 
         Args:
             sprache (int):                      Sprache der GUI (Listenplatz)
-            Frame_Anzeige (bool):           Macht den Rahmen der Widgets in dem Gerät sichtbar
+            Frame_Anzeige (bool):               Macht den Rahmen der Widgets in dem Gerät sichtbar
             widget (Objekt):                    Element in das, das Widget eingefügt wird
             line_color (list):                  Liste mit Farben
             config (dict):                      Konfigurationsdaten aus der YAML-Datei
             config_dat (string):                Datei-Name der Config-Datei
             neustart (bool):                    Neustart Modus, Startkonfigurationen werden übersprungen
+            multilog_aktiv (bool):              Multilog-Read/Send Aktiviert
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
             truheat (str):                      Name des Gerätes
             typ (str):                          Typ des Gerätes
@@ -78,6 +79,7 @@ class TruHeatWidget(QWidget):
         self.config                     = config
         self.config_dat                 = config_dat
         self.neustart                   = neustart
+        self.multilog_OnOff             = multilog_aktiv
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
         self.device_name                = truheat
         self.typ                        = typ

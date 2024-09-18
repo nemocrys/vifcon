@@ -49,7 +49,7 @@ import yaml
 logger = logging.getLogger(__name__)
 
 class NemoAchseLinWidget(QWidget):
-    def __init__(self, sprache, Frame_Anzeige, widget, line_color, config, config_dat, neustart, add_Ablauf_function, nemoAchse, gamepad_aktiv, typ = 'Antrieb', parent=None):
+    def __init__(self, sprache, Frame_Anzeige, widget, line_color, config, config_dat, neustart, multilog_aktiv, add_Ablauf_function, nemoAchse, gamepad_aktiv, typ = 'Antrieb', parent=None):
         """ GUI widget of Nemo-Achse Lineare Bewegung.
 
         Args:
@@ -60,6 +60,7 @@ class NemoAchseLinWidget(QWidget):
             config (dict):                  Konfigurationsdaten aus der YAML-Datei
             config_dat (string):            Datei-Name der Config-Datei
             neustart (bool):                Neustart Modus, Startkonfigurationen werden übersprungen
+            multilog_aktiv (bool):          Multilog-Read/Send Aktiviert
             add_Ablauf_function (Funktion): Funktion zum updaten der Ablauf-Datei.
             nemoAchse (str):                Name des Gerätes
             gamepad_aktiv (bool):           Soll das GamePad aktiviert werden bzw. wurde dies getan
@@ -77,6 +78,7 @@ class NemoAchseLinWidget(QWidget):
         self.config                     = config
         self.config_dat                 = config_dat
         self.neustart                   = neustart
+        self.multilog_OnOff             = multilog_aktiv
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
         self.device_name                = nemoAchse
         self.typ                        = typ

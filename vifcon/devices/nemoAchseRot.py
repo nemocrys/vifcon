@@ -82,34 +82,360 @@ class NemoAchseRot(QObject):
         self.device_name                = name
         self.typ                        = typ
 
-        ## Aus Config:
+        #---------------------------------------------------------
+        # Konfigurationskontrolle und Konfigurationsvariablen:
+        #---------------------------------------------------------
+        ''' Die Kontrolle beinhaltet folgendes:
+        1. Kontrolle des Schlüssels mit Default-Vergabe!
+        2. Kontrolle der Variable wegen dem Inhalt mit Default-Vergabe!
+        '''
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Einstellung für Log:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                              'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                 'Possible values:']
+        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                       'The following types are possible:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                      'Default is used:']
+        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                            'Error reading config during configuration:']
+        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                          '; Set to default:']
+        self.Log_Pfad_conf_5_1  = ['; Register-Fehler -> Programm zu Ende!!!',                                                                      '; Register error -> program ends!!!']
+        self.Log_Pfad_conf_5_2  = ['; PID-Modus Aus!!',                                                                                             '; PID mode off!!']
+        self.Log_Pfad_conf_5_3  = ['; Multilog-Link Aus!!',                                                                                         '; Multilog-Link off!!']
+        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                  'Reason for error:']
+        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                        'Please correct and re-read config before use!']
+        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                          'Incorrect input:']
+        self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                                                                              'Incorrect type:']
+        self.Log_Pfad_conf_9    = ['Die Obergrenze ist kleiner als die Untergrenze! Setze die Limits auf Default:',                                 'The upper limit is smaller than the lower limit! Set the limits to default:']
+        self.Log_Pfad_conf_10   = ['zu',                                                                                                            'to']
+        self.Log_Pfad_conf_11   = ['Winkelgeschwindhigkeit',                                                                                        'Angular velocity']
+        self.Log_Pfad_conf_12   = ['PID-Eingang Istwert',                                                                                           'PID input actual value']
+        self.Log_Pfad_conf_13   = ['Winkel',                                                                                                        'Angle']
+        self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',   'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
+        
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Zum Start:
-        self.init       = self.config['start']['init']                            # Initialisierung
-        self.messZeit   = self.config['start']["readTime"]                        # Auslesezeit
-        self.v_invert   = self.config['start']['invert']                          # Invertierung bei True der Geschwindigkeit
-        self.Ist        = self.config['PID']["start_ist"] 
-        self.Soll       = self.config['PID']["start_soll"]
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.init           = self.config['start']['init']                            # Initialisierung
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|init {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.init = False
+        #//////////////////////////////////////////////////////////////////////
+        try: self.messZeit       = self.config['start']["readTime"]                        # Auslesezeit
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|readTime {self.Log_Pfad_conf_5[self.sprache]} 2')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.messZeit = 2
+        #//////////////////////////////////////////////////////////////////////
+        try: self.v_invert       = self.config['start']['invert']                          # Invertierung bei True der Geschwindigkeit
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|invert {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.v_invert = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: self.Start_Winkel   = self.config['start']['start_winkel']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|start_winkel {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.Start_Winkel = 0
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Parameter:
-        self.nKS        = self.config['parameter']['nKS_Aus']                     # Nachkommerstellen
-        self.vF_ist     = self.config['parameter']['Vorfaktor_Ist']               # Vorfaktor Istgeschwindigkeit
-        self.vF_soll    = self.config['parameter']['Vorfaktor_Soll']              # Vorfaktor Istgeschwindigkeit
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.nKS        = self.config['parameter']['nKS_Aus']                     # Nachkommerstellen
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} parameter|nKS_Aus {self.Log_Pfad_conf_5[self.sprache]} 3')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.nKS = 3
+        #//////////////////////////////////////////////////////////////////////
+        try: self.vF_ist     = float(str(self.config['parameter']['Vorfaktor_Ist']).replace(',','.'))               # Vorfaktor Istgeschwindigkeit
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} parameter|vF_ist {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.vF_ist = 1
+        #//////////////////////////////////////////////////////////////////////
+        try: self.vF_soll    = float(str(self.config['parameter']['Vorfaktor_Soll']).replace(',','.'))               # Vorfaktor Sollgeschwindigkeit
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} parameter|vF_soll {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.vF_soll = 1
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Register:
-        self.reg_cw                 = self.config['register']['cw']               # Fahre hoch Coil Rergister
-        self.reg_ccw                = self.config['register']['ccw']              # Fahre runter Coil Register
-        self.reg_s                  = self.config['register']['stopp']            # Stoppe Coil Register
-        self.start_Lese_Register    = self.config['register']['lese_st_Reg']      # Input Register Start-Register
-        self.start_write_v          = self.config['register']['write_v_Reg']      # Holding Register Start-Register
-        self.Status_Reg             = self.config['register']['statusReg']        # Startregister für Status
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.reg_cw                 = self.config['register']['cw']               # Fahre hoch Coil Rergister
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|cw {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.reg_ccw                = self.config['register']['ccw']              # Fahre runter Coil Register
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|ccw {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.reg_s                  = self.config['register']['stopp']            # Stoppe Coil Register
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|stopp {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.start_Lese_Register    = self.config['register']['lese_st_Reg']      # Input Register Start-Register
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|lese_st_Reg {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.start_write_v          = self.config['register']['write_v_Reg']      # Holding Register Start-Register
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|write_v_Reg {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.Status_Reg             = self.config['register']['statusReg']        # Startregister für Status
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|statusReg {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Limits:
-        self.oGw = self.config["limits"]['maxWinkel']
-        self.uGw = self.config["limits"]['minWinkel']
-        self.oGv = self.config["limits"]['maxSpeed']
-        self.uGv = self.config["limits"]['minSpeed']
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.oGv = self.config["limits"]['maxSpeed']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxSpeed {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.oGv = 1
+        #//////////////////////////////////////////////////////////////////////
+        try: self.uGv = self.config["limits"]['minSpeed']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minSpeed {self.Log_Pfad_conf_5[self.sprache]} -1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.uGv = -1
+        #//////////////////////////////////////////////////////////////////////
+        try: self.oGw = self.config["limits"]['maxWinkel']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxWinkel {self.Log_Pfad_conf_5[self.sprache]} 180')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.oGw = 180
+        #//////////////////////////////////////////////////////////////////////
+        try: self.uGw = self.config["limits"]['minWinkel']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minWinkel {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.uGw = 0
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### PID:
-        self.unit_PIDIn = self.config['PID']['Input_Size_unit']
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        error_PID = False
+        try: self.PID_Config             = self.config['PID']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID {self.Log_Pfad_conf_5_2[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            error_PID = True
+            self.PID_Config = {}
+            self.PID_Aktiv  = 0 
+        #//////////////////////////////////////////////////////////////////////
+        if not error_PID:
+            try: self.PID_Aktiv = self.config['PID']['PID_Aktiv']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|PID_Aktiv {self.Log_Pfad_conf_5[self.sprache]} False')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.PID_Aktiv = 0 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.M_device               = self.config['multilog']['read_trigger'] 
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|read_trigger {self.Log_Pfad_conf_5_3[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.M_device = ''
+            self.multilog_OnOff = False
+        #//////////////////////////////////////////////////////////////////////
+        try: self.sensor                 = self.config['PID']['Multilog_Sensor_Ist']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Multilog_Sensor_Ist {self.Log_Pfad_conf_5_3[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.sensor = ''
+            self.multilog_OnOff = False
+        #//////////////////////////////////////////////////////////////////////
+        try: self.unit_PIDIn             = self.config['PID']['Input_Size_unit']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Size_unit {self.Log_Pfad_conf_5[self.sprache]} mm')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.unit_PIDIn = 'mm'
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Option             = self.config['PID']['Value_Origin'].upper()
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Value_Origin {self.Log_Pfad_conf_5[self.sprache]} VV')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Option = 'VV' 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Sample_Time        = self.config['PID']['sample']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|sample {self.Log_Pfad_conf_5[self.sprache]} 500')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Sample_Time = 500 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_max {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Input_Limit_Max  = 1 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Input_Limit_Min = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Error_option {self.Log_Pfad_conf_5[self.sprache]} error')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Input_Error_Option = 'error' 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.Ist                    = self.config['PID']["start_ist"] 
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|start_ist {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.Ist = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: self.Soll              = self.config['PID']["start_soll"]
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|start_soll {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.Soll = 0
 
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Config-Fehler und Defaults:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ### PID-Wert-Fehler:
+        if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
+            logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
+            self.PID_Input_Error_Option = 'error'
+        #//////////////////////////////////////////////////////////////////////
+        ### Init:
+        if not type(self.init) == bool and not self.init in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} init - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.BTN_BW_grün}')
+            self.init = 0
+        #//////////////////////////////////////////////////////////////////////
+        ### Geschwindigkeits-Limit:
+        if not type(self.oGv) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGv)}')
+            self.oGv = 1
+        if not type(self.uGv) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} -1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGv)}')
+            self.uGv = -1
+        if self.oGv <= self.uGv:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} -1 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
+            self.uGv = -1
+            self.oGv = 1
+        #//////////////////////////////////////////////////////////////////////
+        ### Winkel-Limit:
+        if not type(self.oGw) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGw)}')
+            self.oGw = 180
+        if not type(self.uGw) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} -1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGw)}')
+            self.uGw = 0
+        if self.oGw <= self.uGw:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 180 ({self.Log_Pfad_conf_13[self.sprache]})')
+            self.uGw = 180
+            self.oGw = 0
+        #//////////////////////////////////////////////////////////////////////
+        ### PID-Limit:
+        if not type(self.PID_Input_Limit_Max) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Input_Limit_Max)}')
+            self.PID_Input_Limit_Max = 1
+        if not type(self.PID_Input_Limit_Min) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_min - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Input_Limit_Min)}')
+            self.PID_Input_Limit_Min = 0
+        if self.PID_Input_Limit_Max <= self.PID_Input_Limit_Min:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+            self.PID_Input_Limit_Min = 0
+            self.PID_Input_Limit_Max = 1
+        #//////////////////////////////////////////////////////////////////////
+        ### Messzeit:
+        if not type(self.messZeit) == int or not self.messZeit >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} readTime - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 2 - {self.Log_Pfad_conf_8[self.sprache]} {self.messZeit}')
+            self.messZeit = 2
+        #//////////////////////////////////////////////////////////////////////
+        ### Achsen-Invert:
+        if not type(self.v_invert) == bool and not self.init in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} invert - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.v_invert}')
+            self.v_invert = 0
+        #//////////////////////////////////////////////////////////////////////
+        ### Achsen-Invert:
+        if not type(self.v_invert) == bool and not self.init in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} invert - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.v_invert}')
+            self.v_invert = 0
+        #//////////////////////////////////////////////////////////////////////
+        ### Start Winkel:
+        if not type(self.Start_Winkel) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_winkel - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.Start_Winkel)}')
+            self.Start_Winkel = 0
+        #//////////////////////////////////////////////////////////////////////
+        ### PID-Aktiviert:
+        if not type(self.PID_Aktiv) == bool and not self.init in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} PID_Aktiv - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Aktiv}')
+            self.PID_Aktiv = 0
+        #//////////////////////////////////////////////////////////////////////
+        ### Multilog_Sensor:
+        if not type(self.sensor) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Multilog_Sensor_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.sensor)}')
+            self.multilog_OnOff = False
+        #//////////////////////////////////////////////////////////////////////
+        ### read-Trigger Multilog:
+        if not type(self.M_device) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} read_trigger - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.M_device)}')
+            self.multilog_OnOff = False
+        #//////////////////////////////////////////////////////////////////////
+        ### Register CW:
+        if not type(self.reg_cw) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} cw - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_cw)}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        ### Register CCW:
+        if not type(self.reg_ccw) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} ccw - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_ccw)}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        ### Register Stopp:
+        if not type(self.reg_s) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} stopp - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_s)}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        ### Register Lese:
+        if not type(self.start_Lese_Register) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_st_Reg - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.start_Lese_Register)}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        ### Register Schreibe:
+        if not type(self.start_write_v) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} write_v_Reg - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.start_write_v)}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        ### Register Status:
+        if not type(self.Status_Reg) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} statusReg - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.Status_Reg)}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        ### Vorfaktor Ist:
+        if not type(self.vF_ist) in [float, int] or not self.vF_ist >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Vorfaktor_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8[self.sprache]} {self.vF_ist}')
+            self.vF_ist = 1
+        #//////////////////////////////////////////////////////////////////////
+        ### Vorfaktor Soll:
+        if not type(self.vF_soll) in [float, int] or not self.vF_soll >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Vorfaktor_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8[self.sprache]} {self.vF_soll}')
+            self.vF_soll = 1
 
-        ## Andere:
+        #---------------------------------------------------------
+        # Andere Variablen:
+        #---------------------------------------------------------
         self.Limit_stop         = False
         self.Limit_Stop_Text    = -1
         self.value_name         = {'IWv': 0, 'IWw':0, 'SWv': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0}
@@ -181,6 +507,7 @@ class NemoAchseRot(QObject):
         self.Log_Text_PID_N20   = [f'{self.unit_PIDIn} - tatsächlicher Wert war',                                                                                                                                           f'{self.unit_PIDIn} - tatsächlicher Wert war']
         Log_Text_PID_N21        = ['Multilog Verbindung wurde in Config als Abgestellt gewählt! Eine Nutzung der Werte-Herkunft mit VM, MV oder MM ist so nicht möglich! Nutzung von Default VV!',                          'Multilog connection was selected as disabled in config! Using the value origin with VM, MV or MM is not possible! Use of default VV!']
         self.Log_Test_PID_N22   = [f'{self.unit_PIDIn}',                                                                                                                                                                    f'{self.unit_PIDIn}']
+        self.Log_Text_PID_N23   = ['PID-Modus wird nicht aktiviert!',                                                                                                                                                       'PID mode is not activated!']
         self.Log_Text_LB_1      = ['Limitbereich',                                                                                                                                                                          'Limit range']
         self.Log_Text_LB_4      = ['bis',                                                                                                                                                                                   'to']
         self.Log_Text_LB_5      = ['nach Update',                                                                                                                                                                           'after update']
@@ -247,21 +574,21 @@ class NemoAchseRot(QObject):
         #---------------------------------------
         self.start_Time = 0                                             # Startzeitpunkt
         self.ak_Time    = 0                                                # Endzeitpunkt/aktuelle Zeit
-        if self.config['start']['start_winkel'] > self.oGw:
+        if self.Start_Winkel > self.oGw:
             value = self.oGw
             self.CW_End = True                                          # Limit CW erreicht     (Maximum)
             self.CCW_End = False
-            logger.warning(f"{self.device_name} - {self.Log_Text_212_str[self.sprache]} - {self.config['start']['start_winkel']}{self.Log_Text_215_str[self.sprache]} --> {value}{self.Log_Text_215_str[self.sprache]}")
-        elif self.config['start']['start_winkel'] < self.uGw:
+            logger.warning(f"{self.device_name} - {self.Log_Text_212_str[self.sprache]} - {self.Start_Winkel}{self.Log_Text_215_str[self.sprache]} --> {value}{self.Log_Text_215_str[self.sprache]}")
+        elif self.Start_Winkel < self.uGw:
             value = self.uGw
             self.CW_End = False                     
             self.CCW_End = True                                         # Limit CCW erreicht    (Minimum)
-            logger.warning(f"{self.device_name} - {self.Log_Text_213_str[self.sprache]} - {self.config['start']['start_winkel']}{self.Log_Text_215_str[self.sprache]} --> {value}{self.Log_Text_215_str[self.sprache]}")
+            logger.warning(f"{self.device_name} - {self.Log_Text_213_str[self.sprache]} - {self.Start_Winkel}{self.Log_Text_215_str[self.sprache]} --> {value}{self.Log_Text_215_str[self.sprache]}")
         else:
-            value = self.config['start']['start_winkel']
+            value = self.Start_Winkel
             self.CW_End = False
             self.CCW_End = False
-            logger.info(f"{self.device_name} - {self.Log_Text_214_str[self.sprache]} {self.config['start']['start_winkel']}{self.Log_Text_215_str[self.sprache]}")
+            logger.info(f"{self.device_name} - {self.Log_Text_214_str[self.sprache]} {self.Start_Winkel}{self.Log_Text_215_str[self.sprache]}")
         
         self.akIWw      = value                                         # Aktueller berechneter Winkel
         self.ak_speed   = 0                                             # Aktuelle Geschwindigkeit                                           
@@ -281,8 +608,7 @@ class NemoAchseRot(QObject):
         ## PID-Regler:
         if self.uGv < 0:     controll_under_Null = 0
         else:                controll_under_Null = self.uGv
-        self.PID = PID(self.sprache, self.device_name, self.config['PID'], self.oGv, controll_under_Null)
-        self.PID_Option = self.config['PID']['Value_Origin'].upper()
+        self.PID = PID(self.sprache, self.device_name, self.PID_Config, self.oGv, controll_under_Null)
         ## Info und Warnungen: --> Überarbeiten da VIFCON Istwert noch nicht vorhanden!
         if not self.multilog_OnOff and self.PID_Option in ['MV', 'MM', 'VM']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N21[sprache]}')
@@ -305,37 +631,33 @@ class NemoAchseRot(QObject):
             teil_2 = Log_Text_PID_N6 
         logger.info(f'{self.device_name} - {Log_Text_PID_N3[self.sprache]}{self.PID_Option} ({teil_1[self.sprache]}, {teil_2[self.sprache]})')
 
-        ## PID-Thread:
-        self.PIDThread = QThread()
-        self.PID.moveToThread(self.PIDThread)
-        logger.info(f'{self.device_name} - {self.Log_Text_PID_str[self.sprache]}') 
-        self.PIDThread.start()
-        self.signal_PID.connect(self.PID.InOutPID)
-        ## Timer:
-        self.timer_PID = QTimer()                                              # Reaktionszeittimer (ruft die Geräte auf, liest aber nur unter bestimmten Bedingungen!)
-        self.timer_PID.setInterval(self.config['PID']['sample'])
-        self.timer_PID.timeout.connect(self.PID_Update)
-        self.timer_PID.start()
-        ### PID-Timer Thread:
-        #self.PIDThreadTimer = threading.Thread(target=self.PID_Update)
-        #self.PIDThreadTimer.start()
+        if self.PID_Aktiv:
+            ## PID-Thread:
+            self.PIDThread = QThread()
+            self.PID.moveToThread(self.PIDThread)
+            logger.info(f'{self.device_name} - {self.Log_Text_PID_str[self.sprache]}') 
+            self.PIDThread.start()
+            self.signal_PID.connect(self.PID.InOutPID)
+            ## Timer:
+            self.timer_PID = QTimer()                                              # Reaktionszeittimer (ruft die Geräte auf, liest aber nur unter bestimmten Bedingungen!)
+            self.timer_PID.setInterval(self.PID_Sample_Time)
+            self.timer_PID.timeout.connect(self.PID_Update)
+            self.timer_PID.start()
+            ### PID-Timer Thread:
+            #self.PIDThreadTimer = threading.Thread(target=self.PID_Update)
+            #self.PIDThreadTimer.start()
+        else:
+            logger.info(f'{self.device_name} - {self.Log_Text_PID_N23[self.sprache]}')
         ## Multilog-Lese-Variable für die Daten:
         self.mult_data              = {}
-        self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max'] 
-        self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
-        self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
         logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]}: {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_LB_unit[self.sprache]}')
-        logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]}: {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')   
-        if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
-            logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
-            self.PID_Input_Error_Option = 'error'
-        self.M_device               = self.config['multilog']['read_trigger'] 
-        self.sensor                 = self.config['PID']['Multilog_Sensor_Ist'] 
+        logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]}: {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')    
         if self.PID_Option[0] == 'M':
             logger.info(f'{Log_Text_PID_N8[self.sprache]} {self.sensor} {Log_Text_PID_N13[self.sprache]} {self.M_device} {Log_Text_PID_N10[self.sprache]}')
         if self.PID_Option[1] == 'M':
             logger.info(f'{Log_Text_PID_N9[self.sprache]} ... {Log_Text_PID_N13[self.sprache]} ... {Log_Text_PID_N10[self.sprache]}')
         self.PID_Ist_Last = self.Ist
+        
 
     ##########################################
     # Schnittstelle (Schreiben):
@@ -369,16 +691,18 @@ class NemoAchseRot(QObject):
             ## Winkel:
             self.oGw = write_value['Limits'][0]
             self.uGw = write_value['Limits'][1]
-            ## Geschwindigkeit/PID-Output:
-            self.PID.OutMax = write_value['Limits'][2]
-            if write_value['Limits'][3] < 0:    self.PID.OutMin = 0
-            else:                               self.PID.OutMin = write_value['Limits'][3]
-            logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_LB_unit[self.sprache]}')
-            ## PID-Input:
-            self.PID_Input_Limit_Max = write_value['Limits'][4]
-            self.PID_Input_Limit_Min = write_value['Limits'][5]
-            logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')
-            
+            ## PID-Modus:
+            if self.PID_Aktiv:
+                ### Geschwindigkeit/PID-Output:
+                self.PID.OutMax = write_value['Limits'][2]
+                if write_value['Limits'][3] < 0:    self.PID.OutMin = 0
+                else:                               self.PID.OutMin = write_value['Limits'][3]
+                logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_LB_unit[self.sprache]}')
+                ### PID-Input:
+                self.PID_Input_Limit_Max = write_value['Limits'][4]
+                self.PID_Input_Limit_Min = write_value['Limits'][5]
+                logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')
+                
             write_Okay['Update Limit'] = False
 
         #++++++++++++++++++++++++++++++++++++++++++
@@ -393,8 +717,8 @@ class NemoAchseRot(QObject):
                 config = yaml.safe_load(f)
                 logger.info(f"{self.device_name} - {self.Log_Text_207_str[self.sprache]} {config}")
             
-            self.oGw = config['devices'][self.device_name]["limits"]['maxWinkel']
-            self.uGw = config['devices'][self.device_name]["limits"]['minWinkel']
+            #self.oGw = config['devices'][self.device_name]["limits"]['maxWinkel']
+            #self.uGw = config['devices'][self.device_name]["limits"]['minWinkel']
             if self.uGw == 0:
                 self.CCW_End = True
             else:
@@ -773,7 +1097,7 @@ class NemoAchseRot(QObject):
         Args:
             pfad (str, optional): Speicherort. Default ist "./".
         """
-        PID_x_unit = self.config['PID']['Input_Size_unit'] 
+        PID_x_unit = self.unit_PIDIn
         self.filename = f"{pfad}/{self.device_name}.csv"
         units = f"# datetime,s,1/min,°,1/min,{PID_x_unit},{PID_x_unit},\n"
         header = "time_abs,time_rel,Ist-Winkelgeschwindigkeit,Ist-Winkel,Soll-Winkelgeschwindigkeit,Soll-x_PID-Modus_A,Ist-x_PID-Modus_A,\n"
@@ -805,9 +1129,10 @@ class NemoAchseRot(QObject):
     ##########################################
     def PID_Update(self):
         '''PID-Regler-Thread-Aufruf'''
-        if not self.PID.PID_speere:
-            self.signal_PID.emit(self.Ist, self.Soll, False, 0)
-            self.PID_Out = self.PID.Output
+        if self.PID_Aktiv:
+            if not self.PID.PID_speere:
+                self.signal_PID.emit(self.Ist, self.Soll, False, 0)
+                self.PID_Out = self.PID.Output
     
     ###################################################
     # Prüfe die Verbindung:

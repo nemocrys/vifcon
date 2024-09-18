@@ -52,7 +52,7 @@ logger = logging.getLogger(__name__)
 
 
 class PIAchseWidget(QWidget):
-    def __init__(self, sprache, Frame_Anzeige, widget, line_color, config, config_dat, start_werte, neustart, add_Ablauf_function, piAchse, gamepad_aktiv, typ = 'Antrieb', parent=None):
+    def __init__(self, sprache, Frame_Anzeige, widget, line_color, config, config_dat, start_werte, neustart, multilog_aktiv, add_Ablauf_function, piAchse, gamepad_aktiv, typ = 'Antrieb', parent=None):
         """ GUI widget of PI-Achse.
 
         Args:
@@ -64,6 +64,7 @@ class PIAchseWidget(QWidget):
             config_dat (string):            Datei-Name der Config-Datei
             start_werte (dict):             Start-Werte nach Initialisierung der Achse
             neustart (bool):                Neustart Modus, Startkonfigurationen werden übersprungen
+            multilog_aktiv (bool):          Multilog-Read/Send Aktiviert
             add_Ablauf_function (Funktion): Funktion zum updaten der Ablauf-Datei.
             piAchse (str):                  Name des Gerätes (wird für DH dringend gebraucht!)
             gamepad_aktiv (bool):           Soll das GamePad aktiviert werden bzw. wurde dies getan
@@ -82,6 +83,7 @@ class PIAchseWidget(QWidget):
         self.config_dat                 = config_dat
         self.akPos                      = start_werte['IWs']
         self.neustart                   = neustart
+        self.multilog_OnOff             = multilog_aktiv
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
         self.device_name                = piAchse
         self.typ                        = typ
