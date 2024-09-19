@@ -82,6 +82,7 @@ class NemoAchseRotWidget(QWidget):
         self.multilog_OnOff             = multilog_aktiv
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
         self.device_name                = nemoAchse
+        self.gamepad_aktiv              = gamepad_aktiv
         self.typ                        = typ
 
         ## GUI:
@@ -113,6 +114,7 @@ class NemoAchseRotWidget(QWidget):
         self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                      'Default is used:']
         self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                            'Error reading config during configuration:']
         self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                          '; Set to default:']
+        self.Log_Pfad_conf_5_4  = ['; Gamepad Aktivierung blockiert!',                                                                              '; Gamepad activation blocked!']
         self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                  'Reason for error:']
         self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                        'Please correct and re-read config before use!']
         self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                          'Incorrect input:']
@@ -217,9 +219,10 @@ class NemoAchseRotWidget(QWidget):
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         try: self.Button_Link = self.config['gamepad_Button']
         except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} gamepad_Button {self.Log_Pfad_conf_5[self.sprache]} RotS')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} gamepad_Button {self.Log_Pfad_conf_5_4[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.Button_Link = 'RotS'
+            self.Button_Link   = 'RotS'
+            self.gamepad_aktiv = False
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Rezepte:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -271,17 +274,18 @@ class NemoAchseRotWidget(QWidget):
         #//////////////////////////////////////////////////////////////////////
         ### Gamepad-Button:
         if not self.Button_Link in ['RotS', 'RotT']:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} gamepad_Button - {self.Log_Pfad_conf_2[self.sprache]} [RotS, RotT] - {self.Log_Pfad_conf_3[self.sprache]} RotS - {self.Log_Pfad_conf_8[self.sprache]} {self.Button_Link}')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} gamepad_Button - {self.Log_Pfad_conf_2[self.sprache]} [RotS, RotT] - {self.Log_Pfad_conf_5_4[self.sprache].replace("; ","")} - {self.Log_Pfad_conf_8[self.sprache]} {self.Button_Link}')
             self.Button_Link = 'RotS'
+            self.gamepad_aktiv = False
         #//////////////////////////////////////////////////////////////////////
         ### Init:
         if not type(self.init) == bool and not self.init in [0,1]: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} init - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.BTN_BW_grün}')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} init - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.init}')
             self.init = 0
         #//////////////////////////////////////////////////////////////////////
         ### Kontinuierlich Rotieren:
         if not type(self.kont_Rot) == bool and not self.kont_Rot in [0,1]: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} kont_rot - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.BTN_BW_grün}')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} kont_rot - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.kont_Rot}')
             self.kont_Rot = 0
         #//////////////////////////////////////////////////////////////////////
         ### PID-Limit:
@@ -310,10 +314,10 @@ class NemoAchseRotWidget(QWidget):
         #//////////////////////////////////////////////////////////////////////
         ### Winkel-Limit:
         if not type(self.oGw) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGw)}')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxWinkel - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 180 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGw)}')
             self.oGw = 180
         if not type(self.uGw) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} -1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGw)}')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minWinkel - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGw)}')
             self.uGw = 0
         if self.oGw <= self.uGw:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 180 ({self.Log_Pfad_conf_13[self.sprache]})')
@@ -334,8 +338,8 @@ class NemoAchseRotWidget(QWidget):
             origin = 'VV'
         #//////////////////////////////////////////////////////////////////////
         ### PID-Umschaltwert:
-        if not type(self.PID_Mode_Switch_Value) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} umstell_wert - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Mode_Switch_Value)}')
+        if not type(self.PID_Mode_Switch_Value) in [float, int] or not self.PID_Mode_Switch_Value >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} umstell_wert - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Mode_Switch_Value)}')
             self.PID_Mode_Switch_Value = 0
         #//////////////////////////////////////////////////////////////////////
         ### PID-Aktiv:
@@ -500,7 +504,7 @@ class NemoAchseRotWidget(QWidget):
             self.write_value['PID-Sollwert'] = 0
         #//////////////////////////////////////////////////////////////////////
         if not type(self.write_value['PID-Sollwert']) in [int, float]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_soll - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} -1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.write_value["PID-Sollwert"])}')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_soll - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.write_value["PID-Sollwert"])}')
             self.write_value['PID-Sollwert'] = 0
 
         #---------------------------------------
@@ -555,7 +559,7 @@ class NemoAchseRotWidget(QWidget):
             self.Rotation_Nonstopp()
         
         self.gamepad = QCheckBox(cb_gPad_str[self.sprache])
-        if not gamepad_aktiv:
+        if not self.gamepad_aktiv:
             self.gamepad.setEnabled(False)
 
         self.PID_cb  = QCheckBox(cb_PID[self.sprache])
@@ -632,7 +636,7 @@ class NemoAchseRotWidget(QWidget):
             for rezept in self.rezept_config:
                 self.cb_Rezept.addItem(rezept) 
         except Exception as e:
-            self.Fehler_Output(1, self.err_21_str[self.sprache])
+            self.Fehler_Output(1, self.La_error_1, self.err_21_str[self.sprache])
             logger.exception(self.Log_Text_Ex2_str[self.sprache])  
         self.cb_Rezept.setStyleSheet('''* 
                                     QComboBox QAbstractItemView 
@@ -1305,10 +1309,10 @@ class NemoAchseRotWidget(QWidget):
         #//////////////////////////////////////////////////////////////////////
         ### Winkel-Limit:
         if not type(self.oGw) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGw)}')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxWinkel - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 180 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGw)}')
             self.oGw = 180
         if not type(self.uGw) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} -1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGw)}')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minWinkel - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGw)}')
             self.uGw = 0
         if self.oGw <= self.uGw:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 180 ({self.Log_Pfad_conf_13[self.sprache]})')
@@ -1678,7 +1682,11 @@ class NemoAchseRotWidget(QWidget):
         ak_time = round((ak_time_1 - self.typ_widget.start_zeit).total_seconds(), 3)         # Aktuelle Zeit Relativ
 
         # Fehler-Kontrolle:
-        error = self.Rezept_lesen_controll()
+        try: error = self.Rezept_lesen_controll()
+        except Exception as e:
+            error = True
+            logger.exception(f'{self.device_name} - {self.Log_Text_Ex1_str[self.sprache]}')
+            self.Fehler_Output(1, self.La_error_1, self.err_10_str[self.sprache])
 
         if not error:
             # Kurve erstellen:
@@ -1738,7 +1746,7 @@ class NemoAchseRotWidget(QWidget):
                 for rezept in self.rezept_config:
                     self.cb_Rezept.addItem(rezept) 
             except Exception as e:
-                self.Fehler_Output(1, self.err_21_str[self.sprache])
+                self.Fehler_Output(1, self.La_error_1, self.err_21_str[self.sprache])
                 logger.exception(self.Log_Text_Ex2_str[self.sprache]) 
 
             # Neu verbinden von der Funktion:

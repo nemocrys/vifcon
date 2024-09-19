@@ -81,7 +81,36 @@ class NemoAchseLin(QObject):
         self.device_name                = name
         self.typ                        = typ
 
-        ## Aus Config:
+        #---------------------------------------------------------
+        # Konfigurationskontrolle und Konfigurationsvariablen:
+        #---------------------------------------------------------
+        ''' Die Kontrolle beinhaltet folgendes:
+        1. Kontrolle des Schlüssels mit Default-Vergabe!
+        2. Kontrolle der Variable wegen dem Inhalt mit Default-Vergabe!
+        '''
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Einstellung für Log:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                              'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                 'Possible values:']
+        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                       'The following types are possible:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                      'Default is used:']
+        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                            'Error reading config during configuration:']
+        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                          '; Set to default:']
+        self.Log_Pfad_conf_5_1  = ['; Register-Fehler -> Programm zu Ende!!!',                                                                      '; Register error -> program ends!!!']
+        self.Log_Pfad_conf_5_2  = ['; PID-Modus Aus!!',                                                                                             '; PID mode off!!']
+        self.Log_Pfad_conf_5_3  = ['; Multilog-Link Aus!!',                                                                                         '; Multilog-Link off!!']
+        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                  'Reason for error:']
+        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                        'Please correct and re-read config before use!']
+        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                          'Incorrect input:']
+        self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                                                                              'Incorrect type:']
+        self.Log_Pfad_conf_9    = ['Die Obergrenze ist kleiner als die Untergrenze! Setze die Limits auf Default:',                                 'The upper limit is smaller than the lower limit! Set the limits to default:']
+        self.Log_Pfad_conf_10   = ['zu',                                                                                                            'to']
+        self.Log_Pfad_conf_11   = ['Winkelgeschwindhigkeit',                                                                                        'Angular velocity']
+        self.Log_Pfad_conf_12   = ['PID-Eingang Istwert',                                                                                           'PID input actual value']
+        self.Log_Pfad_conf_13   = ['Winkel',                                                                                                        'Angle']
+        self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',   'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
+        
         ### Zum Start:
         self.init       = self.config['start']['init']                            # Initialisierung
         self.messZeit   = self.config['start']["readTime"]                        # Auslesezeit
@@ -107,6 +136,26 @@ class NemoAchseLin(QObject):
         self.uGv = self.config["limits"]['minSpeed']
         ### PID:
         self.unit_PIDIn = self.config['PID']['Input_Size_unit']
+        error_PID = False
+        try: self.PID_Config             = self.config['PID']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID {self.Log_Pfad_conf_5_2[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            error_PID = True
+            self.PID_Config = {}
+            self.PID_Aktiv  = 0 
+        #//////////////////////////////////////////////////////////////////////
+        if not error_PID:
+            try: self.PID_Aktiv = self.config['PID']['PID_Aktiv']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|PID_Aktiv {self.Log_Pfad_conf_5[self.sprache]} False')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.PID_Aktiv = 0 
+
+        ### PID-Aktiviert:
+        if not type(self.PID_Aktiv) == bool and not self.init in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} PID_Aktiv - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Aktiv}')
+            self.PID_Aktiv = 0
 
         ## Andere:
         self.Limit_stop         = False
@@ -307,20 +356,23 @@ class NemoAchseLin(QObject):
             teil_2 = Log_Text_PID_N6 
         logger.info(f'{self.device_name} - {Log_Text_PID_N3[self.sprache]}{self.PID_Option} ({teil_1[self.sprache]}, {teil_2[self.sprache]})')
 
-        ## PID-Thread:
-        self.PIDThread = QThread()
-        self.PID.moveToThread(self.PIDThread)
-        logger.info(f'{self.device_name} - {self.Log_Text_PID_str[self.sprache]}') 
-        self.PIDThread.start()
-        self.signal_PID.connect(self.PID.InOutPID)
-        ## Timer:
-        self.timer_PID = QTimer()                                              # Reaktionszeittimer (ruft die Geräte auf, liest aber nur unter bestimmten Bedingungen!)
-        self.timer_PID.setInterval(self.config['PID']['sample'])
-        self.timer_PID.timeout.connect(self.PID_Update)
-        self.timer_PID.start()
-        ### PID-Timer Thread:
-        #self.PIDThreadTimer = threading.Thread(target=self.PID_Update)
-        #self.PIDThreadTimer.start()
+        if self.PID_Aktiv:
+            ## PID-Thread:
+            self.PIDThread = QThread()
+            self.PID.moveToThread(self.PIDThread)
+            logger.info(f'{self.device_name} - {self.Log_Text_PID_str[self.sprache]}') 
+            self.PIDThread.start()
+            self.signal_PID.connect(self.PID.InOutPID)
+            ## Timer:
+            self.timer_PID = QTimer()                                              # Reaktionszeittimer (ruft die Geräte auf, liest aber nur unter bestimmten Bedingungen!)
+            self.timer_PID.setInterval(self.config['PID']['sample'])
+            self.timer_PID.timeout.connect(self.PID_Update)
+            self.timer_PID.start()
+            ### PID-Timer Thread:
+            #self.PIDThreadTimer = threading.Thread(target=self.PID_Update)
+            #self.PIDThreadTimer.start()
+        else:
+            logger.info(f'{self.device_name} - {self.Log_Text_PID_N23[self.sprache]}')
         ## Multilog-Lese-Variable für die Daten:
         self.mult_data              = {}
         self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max'] 
@@ -805,9 +857,10 @@ class NemoAchseLin(QObject):
     ##########################################
     def PID_Update(self):
         '''PID-Regler-Thread-Aufruf'''
-        if not self.PID.PID_speere:
-            self.signal_PID.emit(self.Ist, self.Soll, False, 0)
-            self.PID_Out = self.PID.Output
+        if self.PID_Aktiv:
+            if not self.PID.PID_speere:
+                self.signal_PID.emit(self.Ist, self.Soll, False, 0)
+                self.PID_Out = self.PID.Output
 
     ###################################################
     # Prüfe die Verbindung:

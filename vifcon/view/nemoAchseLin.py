@@ -83,12 +83,6 @@ class NemoAchseLinWidget(QWidget):
         self.device_name                = nemoAchse
         self.typ                        = typ
 
-        ## Aus Config (ohne Kontrolle):
-        ### Rezepte:
-        self.rezept_config = self.config["rezepte"]
-        ### PID-Modus:
-        self.unit_PIDIn    = self.config['PID']['Input_Size_unit']
-
         ## Faktoren Skalierung:
         self.skalFak = self.typ_widget.Faktor
 
@@ -98,6 +92,38 @@ class NemoAchseLinWidget(QWidget):
         ## Weitere:
         self.Rezept_Aktiv = False
         self.data = {}
+
+        #---------------------------------------------------------
+        # Konfigurationskontrolle und Konfigurationsvariablen:
+        #---------------------------------------------------------
+        ''' Die Kontrolle beinhaltet folgendes:
+        1. Kontrolle des Schlüssels mit Default-Vergabe!
+        2. Kontrolle der Variable wegen dem Inhalt mit Default-Vergabe!
+        '''
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Einstellung für Log:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                              'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                 'Possible values:']
+        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                       'The following types are possible:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                      'Default is used:']
+        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                            'Error reading config during configuration:']
+        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                          '; Set to default:']
+        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                  'Reason for error:']
+        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                        'Please correct and re-read config before use!']
+        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                          'Incorrect input:']
+        self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                                                                              'Incorrect type:']
+        self.Log_Pfad_conf_9    = ['Die Obergrenze ist kleiner als die Untergrenze! Setze die Limits auf Default:',                                 'The upper limit is smaller than the lower limit! Set the limits to default:']
+        self.Log_Pfad_conf_10   = ['zu',                                                                                                            'to']
+        self.Log_Pfad_conf_11   = ['Winkelgeschwindhigkeit',                                                                                        'Angular velocity']
+        self.Log_Pfad_conf_12   = ['PID-Eingang Istwert',                                                                                           'PID input actual value']
+        self.Log_Pfad_conf_13   = ['Winkel',                                                                                                        'Angle']
+        self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',   'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
+        
+        ### Rezepte:
+        self.rezept_config = self.config["rezepte"]
+        ### PID-Modus:
+        self.unit_PIDIn    = self.config['PID']['Input_Size_unit']
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -261,6 +287,12 @@ class NemoAchseLinWidget(QWidget):
         self.rezept_config = self.config["rezepte"]
         ## Gamepad:
         self.Button_Link = self.config['gamepad_Button']
+        ## PID:
+        try: self.PID_Aktiv = self.config['PID']['PID_Aktiv']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|PID_Aktiv {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Aktiv = 0 
 
         ## Config-Fehler und Defaults:
         if not type(self.BTN_BW_grün) == bool and not self.BTN_BW_grün in [0,1]: 
@@ -269,6 +301,10 @@ class NemoAchseLinWidget(QWidget):
         if not self.Anlage in [1, 2]:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nemo-Version - {self.Log_Pfad_conf_2[self.sprache]} [1, 2] - {self.Log_Pfad_conf_3[self.sprache]} 1')
             self.Anlage = 1
+        ### PID-Aktiv:
+        if not type(self.PID_Aktiv) == bool and not self.PID_Aktiv in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} PID_Aktiv - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Aktiv}')
+            self.PID_Aktiv = 0
 
         #---------------------------------------
         # Konfigurationen für das Senden:
@@ -333,6 +369,8 @@ class NemoAchseLinWidget(QWidget):
 
         self.PID_cb  = QCheckBox(cb_PID[self.sprache])
         self.PID_cb.clicked.connect(self.PID_ON_OFF)
+        if not self.PID_Aktiv:
+            self.PID_cb.setEnabled(False)
 
         ### Label:
         #### Titel-Gerät:
@@ -408,7 +446,7 @@ class NemoAchseLinWidget(QWidget):
             for rezept in self.rezept_config:
                 self.cb_Rezept.addItem(rezept) 
         except Exception as e:
-            self.Fehler_Output(1, self.err_21_str[self.sprache])
+            self.Fehler_Output(1, self.La_error_1, self.err_21_str[self.sprache])
             logger.exception(self.Log_Text_Ex2_str[self.sprache])
         self.cb_Rezept.setStyleSheet('''* 
                                     QComboBox QAbstractItemView 
@@ -1387,7 +1425,11 @@ class NemoAchseLinWidget(QWidget):
         ak_time = round((ak_time_1 - self.typ_widget.start_zeit).total_seconds(), 3)         # Aktuelle Zeit Relativ
 
         # Fehler-Kontrolle:
-        error = self.Rezept_lesen_controll()
+        try: error = self.Rezept_lesen_controll()
+        except Exception as e:
+            error = True
+            logger.exception(f'{self.device_name} - {self.Log_Text_Ex1_str[self.sprache]}')
+            self.Fehler_Output(1, self.La_error_1, self.err_10_str[self.sprache])
 
         if not error:
             # Kurve erstellen:
@@ -1443,7 +1485,7 @@ class NemoAchseLinWidget(QWidget):
                 for rezept in self.rezept_config:
                     self.cb_Rezept.addItem(rezept) 
             except Exception as e:
-                self.Fehler_Output(1, self.err_21_str[self.sprache])
+                self.Fehler_Output(1, self.La_error_1, self.err_21_str[self.sprache])
                 logger.exception(self.Log_Text_Ex2_str[self.sprache]) 
 
             # Neu verbinden von der Funktion:
