@@ -657,13 +657,24 @@ class Controller(QObject):
         überlaufA = False
         überlaufG = False
 
+        ## Konfigurationscheck - Geräte:
         try: devices_dict_conf = self.config['devices']
         except Exception as e:
-            legend_generator = {'legend_pos': 'Side', 'legend_anz': 2, 'side': 'l'} 
             logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} devices {self.Log_Pfad_conf_5_1[self.sprache]}')
             logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
             exit()
+        
+        ## Konfigurationscheck - Multilog-Link:
+        try: multilog_Link = self.config['Function_Skip']['Multilog_Link']
+        except Exception as e: 
+            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} Function_Skip|Multilog_Link {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+            multilog_Link = False
+        if not type(multilog_Link) == bool and not multilog_Link in [0,1]: 
+            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} Multilog_Link - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {gamepad_Link}')
+            multilog_Link = 0
 
+        ## Geräte Erstellung:
         for device_name in devices_dict_conf:
             jump = False
             try: skip = self.config['devices'][device_name]['skip']
@@ -710,16 +721,7 @@ class Controller(QObject):
                             if not farbe in used_Color_list:
                                 used_Color_list.append(farbe)
                                 ak_color.append(farbe)
-                                break 
-
-                try: multilog_Link = self.config['Function_Skip']['Multilog_Link']
-                except Exception as e: 
-                    logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} Function_Skip|Multilog_Link {self.Log_Pfad_conf_5[self.sprache]} False')
-                    logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
-                    multilog_Link = False
-                if not type(multilog_Link) == bool and not multilog_Link in [0,1]: 
-                    logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} Multilog_Link - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {gamepad_Link}')
-                    multilog_Link = 0  
+                                break   
                         
                 ### Geräte erstellen:
                 if device_typ == 'Generator':

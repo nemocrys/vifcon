@@ -143,6 +143,12 @@ class NemoAchseRotWidget(QWidget):
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.init = False
         #//////////////////////////////////////////////////////////////////////
+        try: self.v_invert       = self.config['start']['invert']                          # Invertierung bei True der Geschwindigkeit
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|invert {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.v_invert = 0
+        #//////////////////////////////////////////////////////////////////////
         try: self.kont_Rot = self.config['start']['kont_rot']
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|kont_rot {self.Log_Pfad_conf_5[self.sprache]} False')
@@ -321,8 +327,8 @@ class NemoAchseRotWidget(QWidget):
             self.uGw = 0
         if self.oGw <= self.uGw:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 180 ({self.Log_Pfad_conf_13[self.sprache]})')
-            self.uGw = 180
-            self.oGw = 0
+            self.uGw = 0
+            self.oGw = 180
         #//////////////////////////////////////////////////////////////////////
         ### Start-Geschwindigkeit:
         if not type(self.startSpeed) in [float, int]:
@@ -346,6 +352,11 @@ class NemoAchseRotWidget(QWidget):
         if not type(self.PID_Aktiv) == bool and not self.PID_Aktiv in [0,1]: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} PID_Aktiv - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Aktiv}')
             self.PID_Aktiv = 0
+        #//////////////////////////////////////////////////////////////////////
+        ### Achsen-Invert:
+        if not type(self.v_invert) == bool and not self.v_invert in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} invert - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.v_invert}')
+            self.v_invert = 0
          
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -408,6 +419,7 @@ class NemoAchseRotWidget(QWidget):
         self.Fehler_out_1       = ['Limit Clock Wise erreicht!\nStopp ausgelöst!',                                                              'Limit Clock Wise reached!\nStop triggered!']
         self.Fehler_out_2       = ['Limit Counter Clock Wise erreicht!\nStopp ausgelöst!',                                                      'Limit Counter Clock Wise reached!\nStop triggered!']
         self.Fehler_out_3       = ['Limit erreicht!\nKnopf wird nicht ausgeführt!',                                                             'Limit reached!\nButton is not executed!']
+        self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
         ## Status:                                                              
         status_1_str            = ['Status: Inaktiv',                                                                                           'Status: Inactive']
         self.status_2_str       = ['Kein Status',                                                                                               'No Status']
@@ -512,7 +524,7 @@ class NemoAchseRotWidget(QWidget):
         #---------------------------------------
         logger.info(f"{self.device_name} - {self.Log_Text_28_str[self.sprache]}") if self.init else logger.warning(f"{self.device_name} - {self.Log_Text_29_str[self.sprache]}")
         if self.neustart: logger.info(f"{self.device_name} - {self.Log_Text_30_str[self.sprache]}") 
-        if self.init: logger.warning(f'{self.device_name} - {self.Log_Text_181_str[self.sprache]}')
+        if self.v_invert: logger.warning(f'{self.device_name} - {self.Log_Text_181_str[self.sprache]}')
         ## Limit-Bereiche:
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]}: {self.uGv} {self.Log_Text_LB_4[self.sprache]} {self.oGv} {self.einheit_v_einzel[self.sprache]}')
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]}: {self.uGw} {self.Log_Text_LB_4[self.sprache]} {self.oGw}{self.einheit_w_einzel[self.sprache]}')
@@ -1316,8 +1328,8 @@ class NemoAchseRotWidget(QWidget):
             self.uGw = 0
         if self.oGw <= self.uGw:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 180 ({self.Log_Pfad_conf_13[self.sprache]})')
-            self.uGw = 180
-            self.oGw = 0
+            self.uGw = 0
+            self.oGw = 180
         #//////////////////////////////////////////////////////////////////////
         try: self.oGx = config['devices'][self.device_name]['PID']['Input_Limit_max']
         except Exception as e: 
@@ -1629,10 +1641,14 @@ class NemoAchseRotWidget(QWidget):
                             self.time_list.append(rampen_config_step)   # 0 
                         if self.PID_cb.isChecked(): self.move_list.append(werte[4].upper().strip())
                 ### Sprung:
-                else:                                               
+                elif werte[2].strip() == 's':                                               
                     self.value_list.append(value)
                     self.time_list.append(time)
                     if self.PID_cb.isChecked(): self.move_list.append(werte[3].upper().strip())
+                ### Falsches Segment:
+                else:
+                    self.Fehler_Output(1, self.La_error_1, f'{self.err_Rezept[self.sprache]} {werte[2].strip()} ({n})')
+                    return True
             if not self.PID_cb.isChecked():
                 ## Positionen bestimmen:
                 value_step = 0

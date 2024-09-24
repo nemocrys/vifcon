@@ -271,6 +271,7 @@ class PID(QObject):
             config = yaml.safe_load(f)
             logger.info(f"{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_15[self.sprache]} {config}")
         # Prüfe PID-Parameter:
+        ## Konfigurations-Check:
         try:kp_conf                 = config['devices'][self.device]['PID']['kp']
         except Exception as e: 
             logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_4[self.sprache]} PID|kp {self.Log_Pfad_conf_5[self.sprache]} 0')
@@ -291,6 +292,7 @@ class PID(QObject):
             logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_7[self.sprache]}')
             logger.exception(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_6[self.sprache]}')
             kd_conf = 0
+        ## Prüfung der Parameter auf Float:
         error, kp, ki, kd = self.check_PID_Parameter(kp_conf, ki_conf, kd_conf)
 
         if self.PID_speere and error:
@@ -312,6 +314,7 @@ class PID(QObject):
             self.kd_st = self.kd/self.sample_time
             if 'Achse' in self.device:   self.widget.Fehler_Output(0, self.widget.La_error_1)
             else:                        self.widget.Fehler_Output(0)
+            logger.info(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_18[self.sprache]}{self.Log_PID_1[self.sprache]} {self.kp}; {self.Log_PID_2[self.sprache]}{self.ki}; {self.Log_PID_3[self.sprache]}{self.kd}')
                         
     def check_PID_Parameter(self, kp, ki, kd):
         ''' Prüfe die PID-Parameter aus der Config!

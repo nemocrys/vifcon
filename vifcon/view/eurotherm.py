@@ -197,6 +197,7 @@ class EurothermWidget(QWidget):
         self.err_19_str         = ['Rezept läuft!\nRezept Start gesperrt!',                                                                                                                                                                 'Recipe running!\nRecipe start blocked!']
         self.err_20_str         = ['Die Rampen Segmente er, op und opr sind\nin dem PID-Modus nicht erlaubt!',                                                                                                                              'The ramp segments er, op and opr are\nnot allowed in PID mode!']
         self.err_21_str         = ['Fehler in der Rezept konfiguration\nder Config-Datei! Bitte beheben und Neueinlesen!',                                                                                                                  'Error in the recipe configuration of\nthe config file! Please fix and re-read!']
+        self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
         ## Plot-Legende:                                                                                                                                                        
         rezept_Label_str        = ['Rezept',                                                                                                                                                                                                'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                                                                                                                    'uL']                                   # uL - upper Limit
@@ -1384,12 +1385,16 @@ class EurothermWidget(QWidget):
                         self.Steigung.append(rampen_config_step)                # Steigungswert eintragen
                         self.value_list.append(value)                           # Sollwert (Temp) speichern
                 ### Sprung:
-                else:                                               
+                elif werte[2].strip() == 's':                                               
                     self.value_list.append(value)                               # Sollwert speichern                       
                     self.time_list.append(time)                                 # Zeit-Wert speichern
                     self.Art_list.append('s')                                   # Rampen-Art: s
                     self.Steigung.append(0)                                     # Steigung auf Null
                     self.value_list_op.append(0)                                # OP-Wert auf Null
+                ### Falsches Segment:
+                else:
+                    self.Fehler_Output(1, f'{self.err_Rezept[self.sprache]} {werte[2].strip()} ({n})')
+                    return False
         else:
             self.Fehler_Output(0)
         return error

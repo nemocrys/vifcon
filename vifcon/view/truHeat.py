@@ -218,6 +218,7 @@ class TruHeatWidget(QWidget):
         self.err_15_str         = ['Wähle ein Rezept!',                                                                                         'Choose a recipe!']
         self.err_16_str         = ['Rezept läuft!\nRezept Start gesperrt!',                                                                     'Recipe running!\nRecipe start blocked!']
         self.err_21_str         = ['Fehler in der Rezept konfiguration\nder Config-Datei! Bitte beheben und Neueinlesen!',                      'Error in the recipe configuration of\nthe config file! Please fix and re-read!']
+        self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
         ## Plot-Legende:                                                
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
@@ -1400,9 +1401,13 @@ class TruHeatWidget(QWidget):
                             self.value_list.append(value)
                             self.time_list.append(rampen_config_step)   # 0 
                 ### Sprung:
-                else:                                               
+                elif werte[2].strip() == 's':                                               
                     self.value_list.append(value)
                     self.time_list.append(time)
+                ### Falsches Segment:
+                else:
+                    self.Fehler_Output(1, f'{self.err_Rezept[self.sprache]} {werte[2].strip()} ({n})')
+                    return False
         else:
             self.Fehler_Output(0)
         return error

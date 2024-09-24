@@ -344,8 +344,8 @@ class NemoAchseRot(QObject):
             self.uGw = 0
         if self.oGw <= self.uGw:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 180 ({self.Log_Pfad_conf_13[self.sprache]})')
-            self.uGw = 180
-            self.oGw = 0
+            self.uGw = 0
+            self.oGw = 180
         #//////////////////////////////////////////////////////////////////////
         ### PID-Limit:
         if not type(self.PID_Input_Limit_Max) in [float, int]:
@@ -375,7 +375,7 @@ class NemoAchseRot(QObject):
             self.Start_Winkel = 0
         #//////////////////////////////////////////////////////////////////////
         ### PID-Aktiviert:
-        if not type(self.PID_Aktiv) == bool and not self.init in [0,1]: 
+        if not type(self.PID_Aktiv) == bool and not self.PID_Aktiv in [0,1]: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} PID_Aktiv - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Aktiv}')
             self.PID_Aktiv = 0
         #//////////////////////////////////////////////////////////////////////

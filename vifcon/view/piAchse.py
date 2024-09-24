@@ -228,6 +228,7 @@ class PIAchseWidget(QWidget):
         self.err_PID_3_str      = ['Der PID-Modus benötigt eine\nAngabe der Bewegungsrichtung!',                                                'The PID mode requires a specification\nof the direction of movement!']
         self.Fehler_out_1       = ['Maximum Limit erreicht!\nStopp ausgelöst!',                                                                 'Maximum limit reached!\nStop triggered!']
         self.Fehler_out_2       = ['Minimum Limit erreicht!\nStopp ausgelöst!',                                                                 'Minimum limit reached!\nStop triggered!']
+        self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
         ## Plot-Legende:                                                    
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
@@ -1413,9 +1414,13 @@ class PIAchseWidget(QWidget):
                             self.value_list.append(value)
                             self.time_list.append(rampen_config_step)   # 0 
                 ### Sprung:
-                else:                                               
+                elif werte[2].strip() == 's':                                               
                     self.value_list.append(value)
                     self.time_list.append(time)
+                ### Falsches Segment:
+                else:
+                    self.Fehler_Output(1, self.La_error_1, f'{self.err_Rezept[self.sprache]} {werte[2].strip()} ({n})')
+                    return False
             
             ## Positionen bestimmen:
             value_step = 0
