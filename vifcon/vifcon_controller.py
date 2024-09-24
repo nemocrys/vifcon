@@ -379,25 +379,35 @@ class Controller(QObject):
         self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                              'Configuration error in element:']
         self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                 'Possible values:']
         self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                       'The following types are possible:']
+        self.Log_Pfad_conf_2_2  = ['Möglich sind die Schlüssel:',                                                                                   'The following keys are possible:']
         self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                      'Default is used:']
+        self.Log_Pfad_conf_3_1  = ['Default wird eingesetzt: Alle auf 1!',                                                                          'Default is used: All on 1!']
         self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                            'Error reading config during configuration:']
         self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                          '; Set to default:']
         self.Log_Pfad_conf_5_1  = ['; Keine Geräte konfigurieren!! Exit!',                                                                          '; Do not configure any devices!! Exit!']
+        self.Log_Pfad_conf_5_2  = ['; Keine Geräte konfigurieren!! Multilog-Link wird nicht erstellt!',                                             '; Do not configure any devices!! Multilog link is not created!']
         self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                  'Reason for error:']
         self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                          'Incorrect input:']
         self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                                                                              'Incorrect type:']
+        self.Log_Pfad_conf_8_2  = ['Fehlerhafte Schlüssel:',                                                                                        'Incorrect Key:']
+        self.Log_Pfad_conf_9    = ['Folgende Größe wurde nicht in Konfiguration definiert, setze Skalierung auf Null:',                            'The following size was not defined in configuration, set scaling to zero:']
 
         #--------------------------------------------------------------------------
         # Logging-Datei erstellen:
         #--------------------------------------------------------------------------
         ## Logging:
-        try: logging.basicConfig(**self.config["logging"])
+        ### Konfigurationscheck Logging:
+        try: 
+            logging.basicConfig(**self.config["logging"])
+            self.log_Pfad = self.config["logging"]['filename']
         except Exception as e: 
             default_log_dict = {'level': 20, 'filename': 'vifcon.log', 'format': '%(asctime)s %(levelname)s %(name)s - %(message)s', 'filemode': 'w'} 
+            self.log_Pfad = 'vifcon.log'
             logging.basicConfig(**default_log_dict)
             logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} logging {self.Log_Pfad_conf_5[self.sprache]} {default_log_dict}')
             print(f'{self.Log_Pfad_conf_4[self.sprache]} logging {self.Log_Pfad_conf_5[self.sprache]} {default_log_dict}')
             logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+        ### Logging-Informationen:
         logging.info(self.Log_Text_6_str[self.sprache])
         logging.info(f"{self.Log_Text_7_str[self.sprache]} {self.config}")
         if self.test_mode:
@@ -479,6 +489,7 @@ class Controller(QObject):
         #--------------------------------------------------------------------------
         ## Reaktionstimer:
         self.timer_check_device = QTimer()                                              # Reaktionszeittimer (ruft die Geräte auf, liest aber nur unter bestimmten Bedingungen!)
+        ### Konfigurationscheck Reaktionszeit:
         try: reaktion_time = self.config["time"]["dt-main"]
         except Exception as e: 
             logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} time|dt-main {self.Log_Pfad_conf_5[self.sprache]} 150')
@@ -487,6 +498,7 @@ class Controller(QObject):
         if not type(reaktion_time) in [int] or not reaktion_time >= 0:
             logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} dt-main - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 150 - {self.Log_Pfad_conf_8[self.sprache]} {reaktion_time}')
             reaktion_time = 150 
+        ### Timer setzen:
         self.timer_check_device.setInterval(reaktion_time)
         self.timer_check_device.timeout.connect(self.ckeck_device)
 
@@ -498,8 +510,19 @@ class Controller(QObject):
         # Hauptteile der GUI erstellen:
         #--------------------------------------------------------------------------
         app = QApplication(sys.argv)
-        ## Hauptfenster:
-        self.main_window = MainWindow(self.exit, self.sync_rezept, self.sync_end_rezept, self.rezept_einlesen, self.sprache, self.config['Function_Skip']['Generell_GamePad'])  
+        
+        ## Konfigurationen prüfen:
+        ### Gamapad Aktiviuerung:
+        try: gamepad_Link = self.config['Function_Skip']['Generell_GamePad']
+        except Exception as e: 
+            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} Function_Skip|Generell_GamePad {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+            gamepad_Link = False
+        if not type(gamepad_Link) == bool and not gamepad_Link in [0,1]: 
+            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} Generell_GamePad - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {gamepad_Link}')
+            gamepad_Link = 0
+        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+        ### GUI Rahmen:
         try: Frame_Anzeige = self.config['GUI']['GUI_Frame'] 
         except Exception as e: 
             logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} GUI|GUI_Frame {self.Log_Pfad_conf_5[self.sprache]} False')
@@ -509,6 +532,7 @@ class Controller(QObject):
             logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} GUI_Frame - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {Frame_Anzeige}')
             Frame_Anzeige = 0
         #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+        ### GUI Farben:
         try: Color_Anzeige = self.config['GUI']['GUI_color_Widget'] 
         except Exception as e: 
             logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} GUI|GUI_color_Widget {self.Log_Pfad_conf_5[self.sprache]} False')
@@ -516,20 +540,43 @@ class Controller(QObject):
             Color_Anzeige = False 
         if not type(Color_Anzeige) == bool and not Color_Anzeige in [0,1]: 
             logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} GUI_color_Widget - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {Color_Anzeige}')
-            Color_Anzeige = 0                                   
+            Color_Anzeige = 0 
+        
+        ## Hauptfenster:
+        self.main_window = MainWindow(self.exit, self.sync_rezept, self.sync_end_rezept, self.rezept_einlesen, self.sprache, gamepad_Link)                                    
 
         ## Hauttabs erstellen:
         ### Haupttab Steuerung:
         self.tab_GenAnt = Splitter('H', True)
         self.main_window.add_tab(self.tab_GenAnt.splitter, main_window_tab_1_str[self.sprache])
 
+        #### Konfigurationscheck Skalierungsfaktoren:
+        default_scale = {'Pos': 1, 'Win': 1, 'Speed_1': 1, 'Speed_2': 1, 'WinSpeed': 1, 'Temp': 1, 'Op': 1, 
+                         'Current': 1, 'Voltage': 1, 'Pow': 1, 'Freq': 1, 'PIDA': 1, 'PIDG': 1} 
         try: scale = self.config['skalFak']
         except Exception as e:
-            scale = {'Pos': 1, 'Win': 1, 'Speed_1': 1, 'Speed_2': 1, 'WinSpeed': 1, 'Temp': 1, 'Op': 1, 
-                     'Current': 1, 'Voltage': 1, 'Pow': 1, 'Freq': 1, 'PIDA': 1, 'PIDG': 1} 
+            scale = default_scale
             logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} skalFak {self.Log_Pfad_conf_5[self.sprache]} {scale}')
             logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+        size_List = ['Pos', 'Win', 'Speed_1', 'Speed_2', 'WinSpeed', 'Temp', 'Op', 'Current', 'Voltage', 'Pow', 'Freq', 'PIDA', 'PIDG']
+        list_drin = []
+        for size in scale:
+            if not size in size_List:
+                logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} skalFak - {self.Log_Pfad_conf_2_2[self.sprache]} {size_List} - {self.Log_Pfad_conf_3_1[self.sprache]} - {self.Log_Pfad_conf_8_2[self.sprache]} {size}')
+                scale = default_scale
+                break
+            else:
+                list_drin.append(size)
+            if not type(scale[size]) in [float, int] or not scale[size] >= 0:
+                logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} skalFak|{size} - {self.Log_Pfad_conf_2_1[self.sprache]} [Float, Integer] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8[self.sprache]} {scale[size]}')
+                scale[size] = 1
+        if not scale == default_scale:
+            for size in size_List:
+                if not size in list_drin:
+                    logger.warning(f'{self.Log_Pfad_conf_9[self.sprache]} {size}')
+                    scale.update({size: 0})
 
+        #### Konfigurationscheck Legendentyp:
         try: legend_generator = self.config["legend"]["generator"]
         except Exception as e:
             legend_generator = {'legend_pos': 'Side', 'legend_anz': 2, 'side': 'l'} 
@@ -664,13 +711,22 @@ class Controller(QObject):
                                 used_Color_list.append(farbe)
                                 ak_color.append(farbe)
                                 break 
+
+                try: multilog_Link = self.config['Function_Skip']['Multilog_Link']
+                except Exception as e: 
+                    logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} Function_Skip|Multilog_Link {self.Log_Pfad_conf_5[self.sprache]} False')
+                    logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+                    multilog_Link = False
+                if not type(multilog_Link) == bool and not multilog_Link in [0,1]: 
+                    logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} Multilog_Link - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {gamepad_Link}')
+                    multilog_Link = 0  
                         
                 ### Geräte erstellen:
                 if device_typ == 'Generator':
                     if 'Eurotherm' in device_name:
                         #### Objekte erstellen:
-                        device = Eurotherm(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name)
-                        widget = EurothermWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name)
+                        device = Eurotherm(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, multilog_Link, self.add_Ablauf, device_name)
+                        widget = EurothermWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name)
                         #### Menü-Sonder-Knöpfe:
                         ##### Lese HO:
                         menu_HO_Button = QAction(f'{device_name} - {EuHO_Menu_str[self.sprache]}', self)
@@ -688,8 +744,8 @@ class Controller(QObject):
                         color_Gen_n = color_Gen_n + 7
                     elif 'TruHeat' in device_name:
                         #### Objekte erstellen:
-                        device = TruHeat(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name) 
-                        widget = TruHeatWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name)
+                        device = TruHeat(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, multilog_Link, self.add_Ablauf, device_name) 
+                        widget = TruHeatWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name)
                         #### Farben-Option:
                         color_Gen_n = color_Gen_n + 13
                     else:
@@ -698,24 +754,24 @@ class Controller(QObject):
                 elif device_typ == 'Antrieb':
                     if 'PI-Achse' in device_name:
                         #### Objekte erstellen:
-                        device = PIAchse(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name)
-                        if device.config['start']['init'] and not self.test_mode:
+                        device = PIAchse(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, multilog_Link, self.add_Ablauf, device_name)
+                        if device.init and not self.test_mode:
                             start_werte = device.read() 
                         else:
                             start_werte = {'IWv': '?', 'IWs': '?'}
-                        widget = PIAchseWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, start_werte, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        widget = PIAchseWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, start_werte, self.neustart, multilog_Link, self.add_Ablauf, device_name, gamepad_Link)
                         #### Farben-Option:
                         color_Ant_n = color_Ant_n + 6
                     elif 'Nemo-Achse-Linear' in device_name:
                         #### Objekte erstellen:
-                        device = NemoAchseLin(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf,  device_name) 
-                        widget = NemoAchseLinWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        device = NemoAchseLin(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, multilog_Link, self.add_Ablauf,  device_name) 
+                        widget = NemoAchseLinWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name, gamepad_Link)
                         #### Farben-Option:
                         color_Ant_n = color_Ant_n + 9
                     elif 'Nemo-Achse-Rotation' in device_name:
                         #### Objekte erstellen:
-                        device = NemoAchseRot(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name) 
-                        widget = NemoAchseRotWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, self.config['Function_Skip']['Multilog_Link'], self.add_Ablauf, device_name, self.config['Function_Skip']['Generell_GamePad'])
+                        device = NemoAchseRot(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, multilog_Link, self.add_Ablauf, device_name) 
+                        widget = NemoAchseRotWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name, gamepad_Link)
                         #### Farben-Option:
                         color_Ant_n = color_Ant_n + 7
                     else:
@@ -760,20 +816,52 @@ class Controller(QObject):
                     self.devices.update({device_name: device})
                     self.widgets.update({device_name: widget})
                     #### Ist der Port Null, wird keine Verbindung hergestellt:
-                    if not self.config["devices"][device_name]['multilog']['write_port'] == 0:
-                        self.port_List_send.append(self.config["devices"][device_name]['multilog']['write_port'])
-                        self.trigger_send.update({device_name: self.config['devices'][device_name]['multilog']['write_trigger']})
+                    ##### Konfigurations Check:
+                    try: write_port = self.config["devices"][device_name]['multilog']['write_port']
+                    except Exception as e:
+                        logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} multilog|write_port ({device_name}) {self.Log_Pfad_conf_5_2[self.sprache]}')
+                        logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+                        write_port = 0
+                    if not type(write_port) == int or not write_port >= 0:
+                        logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} write_port ({device_name}) - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {write_port}')
+                        write_port = 0 
+                    #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                    try: read_port = self.config["devices"][device_name]['multilog']['read_port']
+                    except Exception as e:
+                        logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} multilog|read_port ({device_name}) {self.Log_Pfad_conf_5_2[self.sprache]}')
+                        logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+                        read_port = 0
+                    if not type(read_port) == int or not read_port >= 0:
+                        logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} read_port ({device_name}) - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {read_port}')
+                        read_port = 0 
+                    #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                    try: write_trigger = self.config['devices'][device_name]['multilog']['write_trigger']
+                    except Exception as e:
+                        logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} multilog|write_trigger ({device_name}) {self.Log_Pfad_conf_5_2[self.sprache]}')
+                        logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+                        write_port = 0
+                    #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                    try: read_trigger = self.config['devices'][device_name]['multilog']['read_trigger']
+                    except Exception as e:
+                        logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} multilog|read_trigger ({device_name}) {self.Log_Pfad_conf_5_2[self.sprache]}')
+                        logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+                        read_port = 0
+                    
+                    ##### Ports setzen:
+                    if not write_port == 0:
+                        self.port_List_send.append(write_port)
+                        self.trigger_send.update({device_name: write_trigger})
                     if not 'Nemo-Gase' in device_name:    
-                        if not self.config["devices"][device_name]['multilog']['read_port'] == 0:
-                            self.port_List_read.append(self.config["devices"][device_name]['multilog']['read_port'])
-                            self.trigger_read.update({self.config["devices"][device_name]['multilog']['read_port']: [self.config['devices'][device_name]['multilog']['read_trigger'], device_name]})
+                        if not read_port == 0:
+                            self.port_List_read.append(read_port)
+                            self.trigger_read.update({read_port: [read_trigger, device_name]})
         
         logger.debug(f"{self.mutexs}")
 
         #---------------------------------------------------------------------------
         # Multilog Trigger Thread erstellen:
         #--------------------------------------------------------------------------
-        self.Multilog_Nutzung = self.config['Function_Skip']['Multilog_Link']
+        self.Multilog_Nutzung = multilog_Link
         if self.Multilog_Nutzung:
             self.LinkMultilogThread = QThread()
             self.MultiLink = Multilog(self.sprache, self.port_List_send, self.port_List_read, self.add_Ablauf, self.widgets, self.devices, self.trigger_send, self.trigger_read)
@@ -785,7 +873,7 @@ class Controller(QObject):
         #---------------------------------------------------------------------------
         # Hardware Controller erstellen:
         #--------------------------------------------------------------------------
-        self.Gamepad_Nutzung = self.config['Function_Skip']['Generell_GamePad']
+        self.Gamepad_Nutzung = gamepad_Link
         if self.Gamepad_Nutzung:
             self.PadThread = QThread()
             try:
@@ -842,10 +930,41 @@ class Controller(QObject):
                 self.devices[device].messdaten_output(self.directory)
 
             ## Config und Log speichern:
-            self.save_config    = self.config['save']['config_save']
-            self.save_log       = self.config['save']['log_save']
-            self.save_plot      = self.config['save']['plot_save']
-            self.save_GUI       = self.config['save']['GUI_save']
+            try: self.save_config    = self.config['save']['config_save']
+            except Exception as e: 
+                logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} save|config_save {self.Log_Pfad_conf_5[self.sprache]} True')
+                logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+                self.save_config = True 
+            if not type(self.save_config) == bool and not self.save_config in [0,1]: 
+                logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} config_save - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} True - {self.Log_Pfad_conf_8[self.sprache]} {self.save_config}')
+                self.save_config = 1
+            #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            try: self.save_log       = self.config['save']['log_save']
+            except Exception as e: 
+                logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} save|log_save {self.Log_Pfad_conf_5[self.sprache]} True')
+                logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+                self.save_log = True 
+            if not type(self.save_log) == bool and not self.save_log in [0,1]: 
+                logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} log_save - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} True - {self.Log_Pfad_conf_8[self.sprache]} {self.save_log}')
+                self.save_log = 1
+            #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            try: self.save_plot      = self.config['save']['plot_save']
+            except Exception as e: 
+                logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} save|plot_save {self.Log_Pfad_conf_5[self.sprache]} True')
+                logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+                self.save_plot = True 
+            if not type(self.save_plot) == bool and not self.save_plot in [0,1]: 
+                logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} plot_save - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} True - {self.Log_Pfad_conf_8[self.sprache]} {self.save_plot}')
+                self.save_plot = 1
+            #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            try: self.save_GUI       = self.config['save']['GUI_save']
+            except Exception as e: 
+                logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} save|GUI_save {self.Log_Pfad_conf_5[self.sprache]} False')
+                logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+                self.save_GUI = False 
+            if not type(self.save_GUI) == bool and not self.save_GUI in [0,1]: 
+                logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} GUI_save - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.save_GUI}')
+                self.save_GUI = 0
         else:
             self.save_config    = False
             self.save_log       = False
@@ -939,7 +1058,17 @@ class Controller(QObject):
         ### End-Variable - Sicheres Auslösen bzw. Setzen der nötigen Aufgaben
         for device in self.widgets:
             if not 'Nemo-Gase' in device:
-                if self.config['devices'][device]['ende']:
+                #### Konfigurationscheck:
+                try: save_ende = self.config['devices'][device]['ende']
+                except Exception as e:
+                    logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} {device}|ende {self.Log_Pfad_conf_5[self.sprache]} True')
+                    logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+                    save_ende = True 
+                if not type(save_ende) == bool and not save_ende in [0,1]: 
+                    logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} ende ({device}) - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} True - {self.Log_Pfad_conf_8[self.sprache]} {save_ende}')
+                    save_ende = 1
+                #### Ausführung:
+                if save_ende:
                     self.devices[device].Save_End_State = True
                     self.widgets[device].Stopp(n=5)
         self.ckeck_device()
@@ -966,7 +1095,13 @@ class Controller(QObject):
         ''' Info: Durch das Gamepad (pygame) kann es zu Verzögerungen kommen! Noch überarbeiten!'''
         ### Timeout setzen:
         try:    timeout = float(str(self.config["time"]["timeout_exit"]).replace(',','.')) 
-        except: timeout = 10    # Sekunden      
+        except Exception as e: 
+            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} time|timeout_exit {self.Log_Pfad_conf_5[self.sprache]} 10')
+            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+            timeout = 10    # Sekunden  
+        if not type(timeout) in [float,int] or not timeout >= 0:
+            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} timeout_exit - {self.Log_Pfad_conf_2_1[self.sprache]} [Float, Integer] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 10 - {self.Log_Pfad_conf_8[self.sprache]} {timeout}')
+            timeout = 10
         ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
         ### While-Schleife um die Threads sicher abzuarbeiten:
         while 1: 
@@ -1012,8 +1147,8 @@ class Controller(QObject):
         ## Speicher Log-Datei:
         if self.save_log:
             logger.debug(f"{self.Log_Text_21_str[self.sprache]} {VerschiebePfad}")
-            Bild_Pfad = self.config["logging"]['filename']
-            Erg_Bild_Name = f'/{self.config["logging"]["filename"]}'
+            Bild_Pfad = self.log_Pfad
+            Erg_Bild_Name = f'/{self.log_Pfad}'
             shutil.copyfile(Bild_Pfad, VerschiebePfad + Erg_Bild_Name)
         ## Speichere Plot:
         if self.save_plot:
