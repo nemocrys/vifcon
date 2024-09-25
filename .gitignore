@@ -170,3 +170,7 @@ measdata*
 !/vifcon/rezepte/rec_example.yml
 !/vifcon/Template/vifcon_temp.log
 !/vifcon/Template/Ablauf_temp.txt
+
+# Nicht hochladen:
+/Extra_Programme/Bilder/
+/Extra_Programme/Messdaten/
