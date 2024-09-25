@@ -1029,7 +1029,7 @@ class NemoAchseLinWidget(QWidget):
         ''' Sorgt dafür das die aktuelle Position zur Null wird.'''
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_39_str[self.sprache]}')
-            logger.info(f"{self.Log_Text_56_str[self.sprache]}")
+            logger.info(f"{self.device_name} - {self.Log_Text_56_str[self.sprache]}")
             self.update_Limit()
             self.write_task['Define Home'] = True
         else:
@@ -1250,7 +1250,9 @@ class NemoAchseLinWidget(QWidget):
     def update_Limit(self):
         '''Lese die Config und Update die Limits'''
 
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Yaml erneut laden:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         with open(self.config_dat, encoding="utf-8") as f: 
             config = yaml.safe_load(f)
             logger.info(f"{self.device_name} - {self.Log_Text_205_str[self.sprache]} {config}")
@@ -1336,6 +1338,9 @@ class NemoAchseLinWidget(QWidget):
             self.uGx = 0
             self.oGx = 1
 
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Weiterleiten:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGv} {self.Log_Text_LB_4[self.sprache]} {self.oGv} {self.einheit_v_einzel[self.sprache]}')
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGs} {self.Log_Text_LB_4[self.sprache]} {self.oGs} {self.einheit_s_einzel[self.sprache]}')
 

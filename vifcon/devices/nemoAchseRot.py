@@ -317,12 +317,10 @@ class NemoAchseRot(QObject):
         if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
             self.PID_Input_Error_Option = 'error'
-        #//////////////////////////////////////////////////////////////////////
         ### Init:
         if not type(self.init) == bool and not self.init in [0,1]: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} init - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.init}')
             self.init = 0
-        #//////////////////////////////////////////////////////////////////////
         ### Geschwindigkeits-Limit:
         if not type(self.oGv) in [float, int]:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGv)}')
@@ -334,7 +332,6 @@ class NemoAchseRot(QObject):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} -1 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
             self.uGv = -1
             self.oGv = 1
-        #//////////////////////////////////////////////////////////////////////
         ### Winkel-Limit:
         if not type(self.oGw) in [float, int]:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxWinkel - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 180 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGw)}')
@@ -346,7 +343,6 @@ class NemoAchseRot(QObject):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 180 ({self.Log_Pfad_conf_13[self.sprache]})')
             self.uGw = 0
             self.oGw = 180
-        #//////////////////////////////////////////////////////////////////////
         ### PID-Limit:
         if not type(self.PID_Input_Limit_Max) in [float, int]:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Input_Limit_Max)}')
@@ -358,92 +354,74 @@ class NemoAchseRot(QObject):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
             self.PID_Input_Limit_Min = 0
             self.PID_Input_Limit_Max = 1
-        #//////////////////////////////////////////////////////////////////////
         ### Messzeit:
         if not type(self.messZeit) == int or not self.messZeit >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} readTime - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 2 - {self.Log_Pfad_conf_8[self.sprache]} {self.messZeit}')
             self.messZeit = 2
-        #//////////////////////////////////////////////////////////////////////
         ### Achsen-Invert:
         if not type(self.v_invert) == bool and not self.v_invert in [0,1]: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} invert - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.v_invert}')
             self.v_invert = 0
-        #//////////////////////////////////////////////////////////////////////
         ### Start Winkel:
         if not type(self.Start_Winkel) in [float, int]:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_winkel - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.Start_Winkel)}')
             self.Start_Winkel = 0
-        #//////////////////////////////////////////////////////////////////////
         ### PID-Aktiviert:
         if not type(self.PID_Aktiv) == bool and not self.PID_Aktiv in [0,1]: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} PID_Aktiv - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Aktiv}')
             self.PID_Aktiv = 0
-        #//////////////////////////////////////////////////////////////////////
         ### Multilog_Sensor:
         if not type(self.sensor) == str:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Multilog_Sensor_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.sensor)}')
             self.multilog_OnOff = False
-        #//////////////////////////////////////////////////////////////////////
         ### read-Trigger Multilog:
         if not type(self.M_device) == str:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} read_trigger - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.M_device)}')
             self.multilog_OnOff = False
-        #//////////////////////////////////////////////////////////////////////
         ### Register CW:
         if not type(self.reg_cw) == int:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} cw - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_cw)}')
             exit()
-        #//////////////////////////////////////////////////////////////////////
         ### Register CCW:
         if not type(self.reg_ccw) == int:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} ccw - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_ccw)}')
             exit()
-        #//////////////////////////////////////////////////////////////////////
         ### Register Stopp:
         if not type(self.reg_s) == int:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} stopp - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_s)}')
             exit()
-        #//////////////////////////////////////////////////////////////////////
         ### Register Lese:
         if not type(self.start_Lese_Register) == int:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_st_Reg - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.start_Lese_Register)}')
             exit()
-        #//////////////////////////////////////////////////////////////////////
         ### Register Schreibe:
         if not type(self.start_write_v) == int:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} write_v_Reg - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.start_write_v)}')
             exit()
-        #//////////////////////////////////////////////////////////////////////
         ### Register Status:
         if not type(self.Status_Reg) == int:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} statusReg - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.Status_Reg)}')
             exit()
-        #//////////////////////////////////////////////////////////////////////
         ### Vorfaktor Ist:
         if not type(self.vF_ist) in [float, int] or not self.vF_ist >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Vorfaktor_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8[self.sprache]} {self.vF_ist}')
             self.vF_ist = 1
-        #//////////////////////////////////////////////////////////////////////
         ### Vorfaktor Soll:
         if not type(self.vF_soll) in [float, int] or not self.vF_soll >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Vorfaktor_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8[self.sprache]} {self.vF_soll}')
             self.vF_soll = 1
-        #//////////////////////////////////////////////////////////////////////
         ### PID Sample Zeit:
         if not type(self.PID_Sample_Time) in [int] or not self.PID_Sample_Time >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} sample - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 500 - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Sample_Time}')
             self.PID_Sample_Time = 500 
-        #//////////////////////////////////////////////////////////////////////
         ### PID-Start-Soll:
         if not type(self.Soll) in [float, int] or not self.Soll >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_soll - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {self.Soll}')
             self.Soll = 0
-        #//////////////////////////////////////////////////////////////////////
         ### PID-Start-Ist:
         if not type(self.Ist) in [float, int] or not self.Ist >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_ist - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {self.Ist}')
             self.Ist = 0
-        #//////////////////////////////////////////////////////////////////////
         ### Nachkommerstellen:
         if not type(self.nKS) in [int] or not self.nKS >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nKS_Aus - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 3 - {self.Log_Pfad_conf_8[self.sprache]} {self.nKS}')

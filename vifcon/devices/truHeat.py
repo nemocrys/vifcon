@@ -156,8 +156,8 @@ class TruHeat(QObject):
                 self.PID_Aktiv = 0 
 
         ## Config-Fehler und Defaults:
-        if not type(self.Loop) == int:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} serial-loop-read - {self.Log_Pfad_conf_2[self.sprache]} Integer - {self.Log_Pfad_conf_3[self.sprache]} 10')
+        if not type(self.Loop) == int or not self.Loop >= 1:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} serial-loop-read - {self.Log_Pfad_conf_2[self.sprache]} Integer (>=1) - {self.Log_Pfad_conf_3[self.sprache]} 10 - {self.Log_Pfad_conf_8[self.sprache]} {self.Loop}')
             self.Loop = 10
         ### PID-Aktiviert:
         if not type(self.PID_Aktiv) == bool and not self.init in [0,1]: 
