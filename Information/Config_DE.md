@@ -11,7 +11,7 @@ und vieles mehr bereitgestellt. Die Config-Datei ist eine Yaml-Datei und wird du
 
 ## Letzte Änderung
 
-Die Letzte Änderung des [Templates](#erklärung-der-einzelnen-punkte) und dieser Beschreibung war: 25.6.2024
+Die Letzte Änderung des [Templates](#erklärung-der-einzelnen-punkte) und dieser Beschreibung war: 26.9.2024
 
 ## Funktion
 
@@ -41,24 +41,26 @@ In dem Beispiel würde so der Wert des Schlüssels "language" gewertet werden.
 In dem Template der Datei ([config_temp.yml](../Template/config_temp.yml)) können auch Beschreibungen gefunden werden. 
 
 Im folgenden sind die Punkte:
-1. [Reaktionstimer](#reaktionstimer)
+1. [Zeiten](#zeiten)
 2. [Feature-Überspringen](#feature-überspringen)
 3. [Speicher Dateien und Bilder](#speicher-dateien-und-bilder)
-4. [Sprache](#sprache)
-5. [GUI-Widget-Rahmen](#gui-widget-rahmen)
-6. [Logging-Datei](#logging-datei)
-7. [Konsolen-Logging](#konsolen-logging)
-8. [Legende der GUI](#legende)
-9. [Skalierungsfaktoren](#skalierungsfaktoren)
-10. [Geräte](#geräte)
+4. [GUI](#GUI)
+5. [Logging-Datei](#logging-datei)
+6. [Konsolen-Logging](#konsolen-logging)
+7. [Legende der GUI](#legende)
+8. [Skalierungsfaktoren](#skalierungsfaktoren)
+9. [Geräte](#geräte)
 
-### Reaktionstimer:
+### Zeiten:
 
 ```
 time:
   dt-main: 150
+  timeout_exit: 10
 ```
-Nach dieser Zeit (in ms) werden die Threads der Geräte aufgerufen bzw. die sample-Funktion des Sampler-Objektes in dem Thread. 
+Nach dieser Zeit (`dt-main`) werden die Threads der Geräte aufgerufen bzw. die sample-Funktion des Sampler-Objektes in dem Thread. Die Zeit wird in ms angegeben und wird für den Reaktionstimer benötigt. 
+
+Bei der Zeit `timeout_exit` handelt es sich um eine Zeit die in Sekunden angegeben wird. In der Exit-Funktion des Programms, gibt es eine While-Schleife, die auslösen soll, wenn die Threads fertig sind. Kommt es dort zu Problemen, so wird nach der angegebenen Zeit ein break ausgeführt und die Schleife verlassen. Bei Auslösung wird auch eine Warnung in der Konsole und der Log-Datei ausgegeben. 
 
 ### Feature-Überspringen 
 
@@ -76,27 +78,33 @@ save:
   config_save: True                                
   log_save: True   
   plot_save: True
+  GUI_save: True
 ```
 
 Am Ende der Anwendung wird die Config-Datei und die Log-Datei aus dem Hauptordner in den Messordner kopiert. Auch die Legende und die Plots werden gespeichert. Dies passiert bei True. 
 
 Beachtet werden muss hierbei, dass die Plots und die Legende so gespeichert werden, wie sie in der GUI zu sehen sind. 
 
-### Sprache
+Um ein gesamt Bild der GUI zu haben, kann auch die aktuelle sichtbare GUi gespeichert werden. 
+
+### GUI
 
 ```
-language: de
+GUI:
+  language: de
+  GUI_Frame: 0
+  GUI_color_Widget: 1
 ```
 
-Hier wird in dem Wert die Sprache angegeben. Dabei können nur Deutsch (DE) und Englisch (EN) ausgewählt werden. Die GUI ändert sich dementsprechend.
+Die Einstellungen verändern die GUI in Sprache und Aussehen. 
 
-### GUI-Widget-Rahmen
+Bei `language` wird die Sprache angegeben. Dabei können nur Deutsch (DE) und Englisch (EN) ausgewählt werden. Die GUI ändert sich dementsprechend.
 
-```
-GUI_Frame: 0
-```
+Wenn der Wert bei `GUI_Frame` auf True (1) steht, dann werden die Rahmen der Widgets eingeschaltet. Mit diesem Mittel kann die Platzierung der einzelnen Widgets angesehen werden. 
 
-Wenn der Wert auf True (1) steht, dann werden die Rahmen der Widgets eingeschaltet. Mit diesem Mittel kann die Platzierung der einzelnen Widgets angesehen werden. 
+<img src="../Bilder/Rahmen_DE.png" alt="GUI-Rahmen Anzeige" title='Anzeige der Widget-Rahmen' width=500/>
+
+Mit `GUI_color_Widget` können die Farben auf dem Widget abgeschaltet werden. Anstelle der Bunten GUI wird dann alles schwarz angezeigt. In dem Bild sind die gemeinten Farben zu sehen. 
 
 ### Logging-Datei
 
@@ -183,9 +191,13 @@ skalFak:
   Voltage:  0
   Pow:      0  
   Freq:     0
+  PIDA:     0
+  PIDG:     0
 ```
 
 Durch die Skalierungsfaktoren kann der Plot der GUI geändert werden. Nicht immer sind die verschiedenen Größen im selben Wertebereich. Sobald der Wert ungleich eins ist, wird die Kurve um diesen Wert skalliert. Diese Skalierung wird in dem Label der y-Achse angezeigt. Weiterhin bewirken bestimmte Zahlen in dem Sinne auch eine Änderung. Die Zahl 1 als Skalierungsfaktor wird nicht im y-Achsen-Label angezeigt. Bei einer Null wird die Große aus dem y-Achsen-Label entfernt. Wenn keine Größe im Label mehr enthalten ist, so wird *Keine Einträge!* angezeigt.
+
+Mit PIDA und PIDG sind spezielle Größen gemeint. PIDA findet bei der PI-Achse und den beiden Nemo-Antrieben Anwendung, während PIDG nur beim TruHeat genutzt wird. Hiermit kann die PID-Regler Input Größe skalliert werden. Bei Eurotherm ist diese Größe die Temperatur, weshalb sie nicht mit PIDG skaliert wird.  
 
 ### Geräte
 
@@ -233,12 +245,17 @@ Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. 
 5. Multilog-Link 
     ```
       multilog:
-        trigger: pi1                                 
-        port: 54629
+        write_trigger: Eurotherm1
+        write_port: 50000
+        read_trigger: DAQ-6510
+        read_port: 56000
     ```
     - Trigger-Wort hängt von Multilog Konfiguration ab
     - Port hängt von Multilog Konfiguration ab
     - Durch diesen Schlüssel, sendet VIFCON seine Daten an Multilog.
+    - Write: VIFCON sendet Werte an Multilog
+    - Read: VIFCON holt sich Werte von Multilog für den PID-Modus
+      - read_trigger und read_Port sind bei Nemo-Gase nicht vorhanden!
 6. Limits
     - Jedes Gerät hat bestimmte Limits.
     - Diese Limits sind Software-Limits, wodurch das Senden von Werten nur bis zu diesen Werten funktioniert.
@@ -268,6 +285,44 @@ Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. 
     - Diese Werte werden zu Beginn des Programms in der GUI angezeigt. 
 9. Rezepte:
     - Für diesen Punkt sehe bitte [Rezepte_DE.md](Rezepte_DE.md).
+10. PID-Modus:
+    ```
+      PID:  
+        PID_Aktiv: 1 
+        Value_Origin: VV  
+        kp: 200 
+        ki: 0.3 
+        kd: 0  
+        sample: 500 
+        sample_tolleranz: 100
+        start_ist: 25
+        start_soll: 25
+        umstell_wert: 0
+        Multilog_Sensor_Ist: TE_1_K air 155 mm over crucible
+        Input_Limit_max: 1000
+        Input_Limit_min: 0
+        Input_Error_option: error
+        debug_log_time: 5
+    ```
+    - Zwischen den Geräten gibt es nur minimale Unterschiede!
+    - `PID_Aktiv` - Bei True wird der PID-Modus aktivierbar gemacht!
+    - `Value_Origin` - Gibt die Herkunft der Inputwerte wieder
+      - Erste Stelle: Istwert
+      - Zweite Stelle: Sollwert
+      - V - VIFCON, M - Multilog
+    - PID-Parameter: kp, ki, kd
+    - `sample` - PID-Timer Zeit, Sample-Rate
+      - `sample_tolleranz` - Abweichung von Sample-Rate ohne Fehlermeldung
+    - `start_ist` und `start_soll` geben den ersten Wert für den Input wieder
+    - `umstell_wert` - Wert der bei Wechsel im write_value Dictionary für die Output-Größe im Normalen Modus gespeichert wird!
+      - bei TruHeat gibt es drei dieser Variablen
+    - `Multilog_Sensor_Ist` - Multilog-Sensor von dem der Istwert-Input kommt
+    - Limits-Input: `Input_Limit_max` und `Input_Limit_min`
+    - `Input_Error_option` - Bei einem Auslesefehler wird hierbei eine von drei Möglichkeiten eingestellt 
+      - max - Oberes Limit wird als Input gesetzt
+      - min - unteres Limit wird als Input gesetzt
+      - error - Fehlermeldung und letzten Input verwenden
+    - `debug_log_time` - Debug Logzeit in s
 
 #### Unterschiede
 
@@ -276,6 +331,7 @@ Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. 
 ```
     start:
       sicherheit: 0
+      PID_Write: 0
       start_modus: Auto
       readTime: 2 
       init: 1
@@ -286,6 +342,9 @@ Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. 
   - Legt fest wie der Maximale Leistungsausgang (HO) gesetzt wird. 
   - True: HO kann nur am Gerät geändert werden
   - False: HO kann von VIFCON nur gelesen werden, wodurch OPmax angepasst wird (1. Menü-Knopf, 2. Umschalten auf Manuel-Mode)
+
+*PID_Write:*
+  - Bei True werden die PID-Parameter aus `PID-Device` an das Eurotherm-Gerät gesendet!
 
 *start_modus*:
   - Möglichkeiten: Auto, Manuel
@@ -312,10 +371,19 @@ Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. 
   - Möglich: IST, SOLL
   - Jenach Auswahl fängt die erste Rampe beim Sollwert oder dem Istwert an
 
+```
+    PID-Device:
+      PB: 11.8
+      TI: 114
+      TD: 0 
+```
+
+Hier werden die drei Eurotherm-PID-Parameter definiert. Diese können zum Start oder über eine Menü-Funktion beschrieben werden. 
+
 **TruHeat:**
 
 ```
-tart:
+    start:
       start_modus: P
       readTime: 0
       init: True 
@@ -339,6 +407,12 @@ tart:
 *send_Delay*:
   - Hier kann eine Zeit in Millisekunden festgelegt werden, die eine Verzögerung zwischen dem Senden von Befehlen verursacht.
   - Sollte nicht Größer als die Watchdog Zeit sein!
+
+```
+    serial-loop-read: 3
+```
+
+Mit der Konfiguration wird eine while-Schleife gesteuert. Bei TruHeat und der PI-Achse gibt es eine while-Schleife die einen Lese-Versuch wiederholt. Der Wert gibt die Häufigkeit dieser Wiederholungen wieder. 
 
 **PI-Achse:**
 
@@ -376,6 +450,25 @@ tart:
     - *nKS_Aus*
       - angezeigte Nachkommastellen
 
+5. Zielwerte Loggen:  
+      ```
+          read_TT_log: True  
+      ```    
+    - Bei True wird der Befehl TT ausgeführt, wodurch die Positionszielwerte gelogged werden. 
+
+6. While-Schleife:   
+      ```
+        serial-loop-read: 3
+      ```
+
+    - Mit der Konfiguration wird eine while-Schleife gesteuert. Bei TruHeat und der PI-Achse gibt es eine while-Schleife die einen Lese-Versuch wiederholt. Der Wert gibt die Häufigkeit dieser Wiederholungen wieder. 
+
+7. Anzeige des Knopf-Status:
+    - Unter GUI: `knopf_anzeige: 1`
+    - Wenn True wird die Richtung durch einen grünen Knopf angezeigt!
+      - Bewegungsknopf z.B. ↑ wird dann grün (Hintergrund)
+      - Bei Stopp wieder normal farbend!
+
 **Nemo-Achse-Linear und Nemo-Achse-Rotation:**
 
 1. ```gamepad_Button: HubS```
@@ -408,12 +501,62 @@ tart:
       - Hierbei werden Coils, Input-Register und Holding-Register angesprochen.
   
   4. Parameter:
-      - Diese haben *nKS_Aus* und *Vorfaktor*.
+      - Diese haben *nKS_Aus*, *Vorfaktor_Ist* und *Vorfaktor_Soll*.
       - Ersteres sind wieder die Nachkommerstellen die Angezeigt werden.
       - Der Vorfaktor diente der Korrektur des Fehlerhaften fahrens. Die eingestellte Geschwindigkeit war nicht die richtig, die auch bei den Antrieben ankam.  
+    
+  5. Anlagen-Version:   
+    - `nemo-Version: 2`
+    - Mit der Konfiguration kann zwischen Nemo-1 und Nemo-2 gewechselt werden!
+
+  6. Anzeige des Knopf-Status:
+    - Unter GUI: `knopf_anzeige: 1`
+    - Wenn True wird die Richtung durch einen grünen Knopf angezeigt!
+      - Bewegungsknopf z.B. ↑ wird dann grün (Hintergrund)
+      - Bei Stopp wieder normal farbend!
 
 **Nemo-Gase:**
 
 - Besitzt weniger Teile, da nur ausgelesen wird.
 - Werte werden nur in GUI angezeigt und können an Multilog übergeben werden.
 - Ähnlich wie der Rest von Nemo-1.
+
+## Auslese sicher:
+
+In den Modulen (Widget, Device) wurden alle Konfigurationen überprüft. Auch im Controller (Haupt-Init) wurde dies eingebaut. Hierbei gibt es immer eine Prüfung des Schlüssels und des dazugehörigen Wertes. Beim Wert wird geschaut ob dieser vom richtigen Typ ist oder ob der Wert überhaupt genutzt werden darf. 
+
+**Beispiel:**
+
+Schlüssel-Test:
+```
+try: self.init = self.config['start']['init']
+except Exception as e: 
+  logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|init {self.Log_Pfad_conf_5[self.sprache]} False')
+  logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+  self.init = False
+```
+
+*Meldungen:*   
+```
+2024-09-26 16:36:39,210 WARNING vifcon.view.truHeat - TruHeat - Fehler beim Auslesen der Config bei Konfiguration: start|init ; Setze auf Default: False
+2024-09-26 16:36:39,217 ERROR vifcon.view.truHeat - TruHeat - Fehlergrund:
+Traceback (most recent call last):
+  File "z:\Gruppen\modexp-all\Private\work\Vincent\vifcon\vifcon\view\truHeat.py", line 130, in __init__
+    try: self.init = self.config['start']['init']
+                     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+KeyError: 'init'
+```
+
+---
+
+Wert-Test:    
+```
+if not type(self.init) == bool and not self.init in [0,1]: 
+  logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} init - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.init}')
+  self.init = 0
+```
+
+*Meldungen:*  
+```
+2024-09-26 16:38:00,026 WARNING vifcon.view.truHeat - TruHeat - Konfigurationsfehler im Element: init - Möglich sind: [True, False] - Default wird eingesetzt: False - Fehlerhafte Eingabe: Truea
+```
