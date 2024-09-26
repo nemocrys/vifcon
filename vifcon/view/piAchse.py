@@ -474,6 +474,7 @@ class PIAchseWidget(QWidget):
         self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                          'Configuration error in element:']
         self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                             'Possible values:']
         self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                  'Default is used:']
+        self.Log_Text_Kurve     = ['Kurvenbezeichnung existiert nicht:',                                                                        'Curve name does not exist:']
         ## Ablaufdatei: 
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -867,6 +868,8 @@ class PIAchseWidget(QWidget):
                         self.typ_widget.plot.legend.addItem(curve, curve.name())
                 self.kurven_dict.update({legend_kurve: curve})
                 ist_drin_list.append(legend_kurve)
+            elif not legend_kurve in kurv_dict:
+                logger.warning(f'{self.device_name} - {self.Log_Text_Kurve[self.sprache]} {legend_kurve}')
 
         ## Checkboxen erstellen:
         self.kurven_side_legend         = {}

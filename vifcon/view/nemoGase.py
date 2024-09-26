@@ -72,54 +72,73 @@ class NemoGaseWidget:
         # Sprach-Einstellung:
         #--------------------------------------- 
         ## Anlage:
-        self.nemo               = ['Nemo-Anlage',                       'Nemo facility']
-        ## Überschriften und Größenbezeichnung:
-        ü1_str                  = ['Durchfluss',                        'Flow']
-        ü2_str                  = ['Druck',                             'Pressure']
-        ü3_str                  = ['Status',                            'Status']
-        ü4_str                  = ['Drehzahl',                          'Rotational frequency']             # Rotational speed, Rate of rotation
-        ## Status:                          
-        self.no_sta_str         = ['Kein Status!',                      'No Status!']
-        self.Stat_1_str         = ['Hand',                              'Manual']                           # Hand
-        self.Stat_2_str         = ['Auto',                              'Auto']                             # Auto
-        self.Stat_3_str         = ['Läuft',                             'Run']                              # Run
-        self.Stat_4_str         = ['Norm',                              'Norm']                             # Norm
-        self.Stat_5_str         = ['Warm',                              'Warm']                             # Warm
-        self.Stat_6_str         = ['Fehler',                            'Error']                            # Err
-        self.Stat_14_str        = ['Schnittstellenfehler',              'Interface error']
-        self.Stat_15_str        = ['Test-Modus Aktiv',                  'Test Mode Active']
-        ## Geräte-Bezeichnung:                  
-        G1_F_str                = ['MFC24',                             'MFC24']
-        G2_F_str                = ['MFC25',                             'MFC25']
-        G3_F_str                = ['MFC26',                             'MFC26']
-        G4_F_str                = ['MFC27',                             'MFC27']
-        G5_D_str                = ['DM21',                              'DM21']
-        G6_D_str                = ['PP21',                              'PP21']
-        G7_D_str                = ['PP22',                              'PP22']
-        ## Einheit:                         
-        E1_F_str                = ['ml/min',                            'ml/min']
-        E2_D_str                = ['mbar',                              'mbar']
-        E3_n_str                = ['%',                                 '%']
+        self.nemo               = ['Nemo-Anlage',                                               'Nemo facility']
+        ## Überschriften und Größenbezeichnung:                     
+        ü1_str                  = ['Durchfluss',                                                'Flow']
+        ü2_str                  = ['Druck',                                                     'Pressure']
+        ü3_str                  = ['Status',                                                    'Status']
+        ü4_str                  = ['Drehzahl',                                                  'Rotational frequency']             # Rotational speed, Rate of rotation
+        ## Status:                                                  
+        self.no_sta_str         = ['Kein Status!',                                              'No Status!']
+        self.Stat_1_str         = ['Hand',                                                      'Manual']                           # Hand
+        self.Stat_2_str         = ['Auto',                                                      'Auto']                             # Auto
+        self.Stat_3_str         = ['Läuft',                                                     'Run']                              # Run
+        self.Stat_4_str         = ['Norm',                                                      'Norm']                             # Norm
+        self.Stat_5_str         = ['Warm',                                                      'Warm']                             # Warm
+        self.Stat_6_str         = ['Fehler',                                                    'Error']                            # Err
+        self.Stat_14_str        = ['Schnittstellenfehler',                                      'Interface error']
+        self.Stat_15_str        = ['Test-Modus Aktiv',                                          'Test Mode Active']
+        ## Geräte-Bezeichnung:                                          
+        G1_F_str                = ['MFC24',                                                     'MFC24']
+        G2_F_str                = ['MFC25',                                                     'MFC25']
+        G3_F_str                = ['MFC26',                                                     'MFC26']
+        G4_F_str                = ['MFC27',                                                     'MFC27']
+        G5_D_str                = ['DM21',                                                      'DM21']
+        G6_D_str                = ['PP21',                                                      'PP21']
+        G7_D_str                = ['PP22',                                                      'PP22']
+        ## Einheit:                                                 
+        E1_F_str                = ['ml/min',                                                    'ml/min']
+        E2_D_str                = ['mbar',                                                      'mbar']
+        E3_n_str                = ['%',                                                         '%']
         ## Ablaufdatei:
-        self.Text_1_str         = ['Initialisierungsknopf betätigt.',   'Initialization button pressed.']
-        ## Logging:
-        self.Log_Text_1_str     = ['Erstelle Widget.',                  'Create widget.']
-        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',  'Configuration error in element:']
-        self.Log_Pfad_conf_2    = ['Möglich sind:',                     'Possible values:']
-        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',          'Default is used:']
-        
+        self.Text_1_str         = ['Initialisierungsknopf betätigt.',                           'Initialization button pressed.']
+        ## Logging:                     
+        self.Log_Text_1_str     = ['Erstelle Widget.',                                          'Create widget.']
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                          'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                             'Possible values:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                  'Default is used:']
+        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',        'Error reading config during configuration:']
+        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                      '; Set to default:']
+        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                              'Reason for error:']
+        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                      'Incorrect input:']
+
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
         #---------------------------------------------------------
         ## Übergeordnet:
-        self.Anlage = self.config['nemo-Version']
+        try: self.Anlage = self.config['nemo-Version']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} nemo-Version {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.Anlage = 1
         ## Zum Start:
-        self.init = self.config['start']['init']
+        try: self.init = self.config['start']['init']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|init {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.init = False
 
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Config-Fehler und Defaults:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ### Anlagen-Version:
         if not self.Anlage in [1, 2]:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nemo-Version - {self.Log_Pfad_conf_2[self.sprache]} [1, 2] - {self.Log_Pfad_conf_3[self.sprache]} 1')
             self.Anlage = 1
+        ### Init:
+        if not type(self.init) == bool and not self.init in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} init - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.init}')
+            self.init = 0
 
         #---------------------------------------    
         # GUI:

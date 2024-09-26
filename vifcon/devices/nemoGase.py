@@ -57,18 +57,81 @@ class NemoGase:
         self.add_Text_To_Ablauf_Datei = add_Ablauf_function
         self.device_name = name
         self.typ = typ
-
-        ## Aus Config:
-        ### Zum Start:
-        self.init = self.config['start']['init']                # Initialisierung
-        self.messZeit = self.config['start']["readTime"]        # Auslesezeit
-        ### Parameter:
-        self.nKS = self.config['parameter']['nKS_Aus']          # Nachkommerstellen
-        ### Register:
-        self.start_Lese_Register = self.config['register']['lese_st_Reg']       # Input Register Start-Register
     
         ## Werte Dictionary:
         self.value_name = {'MFC24': 0, 'MFC25': 0, 'MFC26': 0,  'MFC27': 0, 'DM21': 0, 'PP21': 0, 'PP22': 0, 'PP21Status': 0, 'PP22Status': 0, 'PP22I': 0}
+
+        #---------------------------------------------------------
+        # Konfigurationskontrolle und Konfigurationsvariablen:
+        #---------------------------------------------------------
+        ''' Die Kontrolle beinhaltet folgendes:
+        1. Kontrolle des Schlüssels mit Default-Vergabe!
+        2. Kontrolle der Variable wegen dem Inhalt mit Default-Vergabe!
+        '''
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Einstellung für Log:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                      'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                         'Possible values:']
+        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                               'The following types are possible:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                              'Default is used:']
+        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',    'Error reading config during configuration:']
+        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                  '; Set to default:']
+        self.Log_Pfad_conf_5_1  = ['; Register-Fehler -> Programm zu Ende!!!',              '; Register error -> program ends!!!']
+        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                          'Reason for error:']
+        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                  'Incorrect input:']
+        self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                      'Incorrect type:']
+        
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ### Zum Start:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.init           = self.config['start']['init']                            # Initialisierung
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|init {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.init = False
+        #//////////////////////////////////////////////////////////////////////
+        try: self.messZeit       = self.config['start']["readTime"]                        # Auslesezeit
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|readTime {self.Log_Pfad_conf_5[self.sprache]} 2')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.messZeit = 2
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ### Parameter:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.nKS        = self.config['parameter']['nKS_Aus']                     # Nachkommerstellen
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} parameter|nKS_Aus {self.Log_Pfad_conf_5[self.sprache]} 3')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.nKS = 3
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ### Register:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.start_Lese_Register = self.config['register']['lese_st_Reg']       # Input Register Start-Register
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|lese_st_Reg {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Config-Fehler und Defaults:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ### Init:
+        if not type(self.init) == bool and not self.init in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} init - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.init}')
+            self.init = 0
+        ### Messzeit:
+        if not type(self.messZeit) == int or not self.messZeit >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} readTime - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 2 - {self.Log_Pfad_conf_8[self.sprache]} {self.messZeit}')
+            self.messZeit = 2
+        ### Nachkommerstellen:
+        if not type(self.nKS) in [int] or not self.nKS >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nKS_Aus - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 3 - {self.Log_Pfad_conf_8[self.sprache]} {self.nKS}')
+            self.nKS = 3
+        ### Register Lese:
+        if not type(self.start_Lese_Register) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_st_Reg - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.start_Lese_Register)}')
+            exit()
 
         #--------------------------------------- 
         # Sprach-Einstellung:

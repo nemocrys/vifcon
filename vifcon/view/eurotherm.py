@@ -241,6 +241,7 @@ class EurothermWidget(QWidget):
         self.Log_Text_LB_3      = ['Operating Point (Leistung)',                                                                                                                                                                            'Operating Point (Power)']
         self.Log_Text_LB_4      = ['bis',                                                                                                                                                                                                   'to']
         self.Log_Text_LB_5      = ['nach Update',                                                                                                                                                                                           'after update']
+        self.Log_Text_Kurve     = ['Kurvenbezeichnung existiert nicht:',                                                                                                                                                                    'Curve name does not exist:']
         ## Ablaufdatei:                                                                             
         self.Text_19_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da keine Eingabe.',                                                                                                                                   'Input field error message: Sending failed because there was no input.']
         self.Text_20_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da Eingabe die Grenzen überschreitet.',                                                                                                               'Input field error message: Send failed because input exceeds limits.']
@@ -524,6 +525,8 @@ class EurothermWidget(QWidget):
                         self.typ_widget.plot.legend.addItem(curve, curve.name())
                 self.kurven_dict.update({legend_kurve: curve})
                 ist_drin_list.append(legend_kurve)
+            elif not legend_kurve in kurv_dict:
+                logger.warning(f'{self.device_name} - {self.Log_Text_Kurve[self.sprache]} {legend_kurve}')
 
         ## Checkboxen erstellen:
         self.kurven_side_legend         = {}
@@ -1439,7 +1442,7 @@ class EurothermWidget(QWidget):
         except Exception as e:
             error = True
             logger.exception(f'{self.device_name} - {self.Log_Text_Ex1_str[self.sprache]}')
-            self.Fehler_Output(1, self.La_error_1, self.err_10_str[self.sprache])
+            self.Fehler_Output(1, self.err_10_str[self.sprache])
 
         if not error:
             #////////////////////////////////////////////////////////////
