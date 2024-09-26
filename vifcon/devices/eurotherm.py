@@ -116,6 +116,7 @@ class Eurotherm(QObject):
         self.Safety     = self.config['start']['sicherheit']
         ### Limits:
         self.oGOp = self.config["limits"]['opMax']
+        self.uGOP = self.config["limits"]['opMin']
         ### PID:
         error_PID = False
         try: self.PID_Config             = self.config['PID']
@@ -132,6 +133,13 @@ class Eurotherm(QObject):
                 logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|PID_Aktiv {self.Log_Pfad_conf_5[self.sprache]} False')
                 logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
                 self.PID_Aktiv = 0 
+
+        self.PID_Option = self.config['PID']['Value_Origin'].upper()
+        self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max'] 
+        self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
+        self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
+        self.M_device               = self.config['multilog']['read_trigger'] 
+        self.sensor                 = self.config['PID']['Multilog_Sensor_Ist']
 
         ### PID-Aktiviert:
         if not type(self.PID_Aktiv) == bool and not self.init in [0,1]: 
@@ -290,8 +298,7 @@ class Eurotherm(QObject):
         # PID-Regler:
         #---------------------------------------
         ## PID-Regler:
-        self.PID = PID(self.sprache, self.device_name, self.config['PID'], self.oGOp, self.config["limits"]['opMin'])
-        self.PID_Option = self.config['PID']['Value_Origin'].upper()
+        self.PID = PID(self.sprache, self.device_name, self.PID_Config, self.oGOp, self.uGOp)
         ## Info und Warnungen:
         if not self.multilog_OnOff and self.PID_Option in ['MV', 'MM', 'VM']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N21[sprache]}')
@@ -333,16 +340,11 @@ class Eurotherm(QObject):
             logger.info(f'{self.device_name} - {self.Log_Text_PID_N23[self.sprache]}')
         ## Multilog-Lese-Variable für die Daten:
         self.mult_data              = {}
-        self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max'] 
-        self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
-        self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
         logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]}: {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_156_str[self.sprache]}')
         logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]}: {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max}{self.Log_Text_145_str[self.sprache]}')    
         if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
-            self.PID_Input_Error_Option = 'error'
-        self.M_device               = self.config['multilog']['read_trigger'] 
-        self.sensor                 = self.config['PID']['Multilog_Sensor_Ist'] 
+            self.PID_Input_Error_Option = 'error' 
         if self.PID_Option[0] == 'M':
             logger.info(f'{Log_Text_PID_N8[self.sprache]} {self.sensor} {Log_Text_PID_N13[self.sprache]} {self.M_device} {Log_Text_PID_N10[self.sprache]}')
         if self.PID_Option[1] == 'M':

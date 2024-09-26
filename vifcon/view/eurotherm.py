@@ -356,8 +356,8 @@ class EurothermWidget(QWidget):
         if self.color_Aktiv: self.RB_choise_Pow.setStyleSheet(f"color: {self.color[2]}")
         self.RB_choise_Pow.clicked.connect(self.BlassOutTemp)
 
-        if self.init:       # and not self.neustart
-            self.Start()
+        #if self.init:       # and not self.neustart
+        self.Start()
 
         ### Label:
         #### Geräte-Titel:

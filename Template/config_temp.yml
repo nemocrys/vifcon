@@ -16,7 +16,7 @@ save:
                                                                           # Achtung: Bei dem Plot, der Legende und der GUI wird nur das gespeichert, was zur Beendigung zu sehen ist!
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 GUI:
-  language: en                                                            # DE - Deutsch, EN - Englisch  (im Code wird upper genutzt -> de, en, De, En auch erlaubt)
+  language: en                                                            # DE - Deutsch, EN - Englisch  (im Code wird upper genutzt -> de, en, De, En auch erlaubt) | Default bei Fehler: EN
   GUI_Frame: 0                                                            # True - Zeigt die Frames der Widgets in den Geräte-Widgets an
   GUI_color_Widget: 1                                                     # True - Die Größen-Label und Werte werden in der Farbe der Kurven angezeigt, False - Alles Schwarz
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -71,25 +71,28 @@ skalFak:                                                                  # Skal
 devices:
   # --------------------------------------------------------------------------------------------------------------------------------------------------------
   Eurotherm 3504:                                                         # Muss "Eurotherm" enthalten!
-    skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt
-    typ:  Generator
+    skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ:  Generator                                                       # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
     start:
       sicherheit: 0                                                       # Sicherheitsschalter 
                                                                           # True:   HO kann nur am Gerät geändert werden - HO kann von Vifcon nur gelesen werden, wodurch OPmax angepasst wird (1. Menü-Knopf, 2. Umschalten auf Manuel-Mode)
                                                                           # False:  Vifcon sendet HO an Gerät - Start: OPmax (Config) zu HO, Später: Limit-Änderung durch Menü
-      PID_Write: 0                                                        # Schreibe zum Start die neuen PID-Werte - True: Schreibe, False: Später über Menü
-      start_modus: Auto                                                   # Auto - Automatisch (Temperatur), Manuel - Manueller Modus (Leistung)
-      readTime: 2                                                         # Auslesezeit [s]
+                                                                          # Default bei Fehler: True
+      PID_Write: 0                                                        # Schreibe zum Start die neuen PID-Werte - True: Schreibe, False: Später über Menü | Default bei Fehler: False
+      start_modus: Auto                                                   # Auto - Automatisch (Temperatur), Manuel - Manueller Modus (Leistung) | Default bei Fehler: Manuel
+      readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
       init: 1                                                             # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
                                                                           # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
                                                                           #               Messung wird nicht gestartet! 
                                                                           # Start-Werte:  Instrument Identity, Software Version, Instrumenten Modus, Display-Temperatur (Max., Min.), Solltemperatur (Max., Min.), PID-Parameter, Statuswort
                                                                           # ggf. Setzen:  Start-Modus (Auto, Manuel), Maximale Ausgangsleistung (HO)
+                                                                          # Default bei Fehler: False
       ramp_start_value: ist                                               # Start-Wert für die erste Rampe (beginnt Erstellung bei dieser) -> IST = Istwert, SOLL = Sollwert -> Upper genutzt! 
-                                                                          # Default: IST
+                                                                          # Default bei Fehler: IST
     ende: 0                                                               # End-Bedingung (Programm-Exit Knopf):
                                                                           # True - Ausführung der Stopp-Funktion (Umschalten auf Manuell Modus mit 0 % Op)(Rezept wird ebenfals beendet, wenn es läuft!)
                                                                           # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
     serial-interface:
       port: COM5
       baudrate: 9600
@@ -103,39 +106,41 @@ devices:
       read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
       read_port: 56000                                                    # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
-      PID_Aktiv: 1                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!!
+      PID_Aktiv: 1                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
       Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
-                                                                          # Default: VV - Istwerte und Sollwerte durch VIFCON gestellt 
-      kp: 200                                                             # P-Anteil []
-      ki: 0,3                                                             # I-Anteil []
-      kd: 0                                                               # D-Anteil []
-      sample: 500                                                         # Sample-Time [ms]
-      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung
-      start_ist: 25                                                       # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht)
-      start_soll: 25                                                      # Start-Sollwert [°C]
-      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked)
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 200                                                             # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.3                                                             # I-Anteil [] | Default bei Fehler: 0
+      kd: 0                                                               # D-Anteil [] | Default bei Fehler: 0
+      sample: 500                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 25                                                       # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 25                                                      # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) | Default bei Fehler: 0
       Multilog_Sensor_Ist: TE_1_K air 155 mm over crucible                # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
-      Input_Limit_max: 1000                                               # Maximum Limit für Input 
-      Input_Limit_min: 0                                                  # Minimum Limit für Input 
-      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist)
-      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] 
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 1000                                               # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
     PID-Device:
-      PB: 11.8                                                            # Proportionalband [Eng] oder [%] - Eng: °C, F  - 0 bis 99999   - Float   (eine Nachkommastelle)
-      TI: 114                                                             # Integralzeit [s]                - Off = 0     - Aus bis 99999 - Integer (keine Nachkommerstelle) 
-      TD: 0                                                               # Differenzialzeit [s]            - Off = 0     - Aus bis 99999 - Integer (keine Nachkommerstelle) 
+      PB: 11.8                                                            # Proportionalband [Eng] oder [%] - Eng: °C, F  - 0 bis 99999   - Float   (eine Nachkommastelle)   | Default bei Fehler: Werden nicht weitergegeben!
+      TI: 114                                                             # Integralzeit [s]                - Off = 0     - Aus bis 99999 - Integer (keine Nachkommerstelle) | Default bei Fehler: Werden nicht weitergegeben!
+      TD: 0                                                               # Differenzialzeit [s]            - Off = 0     - Aus bis 99999 - Integer (keine Nachkommerstelle) | Default bei Fehler: Werden nicht weitergegeben!
     limits:
-      maxTemp: 1000                                                       # Maximale Temperatur [°C]
-      minTemp: 0                                                          # Minimale Temperatur [°C]
-      opMax: 35                                                           # Maximale Leistung [%]
-      opMin: 0                                                            # Minimale Leistung [%]  
+      maxTemp: 1000                                                       # Maximale Temperatur [°C] | Default bei Fehler: 1
+      minTemp: 0                                                          # Minimale Temperatur [°C] | Default bei Fehler: 0
+      opMax: 35                                                           # Maximale Leistung [%] | Default bei Fehler: 1
+      opMin: 0                                                            # Minimale Leistung [%] | Default bei Fehler: 0
     GUI:
       legend: RezOp ; RezT ; IWT ; IWOp ; SWT                             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, Op - Leistung, T - Temperatur, Rez - Rezept, PID - PID Modus
                                                                           # Eingebaut: RezT, RezOp, IWT, IWOp, IWTPID, SWT, SWTPID, uGT, oGT, uGOp, oGOp 
+                                                                          # Default bei Fehler: IWT, IWOp
     defaults:
-      startTemp: 20                                                       # Temperatur bei Programmstart [°C]
-      startPow: 25                                                        # Leistung bei Programmstart [%]
+      startTemp: 20                                                       # Temperatur bei Programmstart [°C] | Default bei Fehler: 0
+      startPow: 25                                                         # Leistung bei Programmstart [%] | Default bei Fehler: 0
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen ; Sollwert (°C/%) (Rampe: Endwert) ; Art der Rampe ; Abstand der Sprünge in s (r) | Sollwert Ausgangsleistung (op, opr) - IST bedeutet nur Wechsel zu Manuel-Mode ; Schritte in %/s (opr) ; Start der Rampe (opr)
                                                                           # Art der Rampe: s - Sprung, r - Rampe, er - Eurotherm-Rampe, op - Leistungssprung in einem Temperaturrezept, opr - Leistungsrampe in einem Temperaturrezept
                                                                           # Bei einem Leistungsrezept werden nur s und r genutzt!
