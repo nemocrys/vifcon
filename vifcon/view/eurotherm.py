@@ -83,6 +83,20 @@ class EurothermWidget(QWidget):
         self.device_name                = eurotherm
         self.typ                        = typ
 
+        ## Faktoren Skalierung:
+        self.skalFak = self.typ_widget.Faktor
+
+        ## Aktuelle Messwerte:
+        self.ak_value = {}
+
+        ## Weitere:
+        self.Rezept_Aktiv = False
+        self.op_Mod = False
+        self.data = {}
+
+        # GUI:
+        self.color_Aktiv = self.typ_widget.color_On
+
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
         #---------------------------------------------------------
@@ -105,48 +119,184 @@ class EurothermWidget(QWidget):
         self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                                                                              'Incorrect type:']
         self.Log_Pfad_conf_9    = ['Die Obergrenze ist kleiner als die Untergrenze! Setze die Limits auf Default:',                                 'The upper limit is smaller than the lower limit! Set the limits to default:']
         self.Log_Pfad_conf_10   = ['zu',                                                                                                            'to']
-        self.Log_Pfad_conf_11   = ['Winkelgeschwindhigkeit',                                                                                        'Angular velocity']
+        self.Log_Pfad_conf_11   = ['Temperatur',                                                                                                    'Temperatur']
         self.Log_Pfad_conf_12   = ['PID-Eingang Istwert',                                                                                           'PID input actual value']
-        self.Log_Pfad_conf_13   = ['Winkel',                                                                                                        'Angle']
+        self.Log_Pfad_conf_13   = ['Leistung',                                                                                                      'Power']
         self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',   'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
         
-        ### Zum Start:
-        self.init = self.config['start']['init']
-        ### Limits:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Zum Start:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.init = self.config['start']['init']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|init {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.init = False
+        #//////////////////////////////////////////////////////////////////////
+        try: self.Safety = self.config['start']['sicherheit']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|sicherheit {self.Log_Pfad_conf_5[self.sprache]} True')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.Safety = True
+        #//////////////////////////////////////////////////////////////////////
+        try: self.startMode = self.config['start']["start_modus"]
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|start_modus {self.Log_Pfad_conf_5[self.sprache]} Manuel')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.startMode = 'Manuel'
+        #//////////////////////////////////////////////////////////////////////
+        try: self.StartRampe = self.config['start']["ramp_start_value"].upper()
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|ramp_start_value {self.Log_Pfad_conf_5[self.sprache]} IST')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.StartRampe = 'IST'
+        # Wert Kontrolle: unter `Nachrichten im Log-File:` zu finden!
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Defaults:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.startTemp = float(str(self.config["defaults"]['startTemp']).replace(',','.'))
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|startTemp {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.startTemp = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: self.startPow = float(str(self.config["defaults"]['startPow']).replace(',','.'))
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|startPow {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.startPow = 0
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Limits:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Solltemperatur:
-        self.oGST = self.config["limits"]['maxTemp']        
-        self.uGST = self.config["limits"]['minTemp']
+        try: self.oGST = self.config["limits"]['maxTemp'] 
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxTemp {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.oGST = 1
+        #//////////////////////////////////////////////////////////////////////       
+        try: self.uGST = self.config["limits"]['minTemp']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minTemp {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.uGST = 0
         ### Ausgangsleistung (Operating Point)
-        self.oGOp = self.config["limits"]['opMax']
-        self.uGOp = self.config["limits"]['opMin']
+        try: self.oGOp = self.config["limits"]['opMax']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|opMax {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.oGOp = 1
+        #//////////////////////////////////////////////////////////////////////
+        try: self.uGOp = self.config["limits"]['opMin']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|opMin {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.uGOp = 0
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### GUI:
-        self.legenden_inhalt = self.config['GUI']['legend'].split(';')
-        self.legenden_inhalt = [a.strip() for a in self.legenden_inhalt]    # sollten Unnötige Leerzeichen vorhanden sein, so werden diese entfernt!
-        self.color_Aktiv = self.typ_widget.color_On
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: 
+            self.legenden_inhalt = self.config['GUI']['legend'].split(';')
+            self.legenden_inhalt = [a.strip() for a in self.legenden_inhalt]    # sollten Unnötige Leerzeichen vorhanden sein, so werden diese entfernt!
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} GUI|legend {self.Log_Pfad_conf_5[self.sprache]} [IWv, IWw]')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.legenden_inhalt = ['IWT', 'IWOp']
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Rezepte:
-        self.rezept_config = self.config["rezepte"]
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.rezept_config = self.config["rezepte"]
+        except Exception as e: 
+            self.rezept_config = {'rezept_Default':  {'n1': '10 ; 0 ; s'}}
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} rezepte {self.Log_Pfad_conf_5[self.sprache]} {self.rezept_config}')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### PID:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         try: self.PID_Aktiv = self.config['PID']['PID_Aktiv']
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|PID_Aktiv {self.Log_Pfad_conf_5[self.sprache]} False')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.PID_Aktiv = 0 
+        #//////////////////////////////////////////////////////////////////////
+        try: origin    = self.config['PID']['Value_Origin'].upper()
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Value_Origin {self.Log_Pfad_conf_5[self.sprache]} VV')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            origin = 'VV'
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Mode_Switch_Value = float(str(self.config['PID']['umstell_wert']).replace(',', '.'))
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|umstell_wert {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Mode_Switch_Value = 0  
         
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Config-Fehler und Defaults:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### PID-Aktiv:
         if not type(self.PID_Aktiv) == bool and not self.PID_Aktiv in [0,1]: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} PID_Aktiv - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Aktiv}')
             self.PID_Aktiv = 0
-
-        ## Faktoren Skalierung:
-        self.skalFak = self.typ_widget.Faktor
-
-        ## Aktuelle Messwerte:
-        self.ak_value = {}
-
-        ## Weitere:
-        self.Rezept_Aktiv = False
-        self.op_Mod = False
-        self.data = {}
+        ### Init:
+        if not type(self.init) == bool and not self.init in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} init - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.init}')
+            self.init = 0
+        ### Temperatur-Limit:
+        if not type(self.oGST) in [float, int] or not self.oGST >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxTemp - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGST)}')
+            self.oGST = 1
+        if not type(self.uGST) in [float, int] or not self.uGST >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minTemp - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGST)}')
+            self.uGST = 0
+        if self.oGST <= self.uGST:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
+            self.uGST = 0
+            self.oGST = 1
+        ### Ausgangsleistungs-Limit:
+        if not type(self.oGOp) in [float, int] or not self.oGOp >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} opMax - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGOp)}')
+            self.oGOp = 1
+        if not type(self.uGOp) in [float, int] or not self.uGOp >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} opMin - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGOp)}')
+            self.uGOp = 0
+        if self.oGOp <= self.uGOp:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_13[self.sprache]})')
+            self.uGOp = 0
+            self.oGOp = 1
+        ### HO-Start-Sicherheit:
+        if not type(self.Safety) == bool and not self.Safety in [0, 1]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} sicherheit - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} True - {self.Log_Pfad_conf_8[self.sprache]} {self.Safety}')
+            self.Safety = 1
+        ### Start-Modus:
+        if not self.startMode in ['Auto', 'Manuel']:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_modus - {self.Log_Pfad_conf_2[self.sprache]} [Auto, Manuel] - {self.Log_Pfad_conf_3[self.sprache]} Manuel - {self.Log_Pfad_conf_8[self.sprache]} {self.startMode}')
+            self.startMode = 'Manuel'
+        ### Start-Temperatur:
+        if not type(self.startTemp) in [float, int] or not self.startTemp >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} startTemp - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {self.startTemp}')
+            self.startTemp = 0
+        ### Start-Leistung (OP):
+        if not type(self.startPow) in [float, int] or not self.startPow >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} startPow - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {self.startPow}')
+            self.startPow = 0
+        ### PID-Herkunft:
+        if not type(origin) == str or not origin in ['MM', 'MV', 'VV', 'VM']:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Value_Origin - {self.Log_Pfad_conf_2[self.sprache]} [VV, MM, VM, MV] - {self.Log_Pfad_conf_3[self.sprache]} VV - {self.Log_Pfad_conf_8[self.sprache]} {origin}')
+            origin = 'VV'
+        if not self.multilog_OnOff and origin in ['MM', 'MV', 'VM']:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_14[self.sprache]}')
+            origin = 'VV'
+        ### PID-Umschaltwert:
+        if not type(self.PID_Mode_Switch_Value) in [float, int] or not self.PID_Mode_Switch_Value >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} umstell_wert - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Mode_Switch_Value)}')
+            self.PID_Mode_Switch_Value = 0
+        
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -292,15 +442,28 @@ class EurothermWidget(QWidget):
             self.write_task['Start'] = True
 
         #---------------------------------------
+        # Konfigurationen Check:
+        #---------------------------------------
+        try: self.write_value['PID-Sollwert'] = self.config['PID']['start_soll'] 
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|start_soll {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.write_value['PID-Sollwert'] = 0
+        #//////////////////////////////////////////////////////////////////////
+        if not type(self.write_value['PID-Sollwert']) in [int, float]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_soll - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.write_value["PID-Sollwert"])}')
+            self.write_value['PID-Sollwert'] = 0
+
+        #---------------------------------------
         # Nachrichten im Log-File:
         #---------------------------------------
         logger.info(f"{self.device_name} - {self.Log_Text_28_str[self.sprache]}") if self.init else logger.warning(f"{self.device_name} - {self.Log_Text_29_str[self.sprache]}")
         if self.neustart: logger.info(f"{self.device_name} - {self.Log_Text_30_str[self.sprache]}") 
-        logger.info(f"{self.device_name} - {self.Log_Text_41_str[self.sprache]}") if self.config['start']['sicherheit'] else logger.info(f"{self.device_name} - {self.Log_Text_42_str[self.sprache]}")
-        logger.info(f"{self.device_name} - {self.Log_Text_43_str[self.sprache]}") if self.config['start']["start_modus"] == 'Manuel' else logger.info(f"{self.device_name} - {self.Log_Text_44_str[self.sprache]}")
-        if self.config['start']['sicherheit'] and self.init: 
+        logger.info(f"{self.device_name} - {self.Log_Text_41_str[self.sprache]}") if self.Safety else logger.info(f"{self.device_name} - {self.Log_Text_42_str[self.sprache]}")
+        logger.info(f"{self.device_name} - {self.Log_Text_43_str[self.sprache]}") if self.startMode == 'Manuel' else logger.info(f"{self.device_name} - {self.Log_Text_44_str[self.sprache]}")
+        if self.Safety and self.init: 
             self.typ_widget.Message(self.puF_HO_str_2[self.sprache], 3, 450)  
-        logger.info(f'{self.device_name} - {self.Log_Text_245_str[self.sprache]}') if self.config['start']["ramp_start_value"].upper() == 'IST' else (logger.info(f'{self.device_name} - {self.Log_Text_246_str[self.sprache]}') if self.config['start']["ramp_start_value"].upper() == 'SOLL' else logger.warning(f'{self.device_name} - {self.Log_Text_247_str[self.sprache]}'))
+        logger.info(f'{self.device_name} - {self.Log_Text_245_str[self.sprache]}') if self.StartRampe == 'IST' else (logger.info(f'{self.device_name} - {self.Log_Text_246_str[self.sprache]}') if self.StartRampe == 'SOLL' else logger.warning(f'{self.device_name} - {self.Log_Text_247_str[self.sprache]}'))
         ## Limit-Bereiche:
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]}: {self.uGST} {self.Log_Text_LB_4[self.sprache]} {self.oGST}{self.T_unit_einzel[self.sprache]}')
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]}: {self.uGOp} {self.Log_Text_LB_4[self.sprache]} {self.oGOp} {self.P_unit_einzel[self.sprache]}')
@@ -335,10 +498,10 @@ class EurothermWidget(QWidget):
         ## Widgets:
         ### Eingabefelder:
         self.LE_Temp = QLineEdit()
-        self.LE_Temp.setText(str(self.config["defaults"]['startTemp']))
+        self.LE_Temp.setText(str(self.startTemp))
 
         self.LE_Pow = QLineEdit()
-        self.LE_Pow.setText(str(self.config["defaults"]['startPow']))
+        self.LE_Pow.setText(str(self.startPow))
 
         ### Checkbox:
         self.Auswahl = QCheckBox(cb_sync_str[self.sprache])
@@ -356,8 +519,8 @@ class EurothermWidget(QWidget):
         if self.color_Aktiv: self.RB_choise_Pow.setStyleSheet(f"color: {self.color[2]}")
         self.RB_choise_Pow.clicked.connect(self.BlassOutTemp)
 
-        #if self.init:       # and not self.neustart
-        self.Start()
+        if self.init:       # and not self.neustart
+            self.Start()
 
         ### Label:
         #### Geräte-Titel:
@@ -476,7 +639,6 @@ class EurothermWidget(QWidget):
         # Kurven:
         #---------------------------------------
         ## PID-Modus:
-        origin = self.config['PID']['Value_Origin'].upper()
         ### Istwert:
         PID_Export_Ist = ''
         if origin[0] == 'V':        PID_Label_Ist = PID_Von_2[sprache]
@@ -491,8 +653,6 @@ class EurothermWidget(QWidget):
             PID_Label_Soll = PID_Von_1[sprache]
             PID_Export_Soll = PID_Zusatz[sprache]
         else:                       PID_Label_Soll = PID_Von_2[sprache]
-        ### Start Wert:
-        self.write_value['PID-Sollwert'] = self.config['PID']['start_soll']
 
         ## Kurven-Namen:
         kurv_dict = {                                                                   # Wert: [Achse, Farbe/Stift, Name]
@@ -732,10 +892,7 @@ class EurothermWidget(QWidget):
             # Aufgaben setzen:
             self.write_task['PID'] = False
             self.write_task['Operating point'] = True  # Beim Umschalten keine Sollwerte anpassen bzw. OP auf einen Wert setzen!
-            try:
-                value = float(str(self.config['PID']['umstell_wert'].replace(',', '.')))
-            except:
-                value = 0
+            value = self.PID_Mode_Switch_Value
             if value > self.oGOp or value < self.uGOp:
                 logger.warning(f"{self.device_name} - {self.Log_Text_PID_Ex[self.sprache]}") 
                 self.write_value['Rez_OPTemp'] = self.uGOp
@@ -853,31 +1010,107 @@ class EurothermWidget(QWidget):
     def update_Limit(self):
         '''Lese die Config und Update die Limits'''
 
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Yaml erneut laden:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         with open(self.config_dat, encoding="utf-8") as f:  
             config = yaml.safe_load(f)
             logger.info(f"{self.device_name} - {self.Log_Text_205_str[self.sprache]} {config}")
         
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Konfiguration prüfen:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Solltemperatur:
-        self.oGST = config['devices'][self.device_name]["limits"]['maxTemp']        
-        self.uGST = config['devices'][self.device_name]["limits"]['minTemp']
+        try: self.oGST = config['devices'][self.device_name]["limits"]['maxTemp'] 
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxTemp {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.oGST = 1       
+        #//////////////////////////////////////////////////////////////////////
+        try: self.uGST = config['devices'][self.device_name]["limits"]['minTemp']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minTemp {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.uGST = 0
+        #//////////////////////////////////////////////////////////////////////
+        if not type(self.oGST) in [float, int] or not self.oGST >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxTemp - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGST)}')
+            self.oGST = 1
+        if not type(self.uGST) in [float, int] or not self.uGST >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minTemp - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGST)}')
+            self.uGST = 0
+        if self.oGST <= self.uGST:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
+            self.uGST = 0
+            self.oGST = 1
+        #//////////////////////////////////////////////////////////////////////
         ### Ausgangsleistung (Operating Point)
-        self.oGOp = config['devices'][self.device_name]["limits"]['opMax']
-        self.uGOp = config['devices'][self.device_name]["limits"]['opMin']
+        try: self.oGOp = config['devices'][self.device_name]["limits"]['opMax']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|opMax {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.oGOp = 1
+        #//////////////////////////////////////////////////////////////////////
+        try: self.uGOp = config['devices'][self.device_name]["limits"]['opMin']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|opMin {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.uGOp = 0
+        #//////////////////////////////////////////////////////////////////////
+        if not type(self.oGOp) in [float, int] or not self.oGOp >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} opMax - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGOp)}')
+            self.oGOp = 1
+        if not type(self.uGOp) in [float, int] or not self.uGOp >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} opMin - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGOp)}')
+            self.uGOp = 0
+        if self.oGOp <= self.uGOp:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_13[self.sprache]})')
+            self.uGOp = 0
+            self.oGOp = 1
+        #//////////////////////////////////////////////////////////////////////
         ### PID-Input-Output:
-        self.oGx = config['devices'][self.device_name]['PID']['Input_Limit_max']
-        self.uGx = config['devices'][self.device_name]['PID']['Input_Limit_min']
+        try: self.oGx = config['devices'][self.device_name]['PID']['Input_Limit_max']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_max {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.oGx = 1
+        #//////////////////////////////////////////////////////////////////////
+        try: self.uGx = self.uGx = config['devices'][self.device_name]['PID']['Input_Limit_min']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.uGx = 0
+        #//////////////////////////////////////////////////////////////////////
+        if not type(self.oGx) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGx)}')
+            self.oGx = 1
+        if not type(self.uGx) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_min - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGx)}')
+            self.uGx = 0
+        if self.oGx <= self.uGx:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+            self.uGx = 0
+            self.oGx = 1
 
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Weiterleiten:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         self.write_task['Update Limit']     = True
         self.write_value['Limits']          = [self.oGOp, self.uGOp, self.oGx, self.uGx]
 
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGST} {self.Log_Text_LB_4[self.sprache]} {self.oGST}{self.T_unit_einzel[self.sprache]}')
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGOp} {self.Log_Text_LB_4[self.sprache]} {self.oGOp} {self.P_unit_einzel[self.sprache]}')
 
-        if not self.config['start']['sicherheit'] and self.init:
+        if not self.Safety and self.init:
             self.write_task['Write_HO'] = True
             self.write_value['HO'] = self.oGOp
-        elif self.config['start']['sicherheit']:
+        elif self.Safety:
             logger.warning(f"{self.device_name} - {self.Log_Text_242_str[self.sprache]}")
             self.typ_widget.Message(self.puF_HO_str[self.sprache], 3, 600)
         else:
@@ -916,15 +1149,17 @@ class EurothermWidget(QWidget):
                 for n in [P, I, D]:
                     if n > 99999 or n < 0:
                         self.Fehler_Output(1, f'{self.Log_Text_EPID_2[self.sprache]} {n} {self.Log_Text_EPID_3[self.sprache]}')
+                        logger.warning(f'{self.Log_Text_EPID_2[self.sprache]} {n} {self.Log_Text_EPID_3[self.sprache]}')
                         error = True
                 if not error:
                     self.write_task['PID-Update']  = True
                     self.write_value['PID-Update'] = [P, I, D]
                     self.Fehler_Output(0)
             except Exception as e:
+                self.write_task['PID-Update']  = False
                 logger.warning(f'{self.device_name} - {self.Log_Text_EPID_4[self.sprache]}')
                 self.Fehler_Output(1, self.Log_Text_EPID_5[self.sprache])
-                logger.exception(f'{self.device_name} - {self.Log_Text_EPID_6[self.sprache]}')      
+                logger.exception(f'{self.device_name} - {self.Log_Text_EPID_6[self.sprache]}')     
         else:
             self.Fehler_Output(1, self.err_4_str[self.sprache])
 
@@ -978,7 +1213,7 @@ class EurothermWidget(QWidget):
         ''' Initialisierung soll durch geführt werden '''
         self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_23_str[self.sprache]}')
         self.write_task['Init'] = True
-        if self.config['start']['sicherheit']: 
+        if self.Safety: 
             self.typ_widget.Message(self.puF_HO_str_2[self.sprache], 3, 450)
             
     def init_controll(self, init_okay, menu):
@@ -1001,11 +1236,11 @@ class EurothermWidget(QWidget):
 
     def Start(self):
         '''Funktion die nur beim Start beachtet werden muss (Init oder Start)'''
-        if self.config['start']["start_modus"] == 'Manuel':
+        if self.startMode == 'Manuel':
             self.RB_choise_Pow.setChecked(True)
             self.LE_Temp.setEnabled(False)
             self.LE_Pow.setEnabled(True)
-        else: 
+        elif self.startMode == 'Auto': 
             self.RB_choise_Temp.setChecked(True)
             self.LE_Temp.setEnabled(True)
             self.LE_Pow.setEnabled(False)
@@ -1216,7 +1451,7 @@ class EurothermWidget(QWidget):
         if self.RB_choise_Temp.isChecked():
             uG = self.uGST  
             oG = self.oGST
-            ak_value = self.ak_value['IWT'] if not self.ak_value == {} and self.config['start']['ramp_start_value'].upper() == 'IST' else (self.ak_value['SWT'] if not self.ak_value == {} and self.config['start']['ramp_start_value'].upper() == 'SOLL' else (self.ak_value['IWT'] if not self.config['start']['ramp_start_value'].upper() == 'IST' or self.config['start']['ramp_start_value'].upper() == 'SOLL' and not self.ak_value == {} else 0))
+            ak_value = self.ak_value['IWT'] if not self.ak_value == {} and self.StartRampe == 'IST' else (self.ak_value['SWT'] if not self.ak_value == {} and self.StartRampe == 'SOLL' else (self.ak_value['IWT'] if not self.StartRampe == 'IST' or self.StartRampe == 'SOLL' and not self.ak_value == {} else 0))
         else:
             uG = self.uGOp
             oG = self.oGOp
@@ -1529,7 +1764,12 @@ class EurothermWidget(QWidget):
                 config = yaml.safe_load(f)
 
             # Config einlesen für das Gerät:
-            self.rezept_config = config['devices'][self.device_name]['rezepte']
+            try: self.rezept_config = config['devices'][self.device_name]['rezepte']
+            except Exception as e: 
+                self.rezept_config = {'rezept_Default':  {'n1': '10 ; 0 ; s'}}
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} rezepte {self.Log_Pfad_conf_5[self.sprache]} {self.rezept_config}')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             
             # Combo-Box neu beschreiben:
             self.cb_Rezept.addItem('------------')

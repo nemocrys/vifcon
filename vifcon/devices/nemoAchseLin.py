@@ -347,8 +347,8 @@ class NemoAchseLin(QObject):
             self.uGs = 0
             self.oGs = 1
         ### Messzeit:
-        if not type(self.messZeit) == int or not self.messZeit >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} readTime - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 2 - {self.Log_Pfad_conf_8[self.sprache]} {self.messZeit}')
+        if not type(self.messZeit) in [int, float] or not self.messZeit >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} readTime - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 2 - {self.Log_Pfad_conf_8[self.sprache]} {self.messZeit}')
             self.messZeit = 2
         ### Achsen-Invert:
         if not type(self.v_invert) == bool and not self.v_invert in [0,1]: 
@@ -653,9 +653,6 @@ class NemoAchseLin(QObject):
         self.mult_data              = {}
         logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]}: {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_LB_unit[self.sprache]}')
         logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]}: {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')   
-        if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
-            logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
-            self.PID_Input_Error_Option = 'error'
         if self.PID_Option[0] == 'M':
             logger.info(f'{Log_Text_PID_N8[self.sprache]} {self.sensor} {Log_Text_PID_N13[self.sprache]} {self.M_device} {Log_Text_PID_N10[self.sprache]}')
         if self.PID_Option[1] == 'M':

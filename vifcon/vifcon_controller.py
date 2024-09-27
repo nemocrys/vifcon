@@ -835,12 +835,6 @@ class Controller(QObject):
                         write_port = 0
                     if not 'Nemo-Gase' in device_name:
                         #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-                        try: read_trigger = self.config['devices'][device_name]['multilog']['read_trigger']
-                        except Exception as e:
-                            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} multilog|read_trigger ({device_name}) {self.Log_Pfad_conf_5_2[self.sprache]}')
-                            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
-                            read_port = 0
-                        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
                         try: read_port = self.config["devices"][device_name]['multilog']['read_port']
                         except Exception as e:
                             logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} multilog|read_port ({device_name}) {self.Log_Pfad_conf_5_2[self.sprache]}')
@@ -849,6 +843,12 @@ class Controller(QObject):
                         if not type(read_port) == int or not read_port >= 0:
                             logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} read_port ({device_name}) - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {read_port}')
                             read_port = 0 
+                        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                        try: read_trigger = self.config['devices'][device_name]['multilog']['read_trigger']
+                        except Exception as e:
+                            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} multilog|read_trigger ({device_name}) {self.Log_Pfad_conf_5_2[self.sprache]}')
+                            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+                            read_port = 0
                     
                     ##### Ports setzen:
                     if not write_port == 0:

@@ -355,8 +355,8 @@ class NemoAchseRot(QObject):
             self.PID_Input_Limit_Min = 0
             self.PID_Input_Limit_Max = 1
         ### Messzeit:
-        if not type(self.messZeit) == int or not self.messZeit >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} readTime - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 2 - {self.Log_Pfad_conf_8[self.sprache]} {self.messZeit}')
+        if not type(self.messZeit) in [int, float] or not self.messZeit >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} readTime - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 2 - {self.Log_Pfad_conf_8[self.sprache]} {self.messZeit}')
             self.messZeit = 2
         ### Achsen-Invert:
         if not type(self.v_invert) == bool and not self.v_invert in [0,1]: 

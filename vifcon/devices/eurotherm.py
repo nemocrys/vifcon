@@ -76,6 +76,14 @@ class Eurotherm(QObject):
         self.device_name                = name
         self.typ                        = typ
 
+        ## Weitere:
+        self.op             = 0
+        self.EuRa_Aktiv     = False
+        self.Save_End_State = False
+        self.done_ones      = False
+        self.mode_aktiv     = False 
+        self.Rez_OP         = -1
+
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
         #---------------------------------------------------------
@@ -105,19 +113,73 @@ class Eurotherm(QObject):
         self.Log_Pfad_conf_12   = ['PID-Eingang Istwert',                                                                                           'PID input actual value']
         self.Log_Pfad_conf_13   = ['Winkel',                                                                                                        'Angle']
         self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',   'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
-        
+        Log_Text_PID_N18        = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
+
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Zum Start:
-        self.init       = self.config['start']['init']            # Initialisierung
-        self.messZeit   = self.config['start']["readTime"]        # Auslesezeit
-        self.Ist        = self.config['PID']["start_ist"] 
-        self.Soll       = self.config['PID']["start_soll"] 
-        self.op         = 0
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.init           = self.config['start']['init']                            # Initialisierung
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|init {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.init = False
+        #//////////////////////////////////////////////////////////////////////
+        try: self.messZeit       = self.config['start']["readTime"]                        # Auslesezeit
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|readTime {self.Log_Pfad_conf_5[self.sprache]} 2')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.messZeit = 2
+        #//////////////////////////////////////////////////////////////////////
+        try: self.Ist            = self.config['PID']["start_ist"] 
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|start_ist {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.Ist = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: self.Soll           = self.config['PID']["start_soll"]
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|start_soll {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.Soll = 0 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Write      = self.config['start']['PID_Write']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|PID_Write {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Write = False 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.startMode = self.config['start']["start_modus"]
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|start_modus {self.Log_Pfad_conf_5[self.sprache]} Manuel')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.startMode = 'Manuel'
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Sicherheit:
-        self.Safety     = self.config['start']['sicherheit']
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.Safety = self.config['start']['sicherheit']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|sicherheit {self.Log_Pfad_conf_5[self.sprache]} True')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.Safety = True
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Limits:
-        self.oGOp = self.config["limits"]['opMax']
-        self.uGOP = self.config["limits"]['opMin']
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.oGOp = self.config["limits"]['opMax']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|opMax {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.oGOp = 1
+        #//////////////////////////////////////////////////////////////////////
+        try: self.uGOp = self.config["limits"]['opMin']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|opMin {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.uGOp = 0
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### PID:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         error_PID = False
         try: self.PID_Config             = self.config['PID']
         except Exception as e: 
@@ -133,29 +195,131 @@ class Eurotherm(QObject):
                 logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|PID_Aktiv {self.Log_Pfad_conf_5[self.sprache]} False')
                 logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
                 self.PID_Aktiv = 0 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Option             = self.config['PID']['Value_Origin'].upper()
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Value_Origin {self.Log_Pfad_conf_5[self.sprache]} VV')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Option = 'VV' 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_max {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Input_Limit_Max  = 1 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Input_Limit_Min = 0 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Error_option {self.Log_Pfad_conf_5[self.sprache]} error')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Input_Error_Option = 'error' 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.M_device               = self.config['multilog']['read_trigger'] 
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|read_trigger {self.Log_Pfad_conf_5_3[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.M_device = ''
+            self.multilog_OnOff = False
+        #//////////////////////////////////////////////////////////////////////
+        try: self.sensor                 = self.config['PID']['Multilog_Sensor_Ist']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Multilog_Sensor_Ist {self.Log_Pfad_conf_5_3[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.sensor = ''
+            self.multilog_OnOff = False
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Sample_Time        = self.config['PID']['sample']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|sample {self.Log_Pfad_conf_5[self.sprache]} 500')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Sample_Time = 500 
+        ### Start-Modus:
+        if not self.startMode in ['Auto', 'Manuel']:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_modus - {self.Log_Pfad_conf_2[self.sprache]} [Auto, Manuel] - {self.Log_Pfad_conf_3[self.sprache]} Manuel - {self.Log_Pfad_conf_8[self.sprache]} {self.startMode}')
+            self.startMode = 'Manuel'
 
-        self.PID_Option = self.config['PID']['Value_Origin'].upper()
-        self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max'] 
-        self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
-        self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
-        self.M_device               = self.config['multilog']['read_trigger'] 
-        self.sensor                 = self.config['PID']['Multilog_Sensor_Ist']
-
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Config-Fehler und Defaults:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### PID-Aktiviert:
-        if not type(self.PID_Aktiv) == bool and not self.init in [0,1]: 
+        if not type(self.PID_Aktiv) == bool and not self.PID_Aktiv in [0,1]: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} PID_Aktiv - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Aktiv}')
             self.PID_Aktiv = 0
+        ### Init:
+        if not type(self.init) == bool and not self.init in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} init - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.init}')
+            self.init = 0
+        ### Messzeit:
+        if not type(self.messZeit) in [int, float] or not self.messZeit >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} readTime - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 2 - {self.Log_Pfad_conf_8[self.sprache]} {self.messZeit}')
+            self.messZeit = 2
+        ### PID-Start-Soll:
+        if not type(self.Soll) in [float, int] or not self.Soll >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_soll - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {self.Soll}')
+            self.Soll = 0
+        ### PID-Start-Ist:
+        if not type(self.Ist) in [float, int] or not self.Ist >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_ist - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {self.Ist}')
+            self.Ist = 0
+        ### HO-Start-Sicherheit:
+        if not type(self.Safety) == bool and not self.Safety in [0, 1]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} sicherheit - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} True - {self.Log_Pfad_conf_8[self.sprache]} {self.Safety}')
+            self.Safety = 1
+        ### Ausgangsleistungs-Limit:
+        if not type(self.oGOp) in [float, int] or not self.oGOp >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} opMax - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGOp)}')
+            self.oGOp = 1
+        if not type(self.uGOp) in [float, int] or not self.uGOp >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} opMin - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGOp)}')
+            self.uGOp = 0
+        if self.oGOp <= self.uGOp:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
+            self.uGOp = 0
+            self.oGOp = 1
+        ### PID-Fehlerbehandlung:
+        if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
+            logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
+            self.PID_Input_Error_Option = 'error'
+        ### PID-Limit:
+        if not type(self.PID_Input_Limit_Max) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Input_Limit_Max)}')
+            self.PID_Input_Limit_Max = 1
+        if not type(self.PID_Input_Limit_Min) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_min - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Input_Limit_Min)}')
+            self.PID_Input_Limit_Min = 0
+        if self.PID_Input_Limit_Max <= self.PID_Input_Limit_Min:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+            self.PID_Input_Limit_Min = 0
+            self.PID_Input_Limit_Max = 1 
+        ### Multilog_Sensor:
+        if not type(self.sensor) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Multilog_Sensor_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.sensor)}')
+            self.multilog_OnOff = False
+        ### read-Trigger Multilog:
+        if not type(self.M_device) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} read_trigger - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.M_device)}')
+            self.multilog_OnOff = False
+        ### PID Sample Zeit:
+        if not type(self.PID_Sample_Time) in [int] or not self.PID_Sample_Time >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} sample - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 500 - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Sample_Time}')
+            self.PID_Sample_Time = 500
+        ### Sende Eurotherm PID-Parameter zum Start:
+        if not type(self.PID_Write) == bool and not self.PID_Write in [0, 1]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} PID_Write - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Write}')
+            self.PID_Write = 0 
 
-
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Werte Dictionary:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         self.value_name = {'SWT': 0, 'IWT': 0, 'IWOp': 0, 'SWTPID': self.Soll, 'IWTPID': self.Ist}
-
-        ## Weitere:
-        self.EuRa_Aktiv     = False
-        self.Save_End_State = False
-        self.done_ones      = False
-        self.mode_aktiv     = False 
-        self.Rez_OP         = -1
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -223,7 +387,6 @@ class Eurotherm(QObject):
         self.Log_Text_PID_N15   = ['Input Werte überschreiten das Maximum von',                                                                                                                                             'Input values ​​exceed the maximum of']
         self.Log_Text_PID_N16   = ['Input Werte unterschreiten das Minimum von',                                                                                                                                            'Input values ​​fall below the minimum of']
         self.Log_Text_PID_N17   = ['Input Fehler: Input-Wert ist nicht von Typ Int oder Float! Variablen Typ:',                                                                                                             'Input error: Input value is not of type Int or Float! Variable type:']
-        Log_Text_PID_N18        = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
         self.Log_Text_PID_N19   = ['Auslesefehler bei Multilog-Dictionary!',                                                                                                                                                'Reading error in multilog dictionary!']
         self.Log_Text_PID_N20   = ['°C - tatsächlicher Wert war',                                                                                                                                                           '°C - tatsächlicher Wert war']
         Log_Text_PID_N21        = ['Multilog Verbindung wurde in Config als Abgestellt gewählt! Eine Nutzung der Werte-Herkunft mit VM, MV oder MM ist so nicht möglich! Nutzung von Default VV!',                          'Multilog connection was selected as disabled in config! Using the value origin with VM, MV or MM is not possible! Use of default VV!']
@@ -330,7 +493,7 @@ class Eurotherm(QObject):
             self.signal_PID.connect(self.PID.InOutPID)
             ## Timer:
             self.timer_PID = QTimer()                                              # Reaktionszeittimer (ruft die Geräte auf, liest aber nur unter bestimmten Bedingungen!)
-            self.timer_PID.setInterval(self.config['PID']['sample'])
+            self.timer_PID.setInterval(self.PID_Sample_Time)
             self.timer_PID.timeout.connect(self.PID_Update)
             self.timer_PID.start()
             ### PID-Timer Thread:
@@ -342,9 +505,6 @@ class Eurotherm(QObject):
         self.mult_data              = {}
         logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]}: {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_156_str[self.sprache]}')
         logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]}: {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max}{self.Log_Text_145_str[self.sprache]}')    
-        if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
-            logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
-            self.PID_Input_Error_Option = 'error' 
         if self.PID_Option[0] == 'M':
             logger.info(f'{Log_Text_PID_N8[self.sprache]} {self.sensor} {Log_Text_PID_N13[self.sprache]} {self.M_device} {Log_Text_PID_N10[self.sprache]}')
         if self.PID_Option[1] == 'M':
@@ -715,7 +875,7 @@ class Eurotherm(QObject):
         read = self.read_einzeln(self.read_max_leistung)
         if Read_menu:
             logger.info(f'{self.device_name} - {self.Log_Text_HO[self.sprache]} {read} {self.Log_Text_156_str[self.sprache]}')
-        if self.config['start']['sicherheit'] == True:
+        if self.Safety == True:
             max_pow = read
             return max_pow
         return ''
@@ -727,13 +887,13 @@ class Eurotherm(QObject):
         '''
         ### XP - proportional band
         self.serial.write("\x040000XP\x05".encode())
-        P = str(self.serial.readline().decode()[4:-2])
+        P = str(self.serial.readline().decode()[3:-2])
         ### TI - Integral time
         self.serial.write("\x040000TI\x05".encode())
-        I = str(self.serial.readline().decode()[4:-2])
+        I = str(self.serial.readline().decode()[3:-2])
         ### TD - Derivative time
         self.serial.write("\x040000TD\x05".encode())
-        D = str(self.serial.readline().decode()[4:-2])
+        D = str(self.serial.readline().decode()[3:-2])
         logger.info(f"{self.device_name} - {self.Log_Text_147_str[self.sprache]} {self.Log_Text_148_str[self.sprache]} {P.strip()}, {self.Log_Text_149_str[self.sprache]} {I.strip()}, {self.Log_Text_150_str[self.sprache]} {D.strip()} {extra_str}")
 
     ##########################################
@@ -798,7 +958,7 @@ class Eurotherm(QObject):
             logger.info(f"{self.device_name} - {self.Log_Text_146_str[self.sprache]} {min_s} {self.Log_Text_144_str[self.sprache]} {max_s} {self.Log_Text_145_str[self.sprache]}")
             ## PID-Regler Parameter:
             ### Schreiben der PID-Parameter wenn gewollt:
-            if self.config['start']['PID_Write']:
+            if self.PID_Write:
                 self.check_PID(f'({self.Log_Extra[self.sprache]})')
                 try:
                     P = round(float(str(self.config['PID-Device']['PB']).replace(',','.')),1)
@@ -821,16 +981,16 @@ class Eurotherm(QObject):
             logger.info(f"{self.device_name} - {self.Log_Text_151_str[self.sprache]} {stWort}")
             if stWort == '>0000' or stWort == '>8000':
                 ## Start-Modus setzen:
-                if self.config['start']["start_modus"] == 'Auto':
+                if self.startMode == 'Auto':
                     self.write_read_answer('SW>', '0000', self.write_Modus) 
                     logger.info(f"{self.device_name} - {self.Log_Text_152_str[self.sprache]}")
-                elif self.config['start']["start_modus"] == 'Manuel':
+                elif self.startMode == 'Manuel':
                     self.write_read_answer('SW>', '8000', self.write_Modus)
                     logger.info(f"{self.device_name} - {self.Log_Text_153_str[self.sprache]}")
             else:
                 logger.warning(f"{self.device_name} - {self.Log_Text_154_str[self.sprache]}")
             ## Änderung von HO:
-            if self.config['start']['sicherheit'] == False:
+            if self.Safety == False:
                 self.serial.write("\x040000HO\x05".encode())
                 HO_vorher = str(self.serial.readline().decode()[4:-2])
                 self.write_read_answer('HO', str(self.oGOp), self.write_max_leistung)

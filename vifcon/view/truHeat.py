@@ -119,10 +119,11 @@ class TruHeatWidget(QWidget):
         self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                                                                              'Incorrect type:']
         self.Log_Pfad_conf_9    = ['Die Obergrenze ist kleiner als die Untergrenze! Setze die Limits auf Default:',                                 'The upper limit is smaller than the lower limit! Set the limits to default:']
         self.Log_Pfad_conf_10   = ['zu',                                                                                                            'to']
-        self.Log_Pfad_conf_11   = ['Winkelgeschwindhigkeit',                                                                                        'Angular velocity']
+        self.Log_Pfad_conf_11   = ['Strom',                                                                                                         'Current']
         self.Log_Pfad_conf_12   = ['PID-Eingang Istwert',                                                                                           'PID input actual value']
-        self.Log_Pfad_conf_13   = ['Winkel',                                                                                                        'Angle']
+        self.Log_Pfad_conf_13   = ['Spannung',                                                                                                      'Voltage']
         self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',   'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
+        self.Log_Pfad_conf_15   = ['Leistung',                                                                                                      'Power']
         
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Zum Start:
@@ -315,7 +316,7 @@ class TruHeatWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGP)}')
             self.uGP = 0
         if self.oGP <= self.uGP:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_15[self.sprache]})')
             self.uGP = 0
             self.oGP = 1
         ### Strom-Limit:
@@ -326,7 +327,7 @@ class TruHeatWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGI)}')
             self.uGI = 0
         if self.oGI <= self.uGI:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
             self.uGI = 0
             self.oGI = 1
         ### Spannung-Limit:
@@ -337,12 +338,12 @@ class TruHeatWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGU)}')
             self.uGU = 0
         if self.oGU <= self.uGU:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_13[self.sprache]})')
             self.uGU = 0
             self.oGU = 1
         ### Messzeit:
-        if not type(self.messZeit) == int or not self.messZeit >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} readTime - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 2 - {self.Log_Pfad_conf_8[self.sprache]} {self.messZeit}')
+        if not type(self.messZeit) in [int, float] or not self.messZeit >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} readTime - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 2 - {self.Log_Pfad_conf_8[self.sprache]} {self.messZeit}')
             self.messZeit = 2
         ### Start-Leistung:
         if not type(self.startP) in [float, int] or not self.startP >= 0:
@@ -609,7 +610,8 @@ class TruHeatWidget(QWidget):
         self.RB_choise_Current.clicked.connect(self.BlassOutPU)
 
         ### Start-Modus:
-        self.Start()
+        if self.init: 
+            self.Start()
             
         ### Label:
         #### Geräte-Titel:
@@ -936,6 +938,14 @@ class TruHeatWidget(QWidget):
         ## Rezept-Timer
         self.RezTimer = QTimer()
         self.RezTimer.timeout.connect(self.Rezept)
+
+        #---------------------------------------
+        # Bei Init False sperren:
+        #---------------------------------------
+        if not self.init:
+            self.RB_choise_Voltage.setEnabled(False)
+            self.RB_choise_Pow.setEnabled(False)
+            self.RB_choise_Current.setEnabled(False)
 
         #---------------------------------------
         # Rezept-Anzeige Funktion aktivieren:
@@ -1320,7 +1330,7 @@ class TruHeatWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGP)}')
             self.uGP = 0
         if self.oGP <= self.uGP:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_15[self.sprache]})')
             self.uGP = 0
             self.oGP = 1
         ### Sollstrom:
@@ -1345,7 +1355,7 @@ class TruHeatWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGI)}')
             self.uGI = 0
         if self.oGI <= self.uGI:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
             self.uGI = 0
             self.oGI = 1
         ### Sollspannung:
@@ -1370,7 +1380,7 @@ class TruHeatWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGU)}')
             self.uGU = 0
         if self.oGU <= self.uGU:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_13[self.sprache]})')
             self.uGU = 0
             self.oGU = 1
         ### PID-Input-Output:
@@ -1494,6 +1504,7 @@ class TruHeatWidget(QWidget):
         '''
         if init_okay:
             menu.setIcon(QIcon("./vifcon/icons/p_Init_Okay.png"))
+            self.Start()
             self.init = True
         else:
             menu.setIcon(QIcon("./vifcon/icons/p_Init_nicht_Okay.png"))
