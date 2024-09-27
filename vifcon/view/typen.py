@@ -146,6 +146,45 @@ class Generator(QWidget, Cursor, PopUpWindow):
         self.Log_Text_185_str_1 = ['Skalierungsfaktor für Größe',                                                                                           'Scaling factor for size']
         self.Log_Text_185_str_2 = ['auf Null gesetzt, keine Anzeige im Plot.',                                                                              'set to zero, not displayed in plot.']
 
+        #---------------------------------------------------------
+        # Konfigurationskontrolle und Konfigurationsvariablen:
+        #---------------------------------------------------------
+        ''' Die Kontrolle beinhaltet folgendes:
+        1. Kontrolle des Schlüssels mit Default-Vergabe!
+        2. Kontrolle der Variable wegen dem Inhalt mit Default-Vergabe!
+        '''
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Einstellung für Log:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                              'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                 'Possible values:']
+        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                       'The following types are possible:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                      'Default is used:']
+        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                            'Error reading config during configuration:']
+        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                          '; Set to default:']
+        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                  'Reason for error:']
+        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                        'Please correct and re-read config before use!']
+        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                          'Incorrect input:']
+        
+        ### Legenden Position:
+        try: self.legend_pos         = self.legend_ops['legend_pos'].upper()
+        except Exception as e: 
+            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} legend|generator|legend_pos ({Typ[self.sprache]}) {self.Log_Pfad_conf_5[self.sprache]} SIDE')
+            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+            self.legend_pos = 'SIDE'
+        if not self.legend_pos in ['IN', 'OUT', 'SIDE']:
+            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} legend_pos ({Typ[self.sprache]}) - {self.Log_Pfad_conf_2[self.sprache]} [IN, OUT, SIDE] - {self.Log_Pfad_conf_3[self.sprache]} SIDE - {self.Log_Pfad_conf_8[self.sprache]} {self.legend_pos}')
+            self.legend_pos = 'SIDE'
+        ### Legenden Seite:
+        try: self.Side_Legend_position = self.legend_ops['side'].upper()
+        except Exception as e: 
+            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} legend|generator|side ({Typ[self.sprache]}) {self.Log_Pfad_conf_5[self.sprache]} RL')
+            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+            self.Side_Legend_position = 'RL'
+        if not self.Side_Legend_position in ['L', 'R', 'RL']:
+            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} side ({Typ[self.sprache]}) - {self.Log_Pfad_conf_2[self.sprache]} [L, R, RL] - {self.Log_Pfad_conf_3[self.sprache]} RL - {self.Log_Pfad_conf_8[self.sprache]} {self.Side_Legend_position}')
+            self.Side_Legend_position = 'RL'
+
         #---------------------------------------
         # Horizontaller Splitter:
         #---------------------------------------
@@ -175,7 +214,7 @@ class Generator(QWidget, Cursor, PopUpWindow):
         self.btn_AS = QPushButton(QIcon("./vifcon/icons/AutoScale.png"), '')     # Icon
         
         ## Graphen/Plot erstellen:
-        if legend_ops['legend_pos'].upper() == 'SIDE' and (legend_ops['side'] == 'rl' or legend_ops['side'] == 'l'):
+        if self.legend_pos == 'SIDE' and (self.Side_Legend_position == 'RL' or self.Side_Legend_position == 'L'):
             self.legend_achsen_Links_widget = Widget_VBox()
             self.splitter_row_one.splitter.addWidget(self.legend_achsen_Links_widget.widget)
 
@@ -188,7 +227,7 @@ class Generator(QWidget, Cursor, PopUpWindow):
         self.plot = PlotWidget(menu_dict, self.btn_AS, self.legend_ops, self.sprache, 'Generator', 't [s]', Achse_y1_str, Achse_y2_str)            
         self.splitter_row_one.splitter.addWidget(self.plot.plot_widget)
 
-        if legend_ops['legend_pos'].upper() == 'SIDE' and (legend_ops['side'] == 'rl' or legend_ops['side'] == 'r'):
+        if self.legend_pos == 'SIDE' and (self.Side_Legend_position == 'RL' or self.Side_Legend_position == 'R'):
             self.legend_achsen_Rechts_widget = Widget_VBox()
             self.splitter_row_one.splitter.addWidget(self.legend_achsen_Rechts_widget.widget)
 
@@ -236,10 +275,10 @@ class Generator(QWidget, Cursor, PopUpWindow):
     ##########################################
     def save_legend(self, Pfad):
         '''Speichere die Legende bei Side-Legend!'''
-        if self.legend_ops['side'] == 'rl' or self.legend_ops['side'] == 'l':
+        if self.Side_Legend_position == 'RL' or self.Side_Legend_position == 'L':
             pixmap_L = self.legend_achsen_Links_widget.widget.grab()
             pixmap_L.save(f"{Pfad.replace('.png', f'_{self.sichere_Bild_1_str[self.sprache]}.png')}")
-        if self.legend_ops['side'] == 'rl' or self.legend_ops['side'] == 'r':
+        if self.Side_Legend_position == 'RL' or self.Side_Legend_position == 'R':
             pixmap_R = self.legend_achsen_Rechts_widget.widget.grab()
             pixmap_R.save(f"{Pfad.replace('.png', f'_{self.sichere_Bild_2_str[self.sprache]}.png')}")
 
@@ -300,6 +339,45 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         self.Log_Text_185_str_1 = ['Skalierungsfaktor für Größe',                                                                                           'Scaling factor for size']
         self.Log_Text_185_str_2 = ['auf Null gesetzt, keine Anzeige im Plot.',                                                                              'set to zero, not displayed in plot.']
 
+        #---------------------------------------------------------
+        # Konfigurationskontrolle und Konfigurationsvariablen:
+        #---------------------------------------------------------
+        ''' Die Kontrolle beinhaltet folgendes:
+        1. Kontrolle des Schlüssels mit Default-Vergabe!
+        2. Kontrolle der Variable wegen dem Inhalt mit Default-Vergabe!
+        '''
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Einstellung für Log:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                              'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                 'Possible values:']
+        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                       'The following types are possible:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                      'Default is used:']
+        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                            'Error reading config during configuration:']
+        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                          '; Set to default:']
+        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                  'Reason for error:']
+        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                        'Please correct and re-read config before use!']
+        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                          'Incorrect input:']
+        
+        ### Legenden Position:
+        try: self.legend_pos         = self.legend_ops['legend_pos'].upper()
+        except Exception as e: 
+            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} legend|antrieb|legend_pos ({Typ[self.sprache]}) {self.Log_Pfad_conf_5[self.sprache]} SIDE')
+            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+            self.legend_pos = 'SIDE'
+        if not self.legend_pos in ['IN', 'OUT', 'SIDE']:
+            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} legend_pos ({Typ[self.sprache]}) - {self.Log_Pfad_conf_2[self.sprache]} [IN, OUT, SIDE] - {self.Log_Pfad_conf_3[self.sprache]} SIDE - {self.Log_Pfad_conf_8[self.sprache]} {self.legend_pos}')
+            self.legend_pos = 'SIDE'
+        ### Legenden Seite:
+        try: self.Side_Legend_position = self.legend_ops['side'].upper()
+        except Exception as e: 
+            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} legend|antrieb|side ({Typ[self.sprache]}) {self.Log_Pfad_conf_5[self.sprache]} RL')
+            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+            self.Side_Legend_position = 'RL'
+        if not self.Side_Legend_position in ['L', 'R', 'RL']:
+            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} side ({Typ[self.sprache]}) - {self.Log_Pfad_conf_2[self.sprache]} [L, R, RL] - {self.Log_Pfad_conf_3[self.sprache]} RL - {self.Log_Pfad_conf_8[self.sprache]} {self.Side_Legend_position}')
+            self.Side_Legend_position = 'RL'
+
         #---------------------------------------
         # Horizontaller Splitter:
         #---------------------------------------
@@ -329,7 +407,7 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         self.btn_AS = QPushButton(QIcon("./vifcon/icons/AutoScale.png"), '')     # Icon
 
         ## Graphen erstellen:
-        if legend_ops['legend_pos'].upper() == 'SIDE' and (legend_ops['side'] == 'rl' or legend_ops['side'] == 'l'):
+        if self.legend_pos == 'SIDE' and (self.Side_Legend_position == 'RL' or self.Side_Legend_position == 'L'):
             self.legend_achsen_Links_widget = Widget_VBox()
             self.splitter_row_one.splitter.addWidget(self.legend_achsen_Links_widget.widget)
 
@@ -342,7 +420,7 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         self.plot = PlotWidget(menu_dict, self.btn_AS, self.legend_ops, self.sprache, 'Antrieb', 't [s]', Achse_y1_str, Achse_y2_str)          
         self.splitter_row_one.splitter.addWidget(self.plot.plot_widget)
 
-        if legend_ops['legend_pos'].upper() == 'SIDE' and (legend_ops['side'] == 'rl' or legend_ops['side'] == 'r'):
+        if self.legend_pos == 'SIDE' and (self.Side_Legend_position == 'RL' or self.Side_Legend_position == 'L'):
             self.legend_achsen_Rechts_widget = Widget_VBox()
             self.splitter_row_one.splitter.addWidget(self.legend_achsen_Rechts_widget.widget)
 
@@ -406,10 +484,10 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         Args:
             Pfad (str): Speicherpfad        
         '''
-        if self.legend_ops['side'] == 'rl' or self.legend_ops['side'] == 'l':
+        if self.Side_Legend_position == 'RL' or self.Side_Legend_position == 'L':
             pixmap_L = self.legend_achsen_Links_widget.widget.grab()
             pixmap_L.save(f"{Pfad.replace('.png', f'_{self.sichere_Bild_1_str[self.sprache]}.png')}")
-        if self.legend_ops['side'] == 'rl' or self.legend_ops['side'] == 'r':
+        if self.Side_Legend_position == 'RL' or self.Side_Legend_position == 'R':
             pixmap_R = self.legend_achsen_Rechts_widget.widget.grab()
             pixmap_R.save(f"{Pfad.replace('.png', f'_{self.sichere_Bild_2_str[self.sprache]}.png')}") 
 

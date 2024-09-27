@@ -809,12 +809,12 @@ class NemoAchseLinWidget(QWidget):
             if legend_kurve in kurv_dict and not legend_kurve in ist_drin_list:
                 if kurv_dict[legend_kurve][0] == 'a1':
                     curve = self.typ_widget.plot.achse_1.plot([], pen=kurv_dict[legend_kurve][1], name=kurv_dict[legend_kurve][2])
-                    if self.typ_widget.legend_ops['legend_pos'].upper() == 'OUT':
+                    if self.typ_widget.legend_pos.upper() == 'OUT':
                         self.typ_widget.plot.legend.addItem(curve, curve.name())
                 elif kurv_dict[legend_kurve][0] == 'a2':
                     curve = pg.PlotCurveItem([], pen=kurv_dict[legend_kurve][1], name=kurv_dict[legend_kurve][2])
                     self.typ_widget.plot.achse_2.addItem(curve)
-                    if self.typ_widget.legend_ops['legend_pos'].upper() == 'OUT' or self.typ_widget.legend_ops['legend_pos'].upper() == 'IN':
+                    if self.typ_widget.legend_pos.upper() == 'OUT' or self.typ_widget.legend_pos.upper() == 'IN':
                         self.typ_widget.plot.legend.addItem(curve, curve.name())
                 self.kurven_dict.update({legend_kurve: curve})
                 ist_drin_list.append(legend_kurve)
@@ -824,15 +824,15 @@ class NemoAchseLinWidget(QWidget):
         ## Checkboxen erstellen:
         self.kurven_side_legend         = {}
 
-        if self.typ_widget.legend_ops['legend_pos'].upper() == 'SIDE':
+        if self.typ_widget.legend_pos.upper() == 'SIDE':
             for kurve in self.kurven_dict:
                 widget, side_checkbox = self.GUI_Legend_Side(kurv_dict[kurve][2].split(' - '), kurv_dict[kurve][1], kurv_dict[kurve][0])
-                if self.typ_widget.legend_ops['side'].upper() == 'RL':
+                if self.typ_widget.Side_Legend_position.upper() == 'RL':
                     if kurv_dict[kurve][0] == 'a1': self.typ_widget.legend_achsen_Links_widget.layout.addWidget(widget)
                     elif kurv_dict[kurve][0] == 'a2': self.typ_widget.legend_achsen_Rechts_widget.layout.addWidget(widget)
-                elif self.typ_widget.legend_ops['side'].upper() == 'R':
+                elif self.typ_widget.Side_Legend_position.upper() == 'R':
                     self.typ_widget.legend_achsen_Rechts_widget.layout.addWidget(widget)
-                elif self.typ_widget.legend_ops['side'].upper() == 'L':
+                elif self.typ_widget.Side_Legend_position.upper() == 'L':
                     self.typ_widget.legend_achsen_Links_widget.layout.addWidget(widget)
                 self.kurven_side_legend.update({side_checkbox: kurve})
 

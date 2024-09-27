@@ -89,12 +89,52 @@ class PlotWidget(QWidget):
         #---------------------------------------
         # Variablen:
         #---------------------------------------
-        self.legend_pos         = legend_ops['legend_pos'].upper()
         self.sprache            = sprache
         self.button_action_2    = btn_AS
 
         self.toggle_Grid        = True
         fontsize                = 12                                   # Integer, Schriftgröße Achsen
+
+        #---------------------------------------------------------
+        # Konfigurationskontrolle und Konfigurationsvariablen:
+        #---------------------------------------------------------
+        ''' Die Kontrolle beinhaltet folgendes:
+        1. Kontrolle des Schlüssels mit Default-Vergabe!
+        2. Kontrolle der Variable wegen dem Inhalt mit Default-Vergabe!
+        '''
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Einstellung für Log:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                              'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                 'Possible values:']
+        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                       'The following types are possible:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                      'Default is used:']
+        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                            'Error reading config during configuration:']
+        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                          '; Set to default:']
+        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                  'Reason for error:']
+        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                        'Please correct and re-read config before use!']
+        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                          'Incorrect input:']
+        self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                                                                              'Incorrect type:']
+        
+        ### Legenden Position:
+        try: self.legend_pos         = legend_ops['legend_pos'].upper()
+        except Exception as e: 
+            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} legend|{typ}|legend_pos {self.Log_Pfad_conf_5[self.sprache]} SIDE')
+            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+            self.legend_pos = 'SIDE'
+        if not self.legend_pos in ['IN', 'OUT', 'SIDE']:
+            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} legend_pos ({typ}) - {self.Log_Pfad_conf_2[self.sprache]} [IN, OUT, SIDE] - {self.Log_Pfad_conf_3[self.sprache]} SIDE - {self.Log_Pfad_conf_8[self.sprache]} {self.legend_pos}')
+            self.legend_pos = 'SIDE'
+
+        ### Legenden Spalten Anzahl:
+        try: self.legend_anz = legend_ops['legend_anz']
+        except Exception as e: 
+            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} legend|{typ}|legend_anz {self.Log_Pfad_conf_5[self.sprache]} 2')
+            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+            self.legend_anz = 2
+        if not type(self.legend_anz) == int or not self.legend_anz >= 1:
+            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} legend_anz ({typ}) - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (>=1) - {self.Log_Pfad_conf_3[self.sprache]} 2 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.legend_anz)}')
+            self.legend_anz = 2
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -139,7 +179,7 @@ class PlotWidget(QWidget):
             self.achse_1 = self.graph.plotItem 
 
         if not self.legend_pos == 'SIDE':
-            self.legend.setColumnCount(legend_ops['legend_anz'])                                # Anzahl der Legendenlabels in einer Reihe
+            self.legend.setColumnCount(self.legend_anz)                                # Anzahl der Legendenlabels in einer Reihe
 
         #---------------------------------------
         # Achse 1:

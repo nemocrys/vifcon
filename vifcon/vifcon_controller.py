@@ -579,12 +579,12 @@ class Controller(QObject):
         #### Konfigurationscheck Legendentyp:
         try: legend_generator = self.config["legend"]["generator"]
         except Exception as e:
-            legend_generator = {'legend_pos': 'Side', 'legend_anz': 2, 'side': 'l'} 
+            legend_generator = {'legend_pos': 'Side', 'legend_anz': 2, 'side': 'rl'} 
             logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} legend|generator {self.Log_Pfad_conf_5[self.sprache]} {legend_generator}')
             logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
         try: legend_antriebe = self.config["legend"]["antrieb"]
         except Exception as e:
-            legend_antriebe = {'legend_pos': 'Side', 'legend_anz': 2, 'side': 'l'} 
+            legend_antriebe = {'legend_pos': 'Side', 'legend_anz': 2, 'side': 'rl'} 
             logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} legend|generator {self.Log_Pfad_conf_5[self.sprache]} {legend_generator}')
             logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
 
