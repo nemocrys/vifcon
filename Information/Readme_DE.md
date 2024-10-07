@@ -32,9 +32,9 @@ Weiterhin kann eine Verbindung zu der Logging-Software Multilog aufgebaut werden
 
 Um VIFCON zu starten kann folgendes getan werden:
 
-1. Schnittstelle vorhanden und Init auf False in Config (Geräte müssen nicht angeschlossen sein)
-2. Gerät vorhanden, richtig konfiguriert und Init auf True in Config
-3. Test-Modus (argparser)
+1. Schnittstelle ist vorhanden und Init wurde auf False in der Config-Datei gesetzt (Geräte müssen nicht angeschlossen sein).
+2. Gerät ist vorhanden (angeschlossen), wurde richtig konfiguriert und Init wurde auf True in Config-Datei gesetzt.
+3. Test-Modus (argparser) wurde aktiviert. 
 
 Startmöglichkeiten durch argparser:
 ```
@@ -58,7 +58,7 @@ VIFCON wird durch den Aufruf von [vifcon_main.py](..\vifcon_main.py) gestartet.
 python .\vifcon_main.py
 ```
 
-Um sich  VIFCON ohne Geräte anzuschauen bzw. einen ersten Eindruck der Steuerung zu bekommen, kann das Template genutz werden. So wird Vi#IFCON wie folgt gestartet:
+Um sich  VIFCON ohne Geräte anzuschauen bzw. einen ersten Eindruck der Steuerung zu bekommen, kann das Template genutz werden. So wird VIFCON wie folgt gestartet (Startmöglichkeit 3):
 ```
 python .\vifcon_main.py -t -c ./Template/config_temp.yml
 ```
@@ -69,13 +69,18 @@ Die Konfiguration von VIFCON wird durch die Datei config.yml erreicht. Anhand de
 
 Neben dieser Datei sind auch ein Template für die Ablauf-Datei und die Log-Datei zu finden.
 
+In der Konfigurationsdatei gibt es Kommentare die die einzelnen Zeilen beschreiben und auch deren Default-Fehler nennen, sollte das Einlesen misslingen. Weitere Informationen zu der Konfigurationsdatei sind in der Datei [Config_DE.md](Config_DE.md) zu finden.
+
 ### Rezepte
 
-Um die Auslagerung der Rezepte zu nutzen, muss im Ordner **vifcon**, ein Ordner **rezepte** existieren. 
+Bei der Rezept-Funktion werden Sollwertvorgaben durch das Programm erstellt und durch die Config-Datei definiert. Um die Auslagerung der Rezepte in weitere Yaml-Datein zu nutzen, muss im Ordner **vifcon**, ein Ordner **rezepte** existieren. Mehr Informationen zu den Rezepten sind in der Datei [Rezepte_DE.md](Rezepte_DE.md) zu finden.
 
 ### Datein
 
-Wenn VIFCON gestartet wird, wird ein Messdatenordner mit dem Namen "measdata_date_#XX" erstellt. Je nach Konfiguration werden in diesem Ordner die Messdaten (csv), die Log-Datei (log), eine Ablauf-Datei (txt), die config-Datei (yml), die Plots (png) und die Legenden (png) gespeichert. Letztere wird nur gespeichert, wenn diese außerhalb des Plots ist. Im Test-Modus wird dieser Ordner nicht erstellt.
+Wenn VIFCON gestartet wird, wird ein Messdatenordner mit dem Namen "measdata_date_#XX" erstellt. Je nach Konfiguration werden in diesem Ordner die Messdaten (csv), die Log-Datei (log), eine Ablauf-Datei (txt), die config-Datei (yml), die GUI (png), die Plots (png) und die Legenden (png) gespeichert. Letztere wird nur gespeichert, wenn diese außerhalb des Plots ist. Im Test-Modus wird dieser Ordner nicht erstellt. Insgesamt können nur 99 Ordner je Tag erstellt werden, sonst wird ein Error ausgeworfen!
+
+**Beispiel:**    
+measdata_2024-09-27_#03
 
 ### GUI
 
@@ -84,7 +89,7 @@ Wenn alles richtig konfiguriert wurde startet VIFCON und die GUI wird angezeigt.
 <img src="../Bilder/GUI_S_De.png" alt="GUI" title='Grafische Oberfläche - Tab Steuerung' width=700/>
 <img src="../Bilder/GUI_M_De.png" alt="GUI" title='Grafische Oberfläche - Tab Monitoring' width=700/>
 
-Stand der GUI: 12.8.24
+Stand der GUI: 07.10.24
 
 ## Abhängigkeiten
 
@@ -94,6 +99,8 @@ VIFCON arbeitet mit Python >= 3.8 auf Windows, Linux und Raspberry Pi (RPi OS 64
     - PyQt5
     - pyqtgraph
     - sys
+    - randomcolor
+    - matplotlib
 
 2.  Dateien:
     - logging

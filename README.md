@@ -30,9 +30,9 @@ A connection to the Multilog logging software can also be established. This was 
 
 To start VIFCON, you can do the following:
 
-1. Interface available and Init set to False in Config (devices do not have to be connected)
-2. Device present, correctly configured and Init set to True in Config
-3. Test mode (argparser)
+1. Interface is present and Init was set to False in the config file (devices do not have to be connected).
+2. Device is present (connected), was correctly configured and Init was set to True in the config file.
+3. Test mode (argparser) was activated.
 
 Start options using argparser:
 ```
@@ -56,7 +56,7 @@ VIFCON is started by calling [vifcon_main.py](vifcon_main.py).
 python .\vifcon_main.py
 ```
 
-To view VIFCON without devices or to get a first impression of the control system, the template can be used. VIFCON is started as follows:
+To view VIFCON without devices or to get a first impression of the control system, the template can be used. VIFCON is started as follows (Start option 3):
 ```
 python .\vifcon_main.py -t -c ./Template/config_temp.yml
 ```
@@ -67,13 +67,18 @@ The configuration of VIFCON is achieved through the config.yml file. VIFCON is c
 
 In addition to this file, you will also find a template for the execution file and the log file.
 
+The configuration file contains comments that describe the individual lines and also state the default error if the reading fails. Further information about the configuration file can be found in the file [Config_En.md](Information/Config_En.md).
+
 ### Recipes
 
-To use the swapping of recipes, a folder **rezepte** must exist in the folder **vifcon**.
+With the recipe function, target values ​​are created by the program and defined by the config file. In order to use the outsourcing of the recipes to other Yaml files, a folder **recipes** must exist in the folder **vifcon**. More information about the recipes can be found in the file [Recipes_En.md](Information/Rezepte_En.md).
 
 ### Files
 
-When VIFCON is started, a measurement data folder with the name "measdata_date_#XX" is created. Depending on the configuration, the measurement data (csv), the log file (log), a process file (txt), the config file (yml), the plots (png) and the legends (png) are saved in this folder. The latter is only saved if it is outside the plot. In test mode, this folder is not created.
+When VIFCON is started, a measurement data folder with the name "measdata_date_#XX" is created. Depending on the configuration, the measurement data (csv), the log file (log), a process file (txt), the config file (yml), the GUI (png), the plots (png) and the legends (png) are saved in this folder. The latter is only saved if it is outside the plot. This folder is not created in test mode. A total of only 99 folders can be created per day, otherwise an error is thrown!
+
+**Example:**
+measdata_2024-09-27_#03
 
 ### GUI
 
@@ -82,7 +87,7 @@ If everything has been configured correctly, VIFCON starts and the GUI is displa
 <img src="Bilder/GUI_S_En.png" alt="GUI" title='Graphical interface - Tab Control' width=700/>
 <img src="Bilder/GUI_M_En.png" alt="GUI" title='Graphical interface - Tab Monitoring' width=700/>
 
-Status of the GUI: 12.8.24
+Status of the GUI: October 07, 2024
 
 ## Dependencies
 
@@ -92,6 +97,8 @@ VIFCON works with Python >= 3.8 on Windows, Linux and Raspberry Pi (RPi OS 64-bi
     - PyQt5
     - pyqtgraph
     - sys
+    - randomcolor
+    - matplotlib
 
 2.  Files:
     - logging

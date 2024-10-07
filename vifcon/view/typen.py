@@ -420,7 +420,7 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         self.plot = PlotWidget(menu_dict, self.btn_AS, self.legend_ops, self.sprache, 'Antrieb', 't [s]', Achse_y1_str, Achse_y2_str)          
         self.splitter_row_one.splitter.addWidget(self.plot.plot_widget)
 
-        if self.legend_pos == 'SIDE' and (self.Side_Legend_position == 'RL' or self.Side_Legend_position == 'L'):
+        if self.legend_pos == 'SIDE' and (self.Side_Legend_position == 'RL' or self.Side_Legend_position == 'R'):
             self.legend_achsen_Rechts_widget = Widget_VBox()
             self.splitter_row_one.splitter.addWidget(self.legend_achsen_Rechts_widget.widget)
 
