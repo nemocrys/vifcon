@@ -2,23 +2,19 @@
 
 Im folgenden werden die einzelnen Rezept-Segmente, der Aufbau und die Auslagerung dieser Rezepte gezeigt und erläutert.
 
-## Letzte Änderung
-
-Die Letzte Änderung dieser Beschreibung war: 13.8.2024
-
 ## Vorhandene Rezept-Segmente
 
 Die Rezepte hängen von den Geräten ab. Bis auf das Eurotherm Gerät sind alle Rezepte gleich aufgebaut. Somit gibt es folgende Arten von Rezept-Segmenten:
 
-s	-	Sprung  
-r	-	Rampe
+s	-	Sprung (Sollwertsprung)   
+r	-	Rampe (Reihe von Sollwertsprüngen)
 
 Eurotherm Temperatur spezifisch:  
 er	-	Eurotherm eigene Rampe  
 op	-	Leistungssprung in einem Temperaturrezept   
 opr	-	Leostungsrampe in einem Temperaturrezept  
 
-Für Eurotherm Leistung, PID-Modus, TruHeat, Nemo-Antriebe (Hub, Rotation) und PI-Achse sind nur s und r verfügbar!
+Für Eurotherm Leistung, PID-Modus, TruHeat, Nemo-Antriebe (Hub, Rotation) und PI-Achse sind nur s und r verfügbar! Bei dem PID-Modus des Eurotherms, können op und opr genutzt werden!
 
 ## Aufbau Allgemein:
 
@@ -86,7 +82,7 @@ Diese Rezepte werden aus der Config-Datei folgendermaßen aufgerufen:
 dat: Dateiname
 ```
 
-Das **dat** muss  enthalten sein, wenn Rezepte ausgelagert werden. Die Configuration der Rezepte kann nun auch über eine seperate Datei durchgeführt werden. Für diesen Zweck müssen drei Dinge eingehalten werden:
+Das **dat** muss  enthalten sein, wenn Rezepte ausgelagert werden. Die Configuration der Rezepte kann nun auch über eine seperate Datei durchgeführt werden. Für diesen Zweck müssen vier Dinge eingehalten werden:
 1. Schritt muss ***dat*** heißen!
 2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
 3. In der Datei dürfen nur die Schritte stehen!
@@ -196,3 +192,6 @@ Plot:
 
 Auch dieses Rezept ist im [Template der Configdatei](../Template/config_temp.yml) zu finden. Dieses Rezept ist z.B. für die PI-Achse. 
 
+## Letzte Änderung
+
+Die Letzte Änderung dieser Beschreibung war: 15.10.2024

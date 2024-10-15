@@ -25,7 +25,7 @@ logging:
   filename: vifcon.log                                                    # if not given, logs are printed in console   | Default bei Fehler: vifcon.log
   format: '%(asctime)s %(levelname)s %(name)s - %(message)s'              # Default bei Fehler: %(asctime)s %(levelname)s %(name)s - %(message)s
   filemode: w                                                             # w: overwrite old logfile, a: append to existing logfile | Default bei Fehler: w
-  encoding: 'utf-8'                                                       # only available for python >= 3.9, Bei Linux auskommentieren!
+  #encoding: 'utf-8'                                                       # only available for python >= 3.9, Bei Linux auskommentieren!
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 consol_Logging:
   # Ausgabe in der Konsole von Logging!

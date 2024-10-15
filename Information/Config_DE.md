@@ -9,10 +9,6 @@ Die Config-Datei ist eins der wesentlichsten Feature der VIFCON-Steuerung. Mit d
 
 und vieles mehr bereitgestellt. Die Config-Datei ist eine Yaml-Datei und wird durch die Python-Bibliothek pyYAML in VIFCON eingebunden. 
 
-## Letzte Änderung
-
-Die Letzte Änderung des [Templates](#erklärung-der-einzelnen-punkte) und dieser Beschreibung war: 26.9.2024
-
 ## Funktion
 
 Die Yaml-Datei wird von Python als Dictionary bzw. als Verschachtelung mehrerer Dictionaries angesehen. Ein Dictionary ist wie folgt aufgebaut:
@@ -560,3 +556,7 @@ if not type(self.init) == bool and not self.init in [0,1]:
 ```
 2024-09-26 16:38:00,026 WARNING vifcon.view.truHeat - TruHeat - Konfigurationsfehler im Element: init - Möglich sind: [True, False] - Default wird eingesetzt: False - Fehlerhafte Eingabe: Truea
 ```
+
+## Letzte Änderung
+
+Die Letzte Änderung des [Templates](#erklärung-der-einzelnen-punkte) und dieser Beschreibung war: 15.10.2024

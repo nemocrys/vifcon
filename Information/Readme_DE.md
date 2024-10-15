@@ -77,10 +77,13 @@ Bei der Rezept-Funktion werden Sollwertvorgaben durch das Programm erstellt und 
 
 ### Datein
 
-Wenn VIFCON gestartet wird, wird ein Messdatenordner mit dem Namen "measdata_date_#XX" erstellt. Je nach Konfiguration werden in diesem Ordner die Messdaten (csv), die Log-Datei (log), eine Ablauf-Datei (txt), die config-Datei (yml), die GUI (png), die Plots (png) und die Legenden (png) gespeichert. Letztere wird nur gespeichert, wenn diese außerhalb des Plots ist. Im Test-Modus wird dieser Ordner nicht erstellt. Insgesamt können nur 99 Ordner je Tag erstellt werden, sonst wird ein Error ausgeworfen!
+Wenn VIFCON gestartet wird, wird ein Messdatenordner (siehe Beispiel) mit dem Namen "measdata_date_#XX" erstellt. Je nach Konfiguration werden in diesem Ordner die Messdaten (csv), die Log-Datei (log), eine Ablauf-Datei (txt), die config-Datei (yml), die GUI (png), die Plots (png) und die Legenden (png) gespeichert. Letztere wird nur gespeichert, wenn diese außerhalb des Plots ist. Im Test-Modus wird dieser Ordner nicht erstellt. Insgesamt können nur 99 Ordner je Tag erstellt werden, sonst wird ein Error ausgeworfen!
 
 **Beispiel:**    
 measdata_2024-09-27_#03
+
+**Inhalt des Ordners:**   
+<img src="../Bilder/Datein.png" alt="Messordner Inhalt" title='Inhalt eines Messordners' width=200/>
 
 ### GUI
 
@@ -143,4 +146,4 @@ Im Ordner **[Information](../Information)** befinden sich weitere Dokumente, die
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 12.8.2024
+Die Letzte Änderung dieser Beschreibung war: 15.10.2024

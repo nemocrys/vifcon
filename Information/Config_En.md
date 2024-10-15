@@ -9,10 +9,6 @@ The config file is one of the most important features of the VIFCON control syst
 
 and much more are provided. The config file is a Yaml file and is integrated into VIFCON using the Python library pyYAML. 
 
-## Last change
-
-The last change to the [template](#explanation-of-the-individual-points) and this description was: September 26, 2024
-
 ## Function
 
 Python sees the Yaml file as a dictionary or a nesting of several dictionaries. A dictionary is structured as follows:
@@ -560,3 +556,7 @@ if not type(self.init) == bool and not self.init in [0,1]:
 ```
 2024-09-26 16:50:34,004 WARNING vifcon.view.truHeat - TruHeat - Configuration error in element: init - Possible values: [True, False] - Default is used: False - Incorrect input: Truea
 ```
+
+## Last change
+
+The last change to the [template](#explanation-of-the-individual-points) and this description was: October 15, 2024

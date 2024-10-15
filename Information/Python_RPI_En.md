@@ -15,8 +15,8 @@ Version number according to `pip list` in the Visual Studio Code terminal!
     - *Doc:* https://docs.python.org/3/library/argparse.html
 2. **PyQt5**
     - *install:* pip install PyQt5
-    - *version:* 5.15.7   
-    (PyQt5-sip 12.11.0)
+    - *version:* 5.15.11   
+    (PyQt5-Qt5 5.15.2, PyQt5_sip 12.15.0)
     - *Doc:* https://doc.qt.io/qtforpython-6/
 3. **pyqtgraph**
     - *install:* pip install pyqtgraph
@@ -28,7 +28,7 @@ Version number according to `pip list` in the Visual Studio Code terminal!
     - *Doc:* https://docs.python.org/3/library/logging.html
 5. **yaml**
     - *install:* pip install PyYAML
-    - *version:* 6.0
+    - *version:* 6.0.2
     - *Doc:* https://pyyaml.org/wiki/PyYAMLDocumentation
 6. **sys**
     - *install:* Comes with Python, no install
@@ -68,17 +68,25 @@ Version number according to `pip list` in the Visual Studio Code terminal!
     - *Doc:* https://docs.python.org/3/library/socket.html
 15. **pygame**
     - *install:* pip install pygame
-    - *version:* 2.5.2
+    - *version:* 2.6.1
     - *Doc:* 
         - https://www.pygame.org/docs/
         - https://www.pygame.org/news
         - https://pypi.org/project/pygame/  
 16. **pyModbusTCP**    
     - *install:* pip install pyModbusTCP
-    - *version:* 0.2.1
+    - *version:* 0.3.0
     - *Doc:* 
         - https://pymodbustcp.readthedocs.io/en/latest/
         - https://pypi.org/project/pyModbusTCP/ 
+17. **randomcolor**
+    - *install:* pip install randomcolor
+    - *version:* 0.4.4.6
+    - *Doc:* https://pypi.org/project/randomcolor/ 
+18. **matplotlib**
+    - *install:* pip install matplotlib
+    - *version:* 3.7.5
+    - *Doc:* https://matplotlib.org/
 
 ### Python standard libraries
 Link: https://docs.python.org/3/library/index.html
@@ -176,4 +184,4 @@ After all libraries have been installed, VIFCON works on the Raspberry Pi mentio
 
 ## Last change
 
-The last change of this description was: June 25, 2024
+The last change of this description was: October 15, 2024

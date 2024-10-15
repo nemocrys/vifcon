@@ -15,8 +15,8 @@ Versions Nummer nach `pip list` im Visual Studio Code -Terminal!
     - *Doku:* https://docs.python.org/3/library/argparse.html
 2. **PyQt5**
     - *install:* pip install PyQt5
-    - *Version:* 5.15.7   
-    (PyQt5-sip 12.11.0)
+    - *Version:* 5.15.11   
+    (PyQt5-Qt5 5.15.2, PyQt5_sip 12.15.0)
     - *Doku:* https://doc.qt.io/qtforpython-6/
 3. **pyqtgraph**
     - *install:* pip install pyqtgraph
@@ -28,7 +28,7 @@ Versions Nummer nach `pip list` im Visual Studio Code -Terminal!
     - *Doku:* https://docs.python.org/3/library/logging.html
 5. **yaml**
     - *install:* pip install PyYAML
-    - *Version:* 6.0
+    - *Version:* 6.0.2
     - *Doku:* https://pyyaml.org/wiki/PyYAMLDocumentation
 6. **sys**
     - *install:* Kommt mit Python, kein install
@@ -68,17 +68,25 @@ Versions Nummer nach `pip list` im Visual Studio Code -Terminal!
     - *Doku:* https://docs.python.org/3/library/socket.html
 15. **pygame**
     - *install:* pip install pygame
-    - *Version:* 2.5.2
+    - *Version:* 2.6.1
     - *Doku:* 
         - https://www.pygame.org/docs/
         - https://www.pygame.org/news
         - https://pypi.org/project/pygame/  
 16. **pyModbusTCP**    
     - *install:* pip install pyModbusTCP
-    - *Version:* 0.2.1
+    - *Version:* 0.3.0
     - *Doku:* 
         - https://pymodbustcp.readthedocs.io/en/latest/
         - https://pypi.org/project/pyModbusTCP/      
+17. **randomcolor**
+    - *install:* pip install randomcolor
+    - *Version:* 0.4.4.6
+    - *Doku:* https://pypi.org/project/randomcolor/ 
+18. **matplotlib**
+    - *install:* pip install matplotlib
+    - *Version:* 3.7.5
+    - *Doku:* https://matplotlib.org/
 
 ### Python Standard Bibliotheken
 Link: https://docs.python.org/3/library/index.html
@@ -176,4 +184,4 @@ Nach dem alle Bibliotheken installiert worden sind, funktioniert VIFCON auf dem 
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 25.6.2024
+Die Letzte Änderung dieser Beschreibung war: 15.10.2024

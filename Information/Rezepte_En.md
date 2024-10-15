@@ -2,23 +2,19 @@
 
 In the following, the individual recipe segments, the structure and the outsourcing of these recipes are shown and explained.
 
-## Last change
-
-The last change of this description was: August 13, 2024
-
 ## Existing recipe segments
 
 The recipes depend on the device. Except for the Eurotherm device, all recipes are structured the same. There are therefore the following types of recipe segments:
 
-s 	- jump  
-r 	- ramp
+s   - jump (setpoint jump)   
+r   - ramp (series of setpoint jumps)
 
 Eurotherm temperature specific:    
 er 	- Eurotherm's own ramp  
 op 	- jump in performance in a temperature recipe  
 opr - release ramp in a temperature recipe  
 
-For Eurotherm power, PID mode, TruHeat, Nemo drives (stroke, rotation) and PI axis only s and r are available!
+For Eurotherm power, PID mode, TruHeat, Nemo drives (stroke, rotation) and PI axis only s and r are available! In the PID mode of the Eurotherm, op and opr can be used!
 
 ```
 Jump:               SN: t ; ST  ; s
@@ -84,7 +80,7 @@ These recipes are called from the config file as follows:
 dat: file name
 ```
 
-The **dat** must be included. The configuration of the recipes can now also be carried out via a separate file. For this purpose, three things must be adhered to:
+The **dat** must be included. The configuration of the recipes can now also be carried out via a separate file. For this purpose, four things must be adhered to:
 1. step must be called 'dat'!
 2. Recipe file must be in the 'vifcon/rezepte/' folder!
 3. Only the steps can be in the file!
@@ -195,3 +191,6 @@ Plot:
 
 This recipe can also be found in the [template of the config file](../Template/config_temp.yml). This recipe is for the PI axis, for example.
 
+## Last change
+
+The last change of this description was: October 15, 2024

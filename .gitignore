@@ -164,6 +164,7 @@ measdata*
 *.yml
 *.log
 *.txt
+*.json
 
 # Ausnahmen:
 !/vifcon/Template/config_temp.yml

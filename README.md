@@ -75,10 +75,13 @@ With the recipe function, target values ​​are created by the program and def
 
 ### Files
 
-When VIFCON is started, a measurement data folder with the name "measdata_date_#XX" is created. Depending on the configuration, the measurement data (csv), the log file (log), a process file (txt), the config file (yml), the GUI (png), the plots (png) and the legends (png) are saved in this folder. The latter is only saved if it is outside the plot. This folder is not created in test mode. A total of only 99 folders can be created per day, otherwise an error is thrown!
+When VIFCON is started, a measurement data folder (see example) with the name "measdata_date_#XX" is created. Depending on the configuration, the measurement data (csv), the log file (log), a process file (txt), the config file (yml), the GUI (png), the plots (png) and the legends (png) are saved in this folder. The latter is only saved if it is outside the plot. This folder is not created in test mode. A total of only 99 folders can be created per day, otherwise an error is thrown!
 
 **Example:**
 measdata_2024-09-27_#03
+
+**Contents of the folder:**  
+<img src="Bilder/Datein.png" alt="Measurement folder content" title='Contents of a Messfolder' width=200/>
 
 ### GUI
 
@@ -142,4 +145,4 @@ The **[Information](Information)** folder contains further documents that descri
 
 ## Last change
 
-The last change of this description was: August 18, 2024
+The last change of this description was: October 15, 2024

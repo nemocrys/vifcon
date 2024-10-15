@@ -1742,7 +1742,7 @@ class EurothermWidget(QWidget):
             #//////////////////////////////////////////////////////////////
             # Erstelle fals gegeben, die Leistungs-Rezept-Kurve (Art: op)
             #//////////////////////////////////////////////////////////////
-            if 'op' in self.Art_list:
+            if 'op' in self.Art_list or 'opr' in self.Art_list:
                 faktor = self.skalFak['Op']
                 y = [a * faktor for a in RezOPValueList]
                 if anzeigeOp:
