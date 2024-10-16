@@ -107,6 +107,7 @@ class PlotWidget(QWidget):
         self.curve_dict         = {}
         self.kurven_side_legend = {}
         self.used_Color_list    = []
+        self.widget_dict        = {}
 
         self.Vergleichsmodus    = False    
         self.label_left         = ''
@@ -116,8 +117,6 @@ class PlotWidget(QWidget):
         #--------------------------------------- 
         # Sprach-Einstellung:
         #--------------------------------------- 
-        ## Save:
-        self.sichere_Bild_3_str = ['legend',                'legend']
 
         #---------------------------------------
         # Graph - Grundgerüst:
@@ -191,7 +190,7 @@ class PlotWidget(QWidget):
             updateViews()
             self.achse_1.vb.sigResized.connect(updateViews)
 
-    def update(self, label_titel, data, plot, legende):
+    def update(self, label_titel, data, plot, legende, file):
         # Leere Plot:
         if not self.Vergleichsmodus:
             plot.achse_1.clear()                # https://stackoverflow.com/questions/71186683/pyqtgraph-completely-clear-plotwidget
@@ -201,6 +200,7 @@ class PlotWidget(QWidget):
                 widget.setParent(None)          # https://stackoverflow.com/questions/5899826/pyqt-how-to-remove-a-widget
             self.widget_list = []
             self.curve_dict = {}
+            self.widget_dict = {}
             self.used_Color_list = []
         # Auto-Scale:
         plot.achse_1.autoRange()
@@ -244,10 +244,8 @@ class PlotWidget(QWidget):
         ] # 23 Farben - https://matplotlib.org/stable/gallery/color/named_colors.html
 
         # Farben-Liste:
-        for n in COLORS:
-            self.used_Color_list.append(matplotlib.colors.cnames[n])
-        self.used_Color_list.append(matplotlib.colors.cnames['red'])
-        self.used_Color_list.append(matplotlib.colors.cnames['black'])
+        if not matplotlib.colors.cnames['red'] in self.used_Color_list:   self.used_Color_list.append(matplotlib.colors.cnames['red'])
+        if not matplotlib.colors.cnames['black'] in self.used_Color_list: self.used_Color_list.append(matplotlib.colors.cnames['black'])
 
         # Achsen-Beschriftung 1 und Mögliche anzeigbare Messgrößen:
         ## Leeren:
@@ -335,12 +333,17 @@ class PlotWidget(QWidget):
                 y_str = data[n][0]
                 y = []
                 for wert in y_str:
-                    try:
-                        y.append(float(wert))
-                    except:
-                        y.append(m.nan)
+                    try:    y.append(float(wert))
+                    except: y.append(m.nan)
                 ### Kurve erstellen:
-                try: color = COLORS[self.anzK]
+                try: 
+                    color = matplotlib.colors.cnames[COLORS[self.anzK]]
+                    while 1: 
+                        self.anzK += 1
+                        if not color in self.used_Color_list:
+                            self.used_Color_list.append(color)
+                            break
+                        color = matplotlib.colors.cnames[COLORS[self.anzK]]
                 except:
                     while 1:
                         # Zufällige Farbe erzeugen, generieren und doppelte vermeiden:
@@ -365,6 +368,7 @@ class PlotWidget(QWidget):
                 widget, side_checkbox = self.GUI_Legend_Side([f'{n} {extra}', f'{size_Fo}<sub>{extra_label}</sub>'], pen_kurve, achse)
                 legende.layout.addWidget(widget)
                 self.widget_list.append(widget)
+                self.widget_dict.update({widget: [file, color, curve]})
                 self.kurven_side_legend.update({side_checkbox: curve})
                 self.anzK += 1
                 
@@ -456,7 +460,29 @@ class GUI(QMainWindow, Cursor):
         self.ordner             = ordner
 
         # Sprache Listen:
-        GUI_Titel   =   ['VIFCON-Messdaten Anzeige',        'VIFCON measurement data display']
+        GUI_Titel               = ['VIFCON-Messdaten Anzeige',                                              'VIFCON measurement data display']
+        self.Language_VM_1      = ['Bitte nun Kurven bzw. Dateien wählen!',                                 'Please select curves or files now!']
+        self.Language_VM_2      = ['Vergleichsmodus',                                                       'Comparison Mode']
+        self.Language_VM_3      = ['Vergleichsmodus inaktiv!',                                              'Compare mode inactive!']
+        self.Language_Knopf_1   = ['Plot Anpassen',                                                         'Adjust Plot']
+        self.Language_Knopf_2   = ['Speicher Plot',                                                         'Save Plot']
+        self.Language_Knopf_3   = ['Auto Scale',                                                            'Auto Scale']
+        self.Language_Knopf_4   = ['Skalierung anpassen',                                                   'Adjust scaling']
+        self.Language_AP_Lx     = ['x-Achse',                                                               'x-axis']
+        self.Language_AP_Ly1    = ['y-Achse links',                                                         'y-axis left']
+        self.Language_AP_Ly2    = ['y-Achse rechts',                                                        'y-axis right']
+        self.Language_AP_LMin   = ['Minimum',                                                               'Minimum']
+        self.Language_AP_LMax   = ['Maximum',                                                               'Maximum']
+        self.Language_AP_LCB    = ['Aktiv',                                                                 'Active']
+        self.Language_Label_1   = ['Inhalt Datei:',                                                         'File content:']
+        self.Language_Label_2   = ['Skal. Faktoren:',                                                       'Scaling Factors:']
+        self.Label_error_1      = ['Schon betätigt!',                                                       'Already activated!']
+        self.Label_error_2      = ['Fehler: Leeres Feld!',                                                  'Error: Empty field!']
+        self.Label_error_3      = ['Fehler: Kein Float!',                                                   'Error: No float!']
+        self.Label_error_4      = ['x: Limit Fehler (min größer max)!',                                     'x: Limit error (min greater than max)!']
+        self.Label_error_5      = ['y-Links: Limit Fehler (min größer max)!',                               'y-Links: Limit error (min greater than max)!']
+        self.Label_error_6      = ['y-Rechts: Limit Fehler (min größer max)!',                              'y-Right: Limit error (min greater than max)!']
+        self.Label_error_7      = ['Faktor konnte nicht in Float umgewandelt werden! Setze Faktor auf 1!',  'Factor could not be converted to float! Set factor to 1!']
 
         # Main Window:
         self.resize(1240, 900)                                                              # Breite und Höhe
@@ -542,7 +568,7 @@ class GUI(QMainWindow, Cursor):
                 reihe = 0
 
         ## Knöpfe-Bereichs-Auswahl im Plot:
-        update = QPushButton('Plot Anpassen')
+        update = QPushButton(self.Language_Knopf_1[self.sprache])
         update.setFixedWidth(100)
         update.clicked.connect(self.Update_Kurven_Bereich)
 
@@ -559,12 +585,12 @@ class GUI(QMainWindow, Cursor):
         self.LE_maxY2 = QLineEdit()
         self.LE_maxY2.setText('100')
 
-        labelX            = QLabel('x-Achse')
-        labelY1           = QLabel('y-Achse links')
-        labelY2           = QLabel('y-Achse rechts')
-        labelMin          = QLabel('Minimum')
-        labelMax          = QLabel('Maximum')
-        labelCB           = QLabel('Aktiv')
+        labelX            = QLabel(self.Language_AP_Lx[self.sprache])
+        labelY1           = QLabel(self.Language_AP_Ly1[self.sprache])
+        labelY2           = QLabel(self.Language_AP_Ly2[self.sprache])
+        labelMin          = QLabel(self.Language_AP_LMin[self.sprache])
+        labelMax          = QLabel(self.Language_AP_LMax[self.sprache])
+        labelCB           = QLabel(self.Language_AP_LCB[self.sprache])
         self.labelError_1 = QLabel('')
 
         self.CBX = QCheckBox()
@@ -597,12 +623,12 @@ class GUI(QMainWindow, Cursor):
         self.Bereich_Unten_Layout.addWidget(self.labelError_1,      reihe+4,    spalte,     1, 3)
 
         ## Save-Knopf:
-        save = QPushButton('Save Plot')
+        save = QPushButton(self.Language_Knopf_2[self.sprache])
         save.setFixedWidth(150)
         save.clicked.connect(self.Save_Kurven_Bereich)
 
         ## Auto Scale:
-        AS = QPushButton('Auto Scale')
+        AS = QPushButton(self.Language_Knopf_3[self.sprache])
         AS.setFixedWidth(150)
         AS.clicked.connect(self.Auto_Scale)
 
@@ -612,9 +638,9 @@ class GUI(QMainWindow, Cursor):
         self.Bereich_Unten_Layout.addWidget(AS,             row+1,        0)
 
         ## Check-Box:
-        self.cb_Vergleich = QCheckBox('Vergleichmodus')
+        self.cb_Vergleich = QCheckBox(self.Language_VM_2[self.sprache])
         self.cb_Vergleich.clicked.connect(self.Vergleich_Modus)
-        self.label_cb  = QLabel('Vergleichsmodus inaktiv!')
+        self.label_cb  = QLabel(self.Language_VM_3[self.sprache])
 
         ### Befestigen:
         colom = 3
@@ -622,7 +648,7 @@ class GUI(QMainWindow, Cursor):
         self.Bereich_Unten_Layout.addWidget(self.label_cb,               row+1,        colom, 1, 3)
 
         ## Skallierungsfaktoren:
-        skal_Fak = QPushButton('Skallieriung anpassen')
+        skal_Fak = QPushButton(self.Language_Knopf_4[self.sprache])
         skal_Fak.setFixedWidth(150)
         skal_Fak.clicked.connect(self.Pass_Kurven_An)
 
@@ -631,9 +657,9 @@ class GUI(QMainWindow, Cursor):
         self.Bereich_Unten_2.setLayout(self.Bereich_Unten_Layout_2)
 
         row = 0
-        self.Bereich_Unten_Layout_2.addWidget(skal_Fak,                        row,          0)
-        self.Bereich_Unten_Layout_2.addWidget(QLabel('Inhalt Datei:'),         row+1,        0)
-        self.Bereich_Unten_Layout_2.addWidget(QLabel('Skal. Faktoren:'),       row+2,        0)
+        self.Bereich_Unten_Layout_2.addWidget(skal_Fak,                                            row,          0)
+        self.Bereich_Unten_Layout_2.addWidget(QLabel(self.Language_Label_1[self.sprache]),         row+1,        0)
+        self.Bereich_Unten_Layout_2.addWidget(QLabel(self.Language_Label_2[self.sprache]),         row+2,        0)
 
         size_list = ['T [°C]', 'P [%]', 'P [kW]', 'I [A]', 'U [V]', 'f [kHz]', 'v [mm/s]', 'v [mm/min]', '\u03C9 [1/min]', 's [mm]', '\u03B1 [°]', 'xA [s.G.]', 'xG [s.G.]']
         self.size_dict = {}
@@ -729,7 +755,7 @@ class GUI(QMainWindow, Cursor):
                         werte_dict[variable][0].append(teil)
                         z += 1
 
-            self.plot.update(f"{file.replace('.csv', '').replace(f'{self.ordner}/','')} - {date}", werte_dict, self.plot, self.legend_achsen_Rechts_widget)
+            self.plot.update(f"{file.replace('.csv', '').replace(f'{self.ordner}/','')} - {date}", werte_dict, self.plot, self.legend_achsen_Rechts_widget, file)
 
             ## Skalierungsbereiche freischalten:
             for n in self.size_dict:
@@ -738,7 +764,20 @@ class GUI(QMainWindow, Cursor):
                         self.size_dict[n][1].setEnabled(True)     
                         break  
         else:
-            print('Schon betätigt!')
+            #print(self.plot.used_Color_list)
+            del_widget = []
+            for widget in self.plot.widget_dict:
+                if self.plot.widget_dict[widget][0] == file:
+                    widget.setParent(None) 
+                    self.plot.used_Color_list.remove(self.plot.widget_dict[widget][1])
+                    #print( self.plot.used_Color_list)
+                    self.plot.widget_dict[widget][2].clear()
+                    self.plot.anzK = 0
+                    del_widget.append(widget)
+            for n in del_widget:    
+                self.plot.widget_dict.pop(n)
+            button.setStyleSheet(self.default)
+            self.bereits_geklicket.remove(file)
 
     def Update_Kurven_Bereich(self):
         self.labelError_1.setText('')
@@ -761,27 +800,27 @@ class GUI(QMainWindow, Cursor):
         for n in var_List:
             if n == '':
                 var_List[i] = Default[i]
-                self.labelError_1.setText('Fehler: Leeres Feld!')
+                self.labelError_1.setText(self.Label_error_2[self.sprache])
             try:
                 var_List[i] = float(n)
             except:
                 var_List[i] = Default[i]
-                self.labelError_1.setText('Fehler: Kein Float!')
+                self.labelError_1.setText(self.Label_error_3[self.sprache])
             i += 1
 
         # Min-Max-Vergleich:
         if var_List[0] >= var_List[3]:
             var_List[0] = Default[0]
             var_List[3] = Default[3]
-            self.labelError_1.setText('x: Limit Fehler (min größer max)!')
+            self.labelError_1.setText(self.Label_error_4[self.sprache])
         if var_List[1] >= var_List[4]:
             var_List[1] = Default[1]
             var_List[4] = Default[4]
-            self.labelError_1.setText('y-Links: Limit Fehler (min größer max)!')
+            self.labelError_1.setText(self.Label_error_5[self.sprache])
         if var_List[2] >= var_List[5]:
             var_List[2] = Default[2]
             var_List[5] = Default[5]
-            self.labelError_1.setText('y-Rechts: Limit Fehler (min größer max)!')
+            self.labelError_1.setText(self.Label_error_6[self.sprache])
         
         # Setze Range:
         if self.CBX.isChecked():
@@ -832,7 +871,7 @@ class GUI(QMainWindow, Cursor):
                     except:
                         faktor = 1
                         self.size_dict[n][1].setText('1')
-                        print('Faktor konnte nicht in Float umgewandelt werden! Setze Faktor auf 1!')
+                        print(self.Label_error_7[self.sprache])
                     y_new = [a * faktor for a in self.plot.curve_dict[i][2]]
                     i.setData(self.plot.curve_dict[i][1], y_new)
                     faktor_label = f'{n}x{faktor}'
@@ -872,17 +911,20 @@ class GUI(QMainWindow, Cursor):
         self.plot.achse_2.clear()
         self.plot.achse_1.setLabel(axis = 'left', text= '', **{'font-size': f'{fontsize}pt'}) 
         self.plot.achse_1.getAxis('right').setLabel('', **{'color': right_color, 'font-size': f'{fontsize}pt'})
+        self.plot.used_Color_list = []
         self.bereits_geklicket = []
+        self.plot.widget_dict = {}
         for n in self.size_dict:
             self.size_dict[n][1].setEnabled(False)
         ## Checkbox:
         if self.cb_Vergleich.isChecked():
-            self.label_cb.setText('Bitte nun Kurven bzw. Datein wählen!')
+            self.label_cb.setText(self.Language_VM_1[self.sprache])
             self.plot.Vergleichsmodus = True
             ## Leere Plot:
-            self.plot.graph.setTitle('Vergleichsmodus')
+            self.plot.graph.setTitle(self.Language_VM_2[self.sprache])
+            self.plot.anzK = 0
         else:
-            self.label_cb.setText('Vergleichsmodus inaktiv!')
+            self.label_cb.setText(self.Language_VM_3[self.sprache])
             self.plot.Vergleichsmodus = False
             ## Leere Plot:
             self.plot.graph.setTitle('')
@@ -916,7 +958,7 @@ elif language == 'EN':  sprache = 1
 else:                   sprache = 1
 
 # Sprache Listen:
-
+Language_file_error =   ['Kein Messordner vorhanden!',  'No measurement folder available!']
 
 # Ordner Auslesen und Messdaten-csv speichern:
 error = False
@@ -924,7 +966,7 @@ path_O = f'./{args.folder}'
 if not os.path.exists(path_O):
     path_O = './Messdaten'
     if not os.path.exists(path_O):
-        print('Kein Messordner vorhanden!')
+        print(Language_file_error[sprache])
         error = True
 
 if not error:

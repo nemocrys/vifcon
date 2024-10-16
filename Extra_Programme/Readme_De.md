@@ -23,11 +23,12 @@ Das Programm gibt die Messdaten (CSV) von VIFCON wieder aus! Dabei werden bestim
 
 Die GUI besitzt zwei Modis. Einen Darstellungsmodus von einer Messdatein und einen Darstellungsmodus von mehrern Messdatein. 
 
-Um den Vergleichsmodus zu starten muss die Checkbox betätigt werden. Geschieht dies, wird der Plot geleert. Um den Vergleichsmodus neuzustarten oder zu beenden muss die Checkbox neugesetzt werden. Alle genutzten Datein werden gelb angezeigt.
+Um den Vergleichsmodus zu starten muss die Checkbox betätigt werden. Geschieht dies, wird der Plot geleert. Um den Vergleichsmodus neuzustarten oder zu beenden muss die Checkbox neugesetzt werden. Alle genutzten Datein werden gelb angezeigt. Wenn ein Knopf erneut betätigt wird, so werden die dazugehörigen Kurven aus dem Plot entfernt. Hier bei muss beachtet werden, dass dies noch etwas fehlerbehaftet ist und ab und an Probleme bereitet. Manschmal updatet der Plot nicht richtig, dafür muss kurz über den Plot mit der Maus gefahren werden!!
 
 Im Einzelmodus, wird immer nur eine Datei angezeigt. Beim Wechsel zu einer anderen, wird der Plot und die Legende geleert und das neue eingesetzt!
 
 Ein kleines Video zeigt die Nutzung - [Nutzung.mp4](./Video/Nutzung.mp4)
+
 
 ### Knöpfe und Bereiche
 
@@ -35,7 +36,7 @@ Ein kleines Video zeigt die Nutzung - [Nutzung.mp4](./Video/Nutzung.mp4)
 Mit dem Knopf `Skalierung anpassen` werden die y-Achsen angepasst von allen Größen. Dabei werden die Inhalte der freigegebenen Eingabefelder ausgelesen und die Kurven werden angepasst. 
 
 **Bereich 2 - Save und Auto Scale:**
-Mit `Save Plot` wird der aktuelle Plot gespeichert. Dabei wird ein Ordner mit dem Namen `Bilder` erstellt. Sobald der Vergleichsmodus aktiv ist, werden alle Bilder in einem Ordner `Vergleichsmodus` gespeichert, sonst in einem zur Datei passenden Ordner z.B. `PI-Achse_x_2024-07-01`.
+Mit `Speichere Plot` wird der aktuelle Plot gespeichert. Dabei wird ein Ordner mit dem Namen `Bilder` erstellt. Sobald der Vergleichsmodus aktiv ist, werden alle Bilder in einem Ordner `Vergleichsmodus` gespeichert, sonst in einem zur Datei passenden Ordner z.B. `PI-Achse_x_2024-07-01`.
 
 Beim `Auto Scale` wird der Plot angepasst. 
 
@@ -67,10 +68,17 @@ options:
                         Name of the folder in which the measurement data is located [optional, default='Messordner]
 ```
 
+## Programme
+
+1. messdata_Read.py
+  - beinhaltet die Sprach-Option und den Vergleichsmodus
+2. messdata_Read_ohne_VM.py
+  - alte Version: Ohne Vergleichsmodus und Sprach-Option
+
 ## Fehlende Punkte
 
-- Programm mit Englicher Sprache 
 - Optimierungen:
-    - Vergleichsmodus - Datei erneut drücken, entferne aus Plot
+    - Vergleichsmodus - Datei entfernen und y-Achse anpassen! 
+    - Neustart Vergleichsmodus: Kontrolle der y-Achse
     - Änderung des Plot-Titels, wenn gewollt
-    - Fehlermeldungen
+    - Fehlermeldungen auf GUI
