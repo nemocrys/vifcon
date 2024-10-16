@@ -1,8 +1,8 @@
-# Anzeige der VIFCON Messdaten
+# Display of the VIFCON measurement data
 
-Das Programm gibt die Messdaten (CSV) von VIFCON wieder aus! Dabei werden bestimmte Teile des VIFCON-Codes wieder verwendet. 
+The program outputs the measurement data (CSV) from VIFCON! Certain parts of the VIFCON code are reused.
 
-## Requierments/Bibliotheken
+## Requirements/Libraries
 
 - os
 - sys
@@ -15,47 +15,47 @@ Das Programm gibt die Messdaten (CSV) von VIFCON wieder aus! Dabei werden bestim
 
 ## GUI
 
-<img src="../Bilder/GUI_Extra_1_De.png" alt="Programm zum Anzeigen der Messdaten 1" title='Einzel-Modus' width=700/>
+<img src="../Bilder/GUI_Extra_1_De.png" alt="Program for displaying the measurement data 1" title='Single mode' width=700/>
 
-<img src="../Bilder/GUI_Extra_2_De.png" alt="Programm zum Anzeigen der Messdaten 2" title='Vergleich-Modus' width=700/>
+<img src="../Bilder/GUI_Extra_2_De.png" alt="Program for displaying the measurement data 2" title='Comparison mode' width=700/>
 
-## Nutzung
+## Usage
 
-Die GUI besitzt zwei Modis. Einen Darstellungsmodus von einer Messdatein und einen Darstellungsmodus von mehrern Messdatein. 
+The GUI has two modes. A display mode of one measurement file and a display mode of multiple measurement files.
 
-Um den Vergleichsmodus zu starten muss die Checkbox betätigt werden. Geschieht dies, wird der Plot geleert. Um den Vergleichsmodus neuzustarten oder zu beenden muss die Checkbox neugesetzt werden. Alle genutzten Datein werden gelb angezeigt.
+To start the comparison mode, the checkbox must be activated. If this happens, the plot is emptied. To restart or end the comparison mode, the checkbox must be reset. All files used are displayed in yellow.
 
-Im Einzelmodus, wird immer nur eine Datei angezeigt. Beim Wechsel zu einer anderen, wird der Plot und die Legende geleert und das neue eingesetzt!
+In single mode, only one file is displayed at a time. When switching to another, the plot and the legend are emptied and the new one inserted!
 
-Ein kleines Video zeigt die Nutzung - [Nutzung.mp4](./Video/Nutzung.mp4)
+A short video shows the use - [Nutzung.mp4](./Video/Nutzung.mp4)
 
-### Knöpfe und Bereiche
+### Buttons and areas
 
-**Bereich 1 - Skallierung:**   
-Mit dem Knopf `Skalierung anpassen` werden die y-Achsen angepasst von allen Größen. Dabei werden die Inhalte der freigegebenen Eingabefelder ausgelesen und die Kurven werden angepasst. 
+**Area 1 - Scaling:**    
+The `Skalierung anpassen` button adjusts the y-axes of all sizes. The contents of the enabled input fields are read and the curves are adjusted. 
 
-**Bereich 2 - Save und Auto Scale:**
-Mit `Save Plot` wird der aktuelle Plot gespeichert. Dabei wird ein Ordner mit dem Namen `Bilder` erstellt. Sobald der Vergleichsmodus aktiv ist, werden alle Bilder in einem Ordner `Vergleichsmodus` gespeichert, sonst in einem zur Datei passenden Ordner z.B. `PI-Achse_x_2024-07-01`.
+**Area 2 - Save and Auto Scale:**    
+`Save Plot` saves the current plot. This creates a folder called `Bilder`. As soon as the comparison mode is active, all images are saved in a folder called `Vergleichsmodus`, otherwise in a folder that matches the file, e.g. `PI-Achse_x_2024-07-01`.
 
-Beim `Auto Scale` wird der Plot angepasst. 
+With `Auto Scale` the plot is adjusted.
 
-**Bereich 3 - Plot Anpassen:**   
-In dem Bereich kann man die drei Achsen beleibt Skalieren. Durch die Checkbox kann die Skalierung ein- und ausgeschaltet werden. Mit `Plot Anpassen` werden die Achsen angepasst. Bei Werte Fehlern, wird eine Fehlernachricht unter den Eingabefeldern ausgegeben. 
+**Area 3 - Adjust plot:**    
+In this area you can scale the three axes as desired. The checkbox can be used to switch the scaling on and off. The axes are adjusted using `Plot Anpassen`. If there are any value errors, an error message is displayed under the input fields.
 
-**Bereich 4 - Vergleichsmodus:**   
-Hier ist die Checkbox mit einer kleinen Nachricht zu finden. 
+**Area 4 - Comparison mode:**    
+The checkbox with a small message can be found here.
 
-**Bereich 5 - Messdaten:**
-Die Knöpfe im oberen linken Bereich werden automatisch erstellt. Hierfür muss es einen Ordner `Messdaten` geben. Alle CSV Datein werden geprüft und als Knopf erstellt. Mit der Betätigung wird der Plot erstellt und die Datei ausgelesen.
+**Area 5 - Measurement data:**      
+The buttons in the upper left area are created automatically. For this, there must be a folder called `Messdaten`. All CSV files are checked and created as buttons. When clicked, the plot is created and the file is read out.
 
-**Bereich 6 - Plot:**   
-Neben Bereich 5 ist der Plot mit Legende und Cursor zu finden.
+**Area 6 - Plot:**    
+The plot with legend and cursor can be found next to area 5.
 
-Bei der Legende muss gewusst werden, dass die immer links ist. Über den Tooltip kann dann die dazugehörige Datei gesehen werden. 
+With the legend, you have to know that it is always on the left. The associated file can then be seen via the tooltip.
 
 ### Argparser
 
-Mit der Eingabe `python .\messdata_Read.py -f Messordner_1` kann der Datei-Ordner gewechselt werden!
+By entering `python .\messdata_Read.py -f Messordner_1` you can change the file folder!
 
 ```
 Evaluation or Sorting from the Logging-VIFCON-File.
@@ -67,10 +67,10 @@ options:
                         Name of the folder in which the measurement data is located [optional, default='Messordner]
 ```
 
-## Fehlende Punkte
+## Missing points
 
-- Readme und Programm mit Englicher Sprache 
-- Optimierungen:
-    - Vergleichsmodus - Datei erneut drücken, entferne aus Plot
-    - Änderung des Plot-Titels, wenn gewollt
-    - Fehlermeldungen
+- Program with English language
+- Optimizations:
+    - Compare mode - Press file again, remove from plot
+    - Change plot title if desired
+    - Error messages
