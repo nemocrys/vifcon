@@ -87,6 +87,11 @@ Versions Nummer nach `pip list` im Visual Studio Code -Terminal!
     - *install:* pip install matplotlib
     - *Version:* 3.7.5
     - *Doku:* https://matplotlib.org/
+19. **math**
+    - *install:* Kommt mit Python, kein install
+    - *Version:* Python standard library (nicht in Liste gefunden)
+    - *Doku:* https://docs.python.org/3/library/math.html
+
 
 ### Python Standard Bibliotheken
 Link: https://docs.python.org/3/library/index.html
