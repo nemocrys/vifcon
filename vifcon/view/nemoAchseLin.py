@@ -664,64 +664,29 @@ class NemoAchseLinWidget(QWidget):
 
         #### Label-Werte:
         W_spalte = 80
-        self.W1 = QWidget()
-        self.W1_layout = QGridLayout()
-        self.W1.setLayout(self.W1_layout)
-        self.W1_layout.addWidget(self.La_IstSpeed_text, 0 , 0)
-        self.W1_layout.addWidget(self.La_IstSpeed_wert, 0 , 1 , alignment=Qt.AlignLeft)
-        self.W1_layout.setContentsMargins(0,0,0,0)
-        self.W1_layout.setColumnMinimumWidth(0, W_spalte)
 
-        self.W2 = QWidget()
-        self.W2_layout = QGridLayout()
-        self.W2.setLayout(self.W2_layout)
-        self.W2_layout.addWidget(self.La_IstPos_text, 0 , 0)
-        self.W2_layout.addWidget(self.La_IstPos_wert, 0 , 1 , alignment=Qt.AlignLeft)
-        self.W2_layout.setContentsMargins(0,0,0,0)
-        self.W2_layout.setColumnMinimumWidth(0, W_spalte)
+        label_list      = [self.La_IstSpeed_text, self.La_SollSpeed_text, self.La_IstPos_text, self.La_IstPosOr_text, self.La_IstPID_text, self.La_SollPID_text]
+        label_unit_list = [self.La_IstSpeed_wert, self.La_SollSpeed_wert, self.La_IstPos_wert, self.La_IstPosOr_wert, self.La_IstPID_wert, self.La_SollPID_wert]
+        widget_list     = []
+        count = 0
 
-        self.W3 = QWidget()
-        self.W3_layout = QGridLayout()
-        self.W3.setLayout(self.W3_layout)
-        self.W3_layout.addWidget(self.La_IstPosOr_text, 0 , 0)
-        self.W3_layout.addWidget(self.La_IstPosOr_wert, 0 , 1 , alignment=Qt.AlignLeft)
-        self.W3_layout.setContentsMargins(0,0,0,0)
-        self.W3_layout.setColumnMinimumWidth(0, W_spalte)
-
-        self.W4 = QWidget()
-        self.W4_layout = QGridLayout()
-        self.W4.setLayout(self.W4_layout)
-        self.W4_layout.addWidget(self.La_SollSpeed_text, 0 , 0)
-        self.W4_layout.addWidget(self.La_SollSpeed_wert, 0 , 1 , alignment=Qt.AlignLeft)
-        self.W4_layout.setContentsMargins(0,0,0,0)
-        self.W4_layout.setColumnMinimumWidth(0, W_spalte)
-
-        self.W5 = QWidget()
-        self.W5_layout = QGridLayout()
-        self.W5.setLayout(self.W5_layout)
-        self.W5_layout.addWidget(self.La_IstPID_text, 0 , 0)
-        self.W5_layout.addWidget(self.La_IstPID_wert, 0 , 1 , alignment=Qt.AlignLeft)
-        self.W5_layout.setContentsMargins(0,0,0,0)
-        self.W5_layout.setColumnMinimumWidth(0, W_spalte)
-
-        self.W6 = QWidget()
-        self.W6_layout = QGridLayout()
-        self.W6.setLayout(self.W6_layout)
-        self.W6_layout.addWidget(self.La_SollPID_text, 0 , 0)
-        self.W6_layout.addWidget(self.La_SollPID_wert, 0 , 1 , alignment=Qt.AlignLeft)
-        self.W6_layout.setContentsMargins(0,0,0,0)
-        self.W6_layout.setColumnMinimumWidth(0, W_spalte)
-
+        for n in label_list:
+            W = QWidget()
+            W_layout = QGridLayout()
+            W.setLayout(W_layout)
+            W_layout.addWidget(n, 0 , 0)
+            W_layout.addWidget(label_unit_list[count], 0 , 1 , alignment=Qt.AlignLeft)
+            W_layout.setContentsMargins(0,0,0,0)
+            W_layout.setColumnMinimumWidth(0, W_spalte)
+            widget_list.append(W)
+            count += 1
+        
         self.V = QWidget()
         self.V_layout = QVBoxLayout()
         self.V.setLayout(self.V_layout)
         self.V_layout.setSpacing(0)
-        self.V_layout.addWidget(self.W1)
-        self.V_layout.addWidget(self.W4)
-        self.V_layout.addWidget(self.W2)
-        self.V_layout.addWidget(self.W3)
-        self.V_layout.addWidget(self.W5)
-        self.V_layout.addWidget(self.W6) 
+        for n in widget_list:
+            self.V_layout.addWidget(n)
         self.V_layout.setContentsMargins(0,0,0,0)
 
         #### First-Row:
