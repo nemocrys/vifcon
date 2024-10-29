@@ -34,6 +34,7 @@ from PyQt5.QtGui import (
 from PyQt5.QtCore import (
     Qt,
     QTimer,
+    pyqtSignal,
 
 )
 import pyqtgraph as pg
@@ -50,6 +51,8 @@ logger = logging.getLogger(__name__)
 
 
 class EurothermWidget(QWidget):
+    signal_Pop_up       = pyqtSignal()
+
     def __init__(self, sprache, Frame_Anzeige, widget, line_color, config, config_dat, neustart, multilog_aktiv, add_Ablauf_function, eurotherm = 'Eurotherm', typ = 'Generator', parent=None):
         """GUI widget of Eurotherm controller.
 
@@ -89,13 +92,17 @@ class EurothermWidget(QWidget):
         ## Aktuelle Messwerte:
         self.ak_value = {}
 
-        ## Weitere:
-        self.Rezept_Aktiv = False
-        self.op_Mod = False
-        self.data = {}
+        ## Signal:
+        self.signal_Pop_up.connect(self.Pop_Up_Start_Later)
 
-        # GUI:
+        ## GUI:
         self.color_Aktiv = self.typ_widget.color_On
+
+        ## Weitere:
+        self.Rezept_Aktiv   = False
+        self.op_Mod         = False
+        self.data           = {}
+        self.start_later    = False
 
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
@@ -461,7 +468,7 @@ class EurothermWidget(QWidget):
         logger.info(f"{self.device_name} - {self.Log_Text_41_str[self.sprache]}") if self.Safety else logger.info(f"{self.device_name} - {self.Log_Text_42_str[self.sprache]}")
         logger.info(f"{self.device_name} - {self.Log_Text_43_str[self.sprache]}") if self.startMode == 'Manuel' else logger.info(f"{self.device_name} - {self.Log_Text_44_str[self.sprache]}")
         if self.Safety and self.init: 
-            self.typ_widget.Message(self.puF_HO_str_2[self.sprache], 3, 450)  
+            self.start_later = True 
         logger.info(f'{self.device_name} - {self.Log_Text_245_str[self.sprache]}') if self.StartRampe == 'IST' else (logger.info(f'{self.device_name} - {self.Log_Text_246_str[self.sprache]}') if self.StartRampe == 'SOLL' else logger.warning(f'{self.device_name} - {self.Log_Text_247_str[self.sprache]}'))
         ## Limit-Bereiche:
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]}: {self.uGST} {self.Log_Text_LB_4[self.sprache]} {self.oGST}{self.T_unit_einzel[self.sprache]}')
@@ -911,9 +918,7 @@ class EurothermWidget(QWidget):
                 self.labelDict['IWT'].setStyleSheet(f"color: {self.color[0]}")  # Istwert PID
                 self.La_IstTemp_text.setStyleSheet(f"color: {self.color[0]}")  
                 self.labelDict['SWT'].setStyleSheet(f"color: {self.color[1]}")  # Sollwert PID
-                self.RB_choise_Temp.setStyleSheet(f"color: {self.color[1]}")
-
-            #self.typ_widget.Message(self.Pop_up_EndRot[self.sprache], 3, 500)             
+                self.RB_choise_Temp.setStyleSheet(f"color: {self.color[1]}")            
 
     ##########################################
     # Reaktion auf Butttons:
@@ -1204,6 +1209,12 @@ class EurothermWidget(QWidget):
             if kurve in self.grenzListDict:
                 self.grenzListDict[kurve].append(float(self.grenzValueDict[kurve]))
                 self.kurven_dict[kurve].setData(x_value, self.grenzListDict[kurve])
+        
+    def Pop_Up_Start_Later(self):
+        ## Pop-Up-Fenster verzögert zum Start starten:
+        if self.start_later:
+            self.start_later = False
+            self.typ_widget.Message(self.puF_HO_str_2[self.sprache], 3, 450) 
     
     ########################################## 
     # Reaktion auf Initialisierung:

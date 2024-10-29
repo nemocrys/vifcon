@@ -195,6 +195,8 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                     self.device_widget.BTN_Back(self.device.Limit_Stop_Text)
                     self.device.Limit_stop      = False
                     self.device.Limit_Stop_Text = -1
+                if ('TruHeat' in self.device_name or 'Eurotherm' in self.device_name) and self.device_widget.start_later:
+                    self.device_widget.signal_Pop_up.emit()
 
                 #---------------------------------------
                 # Lese Werte:

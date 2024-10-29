@@ -35,6 +35,7 @@ from PyQt5.QtCore import (
     Qt,
     QTimer,
     QSize,
+    pyqtSignal,
 
 )
 import pyqtgraph as pg
@@ -51,6 +52,8 @@ logger = logging.getLogger(__name__)
 
 
 class TruHeatWidget(QWidget):
+    signal_Pop_up       = pyqtSignal()
+
     def __init__(self, sprache, Frame_Anzeige, widget, line_color, config, config_dat, neustart, multilog_aktiv, add_Ablauf_function, truheat = 'TruHeat', typ = 'Generator', parent=None):
         """GUI widget of TruHeat generator.
 
@@ -84,6 +87,9 @@ class TruHeatWidget(QWidget):
         self.device_name                = truheat
         self.typ                        = typ
 
+        ## Signal:
+        self.signal_Pop_up.connect(self.Pop_Up_Start_Later)
+
         ## GUI:
         self.color_Aktiv = self.typ_widget.color_On
 
@@ -94,8 +100,9 @@ class TruHeatWidget(QWidget):
         self.ak_value = {}
 
         ## Weitere:
-        self.Rezept_Aktiv = False
-        self.data = {}
+        self.Rezept_Aktiv   = False
+        self.data           = {}
+        self.start_later    = False
 
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
@@ -540,8 +547,8 @@ class TruHeatWidget(QWidget):
         if self.neustart: logger.info(f"{self.device_name} - {self.Log_Text_30_str[self.sprache]}") 
         if self.messZeit == 0:  
             logger.warning(f"{self.device_name} - {self.Log_Text_31_str[self.sprache]}")  
-            logger.warning(f"{self.device_name} - {self.Log_Text_32_str[self.sprache]}")  
-            self.typ_widget.Message(self.Message_1[self.sprache], 3, 500)         # Aufruf einer Message-Box, Warnung
+            logger.warning(f"{self.device_name} - {self.Log_Text_32_str[self.sprache]}") 
+            self.start_later = True 
             print(self.ExPrint_str[self.sprache])
         if not self.init and not self.messZeit == 0: logger.warning(f"{self.device_name} - {self.Log_Text_33_str[self.sprache]}")
         logger.info(f"{self.device_name} - {self.Log_Text_34_str[self.sprache]}") if self.stMode == 'P' else (logger.info(f"{self.device_name} - {self.Log_Text_35_str[self.sprache]}") if self.stMode == 'U' else (logger.info(f"{self.device_name} - {self.Log_Text_36_str[self.sprache]}") if self.stMode == 'I' else logger.info(f"{self.device_name} - {self.Log_Text_37_str[self.sprache]}")))        
@@ -1484,6 +1491,12 @@ class TruHeatWidget(QWidget):
             if kurve in self.grenzListDict:
                 self.grenzListDict[kurve].append(float(self.grenzValueDict[kurve]))
                 self.kurven_dict[kurve].setData(x_value, self.grenzListDict[kurve])
+
+    def Pop_Up_Start_Later(self):
+        ## Pop-Up-Fenster verzögert zum Start starten:
+        if self.start_later:
+            self.start_later = False
+            self.typ_widget.Message(self.Message_1[self.sprache], 3, 500)         # Aufruf einer Message-Box, Warnung
         
     ##########################################
     # Reaktion auf Initialisierung:
