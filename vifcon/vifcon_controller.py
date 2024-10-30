@@ -837,29 +837,47 @@ class Controller(QObject):
                         write_port = 0
                     if not 'Nemo-Gase' in device_name:
                         #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-                        try: read_port = self.config["devices"][device_name]['multilog']['read_port']
+                        try: read_port_ist = self.config["devices"][device_name]['multilog']['read_port_ist']
                         except Exception as e:
-                            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} multilog|read_port ({device_name}) {self.Log_Pfad_conf_5_2[self.sprache]}')
+                            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} multilog|read_port_ist ({device_name}) {self.Log_Pfad_conf_5_2[self.sprache]}')
                             logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
-                            read_port = 0
-                        if not type(read_port) == int or not read_port >= 0:
-                            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} read_port ({device_name}) - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {read_port}')
-                            read_port = 0 
+                            read_port_ist = 0
+                        if not type(read_port_ist) == int or not read_port_ist >= 0:
+                            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} read_port_ist ({device_name}) - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {read_port_ist}')
+                            read_port_ist = 0 
                         #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-                        try: read_trigger = self.config['devices'][device_name]['multilog']['read_trigger']
+                        try: read_trigger_ist = self.config['devices'][device_name]['multilog']['read_trigger_ist']
                         except Exception as e:
-                            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} multilog|read_trigger ({device_name}) {self.Log_Pfad_conf_5_2[self.sprache]}')
+                            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} multilog|read_trigger_ist ({device_name}) {self.Log_Pfad_conf_5_2[self.sprache]}')
                             logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
-                            read_port = 0
+                            read_port_ist = 0
+                        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                        try: read_port_soll = self.config["devices"][device_name]['multilog']['read_port_soll']
+                        except Exception as e:
+                            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} multilog|read_port_soll ({device_name}) {self.Log_Pfad_conf_5_2[self.sprache]}')
+                            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+                            read_port_soll = 0
+                        if not type(read_port_soll) == int or not read_port_soll >= 0:
+                            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} read_port_soll ({device_name}) - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {read_port_soll}')
+                            read_port_soll = 0 
+                        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                        try: read_trigger_soll = self.config['devices'][device_name]['multilog']['read_trigger_soll']
+                        except Exception as e:
+                            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} multilog|read_trigger_soll ({device_name}) {self.Log_Pfad_conf_5_2[self.sprache]}')
+                            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+                            read_port_soll = 0
                     
                     ##### Ports setzen:
                     if not write_port == 0:
                         self.port_List_send.append(write_port)
                         self.trigger_send.update({device_name: write_trigger})
                     if not 'Nemo-Gase' in device_name:    
-                        if not read_port == 0:
-                            self.port_List_read.append(read_port)
-                            self.trigger_read.update({read_port: [read_trigger, device_name]})
+                        if not read_port_ist == 0:
+                            self.port_List_read.append(read_port_ist)
+                            self.trigger_read.update({read_port_ist: [read_trigger_ist, device_name]})
+                        if not read_port_soll == 0:
+                            self.port_List_read.append(read_port_soll)
+                            self.trigger_read.update({read_port_soll: [read_trigger_soll, device_name]})
         
         logger.debug(f"{self.mutexs}")
 

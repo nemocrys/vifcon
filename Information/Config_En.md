@@ -243,8 +243,10 @@ An example of the PI axis and the Eurotherm controller can be found at the begin
       multilog:
         write_trigger: Eurotherm1
         write_port: 50000
-        read_trigger: DAQ-6510
-        read_port: 56000
+        read_trigger_ist: IGA-6-23-adv
+        read_port_ist: 0              
+        read_trigger_soll: DAQ-6510   
+        read_port_soll: 0             
     ```
     - Trigger word depends on Multilog configuration
     - Port depends on Multilog configuration
@@ -252,6 +254,7 @@ An example of the PI axis and the Eurotherm controller can be found at the begin
     - Write: VIFCON sends values ​​to Multilog
     - Read: VIFCON gets values ​​from Multilog for the PID mode
       - read_trigger and read_Port are not available in Nemo-Gase!
+      - once for setpoint and once for actual value
 6. Limits
     - Every device has certain limits.
     - These limits are software limits, which means that sending values ​​only works up to these values.
@@ -295,6 +298,7 @@ An example of the PI axis and the Eurotherm controller can be found at the begin
         start_soll: 25
         umstell_wert: 0
         Multilog_Sensor_Ist: TE_1_K air 155 mm over crucible
+        Multilog_Sensor_Soll: TE_2_K air 155 mm over crucible
         Input_Limit_max: 1000
         Input_Limit_min: 0
         Input_Error_option: error
@@ -313,6 +317,7 @@ An example of the PI axis and the Eurotherm controller can be found at the begin
     - `umstell_wert` - Value that is saved in the write_value dictionary for the output size in normal mode when changing!
       - TruHeat has three of these variables
     - `Multilog_Sensor_Ist` - Multilog sensor from which the actual value input comes
+    - `Multilog_Sensor_Soll` - Multilog sensor from which the setpoint input comes
     - Limits input: `Input_Limit_max` and `Input_Limit_min`
     - `Input_Error_option` - If a reading error occurs, one of three options is set
       - max - Upper limit is set as input

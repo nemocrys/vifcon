@@ -103,8 +103,10 @@ devices:
     multilog:
       write_trigger: Eurotherm1                                           # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen) | Default bei Fehler: Port auf Null
       write_port: 50000                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
-      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
-      read_port: 56000                                                    # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_ist: DAQ-6510                                          # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 56000                                                # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
       Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
@@ -118,6 +120,9 @@ devices:
       start_soll: 25                                                      # Start-Sollwert [°C] | Default bei Fehler: 0
       umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) | Default bei Fehler: 0
       Multilog_Sensor_Ist: TE_1_K air 155 mm over crucible                # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 1000                                               # Maximum Limit für Input | Default bei Fehler: 1
@@ -140,7 +145,7 @@ devices:
                                                                           # Default bei Fehler: IWT, IWOp
     defaults:
       startTemp: 20                                                       # Temperatur bei Programmstart [°C] | Default bei Fehler: 0
-      startPow: 25                                                         # Leistung bei Programmstart [%] | Default bei Fehler: 0
+      startPow: 25                                                        # Leistung bei Programmstart [%] | Default bei Fehler: 0
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen ; Sollwert (°C/%) (Rampe: Endwert) ; Art der Rampe ; Abstand der Sprünge in s (r) | Sollwert Ausgangsleistung (op, opr) - IST bedeutet nur Wechsel zu Manuel-Mode ; Schritte in %/s (opr) ; Start der Rampe (opr)
                                                                           # Art der Rampe: s - Sprung, r - Rampe, er - Eurotherm-Rampe, op - Leistungssprung in einem Temperaturrezept, opr - Leistungsrampe in einem Temperaturrezept
                                                                           # Bei einem Leistungsrezept werden nur s und r genutzt!
@@ -201,8 +206,10 @@ devices:
     multilog:
       write_trigger: Vifcon_generator                                     # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen) | Default bei Fehler: Port auf Null                                     
       write_port: 53000                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
-      read_trigger: IGA-6-23-adv                                          # Hole von Multilog: Gerätebezeichnung aus Multilog | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
-      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
       Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog 
@@ -218,6 +225,9 @@ devices:
       umstell_wert_I: 2,5                                                 # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (I-Wert) | Default bei Fehler: 0
       umstell_wert_U: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (U-Wert) | Default bei Fehler: 0
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -293,9 +303,11 @@ devices:
     multilog:
       write_trigger: Pi1                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi | Default bei Fehler: Port auf Null
       write_port: 51301                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
-      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
-      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
-    PID:                                                                  # Erstellung eines PID-Reglers
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+   PID:                                                                   # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
       Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
@@ -308,6 +320,9 @@ devices:
       start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
       umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -391,8 +406,10 @@ devices:
     multilog:
       write_trigger: Pi2                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi | Default bei Fehler: Port auf Null
       write_port: 51302                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
-      read_trigger: Series-600                                            # Hole von Multilog: Gerätebezeichnung aus Multilog | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
-      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_ist: Series-600                                        # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
       Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
@@ -406,6 +423,9 @@ devices:
       start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
       umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
       Multilog_Sensor_Ist: Pyro_h1                                        # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -488,8 +508,10 @@ devices:
     multilog:
       write_trigger: pi3                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi | Default bei Fehler: Port auf Null
       write_port: 54629                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
-      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
-      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
       Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
@@ -505,6 +527,9 @@ devices:
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
       Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
       Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
@@ -516,7 +541,7 @@ devices:
       mvtime: 100                                                         # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV) | Default bei Fehler: 25
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3  
     limits:
-      maxPos: 10                                                           # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
+      maxPos: 10                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
       minPos: -10                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
       maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s] | Default bei Fehler: 1
       minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s] | Default bei Fehler: -1
@@ -585,8 +610,10 @@ devices:
     multilog:
       write_trigger: pi4                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi | Default bei Fehler: Port auf Null
       write_port: 54630                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
-      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
-      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
       Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
@@ -600,6 +627,9 @@ devices:
       start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
       umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -681,8 +711,10 @@ devices:
     multilog:
       write_trigger: hub1                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Hub | Default bei Fehler: Port auf Null
       write_port: 54627                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
-      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog | Default bei Fehler: Mulitlog-Link ausgeschaltet! Port auf Null!
-      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
       Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
@@ -696,6 +728,9 @@ devices:
       start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
       umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -786,8 +821,10 @@ devices:
     multilog:
       write_trigger: Rot1                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Rot | Default bei Fehler: Port auf Null
       write_port: 51201                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
-      read_trigger: IGA-6-23-adv                                          # Hole von Multilog: Gerätebezeichnung aus Multilog | Default bei Fehler: Mulitlog-Link ausgeschaltet! Port auf Null!
-      read_port: 56000                                                    # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
       Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
@@ -801,6 +838,9 @@ devices:
       start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
       umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -888,8 +928,10 @@ devices:
     multilog:
       write_trigger: hub2                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Hub | Default bei Fehler: Port auf Null
       write_port: 54629                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
-      read_trigger: DAQ-6510                                              # Hole von Multilog: Gerätebezeichnung aus Multilog | Default bei Fehler: Mulitlog-Link ausgeschaltet! Port auf Null!
-      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
       Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
@@ -903,6 +945,9 @@ devices:
       start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
       umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -988,9 +1033,11 @@ devices:
     multilog:
       write_trigger: Rot1                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Rot | Default bei Fehler: Port auf Null
       write_port: 51201                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
-      read_trigger: IGA-6-23-adv                                          # Hole von Multilog: Gerätebezeichnung aus Multilog | Default bei Fehler: Mulitlog-Link ausgeschaltet! Port auf Null
-      read_port: 0                                                        # Hole von Multilog. Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
-    PID:                                                                  # Erstellung eines PID-Reglers
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
       Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
@@ -1003,6 +1050,9 @@ devices:
       start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
       umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1

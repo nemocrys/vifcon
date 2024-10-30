@@ -243,8 +243,10 @@ Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. 
       multilog:
         write_trigger: Eurotherm1
         write_port: 50000
-        read_trigger: DAQ-6510
-        read_port: 56000
+        read_trigger_ist: IGA-6-23-adv
+        read_port_ist: 0              
+        read_trigger_soll: DAQ-6510   
+        read_port_soll: 0             
     ```
     - Trigger-Wort hängt von Multilog Konfiguration ab
     - Port hängt von Multilog Konfiguration ab
@@ -252,6 +254,7 @@ Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. 
     - Write: VIFCON sendet Werte an Multilog
     - Read: VIFCON holt sich Werte von Multilog für den PID-Modus
       - read_trigger und read_Port sind bei Nemo-Gase nicht vorhanden!
+      - einmal für Sollwert und einmal für Istwert
 6. Limits
     - Jedes Gerät hat bestimmte Limits.
     - Diese Limits sind Software-Limits, wodurch das Senden von Werten nur bis zu diesen Werten funktioniert.
@@ -295,6 +298,7 @@ Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. 
         start_soll: 25
         umstell_wert: 0
         Multilog_Sensor_Ist: TE_1_K air 155 mm over crucible
+        Multilog_Sensor_Soll: TE_2_K air 155 mm over crucible
         Input_Limit_max: 1000
         Input_Limit_min: 0
         Input_Error_option: error
@@ -313,6 +317,7 @@ Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. 
     - `umstell_wert` - Wert der bei Wechsel im write_value Dictionary für die Output-Größe im Normalen Modus gespeichert wird!
       - bei TruHeat gibt es drei dieser Variablen
     - `Multilog_Sensor_Ist` - Multilog-Sensor von dem der Istwert-Input kommt
+    - `Multilog_Sensor_Soll` - Multilog-Sensor von dem der Sollwert-Input kommt
     - Limits-Input: `Input_Limit_max` und `Input_Limit_min`
     - `Input_Error_option` - Bei einem Auslesefehler wird hierbei eine von drei Möglichkeiten eingestellt 
       - max - Oberes Limit wird als Input gesetzt

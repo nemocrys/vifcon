@@ -279,18 +279,32 @@ class TruHeat(QObject):
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.PID_Input_Error_Option = 'error'
         #//////////////////////////////////////////////////////////////////////
-        try: self.M_device               = self.config['multilog']['read_trigger'] 
+        try: self.M_device_ist           = self.config['multilog']['read_trigger_ist'] 
         except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|read_trigger {self.Log_Pfad_conf_5_3[self.sprache]}')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|read_trigger_ist {self.Log_Pfad_conf_5_3[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.M_device = ''
+            self.M_device_ist = ''
             self.multilog_OnOff = False
         #//////////////////////////////////////////////////////////////////////
-        try: self.sensor                 = self.config['PID']['Multilog_Sensor_Ist']
+        try: self.M_device_soll          = self.config['multilog']['read_trigger_soll'] 
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|read_trigger_soll {self.Log_Pfad_conf_5_3[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.M_device_soll = ''
+            self.multilog_OnOff = False
+        #//////////////////////////////////////////////////////////////////////
+        try: self.sensor_ist             = self.config['PID']['Multilog_Sensor_Ist']
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Multilog_Sensor_Ist {self.Log_Pfad_conf_5_3[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.sensor = ''
+            self.sensor_ist = ''
+            self.multilog_OnOff = False
+        #//////////////////////////////////////////////////////////////////////
+        try: self.sensor_soll             = self.config['PID']['Multilog_Sensor_Soll']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Multilog_Sensor_Soll {self.Log_Pfad_conf_5_3[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.sensor_soll = ''
             self.multilog_OnOff = False
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -380,13 +394,21 @@ class TruHeat(QObject):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
             self.PID_Input_Limit_Min = 0
             self.PID_Input_Limit_Max = 1
-        ### Multilog_Sensor:
-        if not type(self.sensor) == str:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Multilog_Sensor_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.sensor)}')
+        ### Multilog_Sensor Ist:
+        if not type(self.sensor_ist) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Multilog_Sensor_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.sensor_ist)}')
             self.multilog_OnOff = False
-        ### read-Trigger Multilog:
-        if not type(self.M_device) == str:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} read_trigger - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.M_device)}')
+        ### Multilog_Sensor Soll:
+        if not type(self.sensor_soll) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Multilog_Sensor_Soll - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.sensor_soll)}')
+            self.multilog_OnOff = False
+        ### read-Trigger Multilog Ist:
+        if not type(self.M_device_ist) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} read_trigger_ist - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.M_device_ist)}')
+            self.multilog_OnOff = False
+        ### read-Trigger Multilog Soll:
+        if not type(self.M_device_soll) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} read_trigger_soll - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.M_device_soll)}')
             self.multilog_OnOff = False
         ### Adresse:
         if not type(self.adress) == str:
@@ -610,9 +632,9 @@ class TruHeat(QObject):
         logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]}: {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {unit}')
         logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]}: {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')   
         if self.PID_Option[0] == 'M':
-            logger.info(f'{Log_Text_PID_N8[self.sprache]} {self.sensor} {Log_Text_PID_N13[self.sprache]} {self.M_device} {Log_Text_PID_N10[self.sprache]}')
+            logger.info(f'{Log_Text_PID_N8[self.sprache]} {self.sensor_ist} {Log_Text_PID_N13[self.sprache]} {self.M_device_ist} {Log_Text_PID_N10[self.sprache]}')
         if self.PID_Option[1] == 'M':
-            logger.info(f'{Log_Text_PID_N9[self.sprache]} ... {Log_Text_PID_N13[self.sprache]} ... {Log_Text_PID_N10[self.sprache]}')
+            logger.info(f'{Log_Text_PID_N9[self.sprache]} {self.sensor_soll} {Log_Text_PID_N13[self.sprache]} {self.M_device_soll} {Log_Text_PID_N10[self.sprache]}')
         self.PID_Ist_Last = self.Ist
 
     ##########################################
@@ -663,12 +685,10 @@ class TruHeat(QObject):
             ### Multilog:
             elif self.PID_Option[0] == 'M':
                 try:
-                    if self.sensor.lower() == 'no sensor':
-                        self.Ist = self.mult_data[self.M_device]
-                    else:
-                        self.Ist = self.mult_data[self.M_device][self.sensor]
+                    if self.sensor_ist.lower() == 'no sensor':  self.Ist = self.mult_data[self.M_device_ist]
+                    else:                                       self.Ist = self.mult_data[self.M_device_ist][self.sensor_ist]
                 except Exception as e:
-                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N19[self.sprache]}")
+                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N19[self.sprache]} ({self.M_device_ist})")
                     logger.exception(f"{self.device_name} - {self.Log_Text_PID_N12[self.sprache]}")
             ### Istwert Filter:
             error_Input = False
@@ -712,9 +732,14 @@ class TruHeat(QObject):
             ### VIFCON:
             if self.PID_Option[1] == 'V':
                 self.Soll = write_value['PID-Sollwert']
-            ### MUltilog:
+            ### Multilog:
             elif self.PID_Option[1] == 'M':
-                print(['Noch nicht Vorhanden!', 'Not available yet!'][self.sprache])
+                try:
+                    if self.sensor_soll.lower() == 'no sensor':     self.Soll = self.mult_data[self.M_device_soll]
+                    else:                                           self.Soll = self.mult_data[self.M_device_soll][self.sensor_soll] 
+                except Exception as e:
+                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N19[self.sprache]} ({self.M_device_soll})") 
+                    logger.exception(f"{self.device_name} - {self.Log_Text_PID_N12[self.sprache]}")
             #---------------------------------------------    
             ## Schreibe Werte:
             #---------------------------------------------
