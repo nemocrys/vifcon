@@ -237,7 +237,7 @@ class Multilog(QObject):
             received = received.decode("utf-8")
             data = json.loads(received)
             logger.debug(f'{self.Log_Text_186_str[self.sprache]} - {self.Log_Text_MD_1[self.sprache]} {data} {self.Log_Text_MD_2[self.sprache]} {trigger_Device[1]}')
-            self.device_schnitt[trigger_Device[1]].mult_data = data
+            self.device_schnitt[trigger_Device[1]].mult_data.update(data)
         except Exception as e:
             logger.exception(f'{self.Log_Text_186_str[self.sprache]} - {self.Log_Text_201_str[self.sprache]} - {self.Log_Text_rM[self.sprache]}{c}, {trigger_Device}')
             

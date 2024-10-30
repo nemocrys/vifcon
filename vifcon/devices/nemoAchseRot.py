@@ -628,10 +628,10 @@ class NemoAchseRot(QObject):
         if not self.multilog_OnOff and self.PID_Option in ['MV', 'MM', 'VM']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N21[sprache]}')
             self.PID_Option = 'VV'
-        elif self.PID_Option in ['MM', 'VM']:
-            logger.warning(f'{self.device_name} - {Log_Text_PID_N1[sprache]} {self.PID_Option} {Log_Text_PID_N2_1[self.sprache]}')
-            self.PID_Option = 'VV'
-        elif self.PID_Option not in ['MV', 'VV']:
+        # elif self.PID_Option in ['MM', 'VM']:
+        #     logger.warning(f'{self.device_name} - {Log_Text_PID_N1[sprache]} {self.PID_Option} {Log_Text_PID_N2_1[self.sprache]}')
+        #     self.PID_Option = 'VV'
+        elif self.PID_Option not in ['MV', 'VV', 'MM', 'VM']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N1[sprache]} {self.PID_Option} {Log_Text_PID_N2[self.sprache]}')
             self.PID_Option = 'VV'
         ### Herkunft Istwert:
