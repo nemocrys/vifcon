@@ -59,7 +59,15 @@ class NemoGase:
         self.typ = typ
     
         ## Werte Dictionary:
-        self.value_name = {'MFC24': 0, 'MFC25': 0, 'MFC26': 0,  'MFC27': 0, 'DM21': 0, 'PP21': 0, 'PP22': 0, 'PP21Status': 0, 'PP22Status': 0, 'PP22I': 0}
+        self.value_name = {'MFC24': 0, 'MFC25': 0, 'MFC26': 0, 'MFC27': 0, 'DM21': 0, 'PP21': 0, 'PP22': 0, 'PP21Status': 0, 'PP22Status': 0, 'PP22I': 0, 
+                           'PP22mPtS': 0, 'MV1_I': 0, 'MV1_S': 0, 'MV1_VS': 0, 'MV1_SG': 0, 'MV1Status': 0,
+                           'MFC24_S': 0, 'MFC24_FM': 0, 'MFC24Status': 0, 
+                           'MFC25_S': 0, 'MFC25_FM': 0, 'MFC25Status': 0,
+                           'MFC26_S': 0, 'MFC26_FM': 0, 'MFC26Status': 0,
+                           'MFC27_S': 0, 'MFC27_FM': 0, 'MFC27Status': 0,
+                           'V1Status': 0, 'V2Status': 0, 'V3Status': 0, 'V4Status': 0, 
+                           'V5Status': 0, 'V6Status': 0, 'V7Status': 0, 'V17Status': 0, 
+                           }
 
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
@@ -82,6 +90,14 @@ class NemoGase:
         self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                  'Incorrect input:']
         self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                      'Incorrect type:']
         
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ### Übergeordnet:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.Anlage = self.config['nemo-Version']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} nemo-Version {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.Anlage = 1
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Zum Start:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -107,9 +123,15 @@ class NemoGase:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Register:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        try: self.start_Lese_Register = self.config['register']['lese_st_Reg']       # Input Register Start-Register
+        try: self.start_Lese_Register_VGP_1 = self.config['register']['lese_st_Reg_VGP_1']       # Input Register Start-Register für Vakkum, Gas und Pumpen Teil 1        
         except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|lese_st_Reg {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|lese_st_Reg_VGP_1 {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.start_Lese_Register_VGP_2 = self.config['register']['lese_st_Reg_VGP_2']       # Input Register Start-Register für Vakkum, Gas und Pumpen Teil 2
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|lese_st_Reg_VGP_2 {self.Log_Pfad_conf_5_1[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             exit()
 
@@ -128,10 +150,18 @@ class NemoGase:
         if not type(self.nKS) in [int] or not self.nKS >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nKS_Aus - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 3 - {self.Log_Pfad_conf_8[self.sprache]} {self.nKS}')
             self.nKS = 3
-        ### Register Lese:
-        if not type(self.start_Lese_Register) == int:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_st_Reg - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.start_Lese_Register)}')
+        ### Register Lese VGP 1:
+        if not type(self.start_Lese_Register_VGP_1) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_st_Reg_VGP_1 - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.start_Lese_Register_VGP_1)}')
             exit()
+        ### Register Lese VGP 2:
+        if not type(self.start_Lese_Register_VGP_2) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_st_Reg_VGP_2 - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.start_Lese_Register_VGP_2)}')
+            exit()
+        ### Anlagen-Version:
+        if not self.Anlage in [1, 2]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nemo-Version - {self.Log_Pfad_conf_2[self.sprache]} [1, 2] - {self.Log_Pfad_conf_3[self.sprache]} 1')
+            self.Anlage = 1
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -205,8 +235,9 @@ class NemoGase:
         '''
 
         try:
+            # Auslese-Teil 1 - Vakuum, Gase und Pumpen:
             # Lese: MFC24, MFC25, MFC26,  MFC27, DM21, PP21, PP22, PP21 Status, PP22 Status, PP22 Drehzahl: 
-            ans = self.serial.read_input_registers(self.start_Lese_Register, 18)
+            ans = self.serial.read_input_registers(self.start_Lese_Register_VGP_1, 18)
             logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
 
             if not ans == None:
@@ -236,6 +267,29 @@ class NemoGase:
                     logger.warning(f'{self.Log_Test_Ex_1[self.sprache]} {value_Def[i]} {self.Log_Test_Ex_2[self.sprache]} {n}')
                 i += 1
 
+            # Auslese-Teil 2 - Vakuum, Gase und Pumpen:
+            if self.Anlage == 2:
+                # Lese: MFC24_S, MFC24_FM, MFC25_S, MFC25_FM, MFC26_S, MFC26_FM, MFC27_S, MFC27_FM,
+                #       MV1_I, MV1_S, MV1_VS, PP22mPtS, MFC24_RE, MFC24_m, MFC25_RE, MFC25_m,
+                #       MFC26_RE, MFC26_m, MFC27_RE, MFC27_m, MV1_RE, MV1_m, MV1_SG, MFC24Status,
+                #       MFC25Status, MFC26Status, MFC27Status, MV1Status, V1Status, V2Status,
+                #       V3Status, V4Status, V5Status, V6Status, V7Status, V17Status
+                # Notiz:    Alle _m und _RE werden noch nicht in die GUI integriert -> Rampen-Werte!
+                #           23 Gleitkommazahlen
+                #           13 Statuswörter         
+                ans = self.serial.read_input_registers(self.start_Lese_Register_VGP_2, 60)
+                logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
+                if not ans == None:     value_3 = self.umwandeln_Float(ans[0:46])   
+                else:
+                    for n in range(0,23,1):
+                        value_3.append(m.nan)
+                stat_list = ['MFC24Status', 'MFC25Status', 'MFC26Status', 'MFC27Status', 'MV1Status', 'V1Status', 'V2Status', 'V3Status', 'V4Status', 'V5Status', 'V6Status', 'V7Status', 'V17Status']
+                for n in range(47, 60, 1):
+                    if not ans == None and type(ans[n]) == int: self.value_name[stat_list[n-47]] = ans[n] 
+                    else:                                       
+                        if not stat_list[n-47][0] == 'V':   self.value_name[stat_list[n-47]] = 64   # Bit 14 wird angespochen
+                        else:                               self.value_name[stat_list[n-47]] = 1024 # bei Ventilen wird der Bit 14 genutzt, weshalb der Schnittstellen-Fehler auf dem Bit 3 liegt! 
+
             # Reiehnfolge: MFC24, MFC25, MFC26, MFC27, DM21, PP21, PP22, PP22I
             self.value_name['MFC24'] = value_1[0]   # Einheit: ml/min
             self.value_name['MFC25'] = value_1[1]   # Einheit: ml/min
@@ -245,6 +299,23 @@ class NemoGase:
             self.value_name['PP21']  = value_1[5]   # Einheit: mbar
             self.value_name['PP22']  = value_1[6]   # Einheit: mbar
             self.value_name['PP22I'] = value_2[0]   # Einheit: %
+            # Reiehnfolge:  MFC24_S, MFC24_FM, MFC25_S, MFC25_FM, MFC26_S, MFC26_FM, MFC27_S, MFC27_FM,
+            #               MV1_I, MV1_S, MV1_VS, PP22mPtS, (Rampen-Werte: 12 -21), MV1_SG
+            if self.Anlage == 2:
+                self.value_name['MFC24_S'] = value_3[0]     # Einheit: ml/min
+                self.value_name['MFC24_FM'] = value_3[1]    # Einheit: ml/min
+                self.value_name['MFC25_S'] = value_3[2]     # Einheit: ml/min
+                self.value_name['MFC25_FM'] = value_3[3]    # Einheit: ml/min
+                self.value_name['MFC26_S'] = value_3[4]     # Einheit: ml/min
+                self.value_name['MFC26_FM'] = value_3[5]    # Einheit: ml/min
+                self.value_name['MFC27_S'] = value_3[6]     # Einheit: ml/min
+                self.value_name['MFC27_FM'] = value_3[7]    # Einheit: ml/min
+                self.value_name['MV1_I'] = value_3[8]       # Einheit: mbar
+                self.value_name['MV1_S'] = value_3[9]       # Einheit: mbar
+                self.value_name['MV1_VS'] = value_3[10]     # Einheit: ?
+                self.value_name['PP22mPtS'] = value_3[11]   # Einheit: mbar
+                self.value_name['MV1_SG'] = value_3[22]     # Einheit: ?
+
         except Exception as e:
             logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
             logger.exception(f"{self.device_name} - {self.Log_Text_65_str[self.sprache]}")
@@ -312,15 +383,25 @@ class NemoGase:
     ###################################################
     def messdaten_output(self, pfad="./"):
         """Erstelle für das Gerät eine csv-Datei mit den Daten.
-           MFC24, MFC25, MFC26, MFC27, DM21, PP21, PP22, PP21Status, PP22Status, PP22I
+            Nemo-1:
+            MFC24, MFC25, MFC26, MFC27, DM21, PP21, PP22, PP21Status, PP22Status, PP22I
+
+            Nemo-2:
+            MFC24, MFC25, MFC26, MFC27, DM21, PP21, PP22, PP21Status, PP22Status, PP22I, 
+            PP22mPtS, MV1_I, MV1_S, MV1_VS, MV1_SG, MV1Status, MFC24_S, MFC24_FM, MFC24Status,
+            MFC25_S, MFC25_FM, MFC25Status, MFC26_S, MFC26_FM, MFC26Status, MFC27_S, MFC27_FM, 
+            MFC27Status, V1Status, V2Status, V3Status, V4Status, V5Status, V6Status, V7Status, V17Status 
         
         Args:
             pfad (str, optional): Speicherort. Default ist "./".
         """
         self.filename = f"{pfad}/{self.device_name}.csv"
-        units = "# datetime,s,ml/min,ml/min,ml/min,ml/min,mbar,mbar,mbar,%,\n"
-        #scaling = f"# -,-,{self.}"
-        header = "time_abs,time_rel,MFC24,MFC25,MFC26,MFC27,DM21,PP21,PP22,PP22I,\n"
+        if self.Anlage == 1:    
+            units  = "# datetime,s,ml/min,ml/min,ml/min,ml/min,mbar,mbar,mbar,%,\n"
+            header = "time_abs,time_rel,MFC24,MFC25,MFC26,MFC27,DM21,PP21,PP22,PP22I,\n"
+        elif self.Anlage == 2:  
+            units = "# datetime,s,ml/min,ml/min,ml/min,ml/min,mbar,mbar,%,mbar,mbar,mbar,?,?,ml/min,ml/min,ml/min,ml/min,ml/min,ml/min,ml/min,ml/min\n"
+            header = "time_abs,time_rel,MFC1_Ist,MFC2_Ist,MFC3_Ist,MFC4_Ist,PP1,PP2,P2I,PP2mPtS,MV1_Ist,MV1_Soll,MV1_VS,MV1_SG,MFC1_Soll,MFC1_FlowMax,MFC2_Soll,MFC2_FlowMax,MFC3_Soll,MFC3_FlowMax,MFC4_Soll,MFC4_FlowMax,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
             with open(self.filename, "w", encoding="utf-8") as f:
@@ -339,8 +420,12 @@ class NemoGase:
         '''
         line = f"{absolut_Time.isoformat(timespec='milliseconds').replace('T', ' ')},{relativ_Time},"
         for size in daten:
+            skip = 0
             if not 'Status' in size:
-                line = line + f'{daten[size]},'
+                if 'DM21' in size and self.Anlage == 2:
+                    skip = 1
+                if not skip:
+                    line = line + f'{daten[size]},'
         with open(self.filename, "a", encoding="utf-8") as f:
             f.write(f'{line}\n')
     
@@ -357,7 +442,7 @@ class NemoGase:
         try:
             self.serial.open()
             time.sleep(0.1)         # Dadurch kann es in Ruhe öffnen
-            ans = self.serial.read_input_registers(self.start_Lese_Register, 1)  # MFC24
+            ans = self.serial.read_input_registers(self.start_Lese_Register_VGP_1, 1)  # MFC24
             if ans == None:
                 raise ValueError(self.Log_Text_Port_3[self.sprache])
             else:
