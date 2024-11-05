@@ -425,6 +425,8 @@ class Eurotherm(QObject):
         self.Log_Text_LB_7      = ['Output',                                                                                                                                                                                'Outout']
         self.Log_Text_LB_8      = ['Input',                                                                                                                                                                                 'Input']
         self.Log_Text_HO        = ['Die aktuelle maximale Ausgangsleistung (HO) ist folgendermaßen:',                                                                                                                       'The current maximum output power (HO) is as follows:']
+        self.Log_Filter_PID_S   = ['Sollwert',                                                                                                                                                                              'Setpoint'] 
+        self.Log_Filter_PID_I   = ['Istwert',                                                                                                                                                                               'Actual value'] 
         ## Ablaufdatei:
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -531,7 +533,8 @@ class Eurotherm(QObject):
             logger.info(f'{Log_Text_PID_N8[self.sprache]} {self.sensor_ist} {Log_Text_PID_N13[self.sprache]} {self.M_device_ist} {Log_Text_PID_N10[self.sprache]}')
         if self.PID_Option[1] == 'M':
             logger.info(f'{Log_Text_PID_N9[self.sprache]} {self.sensor_soll} {Log_Text_PID_N13[self.sprache]} {self.M_device_soll} {Log_Text_PID_N10[self.sprache]}')
-        self.PID_Ist_Last = self.Ist
+        self.PID_Ist_Last  = self.Ist
+        self.PID_Soll_Last = self.Soll
 
     ##########################################
     # Schnittstelle (Schreiben):
@@ -614,37 +617,16 @@ class Eurotherm(QObject):
                     logger.warning(f"{self.device_name} - {self.Log_Text_PID_N19[self.sprache]} ({self.M_device_ist})")
                     logger.exception(f"{self.device_name} - {self.Log_Text_PID_N12[self.sprache]}")
             ### Istwert Filter:
-            error_Input = False
-            try:
-                #### Nan-Werte:
-                if m.isnan(self.Ist):
-                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N14[self.sprache]}")
-                    error_Input = True
-                #### Kein Float oder Integer:
-                elif type(self.Ist) not in [int, float]:
-                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N17[self.sprache]} {type(self.Ist)}")
-                    error_Input = True
-                #### Input-Wert überschreitet Maximum:
-                elif self.Ist > self.PID_Input_Limit_Max:
-                    logger.debug(f"{self.device_name} - {self.Log_Text_PID_N15[self.sprache]} {self.PID_Input_Limit_Max}{self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Text_145_str[self.sprache]}")
-                    self.Ist = self.PID_Input_Limit_Max
-                #### Input-Wert unterschreitet Minimum:
-                elif self.Ist < self.PID_Input_Limit_Min:
-                    logger.debug(f"{self.device_name} - {self.Log_Text_PID_N16[self.sprache]} {self.PID_Input_Limit_Min}{self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Text_145_str[self.sprache]}")
-                    self.Ist = self.PID_Input_Limit_Min
-            except Exception as e:
-                error_Input = True
-                logger.warning(f"{self.device_name} - {self.Log_Text_PID_N11[self.sprache]}")
-                logger.exception(f"{self.device_name} - {self.Log_Text_PID_N12[self.sprache]}")
+            self.Ist, error_Input_I = self.Input_Filter(self.Ist)
             ### Fehler-Behandlung:
-            if error_Input:
+            if error_Input_I:
                 #### Input auf Maximum setzen:
                 if self.PID_Input_Error_Option == 'max':
                     self.Ist = self.PID_Input_Limit_Max
                 #### Input auf Minimum setzen:
                 elif self.PID_Input_Error_Option == 'min':
                     self.Ist = self.PID_Input_Limit_Min
-                #### Input auf letzten Input setzen:
+                #### Input auf letzten Istwert-Input setzen:
                 elif self.PID_Input_Error_Option == 'error':
                     self.Ist = self.PID_Ist_Last
             else:
@@ -663,6 +645,14 @@ class Eurotherm(QObject):
                 except Exception as e:
                     logger.warning(f"{self.device_name} - {self.Log_Text_PID_N19[self.sprache]} ({self.M_device_soll})") 
                     logger.exception(f"{self.device_name} - {self.Log_Text_PID_N12[self.sprache]}")
+            ### Sollwert Filter:
+            self.Soll, error_Input_S = self.Input_Filter(self.Soll, 'Soll')
+            ### Fehler-Behandlung:
+            if error_Input_S:
+                #### Input auf letzten Sollwert-Input setzen:
+                self.Soll = self.PID_Soll_Last
+            else:
+                self.PID_Soll_Last = self.Soll
             #---------------------------------------------
             ## Schreibe Werte:
             #---------------------------------------------
@@ -761,6 +751,43 @@ class Eurotherm(QObject):
             elif write_Okay[auswahl] and auswahl == 'Read_PID':
                 self.check_PID()
                 write_Okay[auswahl] = False
+
+    def Input_Filter(self, Input, Art = 'Ist'):
+        ''' Input-Filter für den Multilog-VIFCON Link und die PID-Nutzung
+        
+        Args:
+            Input (Float):      Wert der überprüft werden soll
+            Art (str):          Sollwert (Soll) oder Istwert (Ist) für Logging
+        Return:
+            Input (Float):      Bei Limit-Überschreitung kann dies geändert werden, deswegen wird der Eingangswert auch wieder Ausgegeben.
+            error_Input (bool): Fehler Ausgabe (True: NAN oder falscher Typ)         
+        '''
+        if Art == 'Ist':    Input_String = self.Log_Filter_PID_I
+        elif Art == 'Soll': Input_String = self.Log_Filter_PID_S
+        error_Input = False
+        try:
+            #### Nan-Werte:
+            if m.isnan(Input):
+                logger.warning(f"{self.device_name} - {self.Log_Text_PID_N14[self.sprache]} ({Input_String[self.sprache]})")
+                error_Input = True
+            #### Kein Float oder Integer:
+            elif type(Input) not in [int, float]:
+                logger.warning(f"{self.device_name} - {self.Log_Text_PID_N17[self.sprache]} {type(Input)} ({Input_String[self.sprache]})")
+                error_Input = True
+            #### Input-Wert überschreitet Maximum:
+            elif Input > self.PID_Input_Limit_Max:
+                logger.debug(f"{self.device_name} - {self.Log_Text_PID_N15[self.sprache]} {self.PID_Input_Limit_Max} {self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Test_PID_N22[self.sprache]} ({Input_String[self.sprache]})")
+                Input = self.PID_Input_Limit_Max
+            #### Input-Wert unterschreitet Minimum:
+            elif Input < self.PID_Input_Limit_Min:
+                logger.debug(f"{self.device_name} - {self.Log_Text_PID_N16[self.sprache]} {self.PID_Input_Limit_Min} {self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Test_PID_N22[self.sprache]} ({Input_String[self.sprache]})")
+                Input = self.PID_Input_Limit_Min
+        except Exception as e:
+            error_Input = True
+            logger.warning(f"{self.device_name} - {self.Log_Text_PID_N11[self.sprache]} ({Input_String[self.sprache]})")
+            logger.exception(f"{self.device_name} - {self.Log_Text_PID_N12[self.sprache]}")
+
+        return Input, error_Input
 
     def write_read_answer(self, write_mn, value, befehl_start):
         ''' Lese die Antowrt des Schreibbefehls aus!
