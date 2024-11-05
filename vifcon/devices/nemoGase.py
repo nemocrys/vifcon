@@ -136,7 +136,7 @@ class NemoGase:
         #--------------------------------------- 
         # Sprach-Einstellung:
         #---------------------------------------
-        ## Logging:
+        ## Logging: ##################################################################################################################################################################################################################################################################################
         self.Log_Text_60_str    = ['Erstelle das Schnittstellen Objekt!',                                       'Create the interface object!']
         self.Log_Text_61_str    = ['Aufbau Schnittstelle des Geräts fehlgeschlagen! Programm wird beendet!',    'Setup of the device interface failed! Program will end!']
         self.Log_Text_62_str    = ['Fehler Grund (Schnittstellen Aufbau):',                                     'Error reason (interface structure):']
@@ -147,17 +147,17 @@ class NemoGase:
         self.Log_Text_67_str    = ['Messwerte Umgewandelt - Messwert',                                          'Measured Values Converted - Measured Value']
         self.Log_Text_68_str    = ['Das Gerät konnte nicht initialisiert werden!',                              'The device could not be initialized!']
         self.Log_Text_69_str    = ['Fehler Grund (Initialisierung):',                                           'Error reason (initialization):']
-        self.Log_Text_70_str    = ['Initialisierung aufheben! Gerät abtrennen!',                                            'Cancel initialization! Disconnect device!']
+        self.Log_Text_70_str    = ['Initialisierung aufheben! Gerät abtrennen!',                                'Cancel initialization! Disconnect device!']
         self.Log_Text_71_str    = ['Erstelle die Messdatei mit dem Pfad:',                                      'Create the measurement file with the path:']
         self.Log_Text_72_str    = ['Keine Messdatenerfassung aktiv!',                                           'No measurement data recording active!']
-        self.Log_Text_Port_1    = ['Verbindungsfehler:',                                                                    'Connection error:']
-        self.Log_Text_Port_2    = ['Der Test für den Verbindungsaufbau ist fehlgeschlagen!',                                'The connection establishment test failed!']
-        self.Log_Text_Port_3    = ['Antwort der Test-Abfrage war None. Bearbeitung nicht möglich!',                         'The answer to the test query was None. Processing not possible!']
-        self.Log_Text_Port_4    = ['Bei der Werte-Umwandlung ist ein Fehler aufgetreten!',                                  'An error occurred during value conversion!']
-        self.Log_Text_Port_5    = ['Fehlerbeschreibung:',                                                                   'Error description:']
-        self.Log_Test_Ex_1      = ['Der Variablen-Typ der Größe',                                                           'The variable type of size']
-        self.Log_Test_Ex_2      = ['ist nicht Float! Setze Nan ein! Fehlerhafter Wert:',                                                       'is not Float! Insert Nan! Incorrect value:']
-        ## Ablaufdatei:
+        self.Log_Text_Port_1    = ['Verbindungsfehler:',                                                        'Connection error:']
+        self.Log_Text_Port_2    = ['Der Test für den Verbindungsaufbau ist fehlgeschlagen!',                    'The connection establishment test failed!']
+        self.Log_Text_Port_3    = ['Antwort der Test-Abfrage war None. Bearbeitung nicht möglich!',             'The answer to the test query was None. Processing not possible!']
+        self.Log_Text_Port_4    = ['Bei der Werte-Umwandlung ist ein Fehler aufgetreten!',                      'An error occurred during value conversion!']
+        self.Log_Text_Port_5    = ['Fehlerbeschreibung:',                                                       'Error description:']
+        self.Log_Test_Ex_1      = ['Der Variablen-Typ der Größe',                                               'The variable type of size']
+        self.Log_Test_Ex_2      = ['ist nicht Float! Setze Nan ein! Fehlerhafter Wert:',                        'is not Float! Insert Nan! Incorrect value:']
+        ## Ablaufdatei: ##############################################################################################################################################################################################################################################################################
         self.Text_51_str        = ['Initialisierung!',                                                          'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                           'Initialization Failed!']
         

@@ -338,25 +338,25 @@ class NemoAchseLinWidget(QWidget):
         #--------------------------------------- 
         # Sprach-Einstellung:
         #--------------------------------------- 
-        ## Anlage:
+        ## Anlage: ##################################################################################################################################################################################################################################################################################
         self.nemo               = ['Nemo-Anlage',                                                                                               'Nemo facility']
-        ## Werte:
+        ## Werte: ###################################################################################################################################################################################################################################################################################
         istwert_str             = ['Ist',                                                                                                       'Is']
         istwert2_str            = ['Ist-Sim',                                                                                                   'Is-Sim']
         istwert3_str            = ['Ist-Gerät',                                                                                                 'Is-Device']
         sollwert_str            = ['Soll',                                                                                                      'Set']
-        ## Knöpfe:                                                                  
+        ## Knöpfe: ##################################################################################################################################################################################################################################################################################                                                                 
         rez_start_str           = ['Rezept Start',                                                                                              'Start recipe']
         rez_ende_str            = ['Rezept Beenden',                                                                                            'Finish recipe']
         DH_str                  = ['Setz Nullpunkt',                                                                                            'Define Home']
-        ## Zusatz:  
+        ## Zusatz: ################################################################################################################################################################################################################################################################################## 
         self.str_Size_1         = ['Geschwindigkeit',                                                                                           'Speed']
         self.str_Size_2         = ['Position/Weg/Strecke',                                                                                      'Position/path/distance']
-        ## Checkbox:    
+        ## Checkbox: ################################################################################################################################################################################################################################################################################   
         cb_sync_str             = ['Sync',                                                                                                      'Sync']
         cb_gPad_str             = ['GPad',                                                                                                      'GPad']
         cb_PID                  = ['PID',                                                                                                       'PID']
-        ## Einheiten mit Größe: 
+        ## Einheiten mit Größe: ##################################################################################################################################################################################################################################################################### 
         self.v_str              = ['v in mm/min:',                                                                                              'v in mm/min:']
         self.x_str              = [f'x in {self.unit_PIDIn}:',                                                                                  f'x in {self.unit_PIDIn}:']
         sv_str                  = ['v:',                                                                                                        'v:']
@@ -375,7 +375,7 @@ class NemoAchseLinWidget(QWidget):
         PID_Von_1               = ['Wert von Multilog',                                                                                         'Value of Multilog']
         PID_Von_2               = ['Wert von VIFCON',                                                                                           'Value ofVIFCON']
         PID_Zusatz              = ['ex,',                                                                                                       'ex,']
-        ## Fehlermeldungen:         
+        ## Fehlermeldungen: #########################################################################################################################################################################################################################################################################        
         self.err_0_str          = ['Fehler!',                                                                                                   'Error!']
         self.err_1_str          = ['Keine EINGABE!!',                                                                                           'No INPUT!!']
         self.err_2_str          = ['Grenzen überschritten!\nGrenzen von',                                                                       'Limits exceeded!\nLimits from']
@@ -399,7 +399,7 @@ class NemoAchseLinWidget(QWidget):
         self.Fehler_out_2       = ['Limit Runter erreicht!\nStopp ausgelöst!',                                                                  'Limit down reached!\nStop triggered!']
         self.Fehler_out_3       = ['Limit erreicht!\nKnopf wird nicht ausgeführt!',                                                             'Limit reached!\nButton is not executed!']
         self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
-        ## Status:          
+        ## Status: #################################################################################################################################################################################################################################################################################          
         status_1_str            = ['Status: Inaktiv',                                                                                           'Status: Inactive']
         self.status_2_str       = ['Kein Status',                                                                                               'No Status']
         self.status_3_str       = ['Status:',                                                                                                   'Status:']
@@ -417,11 +417,11 @@ class NemoAchseLinWidget(QWidget):
         self.sta_Bit11_str      = ['Achse in Stopp',                                                                                            'Axis in stop']
         self.sta_Bit14_str      = ['Schnittstellenfehler',                                                                                      'Interface error']
         self.sta_Bit15_str      = ['Test-Modus Aktiv',                                                                                          'Test Mode Active']
-        ## Plot-Legende:                                                            
+        ## Plot-Legende: ##########################################################################################################################################################################################################################################################################                                                            
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
         unter_Grenze_str        = ['uG',                                                                                                        'lL']                                   # lL - lower Limit
-        ## Logging:
+        ## Logging: ###############################################################################################################################################################################################################################################################################
         self.Log_Text_1_str 	= ['Erstelle Widget.',                                                                                          'Create widget.']
         self.Log_Text_28_str    = ['Gerät wurde Gestartet/Initialisiert!',                                                                      'Device has been started/initialized!']
         self.Log_Text_29_str    = ['Gerät wurde nicht Initialisiert! Initialisierung durch Menü im späteren!',                                  'Device was not initialized! Initialization through menu later!']
@@ -449,7 +449,7 @@ class NemoAchseLinWidget(QWidget):
         self.Log_Text_PS_1      = ['Auslösung des priorisierten Stopps! Richtungswechsel: Von',                                                 'Initiation of the prioritized stop! Change of direction: From']
         self.Log_Text_PS_2      = ['zu',                                                                                                        'to']
         self.Log_Text_Kurve     = ['Kurvenbezeichnung existiert nicht:',                                                                        'Curve name does not exist:']
-        ## Ablaufdatei: 
+        ## Ablaufdatei: ###########################################################################################################################################################################################################################################################################
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
         self.Text_39_str        = ['Knopf betätigt - Nullpunkt setzen!',                                                                        'Button pressed - Define Home!']

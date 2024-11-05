@@ -132,7 +132,7 @@ class PIAchseWidget(QWidget):
         self.Log_Pfad_conf_10   = ['zu',                                                                                                            'to']
         self.Log_Pfad_conf_11   = ['Geschwindhigkeit',                                                                                              'Velocity']
         self.Log_Pfad_conf_12   = ['PID-Eingang Istwert',                                                                                           'PID input actual value']
-        self.Log_Pfad_conf_13   = ['Position',                                                                                                        'Position']
+        self.Log_Pfad_conf_13   = ['Position',                                                                                                      'Position']
         self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',   'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
         
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -378,26 +378,26 @@ class PIAchseWidget(QWidget):
         #--------------------------------------- 
         # Sprach-Einstellung:
         #--------------------------------------- 
-        ## Werte:
+        ## Werte: ##################################################################################################################################################################################################################################################################################
         istwert_str             = ['Ist',                                                                                                       'Is']
         sollwert_str            = ['Soll',                                                                                                      'Set']
-        ## Label:                                                   
+        ## Label: ##################################################################################################################################################################################################################################################################################                                                   
         self.pos_1_str          = ['Fahrweg',                                                                                                   'Route']
         self.pos_2_str          = ['Sollposition',                                                                                              'Target position']
         pos_rel_str             = ['relativ',                                                                                                   'relative']
         pos_abs_str             = ['absolut',                                                                                                   'absolute']
-        ## Knöpfe:                                              
+        ## Knöpfe: #################################################################################################################################################################################################################################################################################                                              
         rez_start_str           = ['Rezept Start',                                                                                              'Start recipe']
         rez_ende_str            = ['Rezept Beenden',                                                                                            'Finish recipe']
         DH_str                  = ['Setz Nullpunkt',                                                                                            'Define Home']
-        ## Zusatz:  
+        ## Zusatz: ################################################################################################################################################################################################################################################################################# 
         self.str_Size_1         = ['Geschwindigkeit',                                                                                           'Speed']
         self.str_Size_2         = ['Position/Weg/Strecke',                                                                                      'Position/path/distance']
-        ## Checkbox:        
+        ## Checkbox: ###############################################################################################################################################################################################################################################################################        
         cb_sync_str             = ['Sync',                                                                                                      'Sync']
         cb_gPad_str             = ['GPad',                                                                                                      'GPad']
         cb_PID                  = ['PID',                                                                                                       'PID']
-        ## Einheiten mit Größe:
+        ## Einheiten mit Größe: ####################################################################################################################################################################################################################################################################
         self.s_str              = ['in mm:',                                                                                                    'in mm:']
         self.x_str              = [f'x in {self.unit_PIDIn}:',                                                                                  f'x in {self.unit_PIDIn}:']
         self.v_str              = ['v in mm/s:',                                                                                                'v in mm/s:']
@@ -415,7 +415,7 @@ class PIAchseWidget(QWidget):
         PID_Von_1               = ['Wert von Multilog',                                                                                         'Value of Multilog']
         PID_Von_2               = ['Wert von VIFCON',                                                                                           'Value ofVIFCON']
         PID_Zusatz              = ['ex,',                                                                                                       'ex,']
-        ## Fehlermeldungen: 
+        ## Fehlermeldungen: #####################################################################################################################################################################################################################################################################
         self.err_0_str          = ['Fehler!',                                                                                                   'Error!']
         self.err_1_str          = ['Beide Felder benötigen\neine EINGABE!!',                                                                    'Both fields require\nan INPUT!!']
         self.err_2_str          = ['Grenzen überschritten!\nGrenzen von',                                                                       'Limits exceeded!\nLimits from']
@@ -440,11 +440,11 @@ class PIAchseWidget(QWidget):
         self.Fehler_out_1       = ['Maximum Limit erreicht!\nStopp ausgelöst!',                                                                 'Maximum limit reached!\nStop triggered!']
         self.Fehler_out_2       = ['Minimum Limit erreicht!\nStopp ausgelöst!',                                                                 'Minimum limit reached!\nStop triggered!']
         self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
-        ## Plot-Legende:                                                    
+        ## Plot-Legende: ########################################################################################################################################################################################################################################################################                                                    
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
         unter_Grenze_str        = ['uG',                                                                                                        'lL']                                   # lL - lower Limit
-        ## Logging:
+        ## Logging: #############################################################################################################################################################################################################################################################################
         self.Log_Text_1_str 	= ['Erstelle Widget.',                                                                                          'Create widget.']
         self.Log_Text_28_str    = ['Gerät wurde Gestartet/Initialisiert!',                                                                      'Device has been started/initialized!']
         self.Log_Text_29_str    = ['Gerät wurde nicht Initialisiert! Initialisierung durch Menü im späteren!',                                  'Device was not initialized! Initialization through menu later!']
@@ -475,7 +475,7 @@ class PIAchseWidget(QWidget):
         self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                             'Possible values:']
         self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                  'Default is used:']
         self.Log_Text_Kurve     = ['Kurvenbezeichnung existiert nicht:',                                                                        'Curve name does not exist:']
-        ## Ablaufdatei: 
+        ## Ablaufdatei: ########################################################################################################################################################################################################################################################################
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
         self.Text_31_str        = ['Auswahl relative Position (Fahrweg Angabe)!',                                                               'Select relative position (travel path information)!']
@@ -508,7 +508,7 @@ class PIAchseWidget(QWidget):
         self.Text_PID_3         = ['Moduswechsel! Auslösung des Stopp-Knopfes aus Sicherheitsgründen!',                                         'Mode change! Stop button triggered for safety reasons!']
         self.Text_PID_4         = ['Rezept Beenden! Wechsel des Modus!',                                                                        'End recipe! Change mode!']
         self.Text_ExLimit_str   = ['Eingabefeld Fehlermeldung: Senden fehlgeschlagen, da Negativer Wert!',                                      'Input field error message: Sending failed because of negative value!']
-        ## Extra:
+        ## Extra: #############################################################################################################################################################################################################################################################################
         self.abLauf_Button_r    = ['rechter Knopf',                                                                                             'right button']
         self.abLauf_Button_l    = ['linker Knopf',                                                                                              'left button']    
 

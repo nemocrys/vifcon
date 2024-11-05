@@ -387,17 +387,17 @@ class TruHeatWidget(QWidget):
         #--------------------------------------- 
         # Sprach-Einstellung:
         #--------------------------------------- 
-        ## Werte:
+        ## Werte: ##################################################################################################################################################################################################################################################################################
         self.sollwert_str       = ['Soll',                                                                                                      'Set']
         istwert_str             = ['Ist',                                                                                                       'Is']
-        ## Knöpfe:                                                              
+        ## Knöpfe: #################################################################################################################################################################################################################################################################################                                                             
         send_str                = ['Sende',                                                                                                     'Send']
         rez_start_str           = ['Rezept Start',                                                                                              'Start recipe']
         rez_ende_str            = ['Rezept Beenden',                                                                                            'Finish recipe']
-        ## Checkbox:    
+        ## Checkbox: ###############################################################################################################################################################################################################################################################################    
         cb_sync_str             = ['Sync',                                                                                                      'Sync']
         cb_PID                  = ['PID',                                                                                                       'PID']
-        ## Einheiten mit Größe: 
+        ## Einheiten mit Größe: ####################################################################################################################################################################################################################################################################
         self.P_str              = ['P in kW:',                                                                                                  'P in kW:']
         self.U_str              = ['U in V:',                                                                                                   'U in V:']
         self.I_str              = ['I in A:',                                                                                                   'I in A:']
@@ -426,11 +426,11 @@ class TruHeatWidget(QWidget):
         PID_Von_1               = ['Wert von Multilog',                                                                                         'Value of Multilog']
         PID_Von_2               = ['Wert von VIFCON',                                                                                           'Value ofVIFCON']
         PID_Zusatz              = ['ex,',                                                                                                       'ex,']
-        self.PID_Out            = ['PID-Out.',  'PID-Out.']
-        self.PID_Out_P          = ['(P):',      '(P):']
-        self.PID_Out_I          = ['(I):',      '(I):']
-        self.PID_Out_U          = ['(U):',      '(U):']
-        ## Fehlermeldungen:   
+        self.PID_Out            = ['PID-Out.',                                                                                                  'PID-Out.']
+        self.PID_Out_P          = ['(P):',                                                                                                      '(P):']
+        self.PID_Out_I          = ['(I):',                                                                                                      '(I):']
+        self.PID_Out_U          = ['(U):',                                                                                                      '(U):']
+        ## Fehlermeldungen: #######################################################################################################################################################################################################################################################################  
         self.err_0_str          = ['Fehler!',                                                                                                   'Error!']                  
         self.err_1_str          = ['Keine Eingabe!',                                                                                            'No input!']
         self.err_2_str          = ['Grenzen überschritten!\nGrenzen von',                                                                       'Limits exceeded!\nLimits from']
@@ -447,11 +447,11 @@ class TruHeatWidget(QWidget):
         self.err_16_str         = ['Rezept läuft!\nRezept Start gesperrt!',                                                                     'Recipe running!\nRecipe start blocked!']
         self.err_21_str         = ['Fehler in der Rezept konfiguration\nder Config-Datei! Bitte beheben und Neueinlesen!',                      'Error in the recipe configuration of\nthe config file! Please fix and re-read!']
         self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
-        ## Plot-Legende:                                                
+        ## Plot-Legende: ##########################################################################################################################################################################################################################################################################                                               
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
         unter_Grenze_str        = ['uG',                                                                                                        'lL']                                   # lL - lower Limit
-        ## Logging:
+        ## Logging: ###############################################################################################################################################################################################################################################################################
         self.Log_Text_1_str 	= ['Erstelle Widget.',                                                                                          'Create widget.']
         self.Log_Text_28_str    = ['Gerät wurde Gestartet/Initialisiert!',                                                                      'Device has been started/initialized!']
         self.Log_Text_29_str    = ['Gerät wurde nicht Initialisiert! Initialisierung durch Menü im späteren!',                                  'Device was not initialized! Initialization through menu later!']
@@ -467,15 +467,15 @@ class TruHeatWidget(QWidget):
         self.Log_Text_39_str    = ['Rezept:',                                                                                                   'Recipe:']
         self.Log_Text_40_str    = ['Rezept Inhalt:',                                                                                            'Recipe content:']
         self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                     'Update configuration (update limits):']
-        self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liegt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',                                                                                              'The value in the config is outside the limit range! Switching value is set to minimum limit!']
-        self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                                                                                                                       'Error reason (reading recipe):']
-        self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                                                                                                                      'Error reason (Problem with recipe configuration)']
-        self.Log_Text_EPID_1    = ['Update Konfiguration (Update PID-Parameter Eurotherm):',                                                                                                                                                'Update configuration (update PID parameters Eurotherm):']
-        self.Log_Text_EPID_2    = ['Der Wert',                                                                                                                                                                                              'The value']
-        self.Log_Text_EPID_3    = ['liegt außerhalb des Bereiches 0 bis 99999! Senden verhindert!',                                                                                                                                         'is outside the range 0 to 99999! Sending prevented!']
-        self.Log_Text_EPID_4    = ['Beim Vorbereiten des Sendens der neuen PID-Parameter gab es einen Fehler!',                                                                                                                             'There was an error while preparing to send the new PID parameters!']
-        self.Log_Text_EPID_5    = ['Einlese-Fehler der\nneuen Eurotherm PID-Parameter!',                                                                                                                                                    'Error reading the\nnew Eurotherm PID parameters!']
-        self.Log_Text_EPID_6    = ['Fehlergrund (PID-Parameter):',                                                                                                                                                                          'Reason for error (PID parameter):']
+        self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liegt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',  'The value in the config is outside the limit range! Switching value is set to minimum limit!']
+        self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                           'Error reason (reading recipe):']
+        self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                          'Error reason (Problem with recipe configuration)']
+        self.Log_Text_EPID_1    = ['Update Konfiguration (Update PID-Parameter Eurotherm):',                                                    'Update configuration (update PID parameters Eurotherm):']
+        self.Log_Text_EPID_2    = ['Der Wert',                                                                                                  'The value']
+        self.Log_Text_EPID_3    = ['liegt außerhalb des Bereiches 0 bis 99999! Senden verhindert!',                                             'is outside the range 0 to 99999! Sending prevented!']
+        self.Log_Text_EPID_4    = ['Beim Vorbereiten des Sendens der neuen PID-Parameter gab es einen Fehler!',                                 'There was an error while preparing to send the new PID parameters!']
+        self.Log_Text_EPID_5    = ['Einlese-Fehler der\nneuen Eurotherm PID-Parameter!',                                                        'Error reading the\nnew Eurotherm PID parameters!']
+        self.Log_Text_EPID_6    = ['Fehlergrund (PID-Parameter):',                                                                              'Reason for error (PID parameter):']
         self.Log_Text_LB_1      = ['Limitbereich',                                                                                              'Limit range']
         self.Log_Text_LB_2      = ['Strom',                                                                                                     'Current']
         self.Log_Text_LB_3      = ['Spannung',                                                                                                  'Voltage']
@@ -483,7 +483,7 @@ class TruHeatWidget(QWidget):
         self.Log_Text_LB_4      = ['bis',                                                                                                       'to']
         self.Log_Text_LB_5      = ['nach Update',                                                                                               'after update']
         self.Log_Text_Kurve     = ['Kurvenbezeichnung existiert nicht:',                                                                        'Curve name does not exist:']
-        ## Ablaufdatei:
+        ## Ablaufdatei: ###########################################################################################################################################################################################################################################################################
         self.Text_13_str        = ['Auswahl Leistung senden.',                                                                                  'Send power selection.']
         self.Text_14_str        = ['Auswahl Spannung senden.',                                                                                  'Send voltage selection.']
         self.Text_15_str        = ['Auswahl Strom senden.',                                                                                     'Send current selection.']
@@ -511,11 +511,10 @@ class TruHeatWidget(QWidget):
         self.Text_PID_2         = ['Wechsel in Eurotherm-Regel-Modus.',                                                                         'Switch to Eurotherm control mode.']
         self.Text_PID_3         = ['Moduswechsel! Auslösung des Stopp-Knopfes aus Sicherheitsgründen!',                                         'Mode change! Stop button triggered for safety reasons!']
         self.Text_PID_4         = ['Rezept Beenden! Wechsel des Modus!',                                                                        'End recipe! Change mode!']
-        ## Print:   
+        ## Print: #################################################################################################################################################################################################################################################################################  
         self.ExPrint_str        = ['ACHTUNG: Keine regelmäßigen Lese-Befehle - RS232-User watchdog deaktivieren (auf Null stellen)!',           'ATTENTION: No regular read commands - deactivate RS232 user watchdog (set to zero)!']
-        ## Message-Box:
-        self.Message_1          = ['Der Watchdog sollte auf Null gesetzt (Deaktiviert) werden, da die Lese-Befehle ausgestellt worden sind.',  
-                                   'The watchdog should be set to zero (disabled) since the read commands have been issued.']
+        ## Message-Box: ###########################################################################################################################################################################################################################################################################
+        self.Message_1          = ['Der Watchdog sollte auf Null gesetzt (Deaktiviert) werden, da die Lese-Befehle ausgestellt worden sind.',   'The watchdog should be set to zero (disabled) since the read commands have been issued.']
 
         #---------------------------------------
         # Konfigurationen für das Senden:

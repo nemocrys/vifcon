@@ -311,12 +311,12 @@ class Controller(QObject):
             logger.exception('Error reason:')
             self.sprache = 1
         
-        ## Variablen:
+        ## Variablen: ##################################################################################################################################################################################################################################################################################
         main_window_tab_1_str   = ['Steuerung'  ,                                                                                                                                           'Control']
         main_window_tab_2_str   = ['Überwachung',                                                                                                                                           'Monitoring']
         TypA                    = ['Antriebe',                                                                                                                                              'Drives']
         TypG                    = ['Generatoren und Regler',                                                                                                                                'Generators and Controllers']
-        ## Logging:                                                     
+        ## Logging: ####################################################################################################################################################################################################################################################################################                                                    
         self.Log_Text_6_str     = ["Initialisiere VIFCON",                                                                                                                                  'Initialize VIFCON']
         self.Log_Text_7_str     = ['Konfiguration:',                                                                                                                                        'Configuration:']
         self.Log_Text_8_str     = ["Test Modus aktiv.",                                                                                                                                     "Test mode active."]
@@ -356,11 +356,11 @@ class Controller(QObject):
         self.Log_Text_S_GUI     = ['Speichere die aktuell sichtbare GUI in',                                                                                                                'Save the currently visible GUI in']
         self.Log_Text_Color     = ['Definierte Farben aufgebraucht! Folgend werden nun neue zufällige Farben für die Kurven verwendet!',                                                    'Defined colors used up! New random colors will now be used for the curves!']
         self.Log_Text_Exit_str  = ['Die Timeout-Zeit wurde erreicht! Bearbeitung der Threads wird auf False gesetzt! Beachte das der Sichere Endzustand eventuell nicht erreicht wurde!!',  'The timeout has been reached! Thread processing is set to false! Note that the safe end state may not have been reached!!']
-        self.Log_Device_1       = ['Das Gerät',                               'The device']
-        self.Log_Device_2       = ['gehört nicht zum Geräte-Typ Generator!',  'does not belong to the device type generator!']
-        self.Log_Device_3       = ['gehört nicht zum Geräte-Typ Antrieb!',    'does not belong to the device type drive!']
-        self.Log_Device_4       = ['gehört nicht zum Geräte-Typ Monitoring!', 'does not belong to the monitoring device type!']
-        ## Error:
+        self.Log_Device_1       = ['Das Gerät',                                                                                                                                             'The device']
+        self.Log_Device_2       = ['gehört nicht zum Geräte-Typ Generator!',                                                                                                                'does not belong to the device type generator!']
+        self.Log_Device_3       = ['gehört nicht zum Geräte-Typ Antrieb!',                                                                                                                  'does not belong to the device type drive!']
+        self.Log_Device_4       = ['gehört nicht zum Geräte-Typ Monitoring!',                                                                                                               'does not belong to the monitoring device type!']
+        ## Error: ######################################################################################################################################################################################################################################################################################
         self.err_Text_1         = ['Zu hohe Verzeichnisanzahl.',                                                                                                                            "Too high directory count."]
         self.err_Text_2         = ['Synchron Modus benötigt\nAbsolute Positionierung (PI-Achse)!!',                                                                                         'Synchronous mode requires\nabsolute positioning (PI axis)!!']
         ## Ablaufdatei:                                  
@@ -373,26 +373,26 @@ class Controller(QObject):
         self.Text_8_str         = ['Menü-Knopf betätigt - Synchro Rezepte Start!',                                                                                                          'Menu button pressed - Synchro recipes start!']
         self.Text_9_str         = ['Menü-Knopf betätigt - Rezepte Neu einlesen!',                                                                                                           'Menu button pressed - re-read recipes!']
         self.Text_79_str        = ['Menü-Knopf betätigt - Synchro Rezepte Ende!',                                                                                                           'Menu button pressed - Synchro recipes end!']
-        ## Menü:
+        ## Menü: #######################################################################################################################################################################################################################################################################################
         EuHO_Menu_str           = ['&HO lesen',                                                                                                                                             'Read &HO']
         EuPIDS_Menu_str         = ['PID-Parameter &schreiben',                                                                                                                              '&Write PID parameters']
         EuPIDR_Menu_str         = ['PID-Paramete&r lesen',                                                                                                                                  '&Read PID parameters']
-        ## Config-Kontrolle:
-        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                              'Configuration error in element:']
-        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                 'Possible values:']
-        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                       'The following types are possible:']
-        self.Log_Pfad_conf_2_2  = ['Möglich sind die Schlüssel:',                                                                                   'The following keys are possible:']
-        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                      'Default is used:']
-        self.Log_Pfad_conf_3_1  = ['Default wird eingesetzt: Alle auf 1!',                                                                          'Default is used: All on 1!']
-        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                            'Error reading config during configuration:']
-        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                          '; Set to default:']
-        self.Log_Pfad_conf_5_1  = ['; Keine Geräte konfigurieren!! Exit!',                                                                          '; Do not configure any devices!! Exit!']
-        self.Log_Pfad_conf_5_2  = ['; Keine Geräte konfigurieren!! Multilog-Link wird nicht erstellt!',                                             '; Do not configure any devices!! Multilog link is not created!']
-        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                  'Reason for error:']
-        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                          'Incorrect input:']
-        self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                                                                              'Incorrect type:']
-        self.Log_Pfad_conf_8_2  = ['Fehlerhafte Schlüssel:',                                                                                        'Incorrect Key:']
-        self.Log_Pfad_conf_9    = ['Folgende Größe wurde nicht in Konfiguration definiert, setze Skalierung auf Null:',                            'The following size was not defined in configuration, set scaling to zero:']
+        ## Config-Kontrolle: ###########################################################################################################################################################################################################################################################################
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                                                                      'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                                                         'Possible values:']
+        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                                                               'The following types are possible:']
+        self.Log_Pfad_conf_2_2  = ['Möglich sind die Schlüssel:',                                                                                                                           'The following keys are possible:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                                                              'Default is used:']
+        self.Log_Pfad_conf_3_1  = ['Default wird eingesetzt: Alle auf 1!',                                                                                                                  'Default is used: All on 1!']
+        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                                                                    'Error reading config during configuration:']
+        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                                                                  '; Set to default:']
+        self.Log_Pfad_conf_5_1  = ['; Keine Geräte konfigurieren!! Exit!',                                                                                                                  '; Do not configure any devices!! Exit!']
+        self.Log_Pfad_conf_5_2  = ['; Keine Geräte konfigurieren!! Multilog-Link wird nicht erstellt!',                                                                                     '; Do not configure any devices!! Multilog link is not created!']
+        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                                                          'Reason for error:']
+        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                                                                  'Incorrect input:']
+        self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                                                                                                                      'Incorrect type:']
+        self.Log_Pfad_conf_8_2  = ['Fehlerhafte Schlüssel:',                                                                                                                                'Incorrect Key:']
+        self.Log_Pfad_conf_9    = ['Folgende Größe wurde nicht in Konfiguration definiert, setze Skalierung auf Null:',                                                                     'The following size was not defined in configuration, set scaling to zero:']
 
         #--------------------------------------------------------------------------
         # Logging-Datei erstellen:

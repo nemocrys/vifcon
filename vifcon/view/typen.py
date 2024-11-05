@@ -126,23 +126,23 @@ class Generator(QWidget, Cursor, PopUpWindow):
         #--------------------------------------- 
         # Sprach-Einstellung:
         #--------------------------------------- 
-        ## Ablauf:
+        ## Ablauf: ##################################################################################################################################################################################################################################################################################
         self.Text_10_str        = ['Knopf zum ausschalten aller Generatoren und Regler betätigt!',                                                          'Button pressed to switch off all generators and controllers!']
-        ## Speichere Bilder:
+        ## Speichere Bilder: ########################################################################################################################################################################################################################################################################
         self.sichere_Bild_1_str = ['legende_Achse_Links',                                                                                                   'legend_axis_left']
         self.sichere_Bild_2_str = ['legende_Achse_Rechts',                                                                                                  'legend_axis_right']
-        ## GUI:
+        ## GUI: #####################################################################################################################################################################################################################################################################################
         self.Eintrag_Achse      = ['Keine Einträge!',                                                                                                       'No entries!']
         autoR_str               = ["Auto Achse",                                                                                                            "Auto Range"]
         action_ar_str           = ['Passe Achsen an',                                                                                                       'Adjust axes']
         Typ                     = ['Generatoren und Regler',                                                                                                'Generators and Controllers']
         sehe_device             = ['s.G.',                                                                                                                  's.d.']
-        ## Pop-Up:
+        ## Pop-Up: ##################################################################################################################################################################################################################################################################################
         self.PopUp_1            = ['Frage',                                                                                                                 'Question']
         self.PopUp_2            = ['Information',                                                                                                           'Information']
         self.PopUp_3            = ['Warnung',                                                                                                               'Warning']
         self.PopUp_4            = ['Kritisch',                                                                                                              'Critical']           
-        ## Logging:
+        ## Logging: #################################################################################################################################################################################################################################################################################
         self.Log_Text_185_str_1 = ['Skalierungsfaktor für Größe',                                                                                           'Scaling factor for size']
         self.Log_Text_185_str_2 = ['auf Null gesetzt, keine Anzeige im Plot.',                                                                              'set to zero, not displayed in plot.']
 
@@ -156,15 +156,15 @@ class Generator(QWidget, Cursor, PopUpWindow):
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Einstellung für Log:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                              'Configuration error in element:']
-        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                 'Possible values:']
-        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                       'The following types are possible:']
-        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                      'Default is used:']
-        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                            'Error reading config during configuration:']
-        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                          '; Set to default:']
-        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                  'Reason for error:']
-        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                        'Please correct and re-read config before use!']
-        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                          'Incorrect input:']
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                                      'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                         'Possible values:']
+        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                               'The following types are possible:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                              'Default is used:']
+        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                                    'Error reading config during configuration:']
+        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                                  '; Set to default:']
+        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                          'Reason for error:']
+        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                                'Please correct and re-read config before use!']
+        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                                  'Incorrect input:']
         
         ### Legenden Position:
         try: self.legend_pos         = self.legend_ops['legend_pos'].upper()
@@ -318,24 +318,24 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         #--------------------------------------- 
         # Sprach-Einstellung:                                                               
         #---------------------------------------                                                                
-        ## Ablaufdatei:                                                             
+        ## Ablaufdatei: ##################################################################################################################################################################################################################################################################################                                                             
         self.Text_11_str        = ['Knopf zum ausschalten aller Achsen/Antribe betätigt!',                                                                  'Button pressed to switch off all axes/drives!']
         self.Text_12_str        = ['Knopf zum synchronen Achsen/Antribe bewegen betätigt!',                                                                 'Button for synchronous axes/drives movement pressed!']
-        ## Speichere Bilder:                                                                        
+        ## Speichere Bilder: #############################################################################################################################################################################################################################################################################                                                                        
         self.sichere_Bild_1_str = ['legende_Achse_Links',                                                                                                   'legend_axis_left']
         self.sichere_Bild_2_str = ['legende_Achse_Rechts',                                                                                                  'legend_axis_right']
-        ## GUI:                                                                     
+        ## GUI: ##########################################################################################################################################################################################################################################################################################                                                                     
         self.Eintrag_Achse      = ['Keine Einträge!',                                                                                                       'No entries!']
         autoR_str               = ["Auto Achse",                                                                                                            "Auto Range"]
         action_ar_str           = ['Passe Achsen an',                                                                                                       'Adjust axes']
         Typ                     = ['Antriebe',                                                                                                              'Drives']
         sehe_device             = ['s.G.',                                                                                                                  's.d.']
-        ## Pop-Up:
+        ## Pop-Up: #######################################################################################################################################################################################################################################################################################
         self.PopUp_1            = ['Frage',                                                                                                                 'Question']
         self.PopUp_2            = ['Information',                                                                                                           'Information']
         self.PopUp_3            = ['Warnung',                                                                                                               'Warning']
         self.PopUp_4            = ['Kritisch',                                                                                                              'Critical']           
-        ## Logging:
+        ## Logging: ######################################################################################################################################################################################################################################################################################
         self.Log_Text_185_str_1 = ['Skalierungsfaktor für Größe',                                                                                           'Scaling factor for size']
         self.Log_Text_185_str_2 = ['auf Null gesetzt, keine Anzeige im Plot.',                                                                              'set to zero, not displayed in plot.']
 
@@ -349,15 +349,15 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Einstellung für Log:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                              'Configuration error in element:']
-        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                 'Possible values:']
-        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                       'The following types are possible:']
-        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                      'Default is used:']
-        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                            'Error reading config during configuration:']
-        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                          '; Set to default:']
-        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                  'Reason for error:']
-        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                        'Please correct and re-read config before use!']
-        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                          'Incorrect input:']
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                                      'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                         'Possible values:']
+        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                               'The following types are possible:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                              'Default is used:']
+        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                                    'Error reading config during configuration:']
+        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                                  '; Set to default:']
+        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                          'Reason for error:']
+        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                                'Please correct and re-read config before use!']
+        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                                  'Incorrect input:']
         
         ### Legenden Position:
         try: self.legend_pos         = self.legend_ops['legend_pos'].upper()
