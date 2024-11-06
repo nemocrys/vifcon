@@ -67,6 +67,11 @@ class NemoGase:
                            'MFC27_S': 0, 'MFC27_FM': 0, 'MFC27Status': 0,
                            'V1Status': 0, 'V2Status': 0, 'V3Status': 0, 'V4Status': 0, 
                            'V5Status': 0, 'V6Status': 0, 'V7Status': 0, 'V17Status': 0, 
+                           'KWKDF_1': 0, 'KWKDF_2': 0, 'KWKDF_3': 0, 'KWKDF_4': 0, 'KWKDF_5': 0, 'KWKDF_6': 0, 'KWKDF_7': 0, 'KWKDF_8': 0, 'KWKDF_9': 0,
+                           'KWKT_1': 0, 'KWKT_2': 0, 'KWKT_3': 0, 'KWKT_4': 0, 'KWKT_5': 0, 'KWKT_6': 0, 'KWKT_7': 0, 'KWKT_8': 0, 'KWKT_9': 0,
+                           'KWK5_In': 0, 'KWK5_Out': 0, 'KWK5_diff': 0,
+                           'KWK46_In': 0, 'KWK46_Out': 0, 'KWK46_diff': 0,
+                           'ASTO': 0, 'ASTM': 0, 'ASTU': 0, 'ASBMStatus': 0, 'ASStatus':0,
                            }
 
         #---------------------------------------------------------
@@ -134,6 +139,18 @@ class NemoGase:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|lese_st_Reg_VGP_2 {self.Log_Pfad_conf_5_1[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.start_Lese_Register_K = self.config['register']['lese_st_Reg_K']       # Input Register Start-Register für Kühlung
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|lese_st_Reg_K {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.start_Lese_Register_AS = self.config['register']['lese_st_Reg_AS']       # Input Register Start-Register für Anlagensicherheit
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|lese_st_Reg_AS {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Config-Fehler und Defaults:
@@ -157,6 +174,14 @@ class NemoGase:
         ### Register Lese VGP 2:
         if not type(self.start_Lese_Register_VGP_2) == int:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_st_Reg_VGP_2 - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.start_Lese_Register_VGP_2)}')
+            exit()
+        ### Register Lese Kühlung:
+        if not type(self.start_Lese_Register_K) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_st_Reg_K - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.start_Lese_Register_K)}')
+            exit()
+        ### Register Lese Anlagensicherheit:
+        if not type(self.start_Lese_Register_AS) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_st_Reg_AS - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.start_Lese_Register_AS)}')
             exit()
         ### Anlagen-Version:
         if not self.Anlage in [1, 2]:
@@ -237,6 +262,8 @@ class NemoGase:
         try:
             # Auslese-Teil 1 - Vakuum, Gase und Pumpen:
             # Lese: MFC24, MFC25, MFC26,  MFC27, DM21, PP21, PP22, PP21 Status, PP22 Status, PP22 Drehzahl: 
+            # Notiz:    8 Gleitkommazahlen
+            #           2 Statuswörter          --> (8 * 2) + 2 = 18 Regsiter
             ans = self.serial.read_input_registers(self.start_Lese_Register_VGP_1, 18)
             logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
 
@@ -276,20 +303,48 @@ class NemoGase:
                 #       V3Status, V4Status, V5Status, V6Status, V7Status, V17Status
                 # Notiz:    Alle _m und _RE werden noch nicht in die GUI integriert -> Rampen-Werte!
                 #           23 Gleitkommazahlen
-                #           13 Statuswörter         
-                ans = self.serial.read_input_registers(self.start_Lese_Register_VGP_2, 60)
+                #           13 Statuswörter         --> (23 * 2) + 13 = 59 Register
+                ans = self.serial.read_input_registers(self.start_Lese_Register_VGP_2, 59)
                 logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
                 if not ans == None:     value_3 = self.umwandeln_Float(ans[0:46])   
                 else:
                     for n in range(0,23,1):
                         value_3.append(m.nan)
                 stat_list = ['MFC24Status', 'MFC25Status', 'MFC26Status', 'MFC27Status', 'MV1Status', 'V1Status', 'V2Status', 'V3Status', 'V4Status', 'V5Status', 'V6Status', 'V7Status', 'V17Status']
-                for n in range(47, 60, 1):
-                    if not ans == None and type(ans[n]) == int: self.value_name[stat_list[n-47]] = ans[n] 
+                for n in range(46, 59, 1):
+                    if not ans == None and type(ans[n]) == int: self.value_name[stat_list[n-46]] = ans[n] 
                     else:                                       
-                        if not stat_list[n-47][0] == 'V':   self.value_name[stat_list[n-47]] = 64   # Bit 14 wird angespochen
-                        else:                               self.value_name[stat_list[n-47]] = 1024 # bei Ventilen wird der Bit 14 genutzt, weshalb der Schnittstellen-Fehler auf dem Bit 3 liegt! 
+                        if not stat_list[n-46][0] == 'V':   self.value_name[stat_list[n-46]] = 64   # Bit 14 wird angespochen
+                        else:                               self.value_name[stat_list[n-46]] = 1024 # bei Ventilen wird der Bit 14 genutzt, weshalb der Schnittstellen-Fehler auf dem Bit 3 liegt! 
 
+                # Auslese-Teil 3 - Kühlung:
+                # Lese:     KWKDF_1, KWKDF_2, KWKDF_3, KWKDF_4, KWKDF_5, KWKDF_6, KWKDF_7, KWKDF_8, KWKDF_9,
+                #           KWKT_1, KWKT_2, KWKT_3, KWKT_4, KWKT_5, KWKT_6, KWKT_7, KWKT_8, KWKT_9,
+                #           KWK5_In, KWK5_Out, KWK5_diff, KWK46_In, KWK46_Out, KWK46_diff
+                # Notiz:    24 Gleitkommazahlen           --> (24 * 2) = 48 Register     
+                ans = self.serial.read_input_registers(self.start_Lese_Register_K, 48)
+                logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}') # Notiz: Beschreibung Kühlung dazu, bei anderen auch!! 
+                if not ans == None:     value_4 = self.umwandeln_Float(ans)   
+                else:
+                    for n in range(0,24,1):
+                        value_4.append(m.nan)   
+
+                # Auslese-Teil 4 - Anlagensicherheit: 
+                # Lese:     ASTO, ASTM, ASTU, ASBMStatus, ASStatus
+                # Notiz:    3 Gleitkommazahlen           
+                #           2 Statuswörter          --> (3 * 2) + 2 = 8 Register
+                ans = self.serial.read_input_registers(self.start_Lese_Register_AS, 8)
+                if not ans == None:     value_5 = self.umwandeln_Float(ans[0:6])   
+                else:
+                    for n in range(0,3,1):
+                        value_5.append(m.nan)
+                stat_list = ['ASBMStatus', 'ASStatus']
+                if not ans == None and type(ans[6]) == int: self.value_name['ASBMStatus'] = ans[6] 
+                else:                                       self.value_name['ASBMStatus'] = 64
+                if not ans == None and type(ans[7]) == int: self.value_name['ASStatus'] = ans[7] 
+                else:                                       self.value_name['ASStatus'] = 64
+
+            # Gas 1:
             # Reiehnfolge: MFC24, MFC25, MFC26, MFC27, DM21, PP21, PP22, PP22I
             self.value_name['MFC24'] = value_1[0]   # Einheit: ml/min
             self.value_name['MFC25'] = value_1[1]   # Einheit: ml/min
@@ -299,22 +354,58 @@ class NemoGase:
             self.value_name['PP21']  = value_1[5]   # Einheit: mbar
             self.value_name['PP22']  = value_1[6]   # Einheit: mbar
             self.value_name['PP22I'] = value_2[0]   # Einheit: %
-            # Reiehnfolge:  MFC24_S, MFC24_FM, MFC25_S, MFC25_FM, MFC26_S, MFC26_FM, MFC27_S, MFC27_FM,
-            #               MV1_I, MV1_S, MV1_VS, PP22mPtS, (Rampen-Werte: 12 -21), MV1_SG
             if self.Anlage == 2:
-                self.value_name['MFC24_S'] = value_3[0]     # Einheit: ml/min
+                # Gas 2:
+                # Reiehnfolge:  MFC24_S, MFC24_FM, MFC25_S, MFC25_FM, MFC26_S, MFC26_FM, MFC27_S, MFC27_FM,
+                #               MV1_I, MV1_S, MV1_VS, PP22mPtS, (Rampen-Werte: 12 -21), MV1_SG
+                self.value_name['MFC24_S']  = value_3[0]    # Einheit: ml/min
                 self.value_name['MFC24_FM'] = value_3[1]    # Einheit: ml/min
-                self.value_name['MFC25_S'] = value_3[2]     # Einheit: ml/min
+                self.value_name['MFC25_S']  = value_3[2]    # Einheit: ml/min
                 self.value_name['MFC25_FM'] = value_3[3]    # Einheit: ml/min
-                self.value_name['MFC26_S'] = value_3[4]     # Einheit: ml/min
+                self.value_name['MFC26_S']  = value_3[4]    # Einheit: ml/min
                 self.value_name['MFC26_FM'] = value_3[5]    # Einheit: ml/min
-                self.value_name['MFC27_S'] = value_3[6]     # Einheit: ml/min
+                self.value_name['MFC27_S']  = value_3[6]    # Einheit: ml/min
                 self.value_name['MFC27_FM'] = value_3[7]    # Einheit: ml/min
-                self.value_name['MV1_I'] = value_3[8]       # Einheit: mbar
-                self.value_name['MV1_S'] = value_3[9]       # Einheit: mbar
-                self.value_name['MV1_VS'] = value_3[10]     # Einheit: ?
+                self.value_name['MV1_I']    = value_3[8]    # Einheit: mbar
+                self.value_name['MV1_S']    = value_3[9]    # Einheit: mbar
+                self.value_name['MV1_VS']   = value_3[10]   # Einheit: % (Annahme)
                 self.value_name['PP22mPtS'] = value_3[11]   # Einheit: mbar
-                self.value_name['MV1_SG'] = value_3[22]     # Einheit: ?
+                self.value_name['MV1_SG']   = value_3[22]   # Einheit: % (Annahme)
+
+                # Kühlung:
+                # Reihenfolge:  KWKDF_1, KWKT_1, KWKDF_2, KWKT_2, KWKDF_3, KWKT_3, KWKDF_4, KWKT_4, KWKDF_5, KWKT_5,
+                #               KWKDF_6, KWKT_6, KWKDF_7, KWKT_7, KWKDF_8, KWKT_8, KWKDF_9, KWKT_9,                   
+                #               KWK5_In, KWK5_Out, KWK5_diff, KWK46_In, KWK46_Out, KWK46_diff 
+                self.value_name['KWKDF_1']      = value_4[0]    # Einheit: l/min
+                self.value_name['KWKT_1']       = value_4[1]    # Einheit: °C
+                self.value_name['KWKDF_2']      = value_4[2]    # Einheit: l/min
+                self.value_name['KWKT_2']       = value_4[3]    # Einheit: °C
+                self.value_name['KWKDF_3']      = value_4[4]    # Einheit: l/min
+                self.value_name['KWKT_3']       = value_4[5]    # Einheit: °C
+                self.value_name['KWKDF_4']      = value_4[6]    # Einheit: l/min
+                self.value_name['KWKT_4']       = value_4[7]    # Einheit: °C
+                self.value_name['KWKDF_5']      = value_4[8]    # Einheit: l/min
+                self.value_name['KWKT_5']       = value_4[9]    # Einheit: °C
+                self.value_name['KWKDF_6']      = value_4[10]   # Einheit: l/min
+                self.value_name['KWKT_6']       = value_4[11]   # Einheit: °C
+                self.value_name['KWKDF_7']      = value_4[12]   # Einheit: l/min
+                self.value_name['KWKT_7']       = value_4[13]   # Einheit: °C
+                self.value_name['KWKDF_8']      = value_4[14]   # Einheit: l/min
+                self.value_name['KWKT_8']       = value_4[15]   # Einheit: °C
+                self.value_name['KWKDF_9']      = value_4[16]   # Einheit: l/min            
+                self.value_name['KWKT_9']       = value_4[17]   # Einheit: °C
+                self.value_name['KWK5_In']      = value_4[18]   # Einheit: l/min (Annahme)
+                self.value_name['KWK5_Out']     = value_4[19]   # Einheit: l/min (Annahme)
+                self.value_name['KWK5_diff']    = value_4[20]   # Einheit: l/min (Annahme)
+                self.value_name['KWK46_In']     = value_4[21]   # Einheit: l/min (Annahme)
+                self.value_name['KWK46_Out']    = value_4[22]   # Einheit: l/min (Annahme)
+                self.value_name['KWK46_diff']   = value_4[23]   # Einheit: l/min (Annahme)
+
+                # Anlagensicherheit:
+                # Reihenfolge:  ASTO, ASTM, ASTU
+                self.value_name['ASTO']         = value_5[0]    # Einheit: °C
+                self.value_name['ASTM']         = value_5[1]    # Einheit: °C
+                self.value_name['ASTU']         = value_5[2]    # Einheit: °C
 
         except Exception as e:
             logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
@@ -400,8 +491,8 @@ class NemoGase:
             units  = "# datetime,s,ml/min,ml/min,ml/min,ml/min,mbar,mbar,mbar,%,\n"
             header = "time_abs,time_rel,MFC24,MFC25,MFC26,MFC27,DM21,PP21,PP22,PP22I,\n"
         elif self.Anlage == 2:  
-            units = "# datetime,s,ml/min,ml/min,ml/min,ml/min,mbar,mbar,%,mbar,mbar,mbar,?,?,ml/min,ml/min,ml/min,ml/min,ml/min,ml/min,ml/min,ml/min\n"
-            header = "time_abs,time_rel,MFC1_Ist,MFC2_Ist,MFC3_Ist,MFC4_Ist,PP1,PP2,P2I,PP2mPtS,MV1_Ist,MV1_Soll,MV1_VS,MV1_SG,MFC1_Soll,MFC1_FlowMax,MFC2_Soll,MFC2_FlowMax,MFC3_Soll,MFC3_FlowMax,MFC4_Soll,MFC4_FlowMax,\n"
+            units = "# datetime,s,ml/min,ml/min,ml/min,ml/min,mbar,mbar,%,mbar,mbar,mbar,%,%,ml/min,ml/min,ml/min,ml/min,ml/min,ml/min,ml/min,ml/min,l/min,l/min,l/min,l/min,l/min,l/min,l/min,l/min,l/min,DEG C,DEG C,DEG C,DEG C,DEG C,DEG C,DEG C,DEG C,DEG C,l/min,l/min,l/min,l/min,l/min,l/min,DEG C,DEG C,DEG C,\n"
+            header = "time_abs,time_rel,MFC1_Ist,MFC2_Ist,MFC3_Ist,MFC4_Ist,PP1,PP2,P2I,PP2mPtS,MV1_Ist,MV1_Soll,MV1_VS,MV1_SG,MFC1_Soll,MFC1_FlowMax,MFC2_Soll,MFC2_FlowMax,MFC3_Soll,MFC3_FlowMax,MFC4_Soll,MFC4_FlowMax,WK1Flow,WK2Flow,WK3Flow,WK4Flow,WK5Flow,WK6Flow,WK7Flow,WK8Flow,WK9Flow,WK1T,WK2T,WK3T,WK4T,WK5T,WK6T,WK7T,WK8T,WK9T,WK5In,WK5Out,WK5diff,WK46In,WK46Out,WK46diff,SaveThermoOben,SaveThermoMitte,SaveThermoUnten,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
             with open(self.filename, "w", encoding="utf-8") as f:

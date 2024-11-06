@@ -74,10 +74,16 @@ class NemoGaseWidget:
         ## Anlage: ##################################################################################################################################################################################################################################################################################
         self.nemo               = ['Nemo-Anlage',                                               'Nemo facility']
         ## Überschriften und Größenbezeichnung: #####################################################################################################################################################################################################################################################                    
-        ü1_str                  = ['1. Durchfluss',                                             '1. Flow']
-        ü2_str                  = ['2. Pumpen-Werte',                                           '2. Pump values']
-        ü3_str                  = ['3. Status',                                                 '3. Status']
-        ü4_str                  = ['Vakuum/Gas und Pumpen',                                     'Vacuum/Gas and Pumps']
+        ü1_str                  = ['G1. Durchfluss',                                            'G1. Flow']
+        ü2_str                  = ['G2. Pumpen-Werte',                                          'G2. Pump values']
+        ü3_str                  = ['G3. Status',                                                'G3. Status']
+        ü4_str                  = ['Vakuum/Gas und Pumpen (G)',                                 'Vacuum/Gas and Pumps (G)']
+        ü5_str                  = ['Anlagensicherheit (AS)',                                    'Facility Safety (FS)']
+        ü6_str                  = ['Kühlung (K)',                                               'Cooling (C)']
+        ü7_str                  = ['K1. Wasserkreis Daten',                                     'C1. Water Cycle Data']
+        ü8_str                  = ['K2. Weitere Daten',                                         'C2. Additional data']
+        ü9_str                  = ['AS1. Sicherheits-Thermoelement',                            'FS1. Safety Thermocouple']
+        ü10_str                 = ['AS2. Status',                                               'FS2. Status']
         ## Bezeichnung: #############################################################################################################################################################################################################################################################################
         B1_str                  = ['Durchfluss',                                                'Flow']
         B2_str                  = ['Druck',                                                     'Pressure']
@@ -89,6 +95,18 @@ class NemoGaseWidget:
         B8_str                  = ['Sollwert',                                                  'Setpoint']
         B9_str                  = ['Istwert',                                                   'Actual value']
         B10_str                 = ['MaxFlow',                                                   'MaxFlow']
+        B11_str                 = ['Temperatur Oben',                                           'Temperature Above']
+        B12_str                 = ['Temperatur Mitte',                                          'Temperature Center']
+        B13_str                 = ['Temperatur Unten',                                          'Temperature Bottom']
+        B14_str                 = ['Betriebsmodus',                                             'Operating Mode']
+        B15_str                 = ['Anlagen',                                                   'System']
+        B16_str                 = ['Kreis',                                                     'Cycle']
+        B17_str                 = ['Temperatur',                                                'Temperatur']
+        B18_str                 = ['Wasserkreis 5',                                             'Water Cycle 5']
+        B19_str                 = ['Wasserkreis 4/6',                                           'Water Cycle 4/6']
+        B20_str                 = ['Rein',                                                      'In']
+        B21_str                 = ['Raus',                                                      'Out']
+        B22_str                 = ['Differenz',                                                 'Difference']
         ## Status: ##################################################################################################################################################################################################################################################################################                                                 
         self.no_sta_str         = ['Kein Status!',                                              'No Status!']
         ### Pumpe Nemo-1: ###########################################################################################################################################################################################################################################################################
@@ -112,7 +130,7 @@ class NemoGaseWidget:
         self.Stat_P2_3_str      = self.Stat_3_str
         self.Stat_P2_10_str     = ['Warnung',                                                   'Warning']
         self.Stat_P2_11_str     = self.Stat_6_str
-        ### Ventil: ##########################################################################################################################################################################################################################################################################
+        ### Ventil: ################################################################################################################################################################################################################################################################################
         self.Stat_V_1_str       = self.Stat_1_str
         self.Stat_V_2_str       = self.Stat_2_str
         self.Stat_V_9_str       = ['Ventil öffnet',                                             'Valve opens']
@@ -122,6 +140,14 @@ class NemoGaseWidget:
         self.Stat_V_13_str      = self.Stat_6_str
         self.Stat_V_14_str      = ['Fehler Endlage Offen',                                      'Error End Position Open']
         self.Stat_V_15_str      = ['Fehler Endlage Zu',                                         'Error end position closed']
+        ### Anlagensicherheit: #####################################################################################################################################################################################################################################################################
+        self.Stat_AS_1          = ['Not Halt',                                                  'Emergency Stop']
+        self.Stat_AS_2          = ['Rezipient Tür 1',                                           'Recipient Door 1']
+        self.Stat_AS_3          = ['Rezipient Tür 2',                                           'Recipient Door 2']
+        ### Betriebsmodus: #########################################################################################################################################################################################################################################################################
+        self.Stat_BM_1          = self.Stat_1_str
+        self.Stat_BM_2          = self.Stat_2_str
+        self.Stat_BM_3          = ['Unterdruckregelung',                                        'Vacuum control']
         ## Geräte-Bezeichnung: #####################################################################################################################################################################################################################################################################                                         
         ### Nemo-1 -> _1 | Nemo-2 -> _2
         G1_F_str_1              = ['MFC24',                                                     'MFC24']
@@ -151,6 +177,8 @@ class NemoGaseWidget:
         E1_F_str                = ['ml/min',                                                    'ml/min']
         E2_D_str                = ['mbar',                                                      'mbar']
         E3_n_str                = ['%',                                                         '%']
+        E4_F_str                = ['l/min',                                                     'l/min']
+        E5_T_str                = ['°C',                                                        '°C']
         ## Ablaufdatei: ############################################################################################################################################################################################################################################################################
         self.Text_1_str         = ['Initialisierungsknopf betätigt.',                           'Initialization button pressed.']
         ## Logging: ################################################################################################################################################################################################################################################################################                     
@@ -203,8 +231,8 @@ class NemoGaseWidget:
         #________________________________________
         ## Kompakteres Darstellen:
         ### Grid Size - bei Verschieben der Splitter zusammenhängend darstellen: (Notiz: Das bei GUI in Arbeit erläutern!)
-        self.layer_layout.setRowStretch(36, 1) 
-        self.layer_layout.setColumnStretch(9, 1)
+        self.layer_layout.setRowStretch(47, 1) 
+        self.layer_layout.setColumnStretch(17, 1)
 
         ### Spacing:
         self.layer_layout.setHorizontalSpacing(3)       
@@ -216,12 +244,13 @@ class NemoGaseWidget:
             self.layer_layout.setColumnMinimumWidth(3, 100)
             self.layer_layout.setColumnMinimumWidth(4, 100)
         elif self.Anlage == 2:
-            self.layer_layout.setColumnMinimumWidth(1, 40)
-            self.layer_layout.setColumnMinimumWidth(2, 40)
-            self.layer_layout.setColumnMinimumWidth(4, 40)
-            self.layer_layout.setColumnMinimumWidth(5, 40)
-            self.layer_layout.setColumnMinimumWidth(7, 40)
-            self.layer_layout.setColumnMinimumWidth(8, 40)
+            self.layer_layout.setColumnMinimumWidth(1, 50)
+            self.layer_layout.setColumnMinimumWidth(2, 50)
+            self.layer_layout.setColumnMinimumWidth(4, 50)
+            self.layer_layout.setColumnMinimumWidth(5, 50)
+            self.layer_layout.setColumnMinimumWidth(7, 50)
+            self.layer_layout.setColumnMinimumWidth(8, 50)
+            self.layer_layout.setColumnMinimumWidth(10, 50)
         #________________________________________
         ## Widgets:
         ### Anlagen-Differenz:
@@ -249,6 +278,12 @@ class NemoGaseWidget:
         self.labelÜ2 = QLabel(f'<b>{ü2_str[self.sprache]}:</b>')
         self.labelÜ3 = QLabel(f'<b>{ü3_str[self.sprache]}:</b>')
         self.labelMon1 = QLabel(f'<i><b>{ü4_str[self.sprache]}:</b></i>')
+        self.labelMon2 = QLabel(f'<i><b>{ü5_str[self.sprache]}:</b></i>')
+        self.labelMon3 = QLabel(f'<i><b>{ü6_str[self.sprache]}:</b></i>')
+        self.labelÜ4 = QLabel(f'<b>{ü7_str[self.sprache]}:</b>')
+        self.labelÜ5 = QLabel(f'<b>{ü8_str[self.sprache]}:</b>')
+        self.labelÜ6 = QLabel(f'<b>{ü9_str[self.sprache]}:</b>')
+        self.labelÜ7 = QLabel(f'<b>{ü10_str[self.sprache]}:</b>')
 
         #### Flow:
         ##### Nemo-1 -> MFC24 | Nemo-2 -> MFC1
@@ -336,11 +371,11 @@ class NemoGaseWidget:
         #### Ventil-Einstellung:
         self.DVlabelSize_MV1_VS = QLabel(f'{G9_D_str_2[self.sprache]} {B6_str[self.sprache]}: ')
         self.DVlabelValu_MV1_VS = QLabel()
-        self.DVlabelUnit_MV1_VS = QLabel('')
+        self.DVlabelUnit_MV1_VS = QLabel(E3_n_str[self.sprache])
 
         self.DVlabelSize_MV1_SG = QLabel(f'{G9_D_str_2[self.sprache]} {B7_str[self.sprache]}: ')
         self.DVlabelValu_MV1_SG = QLabel()
-        self.DVlabelUnit_MV1_SG = QLabel('')
+        self.DVlabelUnit_MV1_SG = QLabel(E3_n_str[self.sprache])
 
         #### Andere Status-Werte:
         self.FSlabelSize_MFC24 = QLabel(f'{G1_F_str[self.sprache]} {B3_str[self.sprache]}: ')
@@ -382,8 +417,86 @@ class NemoGaseWidget:
         self.VSlabelSize_V17 = QLabel(f'{G17_V_str_2[self.sprache]} {B3_str[self.sprache]}: ')
         self.VSlabelValu_V17 = QLabel()
 
+        ### Kühlung:
+        #### Tabellen:
+        self.KTabÜ1 = QLabel(f'<i>{B1_str[self.sprache]}</i>')
+        self.KTabÜ2 = QLabel(f'<i>{B17_str[self.sprache]}</i>')
+        self.KTabÜ3 = QLabel(f'<i>{B18_str[self.sprache]}</i>')
+        self.KTabÜ4 = QLabel(f'<i>{B19_str[self.sprache]}</i>')
+
+        #### Kreise:
+        self.KWKlabelSize_list  = []
+        self.KWKlabelUnit1_list = []
+        self.KWKlabelUnit2_list = []
+        for n in range(1,10,1):
+            WK = QLabel(f'{B16_str[self.sprache]} {n}: ')
+            self.KWKlabelSize_list.append(WK)
+            self.KWKlabelUnit1_list.append(QLabel(f'{E4_F_str[self.sprache]}'))
+            self.KWKlabelUnit2_list.append(QLabel(f'{E5_T_str[self.sprache]}'))
+
+        self.KWKlabelValu_K1F = QLabel()
+        self.KWKlabelValu_K2F = QLabel()
+        self.KWKlabelValu_K3F = QLabel()
+        self.KWKlabelValu_K4F = QLabel()
+        self.KWKlabelValu_K5F = QLabel()
+        self.KWKlabelValu_K6F = QLabel()
+        self.KWKlabelValu_K7F = QLabel()
+        self.KWKlabelValu_K8F = QLabel()
+        self.KWKlabelValu_K9F = QLabel()
+
+        self.KWKlabelValu_list_F = [self.KWKlabelValu_K1F, self.KWKlabelValu_K2F, self.KWKlabelValu_K3F, self.KWKlabelValu_K4F, self.KWKlabelValu_K5F, self.KWKlabelValu_K6F, self.KWKlabelValu_K7F, self.KWKlabelValu_K8F, self.KWKlabelValu_K9F]
+
+        self.KWKlabelValu_K1T = QLabel()
+        self.KWKlabelValu_K2T = QLabel()
+        self.KWKlabelValu_K3T = QLabel()
+        self.KWKlabelValu_K4T = QLabel()
+        self.KWKlabelValu_K5T = QLabel()
+        self.KWKlabelValu_K6T = QLabel()
+        self.KWKlabelValu_K7T = QLabel()
+        self.KWKlabelValu_K8T = QLabel()
+        self.KWKlabelValu_K9T = QLabel()
+
+        self.KWKlabelValu_list_T = [self.KWKlabelValu_K1T, self.KWKlabelValu_K2T, self.KWKlabelValu_K3T, self.KWKlabelValu_K4T, self.KWKlabelValu_K5T, self.KWKlabelValu_K6T, self.KWKlabelValu_K7T, self.KWKlabelValu_K8T, self.KWKlabelValu_K9T]
+
+        #### Weitere Daten:
+        self.KWKlabelSize_In   = QLabel(f'{B20_str[self.sprache]}: ')
+        self.KWKlabelSize_Out  = QLabel(f'{B21_str[self.sprache]}: ')
+        self.KWKlabelSize_diff = QLabel(f'{B22_str[self.sprache]}: ')
+
+        self.KWKlabelValu_In5       = QLabel()
+        self.KWKlabelUnit_In5       = QLabel(f'{E4_F_str[self.sprache]}')
+        self.KWKlabelValu_Out5      = QLabel()
+        self.KWKlabelUnit_Out5      = QLabel(f'{E4_F_str[self.sprache]}')
+        self.KWKlabelValu_diff5     = QLabel()
+        self.KWKlabelUnit_diff5     = QLabel(f'{E4_F_str[self.sprache]}')
+        self.KWKlabelValu_In46      = QLabel()
+        self.KWKlabelUnit_In46      = QLabel(f'{E4_F_str[self.sprache]}')
+        self.KWKlabelValu_Out46     = QLabel()
+        self.KWKlabelUnit_Out46     = QLabel(f'{E4_F_str[self.sprache]}')
+        self.KWKlabelValu_diff46    = QLabel()
+        self.KWKlabelUnit_diff46    = QLabel(f'{E4_F_str[self.sprache]}')
+
+        ### Anlagensicherheit:
+        self.ASlabelSize_TO = QLabel(f'{B11_str[self.sprache]}: ')
+        self.ASlabelUnit_TO = QLabel(f'{E5_T_str[self.sprache]}')
+        self.ASlabelValu_TO = QLabel()
+
+        self.ASlabelSize_TM = QLabel(f'{B12_str[self.sprache]}: ')
+        self.ASlabelUnit_TM = QLabel(f'{E5_T_str[self.sprache]}')
+        self.ASlabelValu_TM = QLabel()
+
+        self.ASlabelSize_TU = QLabel(f'{B13_str[self.sprache]}: ')
+        self.ASlabelUnit_TU = QLabel(f'{E5_T_str[self.sprache]}')
+        self.ASlabelValu_TU = QLabel()
+
+        self.ASlabelSize_BMS = QLabel(f'{B14_str[self.sprache]} {B3_str[self.sprache]}: ')
+        self.ASlabelValu_BMS = QLabel()
+
+        self.ASlabelSize_AS  = QLabel(f'{B15_str[self.sprache]} {B3_str[self.sprache]}: ')
+        self.ASlabelValu_AS  = QLabel()
         #________________________________________
         ## Platzierung der einzelnen Widgets im Layout:
+        ### Monitoring Gas/Vakuum und Pumpen:
         if self.Anlage == 1:    
             pos = 1
             CS  = 5
@@ -429,7 +542,7 @@ class NemoGaseWidget:
             self.layer_layout.addWidget(self.FlabelUnit_MFC26_FM,   pos+3, 8, alignment=Qt.AlignLeft)
             self.layer_layout.addWidget(self.FlabelValu_MFC27_FM,   pos+4, 7)
             self.layer_layout.addWidget(self.FlabelUnit_MFC27_FM,   pos+4, 8, alignment=Qt.AlignLeft)
-        self.Leerzeile(pos+5, AnzColum = 5 if self.Anlage == 1 else (9 if self.Anlage == 2 else -1)) 
+        self.Leerzeile(pos+5, AnzColum = 5 if self.Anlage == 1 else (10 if self.Anlage == 2 else -1)) 
 
         if   self.Anlage == 1: pos = 7
         elif self.Anlage == 2: pos = 9
@@ -438,6 +551,7 @@ class NemoGaseWidget:
             self.layer_layout.addWidget(self.DlabelSize_DM21,   pos+1, 0)
             self.layer_layout.addWidget(self.DlabelValu_DM21,   pos+1, 1)
             self.layer_layout.addWidget(self.DlabelUnit_DM21,   pos+1, 2, alignment=Qt.AlignLeft)
+        elif self.Anlage == 2: pos = pos-1
         self.layer_layout.addWidget(self.DlabelSize_PP21,       pos+2, 0)
         self.layer_layout.addWidget(self.DlabelValu_PP21,       pos+2, 1)
         self.layer_layout.addWidget(self.DlabelUnit_PP21,       pos+2, 2, alignment=Qt.AlignLeft)
@@ -464,15 +578,15 @@ class NemoGaseWidget:
             self.layer_layout.addWidget(self.DVlabelValu_MV1_SG,pos+9, 1)
             self.layer_layout.addWidget(self.DVlabelUnit_MV1_SG,pos+9, 2, alignment=Qt.AlignLeft)
         if   self.Anlage == 1: posLZ = pos+5
-        elif self.Anlage == 2: posLZ = pos+10
-        self.Leerzeile(posLZ, AnzColum = 5 if self.Anlage == 1 else (9 if self.Anlage == 2 else -1))
+        elif self.Anlage == 2: posLZ = pos+11
+        self.Leerzeile(posLZ, AnzColum = 5 if self.Anlage == 1 else (10 if self.Anlage == 2 else -1))
         
         if   self.Anlage == 1: pos = 13
         elif self.Anlage == 2: 
             pos = 20
             CS  = 8
         spa = 0
-        self.layer_layout.addWidget(self.labelÜ3,                   pos,   spa   , 1 , CS)
+        self.layer_layout.addWidget(self.labelÜ3,                   pos,   spa   , 1 , CS+1)
         self.layer_layout.addWidget(self.DSlabelSize_PP21,          pos+1, spa)
         self.layer_layout.addWidget(self.DSlabelValu_PP21,          pos+1, spa+1 , 1 , CS) 
         self.layer_layout.addWidget(self.DSlabelSize_PP22,          pos+2, spa)
@@ -504,6 +618,75 @@ class NemoGaseWidget:
             self.layer_layout.addWidget(self.VSlabelValu_V7,        pos+14, spa+1 , 1 , CS)
             self.layer_layout.addWidget(self.VSlabelSize_V17,       pos+15, spa)
             self.layer_layout.addWidget(self.VSlabelValu_V17,       pos+15, spa+1 , 1 , CS)
+            
+            self.Leerzeile(pos+16, AnzColum = 10)
+
+            ### Monitoring Anlagensicherheit:
+            pos = 37
+            self.layer_layout.addWidget(self.labelMon2,         pos,        0   , 1 , CS+1)
+            self.layer_layout.addWidget(self.labelÜ6,           pos+1,        0   , 1 , CS+1)
+            self.layer_layout.addWidget(self.ASlabelSize_TO,    pos+2,      0)
+            self.layer_layout.addWidget(self.ASlabelValu_TO,    pos+2,      1)
+            self.layer_layout.addWidget(self.ASlabelUnit_TO,    pos+2,      2)
+            self.layer_layout.addWidget(self.ASlabelSize_TM,    pos+3,      0)
+            self.layer_layout.addWidget(self.ASlabelValu_TM,    pos+3,      1)
+            self.layer_layout.addWidget(self.ASlabelUnit_TM,    pos+3,      2)
+            self.layer_layout.addWidget(self.ASlabelSize_TU,    pos+4,      0)
+            self.layer_layout.addWidget(self.ASlabelValu_TU,    pos+4,      1)
+            self.layer_layout.addWidget(self.ASlabelUnit_TU,    pos+4,      2)
+            self.Leerzeile(pos+5, AnzColum = 10)
+            self.layer_layout.addWidget(self.labelÜ7,           pos+6,      0   , 1 , CS+1)
+            self.layer_layout.addWidget(self.ASlabelSize_BMS,   pos+7,      0)
+            self.layer_layout.addWidget(self.ASlabelValu_BMS,   pos+7,      1 , 1 , CS)
+            self.layer_layout.addWidget(self.ASlabelSize_AS,    pos+8,      0)
+            self.layer_layout.addWidget(self.ASlabelValu_AS,    pos+8,      1 , 1 , CS)
+
+            self.Leerzeile(46, AnzColum=10)
+            self.Leerspalte(9,1,46)
+
+            ### Monitoring Kühlung:
+            pos = 1
+            CS  = 6
+            self.layer_layout.addWidget(self.labelMon3,         pos,        10   , 1 , CS)
+            self.layer_layout.addWidget(self.labelÜ4,           pos+1,      10   , 1 , CS)
+            self.layer_layout.addWidget(self.KTabÜ1,            pos+2,      11   , 1 , 2)
+            self.layer_layout.addWidget(self.KTabÜ2,            pos+2,      14   , 1 , 2)
+            i = 3
+            for n in range(0,9,1):
+                self.layer_layout.addWidget(self.KWKlabelSize_list[n],   pos+i, 10   , 1 , CS)
+                self.layer_layout.addWidget(self.KWKlabelValu_list_F[n], pos+i, 11)
+                self.layer_layout.addWidget(self.KWKlabelUnit1_list[n],  pos+i, 12)
+
+                self.layer_layout.addWidget(self.KWKlabelValu_list_T[n], pos+i, 14)
+                self.layer_layout.addWidget(self.KWKlabelUnit2_list[n],  pos+i, 15)
+                i += 1
+            
+            self.Leerspalte(13, 4, 9)
+            self.Leerzeile(13,  9, 8)
+
+            self.layer_layout.addWidget(self.labelÜ5,               pos+13,      10   , 1 , CS)
+            self.layer_layout.addWidget(self.KTabÜ3,                pos+14,      11   , 1 , 2)
+            self.layer_layout.addWidget(self.KTabÜ4,                pos+14,      14   , 1 , 2)
+            self.layer_layout.addWidget(self.KWKlabelSize_In,       pos+15,      10) 
+            self.layer_layout.addWidget(self.KWKlabelValu_In5,      pos+15,      11) 
+            self.layer_layout.addWidget(self.KWKlabelUnit_In5,      pos+15,      12) 
+            self.layer_layout.addWidget(self.KWKlabelValu_In46,     pos+15,      14) 
+            self.layer_layout.addWidget(self.KWKlabelUnit_In46,     pos+15,      15)
+            self.layer_layout.addWidget(self.KWKlabelSize_Out,      pos+16,      10) 
+            self.layer_layout.addWidget(self.KWKlabelValu_Out5,     pos+16,      11) 
+            self.layer_layout.addWidget(self.KWKlabelUnit_Out5,     pos+16,      12) 
+            self.layer_layout.addWidget(self.KWKlabelValu_Out46,    pos+16,      14) 
+            self.layer_layout.addWidget(self.KWKlabelUnit_Out46,    pos+16,      15)
+            self.layer_layout.addWidget(self.KWKlabelSize_diff,     pos+17,      10) 
+            self.layer_layout.addWidget(self.KWKlabelValu_diff5,    pos+17,      11) 
+            self.layer_layout.addWidget(self.KWKlabelUnit_diff5,    pos+17,      12) 
+            self.layer_layout.addWidget(self.KWKlabelValu_diff46,   pos+17,      14) 
+            self.layer_layout.addWidget(self.KWKlabelUnit_diff46,   pos+17,      15)
+
+            self.Leerspalte(13, 16, 3)
+            self.Leerzeile(19, 9, 8)
+            self.Leerspalte(16,1,19)
+
         #________________________________________
         ## Border Sichtbar:
         if Frame_Anzeige:
@@ -512,16 +695,23 @@ class NemoGaseWidget:
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
-        self.labelDict      = {'MFC24': self.FlabelValu_MFC24,  'MFC24_S': self.FlabelValu_MFC24_S,  'MFC24_FM': self.FlabelValu_MFC24_FM, 'MFC24Status': self.FSlabelValu_MFC24,
-                               'MFC25': self.FlabelValu_MFC25,  'MFC25_S': self.FlabelValu_MFC25_S,  'MFC25_FM': self.FlabelValu_MFC25_FM, 'MFC25Status': self.FSlabelValu_MFC25,
-                               'MFC26': self.FlabelValu_MFC26,  'MFC26_S': self.FlabelValu_MFC26_S,  'MFC26_FM': self.FlabelValu_MFC26_FM, 'MFC26Status': self.FSlabelValu_MFC26,
-                               'MFC27': self.FlabelValu_MFC27,  'MFC27_S': self.FlabelValu_MFC27_S,  'MFC27_FM': self.FlabelValu_MFC27_FM, 'MFC27Status': self.FSlabelValu_MFC27,
-                               'MV1_I': self.DlabelValu_MV1_I,  'MV1_S': self.DlabelValu_MV1_S,      'MV1_VS': self.DVlabelValu_MV1_VS,    'MV1_SG': self.DVlabelValu_MV1_SG,      'MV1Status': self.DSlabelValu_MV1,
-                               'DM21': self.DlabelValu_DM21, 
-                               'PP21': self.DlabelValu_PP21,    'PP21Status': self.DSlabelValu_PP21,
-                               'PP22': self.DlabelValu_PP22,    'PP22Status': self.DSlabelValu_PP22, 'PP22I': self.DIlabelValu_PP22,       'PP22mPtS': self.DlabelValu_P2,
-                               'V1Status': self.VSlabelValu_V1, 'V2Status': self.VSlabelValu_V2,     'V3Status': self.VSlabelValu_V3,      'V4Status': self.VSlabelValu_V4,
-                               'V5Status': self.VSlabelValu_V5, 'V6Status': self.VSlabelValu_V6,     'V7Status': self.VSlabelValu_V7,      'V17Status': self.VSlabelValu_V17,
+        self.labelDict      = {'MFC24': self.FlabelValu_MFC24,      'MFC24_S': self.FlabelValu_MFC24_S,     'MFC24_FM': self.FlabelValu_MFC24_FM, 'MFC24Status': self.FSlabelValu_MFC24,
+                               'MFC25': self.FlabelValu_MFC25,      'MFC25_S': self.FlabelValu_MFC25_S,     'MFC25_FM': self.FlabelValu_MFC25_FM, 'MFC25Status': self.FSlabelValu_MFC25,
+                               'MFC26': self.FlabelValu_MFC26,      'MFC26_S': self.FlabelValu_MFC26_S,     'MFC26_FM': self.FlabelValu_MFC26_FM, 'MFC26Status': self.FSlabelValu_MFC26,
+                               'MFC27': self.FlabelValu_MFC27,      'MFC27_S': self.FlabelValu_MFC27_S,     'MFC27_FM': self.FlabelValu_MFC27_FM, 'MFC27Status': self.FSlabelValu_MFC27,
+                               'MV1_I': self.DlabelValu_MV1_I,      'MV1_S': self.DlabelValu_MV1_S,         'MV1_VS': self.DVlabelValu_MV1_VS,    'MV1_SG': self.DVlabelValu_MV1_SG,      'MV1Status': self.DSlabelValu_MV1,
+                               'DM21': self.DlabelValu_DM21,        
+                               'PP21': self.DlabelValu_PP21,        'PP21Status': self.DSlabelValu_PP21,    
+                               'PP22': self.DlabelValu_PP22,        'PP22Status': self.DSlabelValu_PP22,    'PP22I': self.DIlabelValu_PP22,       'PP22mPtS': self.DlabelValu_P2,
+                               'V1Status': self.VSlabelValu_V1,     'V2Status': self.VSlabelValu_V2,        'V3Status': self.VSlabelValu_V3,      'V4Status': self.VSlabelValu_V4,
+                               'V5Status': self.VSlabelValu_V5,     'V6Status': self.VSlabelValu_V6,        'V7Status': self.VSlabelValu_V7,      'V17Status': self.VSlabelValu_V17,
+                               'KWKDF_1': self.KWKlabelValu_K1F,    'KWKDF_2': self.KWKlabelValu_K2F,       'KWKDF_3': self.KWKlabelValu_K3F,     'KWKDF_4': self.KWKlabelValu_K4F,       'KWKDF_5': self.KWKlabelValu_K5F,
+                               'KWKDF_6': self.KWKlabelValu_K6F,    'KWKDF_7': self.KWKlabelValu_K7F,       'KWKDF_8': self.KWKlabelValu_K8F,     'KWKDF_9': self.KWKlabelValu_K9F,
+                               'KWKT_1': self.KWKlabelValu_K1T,     'KWKT_2': self.KWKlabelValu_K2T,        'KWKT_3': self.KWKlabelValu_K3T,      'KWKT_4': self.KWKlabelValu_K4T,        'KWKT_5': self.KWKlabelValu_K5T,
+                               'KWKT_6': self.KWKlabelValu_K6T,     'KWKT_7': self.KWKlabelValu_K7T,        'KWKT_8': self.KWKlabelValu_K8T,      'KWKT_9': self.KWKlabelValu_K9T,
+                               'KWK5_In': self.KWKlabelValu_In5,    'KWK5_Out': self.KWKlabelValu_Out5,     'KWK5_diff': self.KWKlabelValu_diff5,
+                               'KWK46_In': self.KWKlabelValu_In46,  'KWK46_Out': self.KWKlabelValu_Out46,   'KWK46_diff': self.KWKlabelValu_diff46,
+                               'ASTO': self.ASlabelValu_TO,         'ASTM': self.ASlabelValu_TM,            'ASTU': self.ASlabelValu_TU,          'ASBMStatus': self.ASlabelValu_BMS,      'ASStatus': self.ASlabelValu_AS,
                                }     # Label
 
     ##########################################
@@ -577,12 +767,14 @@ class NemoGaseWidget:
 
         # Status:
         ## Listen:
-        status_P21_N1 = [self.Stat_1_str[self.sprache],     self.Stat_2_str[self.sprache],     '',                               '', '', '', '', '', self.Stat_3_str[self.sprache],     '',                                 '',                                 '',                             '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
-        status_P21_N2 = [self.Stat_P1_1_str[self.sprache],  self.Stat_P1_2_str[self.sprache],  '',                               '', '', '', '', '', self.Stat_P1_9_str[self.sprache],  '',                                 '',                                 '',                             '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
-        status_P22_N1 = [self.Stat_1_str[self.sprache],     self.Stat_2_str[self.sprache],     '',                               '', '', '', '', '', self.Stat_3_str[self.sprache],     self.Stat_4_str[self.sprache],      self.Stat_5_str[self.sprache],      self.Stat_6_str[self.sprache],  '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]     # Lowest Bit zu Highest Bit
-        status_P22_N2 = [self.Stat_P2_1_str[self.sprache],  self.Stat_P2_2_str[self.sprache],  self.Stat_P2_3_str[self.sprache], '', '', '', '', '', '',                                self.Stat_P2_10_str[self.sprache],  self.Stat_P2_11_str[self.sprache],  '',                             '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
-        status_MFC    = [self.Stat_MFC_1_str[self.sprache], self.Stat_MFC_2_str[self.sprache], '',                               '', '', '', '', '', '',                                '',                                 '',                                 '',                             '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
-        status_Ventil = [self.Stat_V_1_str[self.sprache],   self.Stat_V_2_str[self.sprache],   self.Stat_14_str[self.sprache],   '', '', '', '', '', self.Stat_V_9_str[self.sprache],   self.Stat_V_10_str[self.sprache],   self.Stat_V_11_str[self.sprache],   self.Stat_V_12_str[self.sprache], self.Stat_V_13_str[self.sprache], self.Stat_V_14_str[self.sprache],   self.Stat_V_15_str[self.sprache],   self.Stat_15_str[self.sprache]]
+        status_P21_N1 = [self.Stat_1_str[self.sprache],     self.Stat_2_str[self.sprache],      '',                               '', '', '', '', '', self.Stat_3_str[self.sprache],     '',                                 '',                                 '',                                '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
+        status_P21_N2 = [self.Stat_P1_1_str[self.sprache],  self.Stat_P1_2_str[self.sprache],   '',                               '', '', '', '', '', self.Stat_P1_9_str[self.sprache],  '',                                 '',                                 '',                                '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
+        status_P22_N1 = [self.Stat_1_str[self.sprache],     self.Stat_2_str[self.sprache],      '',                               '', '', '', '', '', self.Stat_3_str[self.sprache],     self.Stat_4_str[self.sprache],      self.Stat_5_str[self.sprache],      self.Stat_6_str[self.sprache],     '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]     # Lowest Bit zu Highest Bit
+        status_P22_N2 = [self.Stat_P2_1_str[self.sprache],  self.Stat_P2_2_str[self.sprache],   self.Stat_P2_3_str[self.sprache], '', '', '', '', '', '',                                self.Stat_P2_10_str[self.sprache],  self.Stat_P2_11_str[self.sprache],  '',                                '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
+        status_MFC    = [self.Stat_MFC_1_str[self.sprache], self.Stat_MFC_2_str[self.sprache],  '',                               '', '', '', '', '', '',                                '',                                 '',                                 '',                                '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
+        status_Ventil = [self.Stat_V_1_str[self.sprache],   self.Stat_V_2_str[self.sprache],    self.Stat_14_str[self.sprache],   '', '', '', '', '', self.Stat_V_9_str[self.sprache],   self.Stat_V_10_str[self.sprache],   self.Stat_V_11_str[self.sprache],   self.Stat_V_12_str[self.sprache],  self.Stat_V_13_str[self.sprache],   self.Stat_V_14_str[self.sprache],   self.Stat_V_15_str[self.sprache],   self.Stat_15_str[self.sprache]]
+        status_BM     = [self.Stat_BM_1[self.sprache],      self.Stat_BM_2[self.sprache],       self.Stat_BM_3[self.sprache],     '', '', '', '', '', '',                                '',                                 '',                                 '',                                '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
+        status_AS     = [self.Stat_AS_1[self.sprache],      self.Stat_AS_2[self.sprache],       self.Stat_AS_3[self.sprache],     '', '', '', '', '', '',                                '',                                 '',                                 '',                                '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
 
         # self.Stat_14_str[self.sprache] -> Schnittstellen-Problem
         # self.Stat_15_str[self.sprache] -> Test-Modus
@@ -631,6 +823,11 @@ class NemoGaseWidget:
             self.Status_Bund('V7Status', status_Ventil, status_wert_V7)
             status_wert_V17 = value_dict['V17Status']
             self.Status_Bund('V17Status', status_Ventil, status_wert_V17)
+            ## Anlagensicherheit:
+            status_wert_BM = value_dict['ASBMStatus']
+            self.Status_Bund('ASBMStatus', status_BM, status_wert_BM)
+            status_wert_AS = value_dict['ASStatus']
+            self.Status_Bund('ASStatus', status_AS, status_wert_AS)
     
     def Status_Bund(self, status_Key, status_Liste, wert):
         ''' String für den Status des Gerätes zusammensetzen und in die GUI einsetzen.
