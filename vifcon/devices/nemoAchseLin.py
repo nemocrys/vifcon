@@ -1074,7 +1074,7 @@ class NemoAchseLin(QObject):
 
         if self.Anlage == 2:
             filler = 0
-            if not ans == None and type(filler) == int: self.value_name['Status_2'] = ans[0]
+            if not ans == None and type(filler) == int: self.value_name['Status_2'] = filler
             else:        
                 self.value_name['Status']   = 0                               
                 self.value_name['Status_2'] = 64

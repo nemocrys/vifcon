@@ -1165,6 +1165,7 @@ class NemoAchseLinWidget(QWidget):
         new_string = self.Status_Bund(status_1, status_1_Wert, '')
 
         if self.Anlage == 2:
+            new_string = new_string + ', '
             status_2_Wert = value_dict['Status_2']
             new_string = self.Status_Bund(status_2, status_2_Wert, new_string)
 
@@ -1182,7 +1183,7 @@ class NemoAchseLinWidget(QWidget):
             label (str):            String der ins Label eingefügt wird!
         '''
         status_Bin = self.status_report_umwandlung(wert)
-        label = ''
+        label = string
         l = len(status_Bin)
         for n in range(0, l):
             if status_Bin[n] == '1':
