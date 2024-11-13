@@ -1121,7 +1121,10 @@ devices:
       write_trigger: Vifcon_gase                                          # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen) | Default bei Fehler: Port auf Null
       write_port: 54633                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
     register:
-      lese_st_Reg: 2                                                      # Auslese Start-Adresse: 2 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg_VGP_1: 2                                                # Auslese Start-Adresse für Vakuum/Gas/Pumpe 1: 2 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg_VGP_2: 56                                               # Auslese Start-Adresse für Vakuum/Gas/Pumpe 2: 2 | Default bei Fehler: Programm-Exit! | Nur bei Nemo-2 vorhanden!!
+      lese_st_Reg_K: 159                                                  # Auslese Start-Adresse für Kühlungswerte | Default bei Fehler: Programm-Exit! | Nur bei Nemo-2 vorhanden!!
+      lese_st_Reg_AS: 207                                                 # Auslese Start-Adresse für Anlagensicherheit | Default bei Fehler: Programm-Exit! | Nur bei Nemo-2 vorhanden!!
     parameter:
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3   
     

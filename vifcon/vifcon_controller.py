@@ -218,7 +218,15 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                         for key in sample_values:
                             sample_values[key] = round(random.uniform(0, 10), 3)
                             if 'Status' in key:
-                                sample_values[key] =  128          # Bit 15 gesetzt - 0 bis 15 - Test-Modus
+                                if not 'Nemo-Achse-Linear' in self.device_name:  
+                                    sample_values[key] =  128           # Bit 15 gesetzt - 0 bis 15 - Test-Modus
+                                else:
+                                    if self.device.Anlage == 2:         # Nemo-2 hat zwei Status-Listen (Bit 15 ist bei Liste 1 besetzt!!)
+                                        if key == 'Status_2':   sample_values[key] = 128
+                                        elif key == 'Status':   sample_values[key] = 0
+                                    else:                               # Nemo-1 hat nur eine Liste und brauch Status_2 nicht!
+                                        if key == 'Status':   sample_values[key] = 128
+                                        elif key == 'Status_2':   sample_values[key] = 0
 
                     self.device_widget.ak_value = sample_values
                     self.signal.emit(sample_values, self.xList, self.device_name)

@@ -113,6 +113,14 @@ class NemoAchseLin(QObject):
         Log_Text_PID_N18        = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
         
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Übergeordnet:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.Anlage = self.config['nemo-Version']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} nemo-Version {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.Anlage = 1
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Zum Start:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         try: self.init           = self.config['start']['init']                            # Initialisierung
@@ -455,11 +463,15 @@ class NemoAchseLin(QObject):
         if not type(self.Ist) in [float, int] or not self.Ist >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_ist - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {self.Ist}')
             self.Ist = 0
+        ### Anlagen-Version:
+        if not self.Anlage in [1, 2]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nemo-Version - {self.Log_Pfad_conf_2[self.sprache]} [1, 2] - {self.Log_Pfad_conf_3[self.sprache]} 1')
+            self.Anlage = 1
 
         ## Andere:
         self.Limit_stop         = False
         self.Limit_Stop_Text    = -1
-        self.value_name         = {'IWs': 0, 'IWsd':0, 'IWv': 0, 'SWv': 0, 'SWs':0, 'oGs':0, 'uGs': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0}
+        self.value_name         = {'IWs': 0, 'IWsd':0, 'IWv': 0, 'SWv': 0, 'SWs':0, 'oGs':0, 'uGs': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0, 'Status_2': 0}
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -1059,6 +1071,13 @@ class NemoAchseLin(QObject):
         ans = self.serial.read_input_registers(self.Status_Reg, 1)
         if not ans == None and type(ans[0]) == int: self.value_name['Status'] = ans[0]
         else:                                       self.value_name['Status'] = 64
+
+        if self.Anlage == 2:
+            filler = 0
+            if not ans == None and type(filler) == int: self.value_name['Status_2'] = ans[0]
+            else:        
+                self.value_name['Status']   = 0                               
+                self.value_name['Status_2'] = 64
 
         # PID-Modus:
         self.value_name['SWxPID'] = self.Soll

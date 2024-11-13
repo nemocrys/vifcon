@@ -247,11 +247,11 @@ class NemoAchseRotWidget(QWidget):
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.unit_PIDIn = 'mm'
         #//////////////////////////////////////////////////////////////////////
-        try: origin    = self.config['PID']['Value_Origin'].upper()
+        try: self.origin    = self.config['PID']['Value_Origin'].upper()
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Value_Origin {self.Log_Pfad_conf_5[self.sprache]} VV')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            origin = 'VV'    
+            self.origin = 'VV'    
         #//////////////////////////////////////////////////////////////////////
         try: self.PID_Mode_Switch_Value = float(str(self.config['PID']['umstell_wert']).replace(',', '.'))
         except Exception as e: 
@@ -327,12 +327,12 @@ class NemoAchseRotWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} startSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.startSpeed)}')
             self.startSpeed = 1
         ### PID-Herkunft:
-        if not type(origin) == str or not origin in ['MM', 'MV', 'VV', 'VM']:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Value_Origin - {self.Log_Pfad_conf_2[self.sprache]} [VV, MM, VM, MV] - {self.Log_Pfad_conf_3[self.sprache]} VV - {self.Log_Pfad_conf_8[self.sprache]} {origin}')
-            origin = 'VV'
-        if not self.multilog_OnOff and origin in ['MM', 'MV', 'VM']:
+        if not type(self.origin) == str or not self.origin in ['MM', 'MV', 'VV', 'VM']:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Value_Origin - {self.Log_Pfad_conf_2[self.sprache]} [VV, MM, VM, MV] - {self.Log_Pfad_conf_3[self.sprache]} VV - {self.Log_Pfad_conf_8[self.sprache]} {self.origin}')
+            self.origin = 'VV'
+        if not self.multilog_OnOff and self.origin in ['MM', 'MV', 'VM']:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_14[self.sprache]}')
-            origin = 'VV'
+            self.origin = 'VV'
         ### PID-Umschaltwert:
         if not type(self.PID_Mode_Switch_Value) in [float, int] or not self.PID_Mode_Switch_Value >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} umstell_wert - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Mode_Switch_Value)}')
@@ -408,7 +408,7 @@ class NemoAchseRotWidget(QWidget):
         self.Fehler_out_2       = ['Limit Counter Clock Wise erreicht!\nStopp ausgelöst!',                                                      'Limit Counter Clock Wise reached!\nStop triggered!']
         self.Fehler_out_3       = ['Limit erreicht!\nKnopf wird nicht ausgeführt!',                                                             'Limit reached!\nButton is not executed!']
         self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
-        ## Status: #################################################################################################################################################################################################################################################################################                                                              
+        ## Status-N1: ##############################################################################################################################################################################################################################################################################                                                              
         status_1_str            = ['Status: Inaktiv',                                                                                           'Status: Inactive']
         self.status_2_str       = ['Kein Status',                                                                                               'No Status']
         self.status_3_str       = ['Status:',                                                                                                   'Status:']
@@ -426,6 +426,16 @@ class NemoAchseRotWidget(QWidget):
         self.sta_Bit11_str      = ['Achse in Stopp',                                                                                            'Axis in stop']
         self.sta_Bit14_str      = ['Schnittstellenfehler',                                                                                      'Interface error']
         self.sta_Bit15_str      = ['Test-Modus Aktiv',                                                                                          'Test Mode Active']
+        ## Status-N2: ##############################################################################################################################################################################################################################################################################                                                              
+        self.Stat_N2_Bit0       = self.sta_Bit5_str
+        self.Stat_N2_Bit1       = self.sta_Bit11_str
+        self.Stat_N2_Bit2       = self.sta_Bit4_str
+        self.Stat_N2_Bit3       = self.sta_Bit0_str
+        self.Stat_N2_Bit4       = self.sta_Bit2_str 
+        self.Stat_N2_Bit8       = ['Rampe eingeschaltet',                                                                                       'Ramp switched on']
+        self.Stat_N2_Bit9       = ['Rampe ausgeschaltet',                                                                                       'Ramp switched off']
+        self.Stat_N2_Bit10      = ['Auf Winkel fahren ein',                                                                                     'Drive to angle on']
+        self.Stat_N2_Bit11      = ['Auf Winkel fahren aus',                                                                                     'Drive to angle off']
         ## Plot-Legende: ############################################################################################################################################################################################################################################################################                                                           
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                    # uL - upper Limit
@@ -748,15 +758,15 @@ class NemoAchseRotWidget(QWidget):
         ## PID-Modus:
         ### Istwert:
         PID_Export_Ist = ''
-        if origin[0] == 'V':        PID_Label_Ist = PID_Von_2[sprache]
-        elif origin[0] == 'M':     
+        if self.origin[0] == 'V':        PID_Label_Ist = PID_Von_2[sprache]
+        elif self.origin[0] == 'M':     
             PID_Label_Ist = PID_Von_1[sprache]
             PID_Export_Ist = PID_Zusatz[sprache]
         else:                       PID_Label_Ist = PID_Von_2[sprache]
         ### Sollwert
         PID_Export_Soll = ''
-        if origin[1] == 'V':        PID_Label_Soll = PID_Von_2[sprache]
-        elif origin[1] == 'M':     
+        if self.origin[1] == 'V':        PID_Label_Soll = PID_Von_2[sprache]
+        elif self.origin[1] == 'M':     
             PID_Label_Soll = PID_Von_1[sprache]
             PID_Export_Soll = PID_Zusatz[sprache]
         else:                       PID_Label_Soll = PID_Von_2[sprache]
@@ -1031,6 +1041,12 @@ class NemoAchseRotWidget(QWidget):
             # GUI ändern:
             self.La_SollSpeed.setText(self.x_str[self.sprache])
             if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[4]}")
+            # Bei Multilog-Sollwert:
+            if self.origin[1] == 'M':
+                self.btn_rezept_start.setEnable(False)
+                self.btn_rezept_ende.setEnable(False)
+                self.cb_Rezept.setEnable(False)
+                self.LE_Speed.setEnable(False)
         else:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
             # Aufgaben setzen:
@@ -1047,6 +1063,12 @@ class NemoAchseRotWidget(QWidget):
             # GUI ändern:
             self.La_SollSpeed.setText(self.v_str[self.sprache])
             if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[2]}")
+            # Bei Multilog-Sollwert:
+            if self.origin[1] == 'M':
+                self.btn_rezept_start.setEnable(True)
+                self.btn_rezept_ende.setEnable(True)
+                self.cb_Rezept.setEnable(True)
+                self.LE_Speed.setEnable(True)
 
     ##########################################
     # Eingabefeld Kontrolle:
@@ -1141,8 +1163,12 @@ class NemoAchseRotWidget(QWidget):
         status_1 = self.status_report_umwandlung(status_1)
         
         label_s1 = ''
-        status = [self.sta_Bit0_str[self.sprache], self.sta_Bit1_str[self.sprache] , self.sta_Bit2_str[self.sprache], self.sta_Bit3_str[self.sprache], self.sta_Bit4_str[self.sprache], self.sta_Bit5_str[self.sprache], self.sta_Bit6_str[self.sprache], self.sta_Bit7_str[self.sprache] , self.sta_Bit8_str[self.sprache] , self.sta_Bit9_str[self.sprache], self.sta_Bit10_str[self.sprache], self.sta_Bit11_str[self.sprache], '', '', self.sta_Bit14_str[self.sprache], self.sta_Bit15_str[self.sprache]]
-        # status = ['Betriebsbereit', 'Achse referiert', 'Achse Fehler', 'Antrieb läuft', 'Antrieb läuft Clock Wise', 'Antrieb läuft Counter Clock Wise', 'Achse Position oben', 'Achse Position unten', 'Achse Endlage oben', 'Achse Endlage unten', 'Software-Endlagen aus', 'Achse in Stopp']
+        status = ['','','','','','','','','','','','','','','','']
+        if self.Anlage == 1:
+            status = [self.sta_Bit0_str[self.sprache], self.sta_Bit1_str[self.sprache], self.sta_Bit2_str[self.sprache], self.sta_Bit3_str[self.sprache], self.sta_Bit4_str[self.sprache], self.sta_Bit5_str[self.sprache], self.sta_Bit6_str[self.sprache], self.sta_Bit7_str[self.sprache], self.sta_Bit8_str[self.sprache], self.sta_Bit9_str[self.sprache], self.sta_Bit10_str[self.sprache], self.sta_Bit11_str[self.sprache], '', '', self.sta_Bit14_str[self.sprache], self.sta_Bit15_str[self.sprache]]
+        elif self.Anlage == 2:
+            status = [self.Stat_N2_Bit0[self.sprache], self.Stat_N2_Bit1[self.sprache], self.Stat_N2_Bit2[self.sprache], self.Stat_N2_Bit3[self.sprache], self.Stat_N2_Bit4[self.sprache], '',                              '',                              '',                              self.Stat_N2_Bit8[self.sprache], self.Stat_N2_Bit9[self.sprache], self.Stat_N2_Bit10[self.sprache], self.Stat_N2_Bit11[self.sprache], '', '', self.sta_Bit14_str[self.sprache], self.sta_Bit15_str[self.sprache]]
+
         l = len(status_1)
         for n in range(0,l):
             if status_1[n] == '1':

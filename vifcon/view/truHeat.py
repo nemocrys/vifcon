@@ -265,11 +265,11 @@ class TruHeatWidget(QWidget):
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.PID_Aktiv = 0 
         #//////////////////////////////////////////////////////////////////////
-        try: origin    = self.config['PID']['Value_Origin'].upper()
+        try: self.origin    = self.config['PID']['Value_Origin'].upper()
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Value_Origin {self.Log_Pfad_conf_5[self.sprache]} VV')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            origin = 'VV'  
+            self.origin = 'VV'  
         #//////////////////////////////////////////////////////////////////////
         try: self.PID_Mode_Switch_Value_P = float(str(self.config['PID']['umstell_wert_P']).replace(',', '.'))
         except Exception as e: 
@@ -365,12 +365,12 @@ class TruHeatWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} startVoltage - {self.Log_Pfad_conf_2[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {self.startU}')
             self.startU = 0
         ### PID-Herkunft:
-        if not type(origin) == str or not origin in ['MM', 'MV', 'VV', 'VM']:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Value_Origin - {self.Log_Pfad_conf_2[self.sprache]} [VV, MM, VM, MV] - {self.Log_Pfad_conf_3[self.sprache]} VV - {self.Log_Pfad_conf_8[self.sprache]} {origin}')
-            origin = 'VV'
-        if not self.multilog_OnOff and origin in ['MM', 'MV', 'VM']:
+        if not type(self.origin) == str or not self.origin in ['MM', 'MV', 'VV', 'VM']:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Value_Origin - {self.Log_Pfad_conf_2[self.sprache]} [VV, MM, VM, MV] - {self.Log_Pfad_conf_3[self.sprache]} VV - {self.Log_Pfad_conf_8[self.sprache]} {self.origin}')
+            self.origin = 'VV'
+        if not self.multilog_OnOff and self.origin in ['MM', 'MV', 'VM']:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_14[self.sprache]}')
-            origin = 'VV'
+            self.origin = 'VV'
         ### PID-Umschaltwert Leistung:
         if not type(self.PID_Mode_Switch_Value_P) in [float, int] or not self.PID_Mode_Switch_Value_P >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} umstell_wert_P - {self.Log_Pfad_conf_2[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Mode_Switch_Value_P}')
@@ -821,15 +821,15 @@ class TruHeatWidget(QWidget):
         ## PID-Modus:
         ### Istwert:
         PID_Export_Ist = ''
-        if origin[0] == 'V': PID_Label_Ist = PID_Von_2[sprache]
-        elif origin [0] == 'M':     
+        if self.origin[0] == 'V': PID_Label_Ist = PID_Von_2[sprache]
+        elif self.origin[0] == 'M':     
             PID_Label_Ist  = PID_Von_1[sprache]
             PID_Export_Ist = PID_Zusatz[sprache]
         else:                PID_Label_Ist = PID_Von_2[sprache]
         ### Sollwert
         PID_Export_Soll = ''
-        if origin[1] == 'V':  PID_Label_Soll = PID_Von_2[sprache]
-        elif origin [1] == 'M':     
+        if self.origin[1] == 'V':  PID_Label_Soll = PID_Von_2[sprache]
+        elif self.origin[1] == 'M':     
             PID_Label_Soll  = PID_Von_1[sprache]
             PID_Export_Soll = PID_Zusatz[sprache]
         else:                 PID_Label_Soll = PID_Von_2[sprache]
@@ -1225,6 +1225,12 @@ class TruHeatWidget(QWidget):
             self.RB_choise_Pow.setEnabled(False)
             self.RB_choise_Current.setEnabled(False)
             self.RB_choise_Voltage.setEnabled(False)
+            # Bei Multilog-Sollwert:
+            if self.origin[1] == 'M':
+                self.btn_rezept_start.setEnable(False)
+                self.btn_rezept_ende.setEnable(False)
+                self.cb_Rezept.setEnable(False)
+                self.btn_send_value.setEnable(False)
         else:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
             # Aufgaben setzen:
@@ -1282,6 +1288,12 @@ class TruHeatWidget(QWidget):
             self.RB_choise_Pow.setEnabled(True)
             self.RB_choise_Current.setEnabled(True)
             self.RB_choise_Voltage.setEnabled(True)
+            # Bei Multilog-Sollwert:
+            if self.origin[1] == 'M':
+                self.btn_rezept_start.setEnable(True)
+                self.btn_rezept_ende.setEnable(True)
+                self.cb_Rezept.setEnable(True)
+                self.btn_send_value.setEnable(True)
             
     ##########################################
     # Reaktion auf übergeordnete Butttons:

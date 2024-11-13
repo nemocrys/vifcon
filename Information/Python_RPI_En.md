@@ -95,6 +95,17 @@ Version number according to `pip list` in the Visual Studio Code terminal!
 ### Python standard libraries
 Link: https://docs.python.org/3/library/index.html
 
+### Special features
+
+With the serial libraries **serial** and **pyModbusTCP** you have to pay attention to the Python version used. With *serial* it is the *encoding* (python >= 3.9) and with *pyModbusTCP* it is the *debug* variable. If the Python version does not work with the two variables, they simply have to be commented out in the config file. With pyModbusTCP the debug function is activated if Debug (Level 10) is selected for Logging. In this case, this is written to the log file:
+
+```
+2024-11-06 16:27:30,840 DEBUG pyModbusTCP.client - (192.168.117.199:502:1) Tx [DE 95 00 00 00 06 01] 04 00 02 00 12
+2024-11-06 16:27:30,858 DEBUG pyModbusTCP.client - (192.168.117.199:502:1) Rx [DE 95 00 00 00 27 01] 04 24 00 00 00 00 48 EF 5C 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+```
+
+Actually, the debug variable should set a boolean value that outputs these values ​​to the console and not Logged. The use of debug can be shown, for example, using examples in Vincent Funke's master's thesis in Appendix I (pages 235 to 238).
+
 ### Usage in Python Code
 
 Import example of the libraries:
