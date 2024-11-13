@@ -106,6 +106,8 @@ Bei den Seriellen-Bibliotheken **serial** und **pyModbusTCP** muss auf die genut
 
 Eigentlich sollte durch die Debug-Variable ein Boolcherwert gesetzt werden, der diese Werte in die Konsole ausgibt und nicht Logged. Die Nutzung von Debug kann z.B. an Beispielen in der Masterarbeit von Vincent Funke im Anhang I (Seite 235 bis 238) gezeigt.
 
+In der Version 0.3.0 von pyModbusTCP (https://pymodbustcp.readthedocs.io/en/latest/) wird die neuste Version diser Bibliothek gezeigt. Die Debug-Funktion funktioniert nun mit Logging. In der Version 0.2.0 (https://pymodbustcp.readthedocs.io/en/v0.2.0/) exestierte die Debug-Funktion noch bzw. war sie noch vorhanden. 
+
 ### Nutzung in Python Code
 
 Import-Beispiel der Bibliotheken:

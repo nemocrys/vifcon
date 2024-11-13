@@ -106,6 +106,8 @@ With the serial libraries **serial** and **pyModbusTCP** you have to pay attenti
 
 Actually, the debug variable should set a boolean value that outputs these values ​​to the console and not Logged. The use of debug can be shown, for example, using examples in Vincent Funke's master's thesis in Appendix I (pages 235 to 238).
 
+The latest version of this library is shown in version 0.3.0 of pyModbusTCP (https://pymodbustcp.readthedocs.io/en/latest/). The debug function now works with logging. In version 0.2.0 (https://pymodbustcp.readthedocs.io/en/v0.2.0/) the debug function still existed or was still available.
+
 ### Usage in Python Code
 
 Import example of the libraries:

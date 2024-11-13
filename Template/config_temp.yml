@@ -706,7 +706,7 @@ devices:
     serial-interface:
       host: '192.168.117.99'                                              # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
       port: 502
-      debug: False
+      debug: False                                                        # Funktioniert nur bei pyModbusTCP < 0.3.0, funktioniert bei 0.2.1
       timeout: 0.1                                                        # Default = 30 s
     multilog:
       write_trigger: hub1                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Hub | Default bei Fehler: Port auf Null
@@ -816,7 +816,7 @@ devices:
     serial-interface:
       host: '192.168.117.99'                                              # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
       port: 502
-      debug: False
+      debug: False                                                        # Funktioniert nur bei pyModbusTCP < 0.3.0, funktioniert bei 0.2.1
       timeout: 0.1                                                        # Default = 30 s
     multilog:
       write_trigger: Rot1                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Rot | Default bei Fehler: Port auf Null
@@ -923,7 +923,7 @@ devices:
     serial-interface:
       host: '192.168.117.99'                                              # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
       port: 502
-      debug: False
+      debug: False                                                        # Funktioniert nur bei pyModbusTCP < 0.3.0, funktioniert bei 0.2.1
       timeout: 0.1                                                        # Default = 30 s
     multilog:
       write_trigger: hub2                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Hub | Default bei Fehler: Port auf Null
@@ -1028,7 +1028,7 @@ devices:
     serial-interface:
       host: '192.168.117.99'                                              # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
       port: 502
-      debug: False
+      debug: False                                                        # Funktioniert nur bei pyModbusTCP < 0.3.0, funktioniert bei 0.2.1
       timeout: 0.1                                                        # Default = 30 s
     multilog:
       write_trigger: Rot1                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Rot | Default bei Fehler: Port auf Null
@@ -1037,7 +1037,7 @@ devices:
       read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
       read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
-     PID:                                                                  # Erstellung eines PID-Reglers
+     PID:                                                                 # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
       Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
@@ -1115,7 +1115,7 @@ devices:
     serial-interface:
       host: '192.168.117.99'                                              # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
       port: 502
-      debug: False
+      debug: False                                                        # Funktioniert nur bei pyModbusTCP < 0.3.0, funktioniert bei 0.2.1
       timeout: 0.1                                                        # Default = 30 s
     multilog:
       write_trigger: Vifcon_gase                                          # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen) | Default bei Fehler: Port auf Null
