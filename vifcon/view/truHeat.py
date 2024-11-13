@@ -1227,10 +1227,10 @@ class TruHeatWidget(QWidget):
             self.RB_choise_Voltage.setEnabled(False)
             # Bei Multilog-Sollwert:
             if self.origin[1] == 'M':
-                self.btn_rezept_start.setEnable(False)
-                self.btn_rezept_ende.setEnable(False)
-                self.cb_Rezept.setEnable(False)
-                self.btn_send_value.setEnable(False)
+                self.btn_rezept_start.setEnabled(False)
+                self.btn_rezept_ende.setEnabled(False)
+                self.cb_Rezept.setEnabled(False)
+                self.btn_send_value.setEnabled(False)
         else:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
             # Aufgaben setzen:
@@ -1290,10 +1290,10 @@ class TruHeatWidget(QWidget):
             self.RB_choise_Voltage.setEnabled(True)
             # Bei Multilog-Sollwert:
             if self.origin[1] == 'M':
-                self.btn_rezept_start.setEnable(True)
-                self.btn_rezept_ende.setEnable(True)
-                self.cb_Rezept.setEnable(True)
-                self.btn_send_value.setEnable(True)
+                self.btn_rezept_start.setEnabled(True)
+                self.btn_rezept_ende.setEnabled(True)
+                self.cb_Rezept.setEnabled(True)
+                self.btn_send_value.setEnabled(True)
             
     ##########################################
     # Reaktion auf übergeordnete Butttons:

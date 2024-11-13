@@ -795,6 +795,28 @@ class NemoAchseRot(QObject):
         #++++++++++++++++++++++++++++++++++++++++++
         elif write_Okay['PID']:
             #---------------------------------------------
+            ## Auswahl Sollwert:
+            #---------------------------------------------
+            ### VIFCON:
+            if self.PID_Option[1] == 'V':
+                self.Soll = write_value['PID-Sollwert']
+            ### Multilog:
+            elif self.PID_Option[1] == 'M':
+                try:
+                    if self.sensor_soll.lower() == 'no sensor':     self.Soll = self.mult_data[self.M_device_soll]
+                    else:                                           self.Soll = self.mult_data[self.M_device_soll][self.sensor_soll] 
+                except Exception as e:
+                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N19[self.sprache]} ({self.M_device_soll})")   
+                    logger.exception(f"{self.device_name} - {self.Log_Text_PID_N12[self.sprache]}")
+            ### Sollwert Filter:
+            self.Soll, error_Input_S = self.Input_Filter(self.Soll, 'Soll')
+            ### Fehler-Behandlung:
+            if error_Input_S:
+                #### Input auf letzten Sollwert-Input setzen:
+                self.Soll = self.PID_Soll_Last
+            else:
+                self.PID_Soll_Last = self.Soll
+            #---------------------------------------------
             ## Auswahl Istwert:
             #---------------------------------------------
             ### VIFCON:
@@ -824,28 +846,6 @@ class NemoAchseRot(QObject):
                     self.Ist = self.PID_Ist_Last
             else:
                 self.PID_Ist_Last = self.Ist
-            #---------------------------------------------
-            ## Auswahl Sollwert:
-            #---------------------------------------------
-            ### VIFCON:
-            if self.PID_Option[1] == 'V':
-                self.Soll = write_value['PID-Sollwert']
-            ### Multilog:
-            elif self.PID_Option[1] == 'M':
-                try:
-                    if self.sensor_soll.lower() == 'no sensor':     self.Soll = self.mult_data[self.M_device_soll]
-                    else:                                           self.Soll = self.mult_data[self.M_device_soll][self.sensor_soll] 
-                except Exception as e:
-                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N19[self.sprache]} ({self.M_device_soll})")   
-                    logger.exception(f"{self.device_name} - {self.Log_Text_PID_N12[self.sprache]}")
-            ### Sollwert Filter:
-            self.Soll, error_Input_S = self.Input_Filter(self.Soll, 'Soll')
-            ### Fehler-Behandlung:
-            if error_Input_S:
-                #### Input auf letzten Sollwert-Input setzen:
-                self.Soll = self.PID_Soll_Last
-            else:
-                self.PID_Soll_Last = self.Soll
             #---------------------------------------------    
             ## Schreibe Werte:
             #---------------------------------------------

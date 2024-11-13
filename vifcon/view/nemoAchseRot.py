@@ -1043,10 +1043,10 @@ class NemoAchseRotWidget(QWidget):
             if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[4]}")
             # Bei Multilog-Sollwert:
             if self.origin[1] == 'M':
-                self.btn_rezept_start.setEnable(False)
-                self.btn_rezept_ende.setEnable(False)
-                self.cb_Rezept.setEnable(False)
-                self.LE_Speed.setEnable(False)
+                self.btn_rezept_start.setEnabled(False)
+                self.btn_rezept_ende.setEnabled(False)
+                self.cb_Rezept.setEnabled(False)
+                self.LE_Speed.setEnabled(False)
         else:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
             # Aufgaben setzen:
@@ -1065,10 +1065,10 @@ class NemoAchseRotWidget(QWidget):
             if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[2]}")
             # Bei Multilog-Sollwert:
             if self.origin[1] == 'M':
-                self.btn_rezept_start.setEnable(True)
-                self.btn_rezept_ende.setEnable(True)
-                self.cb_Rezept.setEnable(True)
-                self.LE_Speed.setEnable(True)
+                self.btn_rezept_start.setEnabled(True)
+                self.btn_rezept_ende.setEnabled(True)
+                self.cb_Rezept.setEnabled(True)
+                self.LE_Speed.setEnabled(True)
 
     ##########################################
     # Eingabefeld Kontrolle:
