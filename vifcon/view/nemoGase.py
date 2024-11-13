@@ -142,8 +142,8 @@ class NemoGaseWidget:
         self.Stat_V_15_str      = ['Fehler Endlage Zu',                                         'Error end position closed']
         ### Anlagensicherheit: #####################################################################################################################################################################################################################################################################
         self.Stat_AS_1          = ['Not Halt',                                                  'Emergency Stop']
-        self.Stat_AS_2          = ['Rezipient Tür 1',                                           'Recipient Door 1']
-        self.Stat_AS_3          = ['Rezipient Tür 2',                                           'Recipient Door 2']
+        self.Stat_AS_2          = ['Rezipient Tür 1 offen',                                     'Recipient Door 1 open']
+        self.Stat_AS_3          = ['Rezipient Tür 2 offen',                                     'Recipient Door 2 open']
         ### Betriebsmodus: #########################################################################################################################################################################################################################################################################
         self.Stat_BM_1          = self.Stat_1_str
         self.Stat_BM_2          = self.Stat_2_str

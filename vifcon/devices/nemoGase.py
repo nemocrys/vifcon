@@ -212,6 +212,9 @@ class NemoGase:
         self.Log_Text_Port_5    = ['Fehlerbeschreibung:',                                                       'Error description:']
         self.Log_Test_Ex_1      = ['Der Variablen-Typ der Größe',                                               'The variable type of size']
         self.Log_Test_Ex_2      = ['ist nicht Float! Setze Nan ein! Fehlerhafter Wert:',                        'is not Float! Insert Nan! Incorrect value:']
+        self.Bezeichnung_1      = ['Vakuum/Gas und Pumpen',                                                     'Vacuum/Gas and Pumps']
+        self.Bezeichnung_2      = ['Kühlung',                                                                   'Cooling']
+        self.Bezeichnung_3      = ['Anlagensicherheit',                                                         'System safety']
         ## Ablaufdatei: ##############################################################################################################################################################################################################################################################################
         self.Text_51_str        = ['Initialisierung!',                                                          'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                           'Initialization Failed!']
@@ -265,7 +268,7 @@ class NemoGase:
             # Notiz:    8 Gleitkommazahlen
             #           2 Statuswörter          --> (8 * 2) + 2 = 18 Regsiter
             ans = self.serial.read_input_registers(self.start_Lese_Register_VGP_1, 18)
-            logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
+            logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans} ({self.Bezeichnung_1[self.sprache]} 1)')
 
             if not ans == None:
                 value_1 = self.umwandeln_Float(ans[0:14])   # MFC24, MFC25, MFC26, MFC27, DM21, PP21, PP22,
@@ -305,7 +308,7 @@ class NemoGase:
                 #           23 Gleitkommazahlen
                 #           13 Statuswörter         --> (23 * 2) + 13 = 59 Register
                 ans = self.serial.read_input_registers(self.start_Lese_Register_VGP_2, 59)
-                logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
+                logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans} ({self.Bezeichnung_1[self.sprache]} 2)')
                 if not ans == None:     value_3 = self.umwandeln_Float(ans[0:46])   
                 else:
                     for n in range(0,23,1):
@@ -323,7 +326,7 @@ class NemoGase:
                 #           KWK5_In, KWK5_Out, KWK5_diff, KWK46_In, KWK46_Out, KWK46_diff
                 # Notiz:    24 Gleitkommazahlen           --> (24 * 2) = 48 Register     
                 ans = self.serial.read_input_registers(self.start_Lese_Register_K, 48)
-                logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}') # Notiz: Beschreibung Kühlung dazu, bei anderen auch!! 
+                logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans} ({self.Bezeichnung_2[self.sprache]})')
                 if not ans == None:     value_4 = self.umwandeln_Float(ans)   
                 else:
                     for n in range(0,24,1):
@@ -334,6 +337,7 @@ class NemoGase:
                 # Notiz:    3 Gleitkommazahlen           
                 #           2 Statuswörter          --> (3 * 2) + 2 = 8 Register
                 ans = self.serial.read_input_registers(self.start_Lese_Register_AS, 8)
+                logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans} ({self.Bezeichnung_3[self.sprache]})')
                 if not ans == None:     value_5 = self.umwandeln_Float(ans[0:6])   
                 else:
                     for n in range(0,3,1):
