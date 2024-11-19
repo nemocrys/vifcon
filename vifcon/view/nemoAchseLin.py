@@ -514,7 +514,7 @@ class NemoAchseLinWidget(QWidget):
         self.Text_90_str        = ['Sicherer Endzustand wird hergestellt! Auslösung des Stopp-Knopfes!',                                        'Safe final state is established! Stop button is activated!']
         self.Text_91_str        = ['Rezept Beenden - Sicherer Endzustand',                                                                      'Recipe Ends - Safe End State']
         self.Text_PID_1         = ['Wechsel in PID-Modus.',                                                                                     'Switch to PID mode.']
-        self.Text_PID_2         = ['Wechsel in Eurotherm-Regel-Modus.',                                                                         'Switch to Eurotherm control mode.']
+        self.Text_PID_2         = ['Wechsel in Nemo-Anlage Hub-Regel-Modus.',                                                                   'Switch to Nemo system hub control mode.']
         self.Text_PID_3         = ['Moduswechsel! Auslösung des Stopp-Knopfes aus Sicherheitsgründen!',                                         'Mode change! Stop button triggered for safety reasons!']
         self.Text_PID_4         = ['Rezept Beenden! Wechsel des Modus!',                                                                        'End recipe! Change mode!']
         self.Text_PS_1          = ['Priorisierter Stopp aktiviert!',                                                                            'Prioritized stop activated!']
@@ -1027,10 +1027,16 @@ class NemoAchseLinWidget(QWidget):
         if self.init:
             if n == 3: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_47_str[self.sprache]}')
             elif n == 5: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
-            elif n == 6: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_3[self.sprache]}')
+            elif n == 6: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_3[self.sprache]}') # PID wird eingeschaltet!!
+            # Beende PID-Modus:
+            if n != 6:
+                self.PID_cb.setChecked(False)
+                self.PID_ON_OFF()
+            # Beende Rezept:
             self.RezEnde(n)
             # Sende Befehl:
             self.write_task['Stopp'] = True
+            # Ändere GUI:
             if self.BTN_BW_grün:
                 self.btn_hoch.setIcon(QIcon(self.icon_hoch))
                 self.btn_runter.setIcon(QIcon(self.icon_runter))

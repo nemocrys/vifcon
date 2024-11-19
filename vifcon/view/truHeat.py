@@ -508,7 +508,7 @@ class TruHeatWidget(QWidget):
         self.Text_90_str        = ['Sicherer Endzustand wird hergestellt! Auslösung des Stopp-Knopfes!',                                        'Safe final state is established! Stop button is activated!']
         self.Text_91_str        = ['Rezept Beenden - Sicherer Endzustand',                                                                      'Recipe Ends - Safe End State']
         self.Text_PID_1         = ['Wechsel in PID-Modus.',                                                                                     'Switch to PID mode.']
-        self.Text_PID_2         = ['Wechsel in Eurotherm-Regel-Modus.',                                                                         'Switch to Eurotherm control mode.']
+        self.Text_PID_2         = ['Wechsel in TruHeat-Regel-Modus.',                                                                           'Switch to TruHeat control mode.']
         self.Text_PID_3         = ['Moduswechsel! Auslösung des Stopp-Knopfes aus Sicherheitsgründen!',                                         'Mode change! Stop button triggered for safety reasons!']
         self.Text_PID_4         = ['Rezept Beenden! Wechsel des Modus!',                                                                        'End recipe! Change mode!']
         ## Print: #################################################################################################################################################################################################################################################################################  
@@ -1302,10 +1302,14 @@ class TruHeatWidget(QWidget):
         ''' Setzt den Eurotherm in einen Sicheren Zustand '''
         if self.init:
             if n == 5:  self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
+            # Beende PID-Modus:
             self.PID_cb.setChecked(False)
             self.PID_ON_OFF()
+            # Beende Rezept:
             self.RezEnde(n)
+            # Schalte Generator aus:
             self.THAus()
+            # Sende Befehle:
             self.write_value['Sollwert'] = 0
             self.write_task['Soll-Leistung'] = True
             self.write_task['Soll-Spannung'] = True

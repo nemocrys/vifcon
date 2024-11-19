@@ -729,7 +729,8 @@ class EurothermWidget(QWidget):
                 self.curveDict[kurve] = self.kurven_dict[kurve] 
         self.labelDict      = {'IWT': self.La_IstTemp_wert,                                                'IWOp': self.La_IstPow_wert,      'SWT': self.La_SollTemp_wert}                              # Label
         self.labelUnitDict  = {'IWT': self.T_unit_einzel[self.sprache],                                    'IWOp': self.P_unit_einzel[self.sprache]}                                                    # Einheit
-        self.listDict       = {'IWT': self.istTpList,       'SWT': self.sollTpList,                        'IWOp': self.opList,              'SWTPID':self.sollTPID,        'IWTPID':self.istTPID}      # Werte-Listen
+        self.listDict       = {'IWT': self.istTpList,       'SWT': self.sollTpList,                        'IWOp': self.opList,              'SWTPID':self.sollTPID,        'IWTPID':self.istTPID}      # Werte-Listen y
+        #self.listDict_x     = {'IWT': [],                   'SWT': [],                                     'IWOp': [],                       'SWTPID':[],                   'IWTPID':[]}                # Werte-Listen x
         self.grenzListDict  = {'oGT': self.ToGList,         'uGT': self.TuGList,    'oGOp': self.OpoGList, 'uGOp': self.OpuGList}
         self.grenzValueDict = {'oGT': self.oGST,            'uGT': self.uGST,       'oGOp': self.oGOp,     'uGOp': self.uGOp}
 
@@ -1011,12 +1012,16 @@ class EurothermWidget(QWidget):
         ''' Setzt den Eurotherm in einen Sicheren Zustand '''
         if self.init:
             if n == 5: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
+            # Beende PID-Modus:
             self.PID_cb.setChecked(False)
             self.PID_ON_OFF()
+            # Beende Rezept:
             self.RezEnde(excecute=n)
+            # Ändere GUI:
             self.BlassOutTemp(True)
             self.RB_choise_Pow.setChecked(True)
             self.LE_Pow.setText(str(0))
+            # Sende Aufgaben:
             self.write_task['Operating point'] = True
             self.write_value['Sollwert'] = 0
             #self.write_value['PID-Sollwert'] = 0
