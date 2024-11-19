@@ -858,14 +858,15 @@ class PIAchse(QObject):
         '''
         # Geschwindigkeit hängt vom Modell ab:
         delay = 0.01
-        if komando == 'TV' and self.mercury_model == 'C862':
+        komando_save = komando
+        if komando_save == 'TV' and self.mercury_model == 'C862':
             komando = f'TV{self.mvtime}'
             delay = self.mvtime/1000
 
         # Senden und Auslesen:                                              
         ans = self.send_read_command(komando, start_str, delay)
         if not ans == m.nan:
-            if komando == 'TV' and self.mercury_model == 'C862':
+            if komando_save == 'TV' and self.mercury_model == 'C862':
                 ans = ans*1000/self.mvtime
             ans = round(ans/int(self.cpm), self.nKS)
 
