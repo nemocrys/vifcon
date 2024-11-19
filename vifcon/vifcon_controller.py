@@ -222,10 +222,12 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                                     sample_values[key] =  128           # Bit 15 gesetzt - 0 bis 15 - Test-Modus
                                 else:
                                     if self.device.Anlage == 2:         # Nemo-2 hat zwei Status-Listen (Bit 15 ist bei Liste 1 besetzt!!)
-                                        if key == 'Status_2':   sample_values[key] = 128
-                                        elif key == 'Status':   sample_values[key] = 0
+                                        if key == 'Status_2':     sample_values[key] = 128
+                                        elif key == 'Status':     sample_values[key] = 0
+                                        if key == 'StatusEil_2':  sample_values[key] = 128
+                                        elif key == 'StatusEil':  sample_values[key] = 0
                                     else:                               # Nemo-1 hat nur eine Liste und brauch Status_2 nicht!
-                                        if key == 'Status':   sample_values[key] = 128
+                                        if key == 'Status':       sample_values[key] = 128
                                         elif key == 'Status_2':   sample_values[key] = 0
 
                     self.device_widget.ak_value = sample_values

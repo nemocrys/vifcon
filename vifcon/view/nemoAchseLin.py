@@ -437,6 +437,29 @@ class NemoAchseLinWidget(QWidget):
         self.Stat_N2_2_Bit4     = ['Software Endlage oben aktiv',                                                                               'Software end position at the top active']                                                                              
         self.Stat_N2_2_Bit5     = ['Software Endlage unten aktiv',                                                                              'Software end position at the bottom active']
         self.Stat_N2_2_Bit6     = ['Syncro-Modus aktiv',                                                                                        'Syncro mode active']
+        ## Status-N2 Eil: ##########################################################################################################################################################################################################################################################################          
+        status_Eil_1_str         = ['Status Eilgang: Inaktiv',                                                                                  'Status rapid traverse: Inactive']
+        self.status_3_Eil_str    = ['Status Eilgang:',                                                                                          'Status rapid traverse:']
+        self.Stat_Eil_N2_1_Bit0  = self.Stat_N2_1_Bit0
+        self.Stat_Eil_N2_1_Bit1  = self.Stat_N2_1_Bit1
+        self.Stat_Eil_N2_1_Bit2  = self.Stat_N2_1_Bit2
+        self.Stat_Eil_N2_1_Bit3  = self.Stat_N2_1_Bit3
+        self.Stat_Eil_N2_1_Bit4  = self.Stat_N2_1_Bit4
+        self.Stat_Eil_N2_1_Bit8  = self.Stat_N2_1_Bit8
+        self.Stat_Eil_N2_1_Bit9  = self.Stat_N2_1_Bit9
+        self.Stat_Eil_N2_1_Bit10 = ['v-Regelung Eingeschaltet',                                                                                 'v-control switched on']
+        self.Stat_Eil_N2_1_Bit11 = self.Stat_N2_1_Bit11
+        self.Stat_Eil_N2_1_Bit12 = self.Stat_N2_1_Bit12
+        self.Stat_Eil_N2_1_Bit13 = self.Stat_N2_1_Bit13
+        self.Stat_Eil_N2_1_Bit14 = self.Stat_N2_1_Bit14
+        self.Stat_Eil_N2_1_Bit15 = self.Stat_N2_1_Bit15
+        self.Stat_Eil_N2_2_Bit0  = self.Stat_N2_2_Bit0
+        self.Stat_Eil_N2_2_Bit1  = self.Stat_N2_2_Bit1
+        self.Stat_Eil_N2_2_Bit2  = ['Elektronische Endlage oben erreicht',                                                                      'Electronic end position reached at the top']
+        self.Stat_Eil_N2_2_Bit3  = ['Elektronische Endlage unten erreicht',                                                                     'Electronic end position reached below']
+        self.Stat_Eil_N2_2_Bit4  = ['Elektronische Endlage oben aktiv',                                                                         'Electronic end position top active']
+        self.Stat_Eil_N2_2_Bit5  = ['Elektronische Endlage unten aktiv',                                                                        'Electronic end position bottom active']
+        self.Stat_Eil_N2_2_Bit6  = self.Stat_N2_2_Bit6
         ## Plot-Legende: ##########################################################################################################################################################################################################################################################################                                                            
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
@@ -597,6 +620,7 @@ class NemoAchseLinWidget(QWidget):
         if self.color_Aktiv: self.La_IstSpeed_wert.setStyleSheet(f"color: {self.color[1]}")
         #### Status ausgelesen:
         self.La_Status = QLabel(status_1_str[self.sprache])
+        if self.Anlage == 2: self.La_Status_Eil = QLabel(status_Eil_1_str[self.sprache])
         #### Sollgeschwindigkeit:
         self.La_SollSpeed = QLabel(self.v_str[self.sprache])
         if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[2]}")
@@ -727,6 +751,7 @@ class NemoAchseLinWidget(QWidget):
         self.layer_layout.addWidget(self.La_SollSpeed,                      1, 0)
         self.layer_layout.addWidget(self.btn_group_move,                    3, 0, 1, 3, alignment=Qt.AlignLeft)                     # Reihe, Spalte, RowSpan, ColumSpan, Ausrichtung
         self.layer_layout.addWidget(self.La_Status,                         4, 0, 1, 6, alignment=Qt.AlignLeft)
+        if self.Anlage == 2: self.layer_layout.addWidget(self.La_Status_Eil,5, 0, 1, 6, alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(self.LE_Speed,                          1, 1)
         self.layer_layout.addWidget(self.La_error_1,                        1, 2,       alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(self.V,                                 1, 3, 3, 2, alignment=Qt.AlignLeft)
@@ -1155,29 +1180,43 @@ class NemoAchseLinWidget(QWidget):
         status_1 = ['','','','','','','','','','','','','','','','']
         status_2 = ['','','','','','','','','','','','','','','','']
         if self.Anlage == 1:
-            status_1    = [self.sta_Bit0_str[self.sprache],     self.sta_Bit1_str[self.sprache],    self.sta_Bit2_str[self.sprache],    self.sta_Bit3_str[self.sprache],    self.sta_Bit4_str[self.sprache],    self.sta_Bit5_str[self.sprache],    self.sta_Bit6_str[self.sprache],    self.sta_Bit7_str[self.sprache],    self.sta_Bit8_str[self.sprache],    self.sta_Bit9_str[self.sprache],    self.sta_Bit10_str[self.sprache],   self.sta_Bit11_str[self.sprache],       '',                                     '',                                     self.sta_Bit14_str[self.sprache],   self.sta_Bit15_str[self.sprache]]
+            status_1    = [self.sta_Bit0_str[self.sprache],         self.sta_Bit1_str[self.sprache],        self.sta_Bit2_str[self.sprache],        self.sta_Bit3_str[self.sprache],        self.sta_Bit4_str[self.sprache],        self.sta_Bit5_str[self.sprache],        self.sta_Bit6_str[self.sprache],        self.sta_Bit7_str[self.sprache],    self.sta_Bit8_str[self.sprache],        self.sta_Bit9_str[self.sprache],        self.sta_Bit10_str[self.sprache],               self.sta_Bit11_str[self.sprache],       '',                                     '',                                     self.sta_Bit14_str[self.sprache],       self.sta_Bit15_str[self.sprache]]
+            mehr_Teilig = False
         elif self.Anlage == 2:
-            status_1    = [self.Stat_N2_1_Bit0[self.sprache],   self.Stat_N2_1_Bit1[self.sprache],  self.Stat_N2_1_Bit2[self.sprache],  self.Stat_N2_1_Bit3[self.sprache],  self.Stat_N2_1_Bit4[self.sprache],  '',                                 '',                                 '',                                 self.Stat_N2_1_Bit8[self.sprache],  self.Stat_N2_1_Bit9[self.sprache],  '',                                 self.Stat_N2_1_Bit11[self.sprache],     self.Stat_N2_1_Bit12[self.sprache],     self.Stat_N2_1_Bit13[self.sprache],     self.Stat_N2_1_Bit14[self.sprache], self.Stat_N2_1_Bit15[self.sprache]]
-            status_2    = [self.Stat_N2_2_Bit0[self.sprache],   self.Stat_N2_2_Bit1[self.sprache],  self.Stat_N2_2_Bit2[self.sprache],  self.Stat_N2_2_Bit3[self.sprache],  self.Stat_N2_2_Bit4[self.sprache],  self.Stat_N2_2_Bit5[self.sprache],  self.Stat_N2_2_Bit6[self.sprache],  '',                                 '',                                 '',                                 '',                                 '',                                     '',                                     '',                                     self.sta_Bit14_str[self.sprache],   self.sta_Bit15_str[self.sprache]]
+            status_1    = [self.Stat_N2_1_Bit0[self.sprache],       self.Stat_N2_1_Bit1[self.sprache],      self.Stat_N2_1_Bit2[self.sprache],      self.Stat_N2_1_Bit3[self.sprache],      self.Stat_N2_1_Bit4[self.sprache],      '',                                     '',                                     '',                                 self.Stat_N2_1_Bit8[self.sprache],      self.Stat_N2_1_Bit9[self.sprache],      '',                                             self.Stat_N2_1_Bit11[self.sprache],     self.Stat_N2_1_Bit12[self.sprache],     self.Stat_N2_1_Bit13[self.sprache],     self.Stat_N2_1_Bit14[self.sprache],     self.Stat_N2_1_Bit15[self.sprache]]
+            status_2    = [self.Stat_N2_2_Bit0[self.sprache],       self.Stat_N2_2_Bit1[self.sprache],      self.Stat_N2_2_Bit2[self.sprache],      self.Stat_N2_2_Bit3[self.sprache],      self.Stat_N2_2_Bit4[self.sprache],      self.Stat_N2_2_Bit5[self.sprache],      self.Stat_N2_2_Bit6[self.sprache],      '',                                 '',                                     '',                                     '',                                             '',                                     '',                                     '',                                     self.sta_Bit14_str[self.sprache],       self.sta_Bit15_str[self.sprache]]
+            mehr_Teilig = True
+        status_Eil_1    = [self.Stat_Eil_N2_1_Bit0[self.sprache],   self.Stat_Eil_N2_1_Bit1[self.sprache],  self.Stat_Eil_N2_1_Bit2[self.sprache],  self.Stat_Eil_N2_1_Bit3[self.sprache],  self.Stat_Eil_N2_1_Bit4[self.sprache],  '',                                     '',                                     '',                                 self.Stat_Eil_N2_1_Bit8[self.sprache],  self.Stat_Eil_N2_1_Bit9[self.sprache],  '',                                             self.Stat_Eil_N2_1_Bit11[self.sprache], self.Stat_Eil_N2_1_Bit12[self.sprache], self.Stat_Eil_N2_1_Bit13[self.sprache], self.Stat_Eil_N2_1_Bit14[self.sprache], self.Stat_Eil_N2_1_Bit15[self.sprache]]
+        status_Eil_2    = [self.Stat_Eil_N2_2_Bit0[self.sprache],   self.Stat_Eil_N2_2_Bit0[self.sprache],  self.Stat_Eil_N2_2_Bit0[self.sprache],  self.Stat_Eil_N2_2_Bit0[self.sprache],  self.Stat_Eil_N2_2_Bit0[self.sprache],  self.Stat_Eil_N2_2_Bit0[self.sprache],  self.Stat_Eil_N2_2_Bit0[self.sprache],  '',                                 '',                                     '',                                     '',                                             '',                                     '',                                     '',                                     self.sta_Bit14_str[self.sprache],       self.sta_Bit15_str[self.sprache]]
 
         # Status-Meldung 1:
         status_1_Wert = value_dict['Status']
-        new_string = self.Status_Bund(status_1, status_1_Wert, '')
+        new_string = self.Status_Bund(status_1, status_1_Wert, '', mehr_Teilig)
 
         if self.Anlage == 2:
-            new_string = new_string + ', '
+            #new_string = new_string + ', '
             status_2_Wert = value_dict['Status_2']
-            new_string = self.Status_Bund(status_2, status_2_Wert, new_string)
+            new_string = self.Status_Bund(status_2, status_2_Wert, new_string, False)
 
         self.La_Status.setText(f'{self.status_3_str[self.sprache]} {new_string}')
 
-    def Status_Bund(self, status_Liste, wert, string):
+        # Status-Meldung-2 Eilgang:
+        if self.Anlage == 2:
+            status_Eil_1_Wert = value_dict['StatusEil']
+            new_string = self.Status_Bund(status_Eil_1, status_Eil_1_Wert, '')
+            #new_string = new_string + ', '
+            status_Eil_2_Wert = value_dict['StatusEil_2']
+            new_string = self.Status_Bund(status_Eil_2, status_Eil_2_Wert, new_string, False)
+            self.La_Status_Eil.setText(f'{self.status_3_Eil_str[self.sprache]} {new_string}')
+
+    def Status_Bund(self, status_Liste, wert, string, Teil_1 = True):
         ''' String für den Status des Gerätes zusammensetzen und in die GUI einsetzen.
         
         Args:
             status_Liste (list):    Status-Bit-Liste mit den Strings für die Bits
             wert (int):             Status-Integer
             string (stzring):       zu Bearbeitender String
+            Teil_1 (bool):          Antriebs Strings können aus zwei Teilen bestehen!
 
         Return:
             label (str):            String der ins Label eingefügt wird!
@@ -1189,8 +1228,9 @@ class NemoAchseLinWidget(QWidget):
             if status_Bin[n] == '1':
                 if not status_Liste[n] == '':
                     label = label + f'{status_Liste[n]}, '
-        if label == '': label = self.status_2_str[self.sprache]
-        else:           label = label[0:-2]
+        if not Teil_1:
+            if label == '': label = self.status_2_str[self.sprache]
+            else:           label = label[0:-2]
         
         return label
 

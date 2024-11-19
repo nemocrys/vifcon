@@ -222,6 +222,12 @@ class NemoAchseLin(QObject):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|statusReg {self.Log_Pfad_conf_5_1[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.Status_RegEil          = self.config['register']['statusRegEil']        # Startregister für Status Eilgang
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|statusRegEil {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
         ### Limits:
         try: self.oGv = self.config["limits"]['maxSpeed']
         except Exception as e: 
@@ -396,11 +402,15 @@ class NemoAchseLin(QObject):
         if not type(self.start_write_v) == int:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} write_v_Reg - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.start_write_v)}')
             exit()
-        ### Register Status Register:
+        ### Register Status:
         if not type(self.Status_Reg) == int:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} statusReg - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.Status_Reg)}')
             exit()
-        ### Register Positions Limit Register:
+        ### Register Status Eilgang:
+        if not type(self.Status_RegEil) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} statusRegEil - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.Status_RegEil)}')
+            exit()
+        ### Register Positions Limit:
         if not type(self.reg_PLim) == int:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} posLimReg - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_PLim)}')
             exit()
@@ -471,7 +481,7 @@ class NemoAchseLin(QObject):
         ## Andere:
         self.Limit_stop         = False
         self.Limit_Stop_Text    = -1
-        self.value_name         = {'IWs': 0, 'IWsd':0, 'IWv': 0, 'SWv': 0, 'SWs':0, 'oGs':0, 'uGs': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0, 'Status_2': 0}
+        self.value_name         = {'IWs': 0, 'IWsd':0, 'IWv': 0, 'SWv': 0, 'SWs':0, 'oGs':0, 'uGs': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0, 'Status_2': 0, 'StatusEil': 0, 'StatusEil_2': 0}
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -1068,16 +1078,30 @@ class NemoAchseLin(QObject):
         logger.debug(f'{self.device_name} - {self.Log_Text_175_str[self.sprache]} {value[3]}, {self.Log_Text_176_str[self.sprache]}: {value[4]}, {self.Log_Text_177_str[self.sprache]}: {value[5]}')
 
         # Lese: Status
-        ans = self.serial.read_input_registers(self.Status_Reg, 1)
+        if self.Anlage == 2:   Stat_Reg_anz = 2
+        elif self.Anlage == 1: Stat_Reg_anz = 1
+        ans = self.serial.read_input_registers(self.Status_Reg, Stat_Reg_anz)
         if not ans == None and type(ans[0]) == int: self.value_name['Status'] = ans[0]
         else:                                       self.value_name['Status'] = 64
 
         if self.Anlage == 2:
-            filler = 0
-            if not ans == None and type(filler) == int: self.value_name['Status_2'] = filler
+            if not ans == None and type(ans[1]) == int: self.value_name['Status_2'] = ans[1]
             else:        
                 self.value_name['Status']   = 0                               
                 self.value_name['Status_2'] = 64
+            
+        
+        # Lese: Status-Eilgang
+        if self.Anlage == 2:
+            error_Stat = False
+            ans = self.serial.read_input_registers(self.Status_RegEil, 2)
+            if not ans == None and type(ans[0]) == int: self.value_name['StatusEil']   = ans[0]
+            else:  error_Stat = True 
+            if not ans == None and type(ans[1]) == int: self.value_name['StatusEil_2'] = ans[1]
+            else:  error_Stat = True
+            if error_Stat:     
+                self.value_name['StatusEil']   = 0                               
+                self.value_name['StatusEil_2'] = 64
 
         # PID-Modus:
         self.value_name['SWxPID'] = self.Soll

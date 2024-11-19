@@ -143,6 +143,9 @@ Im Ordner **[Information](../Information)** befinden sich weitere Dokumente, die
 3. Konfiguration
     - [Zeige En](Config_En.md) 
     - [Zeige De](Config_DE.md)
+4. Modbus-Register
+    - [Zeige En](Modbus_Nemo_En.md) 
+    - [Zeige De](Modbus_Nemo_DE.md)
 
 ## Letzte Änderung
 

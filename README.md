@@ -142,6 +142,9 @@ The **[Information](Information)** folder contains further documents that descri
 4. Config
     - [Show En](Information/Config_En.md) 
     - [Show De](Information/Config_DE.md)
+5. Modbus-Register
+    - [Zeige En](Information/Modbus_Nemo_En.md) 
+    - [Zeige De](Information/Modbus_Nemo_DE.md)
 
 ## Last change
 
