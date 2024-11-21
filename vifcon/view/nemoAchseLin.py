@@ -107,23 +107,23 @@ class NemoAchseLinWidget(QWidget):
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Einstellung für Log:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                              'Configuration error in element:']
-        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                 'Possible values:']
-        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                       'The following types are possible:']
-        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                      'Default is used:']
-        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                            'Error reading config during configuration:']
-        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                          '; Set to default:']
-        self.Log_Pfad_conf_5_4  = ['; Gamepad Aktivierung blockiert!',                                                                              '; Gamepad activation blocked!']
-        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                  'Reason for error:']
-        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                        'Please correct and re-read config before use!']
-        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                          'Incorrect input:']
-        self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                                                                              'Incorrect type:']
-        self.Log_Pfad_conf_9    = ['Die Obergrenze ist kleiner als die Untergrenze! Setze die Limits auf Default:',                                 'The upper limit is smaller than the lower limit! Set the limits to default:']
-        self.Log_Pfad_conf_10   = ['zu',                                                                                                            'to']
-        self.Log_Pfad_conf_11   = ['Geschwindhigkeit',                                                                                              'Velocity']
-        self.Log_Pfad_conf_12   = ['PID-Eingang Istwert',                                                                                           'PID input actual value']
-        self.Log_Pfad_conf_13   = ['Position',                                                                                                      'Position']
-        self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',   'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
+        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                                  'Configuration error in element:']
+        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                     'Possible values:']
+        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                           'The following types are possible:']
+        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                          'Default is used:']
+        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                                'Error reading config during configuration:']
+        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                              '; Set to default:']
+        self.Log_Pfad_conf_5_4  = ['; Gamepad Aktivierung blockiert!',                                                                                  '; Gamepad activation blocked!']
+        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                      'Reason for error:']
+        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                            'Please correct and re-read config before use!']
+        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                              'Incorrect input:']
+        self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                                                                                  'Incorrect type:']
+        self.Log_Pfad_conf_9    = ['Die Obergrenze ist kleiner als die Untergrenze! Setze die Limits auf Default:',                                     'The upper limit is smaller than the lower limit! Set the limits to default:']
+        self.Log_Pfad_conf_10   = ['zu',                                                                                                                'to']
+        self.Log_Pfad_conf_11   = ['Geschwindhigkeit',                                                                                                  'Velocity']
+        self.Log_Pfad_conf_12   = ['PID-Eingang Istwert',                                                                                               'PID input actual value']
+        self.Log_Pfad_conf_13   = ['Position',                                                                                                          'Position']
+        self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilog-Link abgeschaltet ist! Setze Default VV!',   'Configuration with VM, MV or MM is not possible because the Multilog-Link is disabled! Set default VV!']
         
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Übergeordnet:
@@ -1520,7 +1520,7 @@ class NemoAchseLinWidget(QWidget):
                 self.btn_runter.setEnabled(True)
                 self.btn_DH.setEnabled(True)
                 self.Auswahl.setEnabled(True)
-                self.PID_cb.setEnabled(True)
+                if self.PID_Aktiv: self.PID_cb.setEnabled(True)
 
                 # Variablen:
                 self.Rezept_Aktiv = False
