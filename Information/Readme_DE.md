@@ -92,7 +92,7 @@ Wenn alles richtig konfiguriert wurde startet VIFCON und die GUI wird angezeigt.
 <img src="../Bilder/GUI_S_De.png" alt="GUI" title='Grafische Oberfläche - Tab Steuerung' width=700/>
 <img src="../Bilder/GUI_M_De.png" alt="GUI" title='Grafische Oberfläche - Tab Monitoring' width=700/>
 
-Stand der GUI: 07.10.24
+Stand der GUI: 03.12.24
 
 ## Abhängigkeiten
 

@@ -90,7 +90,7 @@ If everything has been configured correctly, VIFCON starts and the GUI is displa
 <img src="Bilder/GUI_S_En.png" alt="GUI" title='Graphical interface - Tab Control' width=700/>
 <img src="Bilder/GUI_M_En.png" alt="GUI" title='Graphical interface - Tab Monitoring' width=700/>
 
-Status of the GUI: October 07, 2024
+Status of the GUI: December 03, 2024
 
 ## Dependencies
 
