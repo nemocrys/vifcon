@@ -146,6 +146,9 @@ Im Ordner **[Information](../Information)** befinden sich weitere Dokumente, die
 4. Modbus-Register
     - [Zeige En](Modbus_Nemo_En.md) 
     - [Zeige De](Modbus_Nemo_DE.md)
+5. GUI
+    - [Zeige En](GUI_En.md) 
+    - [Zeige De](GUI_DE.md)
 
 ## Letzte Änderung
 

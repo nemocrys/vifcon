@@ -145,6 +145,9 @@ The **[Information](Information)** folder contains further documents that descri
 5. Modbus-Register
     - [Zeige En](Information/Modbus_Nemo_En.md) 
     - [Zeige De](Information/Modbus_Nemo_DE.md)
+6. GUI
+    - [Zeige En](Information/GUI_En.md) 
+    - [Zeige De](Information/GUI_DE.md)
 
 ## Last change
 
