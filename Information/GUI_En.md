@@ -1,6 +1,6 @@
 # GUI of VIFCON
 
-The individual widgets of the VIFCON GUI are shown below. Special features are shown or mentioned. The complete GUI can be seen in the [Readme](../Readme.md). The GUI contains a menu and a plot.
+The individual widgets of the VIFCON GUI are shown below. Special features are shown or mentioned. The complete GUI can be seen in the [Readme](../README.md). The GUI contains a menu and a plot.
 
 ## Plot
 
