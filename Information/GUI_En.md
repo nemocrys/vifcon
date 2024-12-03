@@ -121,7 +121,7 @@ Monitoring varies depending on the system. The images show the monitoring values
 
 ## More
 
-<img src="../Bilder/Rahmen_En.png" alt="Widgetrahmen" title='Widget Rahmen sichtbar' width=700/>
+<img src="../Bilder/Rahmen_En.png" alt="Widget frame" title='Widget frame visible' width=700/>
 
 The configurations can be used to make the widget frames visible so that placement can be improved. The colors of the labels can also be turned off. The colors of the labels reflect the corresponding curves in the plot.
 

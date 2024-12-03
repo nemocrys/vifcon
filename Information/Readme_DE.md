@@ -148,7 +148,7 @@ Im Ordner **[Information](../Information)** befinden sich weitere Dokumente, die
     - [Zeige De](Modbus_Nemo_DE.md)
 5. GUI
     - [Zeige En](GUI_En.md) 
-    - [Zeige De](GUI_DE.md)
+    - [Zeige De](GUI_De.md)
 
 ## Letzte Änderung
 

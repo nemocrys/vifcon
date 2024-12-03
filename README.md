@@ -147,7 +147,7 @@ The **[Information](Information)** folder contains further documents that descri
     - [Zeige De](Information/Modbus_Nemo_DE.md)
 6. GUI
     - [Zeige En](Information/GUI_En.md) 
-    - [Zeige De](Information/GUI_DE.md)
+    - [Zeige De](Information/GUI_De.md)
 
 ## Last change
 
