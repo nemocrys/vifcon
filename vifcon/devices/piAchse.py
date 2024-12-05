@@ -24,7 +24,8 @@ import logging
 from serial import Serial, SerialException
 import time
 import math as m
-import threading
+# import threading
+import datetime
 
 ## Eigene:
 from .PID import PID
@@ -48,7 +49,7 @@ class SerialMock:
 class PIAchse(QObject):
     signal_PID  = pyqtSignal(float, float, bool, float)
 
-    def __init__(self, sprache, config, com_dict, test, neustart, multilog_aktiv, add_Ablauf_function, name="PI-Achse", typ = 'Antrieb'):
+    def __init__(self, sprache, config, com_dict, test, neustart, multilog_aktiv, Log_WriteReadTime, add_Ablauf_function, name="PI-Achse", typ = 'Antrieb'):
         """ Erstelle PI-Achse Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
         Args:
@@ -58,6 +59,7 @@ class PIAchse(QObject):
             test (bool):                        Test Modus
             neustart (bool):                    Neustart Modus, Startkonfigurationen werden übersprungen
             multilog_aktiv (bool):              Multilog-Read/Send Aktiviert
+            Log_WriteReadTime (bool):           Logge die Zeit wie lange die Write und Read Funktion dauern
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
             name (str, optional):               device name.
             typ (str, optional):                device name.
@@ -72,6 +74,7 @@ class PIAchse(QObject):
         self.config                     = config
         self.neustart                   = neustart
         self.multilog_OnOff             = multilog_aktiv
+        self.Log_WriteReadTime          = Log_WriteReadTime
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
         self.device_name                = name
         self.typ                        = typ
@@ -485,6 +488,9 @@ class PIAchse(QObject):
         self.Log_Text_218_str   = ['Minimum Limit erreicht!',                                                                                                                                                               'Minimum limit reached!']
         self.Log_Filter_PID_S   = ['Sollwert',                                                                                                                                                                              'Setpoint'] 
         self.Log_Filter_PID_I   = ['Istwert',                                                                                                                                                                               'Actual value'] 
+        self.Log_Time_w         = ['Die write-Funktion hat',                                                                                                                                                                'The write function has']     
+        self.Log_Time_wr        = ['s gedauert!',                                                                                                                                                                           's lasted!']   
+        self.Log_Time_r         = ['Die read-Funktion hat',                                                                                                                                                                 'The read function has']  
         ## Ablaufdatei: ###############################################################################################################################################################################################################################################################################                                                                                            
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -589,6 +595,7 @@ class PIAchse(QObject):
             write_Okay (dict):  beinhaltet Boolsche Werte für das was beschrieben werden soll!
             write_value (dict): beinhaltet die Werte die geschrieben werden sollen
         '''
+        ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
         #++++++++++++++++++++++++++++++++++++++++++
         # Start:
         #++++++++++++++++++++++++++++++++++++++++++
@@ -755,7 +762,14 @@ class PIAchse(QObject):
             except Exception as e:
                 logger.warning(f"{self.device_name} - {self.Log_Text_76_str[self.sprache]}")
                 logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]}')           
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]}')       
+
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Funktions-Dauer aufnehmen:
+        #++++++++++++++++++++++++++++++++++++++++++
+        timediff = (datetime.datetime.now(datetime.timezone.utc).astimezone() - ak_time).total_seconds()  
+        if self.Log_WriteReadTime:
+            logger.info(f"{self.device_name} - {self.Log_Time_w[self.sprache]} {timediff} {self.Log_Time_wr[self.sprache]}")    
 
     def Input_Filter(self, Input, Art = 'Ist'):
         ''' Input-Filter für den Multilog-VIFCON Link und die PID-Nutzung
@@ -820,6 +834,8 @@ class PIAchse(QObject):
         Return: 
             Aktuelle Werte (dict)   - self.value_name
         '''
+        ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
+        
         try:
             # Lese Ist-Position:
             position = self.read_TX('TP','P:')
@@ -845,6 +861,13 @@ class PIAchse(QObject):
         except Exception as e:
             logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
             logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
+
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Funktions-Dauer aufnehmen:
+        #++++++++++++++++++++++++++++++++++++++++++
+        timediff = (datetime.datetime.now(datetime.timezone.utc).astimezone() - ak_time).total_seconds()  
+        if self.Log_WriteReadTime:
+            logger.info(f"{self.device_name} - {self.Log_Time_r[self.sprache]} {timediff} {self.Log_Time_wr[self.sprache]}")
 
         return self.value_name
     

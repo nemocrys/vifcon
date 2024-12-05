@@ -191,9 +191,14 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                 if 'Eurotherm' in self.device_name and self.device.Safety == True:
                     # So bald sich im Gerät der HO ändert und die Leistung ausgewählt wurde oder der Menü-Knopf gedrückt wird, wird auch im Widget die Leistung geändert!
                     self.device_widget.oGOp = self.device.oGOp
+                    TT_Pow = f'{self.device_widget.TTLimit[self.device_widget.sprache]} {self.device_widget.uGOp} - {self.device_widget.oGOp} {self.device_widget.P_unit_einzel[self.device_widget.sprache]}'
+                    self.device_widget.LE_Pow.setToolTip(TT_Pow)
                 if ('Nemo-Achse' in self.device_name or 'PI-Achse' in self.device_name) and self.device.Limit_stop:
                     self.device_widget.BTN_Back(self.device.Limit_Stop_Text)
                     self.device.Limit_stop      = False
+                    self.device.Limit_Stop_Text = -1
+                elif 'Nemo-Achse' in self.device_name and self.device.Limit_Stop_Text == 5:
+                    self.device_widget.BTN_Back(self.device.Limit_Stop_Text)
                     self.device.Limit_Stop_Text = -1
                 if ('TruHeat' in self.device_name or 'Eurotherm' in self.device_name) and self.device_widget.start_later:
                     self.device_widget.signal_Pop_up.emit()
@@ -297,8 +302,14 @@ class Controller(QObject):
         # Yaml-Datei auslesen:
         #--------------------------------------------------------------------------
         ## Yaml:
-        with open(config, encoding="utf-8") as f:
-            self.config = yaml.safe_load(f)
+        try:
+            with open(config, encoding="utf-8") as f:
+                self.config = yaml.safe_load(f)
+        except Exception as e:
+            logger.warning('There is a problem with the config file (YAML). The program will be closed!\n')
+            logger.warning('Error:')
+            print(e)
+            exit()
         
         #---------------------------------------------------------------------------
         # Sprachvariablen:
@@ -313,11 +324,11 @@ class Controller(QObject):
                 self.sprache = 1
             else:
                 logger.warning('The language is not defined. Only German and English are defined in this program. Set language to English!')
-                print('Warning: The language is not defined. Only German and English are defined in this program. Set language to English!')
+                #print('Warning: The language is not defined. Only German and English are defined in this program. Set language to English!')
                 self.sprache = 1
         except Exception as e:
             logger.warning('The language is not defined. Only German and English are defined in this program. Set language to English!')
-            print('Warning: The language is not defined. Only German and English are defined in this program. Set language to English!')
+            #print('Warning: The language is not defined. Only German and English are defined in this program. Set language to English!')
             logger.exception('Error reason:')
             self.sprache = 1
         
@@ -370,6 +381,8 @@ class Controller(QObject):
         self.Log_Device_2       = ['gehört nicht zum Geräte-Typ Generator!',                                                                                                                'does not belong to the device type generator!']
         self.Log_Device_3       = ['gehört nicht zum Geräte-Typ Antrieb!',                                                                                                                  'does not belong to the device type drive!']
         self.Log_Device_4       = ['gehört nicht zum Geräte-Typ Monitoring!',                                                                                                               'does not belong to the monitoring device type!']
+        self.Log_Yaml_Error     = ['Mit der Config-Datei (Yaml) gibt es ein Problem.',                                                                                                      'There is a problem with the config file (YAML).']
+        self.Log_Yaml_Reason    = ['Fehlergrund:',                                                                                                                                          'Reason for the error']
         ## Error: ######################################################################################################################################################################################################################################################################################
         self.err_Text_1         = ['Zu hohe Verzeichnisanzahl.',                                                                                                                            "Too high directory count."]
         self.err_Text_2         = ['Synchron Modus benötigt\nAbsolute Positionierung (PI-Achse)!!',                                                                                         'Synchronous mode requires\nabsolute positioning (PI axis)!!']
@@ -533,6 +546,16 @@ class Controller(QObject):
         if not type(gamepad_Link) == bool and not gamepad_Link in [0,1]: 
             logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} Generell_GamePad - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {gamepad_Link}')
             gamepad_Link = 0
+        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+        ### Read und Write Funktion Dauer Loggen:
+        try: WriteReadTime = self.config['Function_Skip']['writereadTime']
+        except Exception as e: 
+            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} Function_Skip|writereadTime {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+            WriteReadTime = False
+        if not type(WriteReadTime) == bool and not WriteReadTime in [0,1]: 
+            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} writereadTime - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {WriteReadTime}')
+            WriteReadTime = 0
         #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
         ### GUI Rahmen:
         try: Frame_Anzeige = self.config['GUI']['GUI_Frame'] 
@@ -739,7 +762,7 @@ class Controller(QObject):
                 if device_typ == 'Generator':
                     if 'Eurotherm' in device_name:
                         #### Objekte erstellen:
-                        device = Eurotherm(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, multilog_Link, self.add_Ablauf, device_name)
+                        device = Eurotherm(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, multilog_Link, WriteReadTime, self.add_Ablauf, device_name)
                         widget = EurothermWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name)
                         #### Menü-Sonder-Knöpfe:
                         ##### Lese HO:
@@ -758,7 +781,7 @@ class Controller(QObject):
                         color_Gen_n = color_Gen_n + 7
                     elif 'TruHeat' in device_name:
                         #### Objekte erstellen:
-                        device = TruHeat(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, multilog_Link, self.add_Ablauf, device_name) 
+                        device = TruHeat(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, multilog_Link, WriteReadTime, self.add_Ablauf, device_name) 
                         widget = TruHeatWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name)
                         #### Farben-Option:
                         color_Gen_n = color_Gen_n + 13
@@ -768,7 +791,7 @@ class Controller(QObject):
                 elif device_typ == 'Antrieb':
                     if 'PI-Achse' in device_name:
                         #### Objekte erstellen:
-                        device = PIAchse(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, multilog_Link, self.add_Ablauf, device_name)
+                        device = PIAchse(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, multilog_Link, WriteReadTime, self.add_Ablauf, device_name)
                         if device.init and not self.test_mode:
                             start_werte = device.read() 
                         else:
@@ -778,13 +801,13 @@ class Controller(QObject):
                         color_Ant_n = color_Ant_n + 6
                     elif 'Nemo-Achse-Linear' in device_name:
                         #### Objekte erstellen:
-                        device = NemoAchseLin(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, multilog_Link, self.add_Ablauf,  device_name) 
+                        device = NemoAchseLin(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, multilog_Link, WriteReadTime, self.add_Ablauf,  device_name) 
                         widget = NemoAchseLinWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name, gamepad_Link)
                         #### Farben-Option:
                         color_Ant_n = color_Ant_n + 9
                     elif 'Nemo-Achse-Rotation' in device_name:
                         #### Objekte erstellen:
-                        device = NemoAchseRot(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, multilog_Link, self.add_Ablauf, device_name) 
+                        device = NemoAchseRot(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, multilog_Link, WriteReadTime, self.add_Ablauf, device_name) 
                         widget = NemoAchseRotWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name, gamepad_Link)
                         #### Farben-Option:
                         color_Ant_n = color_Ant_n + 7
@@ -795,7 +818,7 @@ class Controller(QObject):
                 elif device_typ == 'Monitoring':
                     if 'Nemo-Gase' in device_name:
                         #### Objekte erstellen:
-                        device = NemoGase(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.add_Ablauf, device_name)
+                        device = NemoGase(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, WriteReadTime, self.add_Ablauf, device_name)
                         widget = NemoGaseWidget(self.sprache, Frame_Anzeige, device_typ_widget, self.config['devices'][device_name], config, self.add_Ablauf, device_name)
                     else:
                         logger.warning(f'{self.Log_Device_1[self.sprache]} {device_name} {self.Log_Device_4[self.sprache]}')
@@ -1292,8 +1315,12 @@ class Controller(QObject):
                 worker.device_widget.update_rezept()        
 
         # Aktuelle Config-Datei notieren:
-        with open(self.config_pfad, encoding="utf-8") as f:
-            logger.info(f"{self.Log_Text_27_str[self.sprache]} {yaml.safe_load(f)}")  
+        try:
+            with open(self.config_pfad, encoding="utf-8") as f:
+                logger.info(f"{self.Log_Text_27_str[self.sprache]} {yaml.safe_load(f)}")  
+        except Exception as e: 
+            logger.warning(f'{self.Log_Yaml_Error[self.sprache]}')
+            logger.exception(f'{self.Log_Yaml_Reason[self.sprache]}')
 
     ##########################################
     # Erweiterung von Text-Datein:

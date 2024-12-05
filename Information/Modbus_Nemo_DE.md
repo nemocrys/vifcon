@@ -47,7 +47,9 @@ runter      | Coil    | 18 | 18
 stopp       | Coil    | 16 | 16
 lese_st_Reg | Input   | 38 | 39
 write_v_Reg | Holding |  4 |  4
+posAktuel   | Input   | 42 | 43
 posLimReg   | Input   | 46 | 47
+InfoReg     | Input   |  / | 143
 statusReg   | Input   | 50 | 51
 statusRegEil| Input   |  / | 155
 
@@ -71,7 +73,9 @@ runter      | Coil    |  2 |  2
 stopp       | Coil    |  0 |  0
 lese_st_Reg | Input   | 20 | 20
 write_v_Reg | Holding |  0 |  0
+posAktuel   | Input   | 24 | 24
 posLimReg   | Input   | 28 | 28
+InfoReg     | Input   |  / | 121
 statusReg   | Input   | 32 | 32
 statusRegEil| Input   |  / | 133
 
@@ -97,4 +101,4 @@ lese_st_Reg_AS      | Input | / | 209
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 19.11.2024
+Die Letzte Änderung dieser Beschreibung war: 03.12.2024

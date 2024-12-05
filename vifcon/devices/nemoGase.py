@@ -17,6 +17,7 @@ from pyModbusTCP.client import ModbusClient
 from pyModbusTCP import utils
 import time
 import math as m
+import datetime
 
 # ++++++++++++++++++++++++++++
 # Programm:
@@ -35,7 +36,7 @@ class SerialMock: # Notiz: Näher ansehen!
 
 
 class NemoGase:
-    def __init__(self, sprache, config, com_dict, test, add_Ablauf_function, name="nemoGase", typ = 'Monitoring'):
+    def __init__(self, sprache, config, com_dict, test, Log_WriteReadTime, add_Ablauf_function, name="nemoGase", typ = 'Monitoring'):
         """ Erstelle Nemo Gase Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
         Args:
@@ -43,6 +44,7 @@ class NemoGase:
             config (dict):                      Geräte Konfigurationen (definiert in config.yml in der devices-Sektion).
             com_dict (dict):                    Dictionary mit den anderen Ports der PI-Achsen
             test (bool):                        Test Modus
+            Log_WriteReadTime (bool):           Logge die Zeit wie lange die Write und Read Funktion dauern
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
             name (str, optional):               Geräte Namen.
             typ (str, optional):                Geräte Typ.
@@ -54,6 +56,7 @@ class NemoGase:
         ## Funktionsübergabe einlesen:
         self.sprache = sprache
         self.config = config
+        self.Log_WriteReadTime          = Log_WriteReadTime
         self.add_Text_To_Ablauf_Datei = add_Ablauf_function
         self.device_name = name
         self.typ = typ
@@ -215,6 +218,8 @@ class NemoGase:
         self.Bezeichnung_1      = ['Vakuum/Gas und Pumpen',                                                     'Vacuum/Gas and Pumps']
         self.Bezeichnung_2      = ['Kühlung',                                                                   'Cooling']
         self.Bezeichnung_3      = ['Anlagensicherheit',                                                         'System safety']
+        self.Log_Time_wr        = ['s gedauert!',                                                                                                                                                                           's lasted!']   
+        self.Log_Time_r         = ['Die read-Funktion hat',                                                                                                                                                                 'The read function has']  
         ## Ablaufdatei: ##############################################################################################################################################################################################################################################################################
         self.Text_51_str        = ['Initialisierung!',                                                          'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                           'Initialization Failed!']
@@ -261,6 +266,7 @@ class NemoGase:
         Return: 
             self.value_name (dict): Aktuelle Werte 
         '''
+        ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
 
         try:
             # Auslese-Teil 1 - Vakuum, Gase und Pumpen:
@@ -414,6 +420,13 @@ class NemoGase:
         except Exception as e:
             logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
             logger.exception(f"{self.device_name} - {self.Log_Text_65_str[self.sprache]}")
+
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Funktions-Dauer aufnehmen:
+        #++++++++++++++++++++++++++++++++++++++++++
+        timediff = (datetime.datetime.now(datetime.timezone.utc).astimezone() - ak_time).total_seconds()  
+        if self.Log_WriteReadTime:
+            logger.info(f"{self.device_name} - {self.Log_Time_r[self.sprache]} {timediff} {self.Log_Time_wr[self.sprache]}")
 
         return self.value_name
     

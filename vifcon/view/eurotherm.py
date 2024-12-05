@@ -119,6 +119,7 @@ class EurothermWidget(QWidget):
         self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                           'The following types are possible:']
         self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                          'Default is used:']
         self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                                'Error reading config during configuration:']
+        self.Log_Pfad_conf_4_1  = ['Fehler beim Auslesen der Config!',                                                                                  'Error reading config!']
         self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                              '; Set to default:']
         self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                      'Reason for error:']
         self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                            'Please correct and re-read config before use!']
@@ -158,6 +159,12 @@ class EurothermWidget(QWidget):
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.StartRampe = 'IST'
         # Wert Kontrolle: unter `Nachrichten im Log-File:` zu finden!
+        #//////////////////////////////////////////////////////////////////////
+        try: self.RampeUnit_m = self.config['start']["ramp_m_unit"]
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|ramp_m_unit {self.Log_Pfad_conf_5[self.sprache]} K/s')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.StartRampe = 'K/s'
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Defaults:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -242,6 +249,20 @@ class EurothermWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|umstell_wert {self.Log_Pfad_conf_5[self.sprache]} 0')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.PID_Mode_Switch_Value = 0  
+        #//////////////////////////////////////////////////////////////////////
+        try: self.oGPID    = self.config['PID']['Input_Limit_max']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_max {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.oGPID  = 1 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.uGPID    = self.config['PID']['Input_Limit_min'] 
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.uGPID = 0 
         
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Config-Fehler und Defaults:
@@ -276,6 +297,17 @@ class EurothermWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_13[self.sprache]})')
             self.uGOp = 0
             self.oGOp = 1
+        ### PID-Limit:
+        if not type(self.oGPID) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGPID)}')
+            self.oGPID = 1
+        if not type(self.uGPID) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_min - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGPID)}')
+            self.uGPID = 0
+        if self.oGPID <= self.uGPID:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+            self.uGPID = 0
+            self.oGPID = 1 
         ### HO-Start-Sicherheit:
         if not type(self.Safety) == bool and not self.Safety in [0, 1]:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} sicherheit - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} True - {self.Log_Pfad_conf_8[self.sprache]} {self.Safety}')
@@ -303,144 +335,162 @@ class EurothermWidget(QWidget):
         if not type(self.PID_Mode_Switch_Value) in [float, int] or not self.PID_Mode_Switch_Value >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} umstell_wert - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Mode_Switch_Value)}')
             self.PID_Mode_Switch_Value = 0
+        ### Rampen Steigungs Unit (Eurotherm-Rampe):
+        if not type(self.RampeUnit_m) == str or not self.RampeUnit_m in ['K/s', 'K/h', 'K/min']:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} ramp_m_unit - {self.Log_Pfad_conf_2[self.sprache]} [K/s, K/h, K/min] - {self.Log_Pfad_conf_3[self.sprache]} K/s - {self.Log_Pfad_conf_8[self.sprache]} {self.RampeUnit_m}')
+            self.RampeUnit_m = 'K/s'
         
         #--------------------------------------- 
         # Sprach-Einstellung:
         #--------------------------------------- 
         ## Werte: ##################################################################################################################################################################################################################################################################################
-        sollwert_str            = ['Soll',                                                                                                                                                                                                  'Set']
-        istwert_str             = ['Ist',                                                                                                                                                                                                   'Is']
+        sollwert_str                = ['Soll',                                                                                                                                                                                                  'Set']
+        istwert_str                 = ['Ist',                                                                                                                                                                                                   'Is']
         ## Knöpfe: #################################################################################################################################################################################################################################################################################                                                                                          
-        send_str                = ['Sende',                                                                                                                                                                                                 'Send']
-        rez_start_str           = ['Rezept Start',                                                                                                                                                                                          'Start recipe']
-        rez_ende_str            = ['Rezept Beenden',                                                                                                                                                                                        'Finish recipe']
+        send_str                    = ['Sende',                                                                                                                                                                                                 'Send']
+        rez_start_str               = ['Rezept Start',                                                                                                                                                                                          'Start recipe']
+        rez_ende_str                = ['Rezept Beenden',                                                                                                                                                                                        'Finish recipe']
         ## Checkbox: ###############################################################################################################################################################################################################################################################################                                                                                                   
-        cb_sync_str             = ['Sync',                                                                                                                                                                                                  'Sync']
-        cb_PID                  = ['PID',                                                                                                                                                                                                   'PID']
+        cb_sync_str                 = ['Sync',                                                                                                                                                                                                  'Sync']
+        cb_PID                      = ['PID',                                                                                                                                                                                                   'PID']
         ## Einheiten mit Größe: ####################################################################################################################################################################################################################################################################                                                                                            
-        P_str                   = ['Out-Op in %:',                                                                                                                                                                                          'Out-Op in %:']
-        T_str                   = ['T in °C:',                                                                                                                                                                                              'T in °C:']
-        sP_str                  = ['Op:',                                                                                                                                                                                                   'Op:']
-        sT_str                  = ['T:',                                                                                                                                                                                                    'T:']
-        st_P_str                = ['XXX.XX %',                                                                                                                                                                                              'XXX.XX %']
-        st_T_str                = ['XXX.XX°C',                                                                                                                                                                                              'XXX.XX°C']
-        st_Tsoll_str            = ['(XXX.XX)',                                                                                                                                                                                              '(XXX.XX)']
-        T_einzel_str            = ['T',                                                                                                                                                                                                     'T']
-        P_einzel_str            = ['P',                                                                                                                                                                                                     'P']
-        PID_Von_1               = ['Wert von Multilog',                                                                                                                                                                                     'Value of Multilog']
-        PID_Von_2               = ['Wert von VIFCON',                                                                                                                                                                                       'Value ofVIFCON']
-        PID_Zusatz              = ['ex,',                                                                                                                                                                                                   'ex,']
-        self.T_unit_einzel      = ['°C',                                                                                                                                                                                                    '°C']
-        self.P_unit_einzel      = ['%',                                                                                                                                                                                                     '%']
+        P_str                       = ['Out-Op in %:',                                                                                                                                                                                          'Out-Op in %:']
+        T_str                       = ['T in °C:',                                                                                                                                                                                              'T in °C:']
+        sP_str                      = ['Op:',                                                                                                                                                                                                   'Op:']
+        sT_str                      = ['T:',                                                                                                                                                                                                    'T:']
+        st_P_str                    = ['XXX.XX %',                                                                                                                                                                                              'XXX.XX %']
+        st_T_str                    = ['XXX.XX°C',                                                                                                                                                                                              'XXX.XX°C']
+        st_Tsoll_str                = ['(XXX.XX)',                                                                                                                                                                                              '(XXX.XX)']
+        T_einzel_str                = ['T',                                                                                                                                                                                                     'T']
+        P_einzel_str                = ['P',                                                                                                                                                                                                     'P']
+        PID_Von_1                   = ['Wert von Multilog',                                                                                                                                                                                     'Value of Multilog']
+        PID_Von_2                   = ['Wert von VIFCON',                                                                                                                                                                                       'Value ofVIFCON']
+        PID_Zusatz                  = ['ex,',                                                                                                                                                                                                   'ex,']
+        self.T_unit_einzel          = ['°C',                                                                                                                                                                                                    '°C']
+        self.P_unit_einzel          = ['%',                                                                                                                                                                                                     '%']
+        self.PID_G_Kurve            = ['PID-T',                                                                                                                                                                                                 'PID-T']
+        ## ToolTip: ###############################################################################################################################################################################################################################################################################                                                                                                   
+        self.TTLimit                = ['Limit:',                                                                                                                                                                                                'Limit:']
         ## Fehlermeldungen: ########################################################################################################################################################################################################################################################################                                                                                                                                                                                    
-        self.err_0_str          = ['Fehler!',                                                                                                                                                                                               'Error!']                   
-        self.err_1_str          = ['Keine Eingabe!',                                                                                                                                                                                        'No input!']
-        self.err_2_str          = ['Grenzen überschritten!\nGrenzen von',                                                                                                                                                                   'Limits exceeded!\nLimits from']
-        self.err_3_str          = ['bis',                                                                                                                                                                                                   'to']
-        self.err_4_str          = ['Gerät anschließen und\nInitialisieren!',                                                                                                                                                                'Connect the device\nand initialize!']
-        self.err_5_str          = ['Fehlerhafte Eingabe!',                                                                                                                                                                                  'Incorrect input!']
-        self.err_6_str          = ['Der Wert',                                                                                                                                                                                              'The value']
-        self.err_7_str          = ['überschreitet\ndie Grenzen von',                                                                                                                                                                        'exceeds\nthe limits of']
-        self.err_10_str         = ['Rezept Einlesefehler!',                                                                                                                                                                                 'Recipe import error!']
-        self.err_11_str         = ['Keine Anzeige!',                                                                                                                                                                                        'No display!']
-        self.err_12_str         = ['Erster Schritt = Sprung!\nDa keine Messwerte!',                                                                                                                                                         'First step = jump! There\nare no measurements!']
-        self.err_13_str         = ['o.K.',                                                                                                                                                                                                  'o.K.']   
-        self.err_14_str         = ['Rezept läuft!\nRezept Einlesen gesperrt!',                                                                                                                                                              'Recipe is running!\nReading recipes blocked!']
-        self.err_15_str         = ['Wähle ein Rezept!',                                                                                                                                                                                     'Choose a recipe!']
-        self.err_16_str         = ['Die Rampen Art er ist\nnur bei T-Rampen möglich!',                                                                                                                                                      'The ramp type er is only\npossible with T-ramps!']
-        self.err_17_str         = ['Die Rampen Art op ist\nnur bei T-Rampen möglich!',                                                                                                                                                      'The ramp type op is only\npossible with T-ramps!']
-        self.err_18_str         = ['Rezept Fehler:\nFehler im op-Schritt!',                                                                                                                                                                 'Recipe error:\nError in the op step!']
-        self.err_19_str         = ['Rezept läuft!\nRezept Start gesperrt!',                                                                                                                                                                 'Recipe running!\nRecipe start blocked!']
-        self.err_20_str         = ['Die Rampen Segmente er, op und opr sind\nin dem PID-Modus nicht erlaubt!',                                                                                                                              'The ramp segments er, op and opr are\nnot allowed in PID mode!']
-        self.err_21_str         = ['Fehler in der Rezept konfiguration\nder Config-Datei! Bitte beheben und Neueinlesen!',                                                                                                                  'Error in the recipe configuration of\nthe config file! Please fix and re-read!']
-        self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                                                                                                                           'Recipe reading error!\nUnknown segment:']
+        self.err_0_str              = ['Fehler!',                                                                                                                                                                                               'Error!']                   
+        self.err_1_str              = ['Keine Eingabe!',                                                                                                                                                                                        'No input!']
+        self.err_2_str              = ['Grenzen überschritten!\nGrenzen von',                                                                                                                                                                   'Limits exceeded!\nLimits from']
+        self.err_3_str              = ['bis',                                                                                                                                                                                                   'to']
+        self.err_4_str              = ['Gerät anschließen und\nInitialisieren!',                                                                                                                                                                'Connect the device\nand initialize!']
+        self.err_5_str              = ['Fehlerhafte Eingabe!',                                                                                                                                                                                  'Incorrect input!']
+        self.err_6_str              = ['Der Wert',                                                                                                                                                                                              'The value']
+        self.err_7_str              = ['überschreitet\ndie Grenzen von',                                                                                                                                                                        'exceeds\nthe limits of']
+        self.err_10_str             = ['Rezept Einlesefehler!',                                                                                                                                                                                 'Recipe import error!']
+        self.err_11_str             = ['Keine Anzeige!',                                                                                                                                                                                        'No display!']
+        self.err_12_str             = ['Erster Schritt = Sprung!\nDa keine Messwerte!',                                                                                                                                                         'First step = jump! There\nare no measurements!']
+        self.err_13_str             = ['o.K.',                                                                                                                                                                                                  'o.K.']   
+        self.err_14_str             = ['Rezept läuft!\nRezept Einlesen gesperrt!',                                                                                                                                                              'Recipe is running!\nReading recipes blocked!']
+        self.err_15_str             = ['Wähle ein Rezept!',                                                                                                                                                                                     'Choose a recipe!']
+        self.err_16_str             = ['Die Rampen Art er ist\nnur bei T-Rampen möglich!',                                                                                                                                                      'The ramp type er is only\npossible with T-ramps!']
+        self.err_17_str             = ['Die Rampen Art op ist\nnur bei T-Rampen möglich!',                                                                                                                                                      'The ramp type op is only\npossible with T-ramps!']
+        self.err_18_str             = ['Rezept Fehler:\nFehler im op-Schritt!',                                                                                                                                                                 'Recipe error:\nError in the op step!']
+        self.err_19_str             = ['Rezept läuft!\nRezept Start gesperrt!',                                                                                                                                                                 'Recipe running!\nRecipe start blocked!']
+        self.err_20_str             = ['Die Rampen Segmente er, op und opr sind\nin dem PID-Modus nicht erlaubt!',                                                                                                                              'The ramp segments er, op and opr are\nnot allowed in PID mode!']
+        self.err_21_str             = ['Fehler in der Rezept konfiguration\nder Config-Datei! Bitte beheben und Neueinlesen!',                                                                                                                  'Error in the recipe configuration of\nthe config file! Please fix and re-read!']
+        self.err_Rezept             = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                                                                                                                           'Recipe reading error!\nUnknown segment:']
+        self.Log_Yaml_Error         = ['Mit der Config-Datei (Yaml) gibt es ein Problem.',                                                                                                                                                      'There is a problem with the config file (YAML).']
+        self.err_RezDef_str         = ['Yaml-Config Fehler\nDefault-Rezept eingefügt!',                                                                                                                                                         'Yaml config error\nDefault recipe inserted!']       
         ## Plot-Legende: ##########################################################################################################################################################################################################################################################################                                                                                                                                                        
-        rezept_Label_str        = ['Rezept',                                                                                                                                                                                                'Recipe']
-        ober_Grenze_str         = ['oG',                                                                                                                                                                                                    'uL']                                   # uL - upper Limit
-        unter_Grenze_str        = ['uG',                                                                                                                                                                                                    'lL']                                   # lL - lower Limit
+        rezept_Label_str            = ['Rezept',                                                                                                                                                                                                'Recipe']
+        ober_Grenze_str             = ['oG',                                                                                                                                                                                                    'uL']                                   # uL - upper Limit
+        unter_Grenze_str            = ['uG',                                                                                                                                                                                                    'lL']                                   # lL - lower Limit
         ## Messgrößen: ############################################################################################################################################################################################################################################################################                                                                              
-        self.temp_str           = ['Temperatur',                                                                                                                                                                                            'Temperature']
-        self.op_str             = ['Leistung',                                                                                                                                                                                              'Power']
+        self.temp_str               = ['Temperatur',                                                                                                                                                                                            'Temperature']
+        self.op_str                 = ['Leistung',                                                                                                                                                                                              'Power']
         ## Logging: ###############################################################################################################################################################################################################################################################################                                                                            
-        self.Log_Text_1_str 	= ['Erstelle Widget.',                                                                                                                                                                                      'Create widget.']
-        self.Log_Text_28_str    = ['Gerät wurde Gestartet/Initialisiert!',                                                                                                                                                                  'Device has been started/initialized!']
-        self.Log_Text_29_str    = ['Gerät wurde nicht Initialisiert! Initialisierung durch Menü im späteren!',                                                                                                                              'Device was not initialized! Initialization through menu later!']
-        self.Log_Text_30_str    = ['Neustart Modus.',                                                                                                                                                                                       'Restart mode.']
-        self.Log_Text_38_str    = ['Fehlerhafte Eingabe - Grund:',                                                                                                                                                                          'Incorrect input - Reason:']
-        self.Log_Text_39_str    = ['Rezept:',                                                                                                                                                                                               'Recipe:']
-        self.Log_Text_40_str    = ['Rezept Inhalt:',                                                                                                                                                                                        'Recipe content:']
-        self.Log_Text_41_str    = ['Prüfung der Maximalen Ausgangsleistung (HO). Auslesen aus dem Gerät. Überschreibung des Limits.',                                                                                                       'Testing the maximum output power (HO). Reading from the device. Limit override.']
-        self.Log_Text_42_str    = ['Setzen des Maximalen Ausgangsleistung (HO) mit dem Maximalen Config-Limit für den Leistungsausgang.',                                                                                                   'Setting the maximum output power (HO) with the maximum config limit for the power output.']
-        self.Log_Text_43_str    = ['Startmodus Leistungseingabe (Manueller Modus)!',                                                                                                                                                        'Start mode power input (manual mode)!']
-        self.Log_Text_44_str    = ['Startmodus Temperatureingabe (Automatischer Modus)!',                                                                                                                                                   'Start mode temperature input (automatic mode)!']
-        self.Log_Text_181_str   = ['Eurotherm Rampe geht vom Istwert aus. Eurotherm Rampe zu Beginn benötigt für den Plot den Istwert! Annahme auf 20°C!',                                                                                  'Eurotherm ramp is based on the actual value. Eurotherm ramp at the beginning requires the actual value for the plot! Assumption at 20°C!']
-        self.Log_Text_182_str   = ['Eine Eurotherm-Rampe wird nur bei Temperatur durchführbar sein!',                                                                                                                                       'A Eurotherm ramp will only be possible at temperature!']
-        self.Log_Text_184_str   = ['Die Rampen Art op kann nur bei einem Temperatur-Rezept angewendet werden!',                                                                                                                             'The ramp type op can only be used with a temperature recipe!']
-        self.Log_Text_185_str   = ['Rezept Fehler: ',                                                                                                                                                                                       'Recipe error: ']
-        self.Log_Text_205_str   = ['Update Konfiguration (Update Limits):',                                                                                                                                                                 'Update configuration (update limits):']
-        self.Log_Text_242_str   = ['Die maximale Ausgangsleistung (HO) wird nicht an das Limit angepasst!',                                                                                                                                 'The maximum output power (HO) is not adjusted to the limit!']
-        self.Log_Text_245_str   = ['Die Erste Rampe Startet beim Istwert!',                                                                                                                                                                 'The first ramp starts at the actual value!']
-        self.Log_Text_246_str   = ['Die Erste Rampe Startet beim Sollwert!',                                                                                                                                                                'The first ramp starts at the setpoint!']
-        self.Log_Text_247_str   = ['Die Einstellung für die Erste Rampe ist fehlerhaft! Möglich sind nur SOLL und IST!! Default IST.',                                                                                                      'The setting for the first ramp is incorrect! Only SOLL and IST are possible!! Default IST.']
-        self.Log_Text_248_str   = ['Das Rampen Segment er kann nicht im PID-Modus angewendet werden!',                                                                                                                                      'The ramp segment er cannot be used in PID mode!']
-        self.Log_Text_PID_Ex    = ['Der Wert in der Konfig liegt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',                                                                                              'The value in the config is outside the limit range! Switching value is set to minimum limit!']
-        self.Log_Text_Ex1_str   = ['Fehler Grund (Rezept einlesen):',                                                                                                                                                                       'Error reason (reading recipe):']
-        self.Log_Text_Ex2_str   = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                                                                                                                      'Error reason (Problem with recipe configuration)']
-        self.Log_Text_EPID_1    = ['Update Konfiguration (Update PID-Parameter Eurotherm):',                                                                                                                                                'Update configuration (update PID parameters Eurotherm):']
-        self.Log_Text_EPID_2    = ['Der Wert',                                                                                                                                                                                              'The value']
-        self.Log_Text_EPID_3    = ['liegt außerhalb des Bereiches 0 bis 99999! Senden verhindert!',                                                                                                                                         'is outside the range 0 to 99999! Sending prevented!']
-        self.Log_Text_EPID_4    = ['Beim Vorbereiten des Sendens der neuen PID-Parameter gab es einen Fehler!',                                                                                                                             'There was an error while preparing to send the new PID parameters!']
-        self.Log_Text_EPID_5    = ['Einlese-Fehler der\nneuen Eurotherm PID-Parameter!',                                                                                                                                                    'Error reading the\nnew Eurotherm PID parameters!']
-        self.Log_Text_EPID_6    = ['Fehlergrund (PID-Parameter):',                                                                                                                                                                          'Reason for error (PID parameter):']
-        self.Log_Text_LB_1      = ['Limitbereich',                                                                                                                                                                                          'Limit range']
-        self.Log_Text_LB_2      = ['Temperatur',                                                                                                                                                                                            'Temperatur']
-        self.Log_Text_LB_3      = ['Operating Point (Leistung)',                                                                                                                                                                            'Operating Point (Power)']
-        self.Log_Text_LB_4      = ['bis',                                                                                                                                                                                                   'to']
-        self.Log_Text_LB_5      = ['nach Update',                                                                                                                                                                                           'after update']
-        self.Log_Text_Kurve     = ['Kurvenbezeichnung existiert nicht:',                                                                                                                                                                    'Curve name does not exist:']
+        self.Log_Text_1_str 	    = ['Erstelle Widget.',                                                                                                                                                                                      'Create widget.']
+        self.Log_Text_28_str        = ['Gerät wurde Gestartet/Initialisiert!',                                                                                                                                                                  'Device has been started/initialized!']
+        self.Log_Text_29_str        = ['Gerät wurde nicht Initialisiert! Initialisierung durch Menü im späteren!',                                                                                                                              'Device was not initialized! Initialization through menu later!']
+        self.Log_Text_30_str        = ['Neustart Modus.',                                                                                                                                                                                       'Restart mode.']
+        self.Log_Text_38_str        = ['Fehlerhafte Eingabe - Grund:',                                                                                                                                                                          'Incorrect input - Reason:']
+        self.Log_Text_39_str        = ['Rezept:',                                                                                                                                                                                               'Recipe:']
+        self.Log_Text_40_str        = ['Rezept Inhalt:',                                                                                                                                                                                        'Recipe content:']
+        self.Log_Text_41_str        = ['Prüfung der Maximalen Ausgangsleistung (HO). Auslesen aus dem Gerät. Überschreibung des Limits.',                                                                                                       'Testing the maximum output power (HO). Reading from the device. Limit override.']
+        self.Log_Text_42_str        = ['Setzen des Maximalen Ausgangsleistung (HO) mit dem Maximalen Config-Limit für den Leistungsausgang.',                                                                                                   'Setting the maximum output power (HO) with the maximum config limit for the power output.']
+        self.Log_Text_43_str        = ['Startmodus Leistungseingabe (Manueller Modus)!',                                                                                                                                                        'Start mode power input (manual mode)!']
+        self.Log_Text_44_str        = ['Startmodus Temperatureingabe (Automatischer Modus)!',                                                                                                                                                   'Start mode temperature input (automatic mode)!']
+        self.Log_Text_181_str       = ['Eurotherm Rampe geht vom Istwert aus. Eurotherm Rampe zu Beginn benötigt für den Plot den Istwert! Annahme auf 20°C!',                                                                                  'Eurotherm ramp is based on the actual value. Eurotherm ramp at the beginning requires the actual value for the plot! Assumption at 20°C!']
+        self.Log_Text_182_str       = ['Eine Eurotherm-Rampe wird nur bei Temperatur durchführbar sein!',                                                                                                                                       'A Eurotherm ramp will only be possible at temperature!']
+        self.Log_Text_184_str       = ['Die Rampen Art op kann nur bei einem Temperatur-Rezept angewendet werden!',                                                                                                                             'The ramp type op can only be used with a temperature recipe!']
+        self.Log_Text_185_str       = ['Rezept Fehler: ',                                                                                                                                                                                       'Recipe error: ']
+        self.Log_Text_205_str       = ['Update Konfiguration (Update Limits):',                                                                                                                                                                 'Update configuration (update limits):']
+        self.Log_Text_242_str       = ['Die maximale Ausgangsleistung (HO) wird nicht an das Limit angepasst!',                                                                                                                                 'The maximum output power (HO) is not adjusted to the limit!']
+        self.Log_Text_245_str       = ['Die Erste Rampe Startet beim Istwert!',                                                                                                                                                                 'The first ramp starts at the actual value!']
+        self.Log_Text_246_str       = ['Die Erste Rampe Startet beim Sollwert!',                                                                                                                                                                'The first ramp starts at the setpoint!']
+        self.Log_Text_247_str       = ['Die Einstellung für die Erste Rampe ist fehlerhaft! Möglich sind nur SOLL und IST!! Default IST.',                                                                                                      'The setting for the first ramp is incorrect! Only SOLL and IST are possible!! Default IST.']
+        self.Log_Text_248_str       = ['Das Rampen Segment er kann nicht im PID-Modus angewendet werden!',                                                                                                                                      'The ramp segment er cannot be used in PID mode!']
+        self.Log_Text_PID_Ex        = ['Der Wert in der Konfig liegt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',                                                                                              'The value in the config is outside the limit range! Switching value is set to minimum limit!']
+        self.Log_Text_Ex1_str       = ['Fehler Grund (Rezept einlesen):',                                                                                                                                                                       'Error reason (reading recipe):']
+        self.Log_Text_Ex2_str       = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                                                                                                                      'Error reason (Problem with recipe configuration)']
+        self.Log_Text_EPID_1        = ['Update Konfiguration (Update PID-Parameter Eurotherm):',                                                                                                                                                'Update configuration (update PID parameters Eurotherm):']
+        self.Log_Text_EPID_2        = ['Der Wert',                                                                                                                                                                                              'The value']
+        self.Log_Text_EPID_3        = ['liegt außerhalb des Bereiches 0 bis 99999! Senden verhindert!',                                                                                                                                         'is outside the range 0 to 99999! Sending prevented!']
+        self.Log_Text_EPID_4        = ['Beim Vorbereiten des Sendens der neuen PID-Parameter gab es einen Fehler!',                                                                                                                             'There was an error while preparing to send the new PID parameters!']
+        self.Log_Text_EPID_5        = ['Einlese-Fehler der\nneuen Eurotherm PID-Parameter!',                                                                                                                                                    'Error reading the\nnew Eurotherm PID parameters!']
+        self.Log_Text_EPID_6        = ['Fehlergrund (PID-Parameter):',                                                                                                                                                                          'Reason for error (PID parameter):']
+        self.Log_Text_LB_1          = ['Limitbereich',                                                                                                                                                                                          'Limit range']
+        self.Log_Text_LB_2          = ['Temperatur',                                                                                                                                                                                            'Temperatur']
+        self.Log_Text_LB_3          = ['Operating Point (Leistung)',                                                                                                                                                                            'Operating Point (Power)']
+        self.Log_Text_LB_4          = ['bis',                                                                                                                                                                                                   'to']
+        self.Log_Text_LB_5          = ['nach Update',                                                                                                                                                                                           'after update']
+        self.Log_Text_Kurve         = ['Kurvenbezeichnung existiert nicht:',                                                                                                                                                                    'Curve name does not exist:']
+        self.Log_EuRa_Werte_1       = ['Eurotherm-Rampen Zielsollwert',                                                                                                                                                                         'Eurotherm ramps target setpoint']
+        self.Log_EuRa_Werte_2       = ['Eurotherm-Rampen Steigung',                                                                                                                                                                             'Eurotherm ramp gradient']
+        self.Log_Text_EuRa_UnitKS   = ['ein Kelvin die Sekunde',                                                                                                                                                                                'one Kelvin per second']
+        self.Log_Text_EuRa_UnitKH   = ['ein Kelvin die Stunde',                                                                                                                                                                                 'one Kelvin per hour']
+        self.Log_Text_EuRa_UnitKM   = ['ein Kelvin die Minute',                                                                                                                                                                                 'one Kelvin per minute']
+        self.Log_Text_EuRa_Unit     = ['Die gewählte Einheit für die Eurotherm-Rampe ist',                                                                                                                                                      'The selected unit for the Eurotherm ramp is']
+        self.Log_EuRa_Text_m1       = ['Die Steigung von',                                                                                                                                                                                      'The gradient of']
+        self.Log_EuRa_Text_m2       = ['überschreit das Maximum von 9999.9! Steigung wird auf Maximum gesetzt für das Segment',                                                                                                                 'exceeds the maximum of 9999.9! Slope is set to maximum for the segment']    
         ## Ablaufdatei: ###########################################################################################################################################################################################################################################################################                                                                             
-        self.Text_19_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da keine Eingabe.',                                                                                                                                   'Input field error message: Sending failed because there was no input.']
-        self.Text_20_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da Eingabe die Grenzen überschreitet.',                                                                                                               'Input field error message: Send failed because input exceeds limits.']
-        self.Text_21_str        = ['Sende den Wert',                                                                                                                                                                                        'Send the value']
-        self.Text_22_str        = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da fehlerhafte Eingabe.',                                                                                                                             'Input field error message: Sending failed due to incorrect input.']
-        self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                                                                                                                     'Button pressed - initialization!']
-        self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                                                                                                              'Execution of the recipe:']
-        self.Text_25_str        = ['Auswahl Ausgangsleistung senden.',                                                                                                                                                                      'Send output power selection.']
-        self.Text_26_str        = ['Schalte auf Manuellen Modus (SW).',                                                                                                                                                                     'Switch to manual mode (SW).']
-        self.Text_27_str        = ['Auswahl Solltemperatur senden.',                                                                                                                                                                        'Send selection of target temperature.']
-        self.Text_28_str        = ['Schalte auf Automatischen Modus (SW).',                                                                                                                                                                 'Switch to Automatic Mode (SW).']
-        self.Text_29_str        = ['Knopf betätigt - Sende Solltemperatur (SL).',                                                                                                                                                           'Button pressed - send target temperature (SL).']
-        self.Text_29_2_str      = ['Knopf betätigt - Sende Solltemperatur (PID).',                                                                                                                                                          'Button pressed - send target temperature (PID).']
-        self.Text_30_str        = ['Knopf betätigt - Sende Ausgangsleistung (OP).',                                                                                                                                                         'Button pressed - send output power (OP).']
-        self.Text_80_str        = ['Menü-Knopf betätigt - Lese OP maximum (HO) aus.',                                                                                                                                                       'Menu button pressed - read OP maximum (HO).']
-        self.Text_80_2_str      = ['Menü-Knopf betätigt - Schreibe PID-Parameter (XP, TI, TD).',                                                                                                                                            'Menu button pressed - Write PID parameters (XP, TI, TD).']
-        self.Text_80_3_str      = ['Menü-Knopf betätigt - Lese PID-Parameter (XP, TI, TD).',                                                                                                                                                'Menu button pressed - Read PID parameters (XP, TI, TD).']
-        self.Text_81_str        = ['Knopf betätigt - Beende Rezept',                                                                                                                                                                        'Button pressed - End recipe']
-        self.Text_82_str        = ['Rezept ist zu Ende!',                                                                                                                                                                                   'Recipe is finished!']
-        self.Text_83_str        = ['Stopp betätigt - Beende Rezept',                                                                                                                                                                        'Stop pressed - End recipe']
-        self.Text_84_str        = ['Rezept läuft! Erneuter Start verhindert!',                                                                                                                                                              'Recipe is running! Restart prevented!']
-        self.Text_85_str        = ['Rezept Startet',                                                                                                                                                                                        'Recipe Starts']
-        self.Text_86_str        = ['Rezept Beenden',                                                                                                                                                                                        'Recipe Ends']
-        self.Text_87_str        = ['Knopf betätigt - Start Rezept',                                                                                                                                                                         'Button pressed - Start recipe']
-        self.Text_88_str        = ['Rezept konnte aufgrund von Fehler nicht gestartet werden!',                                                                                                                                             'Recipe could not be started due to an error!']
-        self.Text_89_str        = ['Knopf betätigt - Beende Rezept - Keine Wirkung, da kein aktives Rezept!',                                                                                                                               'Button pressed - End recipe - No effect because there is no active recipe!']
-        self.Text_90_str        = ['Sicherer Endzustand wird hergestellt! Auslösung des Stopp-Knopfes!',                                                                                                                                    'Safe final state is established! Stop button is activated!']
-        self.Text_91_str        = ['Rezept Beenden - Sicherer Endzustand',                                                                                                                                                                  'Recipe Ends - Safe End State']
-        self.Text_PID_1         = ['Wechsel in PID-Modus.',                                                                                                                                                                                 'Switch to PID mode.']
-        self.Text_PID_2         = ['Wechsel in Eurotherm-Regel-Modus.',                                                                                                                                                                     'Switch to Eurotherm control mode.']
+        self.Text_19_str            = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da keine Eingabe.',                                                                                                                                   'Input field error message: Sending failed because there was no input.']
+        self.Text_20_str            = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da Eingabe die Grenzen überschreitet.',                                                                                                               'Input field error message: Send failed because input exceeds limits.']
+        self.Text_21_str            = ['Sende den Wert',                                                                                                                                                                                        'Send the value']
+        self.Text_22_str            = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da fehlerhafte Eingabe.',                                                                                                                             'Input field error message: Sending failed due to incorrect input.']
+        self.Text_23_str            = ['Knopf betätigt - Initialisierung!',                                                                                                                                                                     'Button pressed - initialization!']
+        self.Text_24_str            = ['Ausführung des Rezeptes:',                                                                                                                                                                              'Execution of the recipe:']
+        self.Text_25_str            = ['Auswahl Ausgangsleistung senden.',                                                                                                                                                                      'Send output power selection.']
+        self.Text_26_str            = ['Schalte auf Manuellen Modus (SW).',                                                                                                                                                                     'Switch to manual mode (SW).']
+        self.Text_27_str            = ['Auswahl Solltemperatur senden.',                                                                                                                                                                        'Send selection of target temperature.']
+        self.Text_28_str            = ['Schalte auf Automatischen Modus (SW).',                                                                                                                                                                 'Switch to Automatic Mode (SW).']
+        self.Text_29_str            = ['Knopf betätigt - Sende Solltemperatur (SL).',                                                                                                                                                           'Button pressed - send target temperature (SL).']
+        self.Text_29_2_str          = ['Knopf betätigt - Sende Solltemperatur (PID).',                                                                                                                                                          'Button pressed - send target temperature (PID).']
+        self.Text_30_str            = ['Knopf betätigt - Sende Ausgangsleistung (OP).',                                                                                                                                                         'Button pressed - send output power (OP).']
+        self.Text_80_str            = ['Menü-Knopf betätigt - Lese OP maximum (HO) aus.',                                                                                                                                                       'Menu button pressed - read OP maximum (HO).']
+        self.Text_80_2_str          = ['Menü-Knopf betätigt - Schreibe PID-Parameter (XP, TI, TD).',                                                                                                                                            'Menu button pressed - Write PID parameters (XP, TI, TD).']
+        self.Text_80_3_str          = ['Menü-Knopf betätigt - Lese PID-Parameter (XP, TI, TD).',                                                                                                                                                'Menu button pressed - Read PID parameters (XP, TI, TD).']
+        self.Text_81_str            = ['Knopf betätigt - Beende Rezept',                                                                                                                                                                        'Button pressed - End recipe']
+        self.Text_82_str            = ['Rezept ist zu Ende!',                                                                                                                                                                                   'Recipe is finished!']
+        self.Text_83_str            = ['Stopp betätigt - Beende Rezept',                                                                                                                                                                        'Stop pressed - End recipe']
+        self.Text_84_str            = ['Rezept läuft! Erneuter Start verhindert!',                                                                                                                                                              'Recipe is running! Restart prevented!']
+        self.Text_85_str            = ['Rezept Startet',                                                                                                                                                                                        'Recipe Starts']
+        self.Text_86_str            = ['Rezept Beenden',                                                                                                                                                                                        'Recipe Ends']
+        self.Text_87_str            = ['Knopf betätigt - Start Rezept',                                                                                                                                                                         'Button pressed - Start recipe']
+        self.Text_88_str            = ['Rezept konnte aufgrund von Fehler nicht gestartet werden!',                                                                                                                                             'Recipe could not be started due to an error!']
+        self.Text_89_str            = ['Knopf betätigt - Beende Rezept - Keine Wirkung, da kein aktives Rezept!',                                                                                                                               'Button pressed - End recipe - No effect because there is no active recipe!']
+        self.Text_90_str            = ['Sicherer Endzustand wird hergestellt! Auslösung des Stopp-Knopfes!',                                                                                                                                    'Safe final state is established! Stop button is activated!']
+        self.Text_91_str            = ['Rezept Beenden - Sicherer Endzustand',                                                                                                                                                                  'Recipe Ends - Safe End State']
+        self.Text_PID_1             = ['Wechsel in PID-Modus.',                                                                                                                                                                                 'Switch to PID mode.']
+        self.Text_PID_2             = ['Wechsel in Eurotherm-Regel-Modus.',                                                                                                                                                                     'Switch to Eurotherm control mode.']
+        self.Text_Update            = ['Update Fehlgeschlagen!',                                                                                    'Update Failed!']
         ## Pop-Up-Fenster: #########################################################################################################################################################################################################################################################################
-        self.puF_HO_str         = ['Die maximale Ausgangsleistung (HO) wird nicht an das Limit angepasst! Die Einstellung Sicherheit wurde auf True gesetzt. Das bedeutet das der Wert nur direkt am Eurotherm geändert werden kann!',      'The maximum output power (HO) is not adjusted to the limit! The Security setting has been set to True. This means that the value can only be changed directly on the Eurotherm!']
-        self.puF_HO_str_2       = ['Bitte beachten Sie, dass bei der Config-Einstellung "sicherheit" True der OPmax Wert nicht mit dem in dem Gerät übereinstimmen muss. Bitte Betätigen Sie zur Anpassung im Menü "Eurotherm HO lesen" oder Wechseln Sie in den Manuellen Modus, damit der OPmax-Wert in VIFCON aktualisiert wird!',
-                                   'Please note that with the config setting "security" True, the OPmax valuedoes not have to match that in the device. To adjust, please press "Read Eurotherm HO" in the menu or switch to manual mode so that the OPmax value is updated in VIFCON!']
-        self.puF_RezeptAnz_str = ['Beachte Konfikuration am Gerät:\n1. Sehe nach ob die richtige Einstellung für die Rampensteigung eingegeben ist (Am Eurotherm: Drücke 2xBlatt, 3xPfeil CCW -> Ramp Units -> Pfeiltasten zur Auswahl)(Achtung: Wähle das richtige Programm nach einmal Blatt)!\n2. Beachte Konfigurationseinstellung (Eurotherm) "Servo" (Eurotherm-Rampe: Start Soll- oder Istwert)!!',
-                                  'Note the configuration on the device:\n1. Check whether the correct setting for the ramp gradient has been entered (On Eurotherm: Press 2xSheet, 3xArrow CCW -> Ramp Units -> arrow keys to select)(Attention: Select the correct program after one sheet)!\n2. Note configuration setting (Eurotherm) "Servo" (Eurotherm ramp: start setpoint or actual value)!!']
+        self.puF_HO_str             = ['Die maximale Ausgangsleistung (HO) wird nicht an das Limit angepasst! Die Einstellung Sicherheit wurde auf True gesetzt. Das bedeutet das der Wert nur direkt am Eurotherm geändert werden kann!',      'The maximum output power (HO) is not adjusted to the limit! The Security setting has been set to True. This means that the value can only be changed directly on the Eurotherm!']
+        self.puF_HO_str_2           = ['Bitte beachten Sie, dass bei der Config-Einstellung "sicherheit" True der OPmax Wert nicht mit dem in dem Gerät übereinstimmen muss. Bitte Betätigen Sie zur Anpassung im Menü "Eurotherm HO lesen" oder Wechseln Sie in den Manuellen Modus, damit der OPmax-Wert in VIFCON aktualisiert wird!',
+                                       'Please note that with the config setting "security" True, the OPmax valuedoes not have to match that in the device. To adjust, please press "Read Eurotherm HO" in the menu or switch to manual mode so that the OPmax value is updated in VIFCON!']
+        self.puF_RezeptAnz_str      = ['Beachte Konfikuration am Gerät:\n1. Sehe nach ob die richtige Einstellung für die Rampensteigung eingegeben ist (Am Eurotherm: Drücke 2xBlatt, 3xPfeil CCW -> Ramp Units -> Pfeiltasten zur Auswahl)(Achtung: Wähle das richtige Programm nach einmal Blatt)!\n2. Beachte Konfigurationseinstellung (Eurotherm) "Servo" (Eurotherm-Rampe: Start Soll- oder Istwert)!!',
+                                       'Note the configuration on the device:\n1. Check whether the correct setting for the ramp gradient has been entered (On Eurotherm: Press 2xSheet, 3xArrow CCW -> Ramp Units -> arrow keys to select)(Attention: Select the correct program after one sheet)!\n2. Note configuration setting (Eurotherm) "Servo" (Eurotherm ramp: start setpoint or actual value)!!']
 
         #---------------------------------------
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = True
         self.write_task  = {'Soll-Temperatur': False, 'Operating point':False, 'Auto_Mod': False, 'Manuel_Mod': False, 'Init':False, 'Start': False, 'EuRa': False, 'EuRa_Reset': False, 'Read_HO': False, 'Write_HO': False, 'PID': False, 'PID_Rezept_Mode_OP': False, 'PID-Update': False, 'Read_PID': False, 'Update Limit': False}
-        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID-Sollwert': 0, 'PID_Rez': -1, 'PID-Update': [0, 0, 0], 'Limits': [0, 0, 0, 0]} # Limits: oGOp, uGOp, oGx, uGx
+        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID-Sollwert': 0, 'PID_Rez': -1, 'PID-Update': [0, 0, 0], 'Limits': [0, 0, 0, 0]} # Limits: oGOp, uGOp, oGPID, uGPID
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -469,6 +519,12 @@ class EurothermWidget(QWidget):
         if self.Safety and self.init: 
             self.start_later = True 
         logger.info(f'{self.device_name} - {self.Log_Text_245_str[self.sprache]}') if self.StartRampe == 'IST' else (logger.info(f'{self.device_name} - {self.Log_Text_246_str[self.sprache]}') if self.StartRampe == 'SOLL' else logger.warning(f'{self.device_name} - {self.Log_Text_247_str[self.sprache]}'))
+        
+        if self.RampeUnit_m == 'K/s':       unit_EuRa = self.Log_Text_EuRa_UnitKS[self.sprache]
+        elif self.RampeUnit_m == 'K/h':     unit_EuRa = self.Log_Text_EuRa_UnitKH[self.sprache]
+        elif self.RampeUnit_m == 'K/min':   unit_EuRa = self.Log_Text_EuRa_UnitKM[self.sprache]
+        logger.info(f'{self.device_name} - {self.Log_Text_EuRa_Unit[self.sprache]} {unit_EuRa}')
+        
         ## Limit-Bereiche:
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]}: {self.uGST} {self.Log_Text_LB_4[self.sprache]} {self.oGST}{self.T_unit_einzel[self.sprache]}')
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]}: {self.uGOp} {self.Log_Text_LB_4[self.sprache]} {self.oGOp} {self.P_unit_einzel[self.sprache]}')
@@ -504,9 +560,13 @@ class EurothermWidget(QWidget):
         ### Eingabefelder:
         self.LE_Temp = QLineEdit()
         self.LE_Temp.setText(str(self.startTemp))
+        TT_Temp = f'{self.TTLimit[self.sprache]} {self.uGST} - {self.oGST}{self.T_unit_einzel[self.sprache]}'
+        self.LE_Temp.setToolTip(TT_Temp)
 
         self.LE_Pow = QLineEdit()
         self.LE_Pow.setText(str(self.startPow))
+        TT_Pow = f'{self.TTLimit[self.sprache]} {self.uGOp} - {self.oGOp} {self.P_unit_einzel[self.sprache]}'
+        self.LE_Pow.setToolTip(TT_Pow)
 
         ### Checkbox:
         self.Auswahl = QCheckBox(cb_sync_str[self.sprache])
@@ -514,6 +574,9 @@ class EurothermWidget(QWidget):
         self.PID_cb.clicked.connect(self.PID_ON_OFF)
         if not self.PID_Aktiv:
             self.PID_cb.setEnabled(False)
+        
+        TT_PID = f'{self.TTLimit[self.sprache]} {self.uGPID} - {self.oGPID}{self.T_unit_einzel[self.sprache]}'
+        self.PID_cb.setToolTip(TT_PID)
 
         ### Radiobutton:
         self.RB_choise_Temp = QRadioButton(f'{sollwert_str[self.sprache]}-{T_str[self.sprache]} ')
@@ -672,7 +735,9 @@ class EurothermWidget(QWidget):
             'RezOp':  ['a2', pg.mkPen(color=self.color[4], width=3, style=Qt.DotLine),   f'{eurotherm} - {rezept_Label_str[self.sprache]}<sub>{P_einzel_str[self.sprache]}</sub>'],
             'SWTPID': ['a1', pg.mkPen(self.color[5], width=2, style=Qt.DashDotLine),     f'{PID_Label_Soll} - {T_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
             'IWTPID': ['a1', pg.mkPen(self.color[6], width=2, style=Qt.DashDotLine),     f'{PID_Label_Ist} - {T_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
-        }
+            'oGPID':  ['a1', pg.mkPen(color=self.color[6], style=Qt.DashLine),           f'{eurotherm} - {self.PID_G_Kurve[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGPID':  ['a1', pg.mkPen(color=self.color[6], style=Qt.DashDotDotLine),     f'{eurotherm} - {self.PID_G_Kurve[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            }
 
         ## Kurven erstellen:
         ist_drin_list = []                                                              # Jede Kurve kann nur einmal gesetzt werden!
@@ -720,19 +785,21 @@ class EurothermWidget(QWidget):
         self.TuGList        = []
         self.OpoGList       = []
         self.OpuGList       = []
+        self.XoGList        = []
+        self.XuGList        = []
 
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
-        self.curveDict      = {'IWT': '', 'SWT': '', 'IWOp': '', 'oGT':'', 'uGT':'', 'oGOp':'', 'uGOp':'', 'RezT':'', 'RezOp':'', 'SWTPID':'', 'IWTPID':''}
+        self.curveDict      = {'IWT': '', 'SWT': '', 'IWOp': '', 'oGT':'', 'uGT':'', 'oGOp':'', 'uGOp':'', 'RezT':'', 'RezOp':'', 'SWTPID':'', 'IWTPID':'', 'oGPID':'', 'uGPID':''}
         for kurve in self.kurven_dict:
                 self.curveDict[kurve] = self.kurven_dict[kurve] 
         self.labelDict      = {'IWT': self.La_IstTemp_wert,                                                'IWOp': self.La_IstPow_wert,      'SWT': self.La_SollTemp_wert}                              # Label
         self.labelUnitDict  = {'IWT': self.T_unit_einzel[self.sprache],                                    'IWOp': self.P_unit_einzel[self.sprache]}                                                    # Einheit
         self.listDict       = {'IWT': self.istTpList,       'SWT': self.sollTpList,                        'IWOp': self.opList,              'SWTPID':self.sollTPID,        'IWTPID':self.istTPID}      # Werte-Listen y
         #self.listDict_x     = {'IWT': [],                   'SWT': [],                                     'IWOp': [],                       'SWTPID':[],                   'IWTPID':[]}                # Werte-Listen x
-        self.grenzListDict  = {'oGT': self.ToGList,         'uGT': self.TuGList,    'oGOp': self.OpoGList, 'uGOp': self.OpuGList}
-        self.grenzValueDict = {'oGT': self.oGST,            'uGT': self.uGST,       'oGOp': self.oGOp,     'uGOp': self.uGOp}
+        self.grenzListDict  = {'oGT': self.ToGList,         'uGT': self.TuGList,    'oGOp': self.OpoGList, 'uGOp': self.OpuGList,            'oGPID': self.XoGList,         'uGPID': self.XuGList}
+        self.grenzValueDict = {'oGT': self.oGST,            'uGT': self.uGST,       'oGOp': self.oGOp,     'uGOp': self.uGOp,                'oGPID': self.oGPID,           'uGPID': self.uGPID}
 
         ## Plot-Skalierungsfaktoren:
         self.skalFak_dict = {}
@@ -1034,108 +1101,132 @@ class EurothermWidget(QWidget):
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Yaml erneut laden:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        with open(self.config_dat, encoding="utf-8") as f:  
-            config = yaml.safe_load(f)
-            logger.info(f"{self.device_name} - {self.Log_Text_205_str[self.sprache]} {config}")
+        try:
+            with open(self.config_dat, encoding="utf-8") as f: 
+                config = yaml.safe_load(f)
+                logger.info(f"{self.device_name} - {self.Log_Text_205_str[self.sprache]} {config}")
+            skippen = 0
+        except Exception as e:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4_1[self.sprache]}')         
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            skippen = 1
         
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Konfiguration prüfen:
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        ### Solltemperatur:
-        try: self.oGST = config['devices'][self.device_name]["limits"]['maxTemp'] 
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxTemp {self.Log_Pfad_conf_5[self.sprache]} 1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.oGST = 1       
-        #//////////////////////////////////////////////////////////////////////
-        try: self.uGST = config['devices'][self.device_name]["limits"]['minTemp']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minTemp {self.Log_Pfad_conf_5[self.sprache]} 0')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGST = 0
-        #//////////////////////////////////////////////////////////////////////
-        if not type(self.oGST) in [float, int] or not self.oGST >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxTemp - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGST)}')
-            self.oGST = 1
-        if not type(self.uGST) in [float, int] or not self.uGST >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minTemp - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGST)}')
-            self.uGST = 0
-        if self.oGST <= self.uGST:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
-            self.uGST = 0
-            self.oGST = 1
-        #//////////////////////////////////////////////////////////////////////
-        ### Ausgangsleistung (Operating Point)
-        try: self.oGOp = config['devices'][self.device_name]["limits"]['opMax']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|opMax {self.Log_Pfad_conf_5[self.sprache]} 1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.oGOp = 1
-        #//////////////////////////////////////////////////////////////////////
-        try: self.uGOp = config['devices'][self.device_name]["limits"]['opMin']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|opMin {self.Log_Pfad_conf_5[self.sprache]} 0')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGOp = 0
-        #//////////////////////////////////////////////////////////////////////
-        if not type(self.oGOp) in [float, int] or not self.oGOp >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} opMax - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGOp)}')
-            self.oGOp = 1
-        if not type(self.uGOp) in [float, int] or not self.uGOp >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} opMin - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGOp)}')
-            self.uGOp = 0
-        if self.oGOp <= self.uGOp:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_13[self.sprache]})')
-            self.uGOp = 0
-            self.oGOp = 1
-        #//////////////////////////////////////////////////////////////////////
-        ### PID-Input-Output:
-        try: self.oGx = config['devices'][self.device_name]['PID']['Input_Limit_max']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_max {self.Log_Pfad_conf_5[self.sprache]} 1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.oGx = 1
-        #//////////////////////////////////////////////////////////////////////
-        try: self.uGx = self.uGx = config['devices'][self.device_name]['PID']['Input_Limit_min']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGx = 0
-        #//////////////////////////////////////////////////////////////////////
-        if not type(self.oGx) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGx)}')
-            self.oGx = 1
-        if not type(self.uGx) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_min - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGx)}')
-            self.uGx = 0
-        if self.oGx <= self.uGx:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
-            self.uGx = 0
-            self.oGx = 1
+        if not skippen:
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # Konfiguration prüfen:
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            ### Solltemperatur:
+            try: self.oGST = config['devices'][self.device_name]["limits"]['maxTemp'] 
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxTemp {self.Log_Pfad_conf_5[self.sprache]} 1')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.oGST = 1       
+            #//////////////////////////////////////////////////////////////////////
+            try: self.uGST = config['devices'][self.device_name]["limits"]['minTemp']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minTemp {self.Log_Pfad_conf_5[self.sprache]} 0')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.uGST = 0
+            #//////////////////////////////////////////////////////////////////////
+            if not type(self.oGST) in [float, int] or not self.oGST >= 0:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxTemp - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGST)}')
+                self.oGST = 1
+            if not type(self.uGST) in [float, int] or not self.uGST >= 0:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minTemp - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGST)}')
+                self.uGST = 0
+            if self.oGST <= self.uGST:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
+                self.uGST = 0
+                self.oGST = 1
+            #//////////////////////////////////////////////////////////////////////
+            ### Ausgangsleistung (Operating Point)
+            try: self.oGOp = config['devices'][self.device_name]["limits"]['opMax']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|opMax {self.Log_Pfad_conf_5[self.sprache]} 1')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.oGOp = 1
+            #//////////////////////////////////////////////////////////////////////
+            try: self.uGOp = config['devices'][self.device_name]["limits"]['opMin']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|opMin {self.Log_Pfad_conf_5[self.sprache]} 0')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.uGOp = 0
+            #//////////////////////////////////////////////////////////////////////
+            if not type(self.oGOp) in [float, int] or not self.oGOp >= 0:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} opMax - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGOp)}')
+                self.oGOp = 1
+            if not type(self.uGOp) in [float, int] or not self.uGOp >= 0:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} opMin - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGOp)}')
+                self.uGOp = 0
+            if self.oGOp <= self.uGOp:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_13[self.sprache]})')
+                self.uGOp = 0
+                self.oGOp = 1
+            #//////////////////////////////////////////////////////////////////////
+            ### PID-Input-Output:
+            try: self.oGPID = config['devices'][self.device_name]['PID']['Input_Limit_max']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_max {self.Log_Pfad_conf_5[self.sprache]} 1')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.oGPID = 1
+            #//////////////////////////////////////////////////////////////////////
+            try: self.uGPID = self.uGPID = config['devices'][self.device_name]['PID']['Input_Limit_min']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.uGPID = 0
+            #//////////////////////////////////////////////////////////////////////
+            if not type(self.oGPID) in [float, int]:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGPID)}')
+                self.oGPID = 1
+            if not type(self.uGPID) in [float, int]:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_min - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGPID)}')
+                self.uGPID = 0
+            if self.oGPID <= self.uGPID:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+                self.uGPID = 0
+                self.oGPID = 1
+            
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # ToolTip Update:
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            TT_Temp = f'{self.TTLimit[self.sprache]} {self.uGST} - {self.oGST}{self.T_unit_einzel[self.sprache]}'
+            self.LE_Temp.setToolTip(TT_Temp)
 
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Weiterleiten:
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        self.write_task['Update Limit']     = True
-        self.write_value['Limits']          = [self.oGOp, self.uGOp, self.oGx, self.uGx]
+            TT_Pow = f'{self.TTLimit[self.sprache]} {self.uGOp} - {self.oGOp} {self.P_unit_einzel[self.sprache]}'
+            self.LE_Pow.setToolTip(TT_Pow)
 
-        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGST} {self.Log_Text_LB_4[self.sprache]} {self.oGST}{self.T_unit_einzel[self.sprache]}')
-        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGOp} {self.Log_Text_LB_4[self.sprache]} {self.oGOp} {self.P_unit_einzel[self.sprache]}')
+            TT_PID = f'{self.TTLimit[self.sprache]} {self.uGPID} - {self.oGPID}{self.T_unit_einzel[self.sprache]}'
+            self.PID_cb.setToolTip(TT_PID)
 
-        if not self.Safety and self.init:
-            self.write_task['Write_HO'] = True
-            self.write_value['HO'] = self.oGOp
-        elif self.Safety:
-            logger.warning(f"{self.device_name} - {self.Log_Text_242_str[self.sprache]}")
-            self.typ_widget.Message(self.puF_HO_str[self.sprache], 3, 600)
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # Weiterleiten:
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            self.write_task['Update Limit']     = True
+            self.write_value['Limits']          = [self.oGOp, self.uGOp, self.oGPID, self.uGPID]
+
+            logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGST} {self.Log_Text_LB_4[self.sprache]} {self.oGST}{self.T_unit_einzel[self.sprache]}')
+            logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGOp} {self.Log_Text_LB_4[self.sprache]} {self.oGOp} {self.P_unit_einzel[self.sprache]}')
+
+            self.Fehler_Output(0)
+
+            if not self.Safety and self.init:
+                self.write_task['Write_HO'] = True
+                self.write_value['HO'] = self.oGOp
+            elif self.Safety:
+                logger.warning(f"{self.device_name} - {self.Log_Text_242_str[self.sprache]}")
+                self.typ_widget.Message(self.puF_HO_str[self.sprache], 3, 600)
+            else:
+                self.Fehler_Output(1, self.err_4_str[self.sprache])
         else:
-            self.Fehler_Output(1, self.err_4_str[self.sprache])
+            self.Fehler_Output(1, self.Log_Yaml_Error[self.sprache], self.Text_Update[self.sprache])
 
     def Lese_HO(self):
         '''Lese HO neu aus!'''
@@ -1157,30 +1248,42 @@ class EurothermWidget(QWidget):
         '''Entnehme der Config die PID-Werte für Eurotherm und ändere diese!'''
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_80_2_str[self.sprache]}')
+            
             # Config auslesen:
-            with open(self.config_dat, encoding="utf-8") as f:
-                config = yaml.safe_load(f)
-            logger.info(f'{self.device_name} - {self.Log_Text_EPID_1[self.sprache]} {config}')
-            # PID-Werte lesen:
             try:
-                P = round(float(str(config['devices'][self.device_name]['PID-Device']['PB']).replace(',','.')),1)
-                I = round(float(str(config['devices'][self.device_name]['PID-Device']['TI']).replace(',','.')),0)
-                D = round(float(str(config['devices'][self.device_name]['PID-Device']['TD']).replace(',','.')),0)
-                error = False
-                for n in [P, I, D]:
-                    if n > 99999 or n < 0:
-                        self.Fehler_Output(1, f'{self.Log_Text_EPID_2[self.sprache]} {n} {self.Log_Text_EPID_3[self.sprache]}')
-                        logger.warning(f'{self.Log_Text_EPID_2[self.sprache]} {n} {self.Log_Text_EPID_3[self.sprache]}')
-                        error = True
-                if not error:
-                    self.write_task['PID-Update']  = True
-                    self.write_value['PID-Update'] = [P, I, D]
-                    self.Fehler_Output(0)
+                with open(self.config_dat, encoding="utf-8") as f:
+                    config = yaml.safe_load(f)
+                logger.info(f'{self.device_name} - {self.Log_Text_EPID_1[self.sprache]} {config}')
+                skippen = 0
             except Exception as e:
-                self.write_task['PID-Update']  = False
-                logger.warning(f'{self.device_name} - {self.Log_Text_EPID_4[self.sprache]}')
-                self.Fehler_Output(1, self.Log_Text_EPID_5[self.sprache])
-                logger.exception(f'{self.device_name} - {self.Log_Text_EPID_6[self.sprache]}')     
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4_1[self.sprache]}')         
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                skippen = 1
+            
+            # PID-Werte lesen:
+            if not skippen:
+                try:
+                    P = round(float(str(config['devices'][self.device_name]['PID-Device']['PB']).replace(',','.')),1)
+                    I = round(float(str(config['devices'][self.device_name]['PID-Device']['TI']).replace(',','.')),0)
+                    D = round(float(str(config['devices'][self.device_name]['PID-Device']['TD']).replace(',','.')),0)
+                    error = False
+                    for n in [P, I, D]:
+                        if n > 99999 or n < 0:
+                            self.Fehler_Output(1, f'{self.Log_Text_EPID_2[self.sprache]} {n} {self.Log_Text_EPID_3[self.sprache]}')
+                            logger.warning(f'{self.Log_Text_EPID_2[self.sprache]} {n} {self.Log_Text_EPID_3[self.sprache]}')
+                            error = True
+                    if not error:
+                        self.write_task['PID-Update']  = True
+                        self.write_value['PID-Update'] = [P, I, D]
+                        self.Fehler_Output(0)
+                except Exception as e:
+                    self.write_task['PID-Update']  = False
+                    logger.warning(f'{self.device_name} - {self.Log_Text_EPID_4[self.sprache]}')
+                    self.Fehler_Output(1, self.Log_Text_EPID_5[self.sprache])
+                    logger.exception(f'{self.device_name} - {self.Log_Text_EPID_6[self.sprache]}')  
+            else:
+                self.Fehler_Output(1, self.Log_Yaml_Error[self.sprache], self.Text_Update[self.sprache])   
         else:
             self.Fehler_Output(1, self.err_4_str[self.sprache])
 
@@ -1217,10 +1320,12 @@ class EurothermWidget(QWidget):
 
         ## Grenz-Kurven:
         ### Update Grenzwert-Dictionary:
-        self.grenzValueDict['oGT']  = self.oGST * self.skalFak['Temp']
-        self.grenzValueDict['uGT']  = self.uGST * self.skalFak['Temp']
-        self.grenzValueDict['oGOp'] = self.oGOp * self.skalFak['Op']
-        self.grenzValueDict['uGOp'] = self.uGOp * self.skalFak['Op']
+        self.grenzValueDict['oGT']    = self.oGST  * self.skalFak['Temp']
+        self.grenzValueDict['uGT']    = self.uGST  * self.skalFak['Temp']
+        self.grenzValueDict['oGOp']   = self.oGOp  * self.skalFak['Op']
+        self.grenzValueDict['uGOp']   = self.uGOp  * self.skalFak['Op']
+        self.grenzValueDict['oGPID']  = self.oGPID * self.skalFak['Temp']
+        self.grenzValueDict['uGPID']  = self.uGPID * self.skalFak['Temp']
         ### Update-Kurven:
         for kurve in self.kurven_dict:
             if kurve in self.grenzListDict:
@@ -1457,6 +1562,7 @@ class EurothermWidget(QWidget):
                 self.write_value['EuRa_Soll'] = self.value_list[self.step]
                 self.write_value['EuRa_m'] = self.Steigung[self.step]   
                 self.write_task['EuRa'] = True
+                logger.info(f'{self.device_name} - {self.Log_EuRa_Werte_1[self.sprache]} = {self.value_list[self.step]}; {self.Log_EuRa_Werte_2[self.sprache]} = {self.Steigung[self.step]}')
     
     def Rezept_lesen_controll(self):
         ''' Rezept wird ausgelesen und kontrolliert. Bei Fehler werden die Fehlermeldungen beschrieben auf der GUI. 
@@ -1500,7 +1606,7 @@ class EurothermWidget(QWidget):
                     self.rezept_datei = f'({ak_rezept["dat"]})'
                 except Exception as e:
                     self.Fehler_Output(1, self.err_10_str[self.sprache])
-                    logger.exception(self.Log_Text_Ex1_str[self.sprache])
+                    logger.exception(f'{self.device_name} - {self.Log_Text_Ex1_str[self.sprache]}')
                     return False
             else:
                 rez_dat = ak_rezept
@@ -1592,7 +1698,13 @@ class EurothermWidget(QWidget):
                 ### Eurotherm Rampe:
                 elif werte[2].strip() == 'er': 
                     #### Berechnung der Steigung:
-                    m = abs(round((self.value_list[-1] - value)/time, 3))       # Steigung: m = Delta(y)/Delta(x) -> m = (aktueller_Wert - Zielwert)/Segmentzeit   
+                    if self.RampeUnit_m == 'K/s':       umFak = 1                           # Kelvin je Sekunde ist Default
+                    elif self.RampeUnit_m == 'K/h':     umFak = 3600                        # Kelvin je Stunde
+                    elif self.RampeUnit_m == 'K/min':   umFak = 60                          # Kelvin je Minute
+                    m = abs(round(((self.value_list[-1] - value)/time) * umFak, 3))       # Steigung: m = Delta(y)/Delta(x) -> m = (aktueller_Wert - Zielwert)/Segmentzeit * Einheiten_Umrechnungsfaktor  
+                    if m > 9999.9:
+                        self.Fehler_Output(1, f'{self.Log_EuRa_Text_m1[self.sprache]} {m} {self.RampeUnit_m} {self.Log_EuRa_Text_m2[self.sprache]} {n}!')       
+                        m = 9999.9
                     #### Listen-füllen:
                     self.value_list.append(value)                               # Sollwert speichern
                     self.value_list_op.append(0)                                # OP-Wert auf Null
@@ -1780,23 +1892,33 @@ class EurothermWidget(QWidget):
     def update_rezept(self):
         '''Liest die Config im Sinne der Rezepte neu ein und Updatet die Combo-Box'''
         if not self.Rezept_Aktiv:
+            error = False
             # Trennen von der Funktion:
             self.cb_Rezept.currentTextChanged.disconnect(self.RezKurveAnzeige)                    # Benötigt um Aufruf bei Leerer ComboBox zu vermeiden (sonst KeyError: '')
 
             # Combo-Box leeren:
             self.cb_Rezept.clear() 
 
-            # Yaml erneut laden:
-            with open(self.config_dat, encoding="utf-8") as f:
-                config = yaml.safe_load(f)
-
             # Config einlesen für das Gerät:
-            try: self.rezept_config = config['devices'][self.device_name]['rezepte']
+            try:
+                # Yaml erneut laden:
+                yaml_error = 1
+                with open(self.config_dat, encoding="utf-8") as f:
+                    config = yaml.safe_load(f)
+
+                yaml_error = 2
+                self.rezept_config = config['devices'][self.device_name]['rezepte']
             except Exception as e: 
                 self.rezept_config = {'rezept_Default':  {'n1': '10 ; 0 ; s'}}
-                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} rezepte {self.Log_Pfad_conf_5[self.sprache]} {self.rezept_config}')
-                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.Fehler_Output(1, self.err_RezDef_str[self.sprache])
+                error = True
+                if yaml_error == 1:
+                    logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4_1[self.sprache]} {self.Log_Pfad_conf_5[self.sprache]} {self.rezept_config}')
+                    logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                elif yaml_error == 2:
+                    logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} rezepte {self.Log_Pfad_conf_5[self.sprache]} {self.rezept_config}')
+                    logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                    logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             
             # Combo-Box neu beschreiben:
             self.cb_Rezept.addItem('------------')
@@ -1805,12 +1927,13 @@ class EurothermWidget(QWidget):
                     self.cb_Rezept.addItem(rezept) 
             except Exception as e:
                 self.Fehler_Output(1, self.err_21_str[self.sprache])
+                error = True
                 logger.exception(self.Log_Text_Ex2_str[self.sprache])
 
             # Neu verbinden von der Funktion:
             self.cb_Rezept.currentTextChanged.connect(self.RezKurveAnzeige) 
         
-            self.Fehler_Output(0)
+            if not error: self.Fehler_Output(0)
         else:
             self.Fehler_Output(1, self.err_14_str[self.sprache])
 

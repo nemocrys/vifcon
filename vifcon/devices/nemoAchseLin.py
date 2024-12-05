@@ -27,7 +27,7 @@ from pyModbusTCP import utils
 import datetime
 import time
 import math as m
-import threading
+# import threading
 
 ## Eigene:
 from .PID import PID
@@ -51,7 +51,7 @@ class SerialMock:
 class NemoAchseLin(QObject):
     signal_PID  = pyqtSignal(float, float, bool, float)
 
-    def __init__(self, sprache, config, config_dat, com_dict, test, neustart, multilog_aktiv, add_Ablauf_function, name="Nemo-Achse-Linear", typ = 'Antrieb'):
+    def __init__(self, sprache, config, config_dat, com_dict, test, neustart, multilog_aktiv, Log_WriteReadTime, add_Ablauf_function, name="Nemo-Achse-Linear", typ = 'Antrieb'):
         """ Erstelle Nemo-Achse Lin Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
         Args:
@@ -62,6 +62,7 @@ class NemoAchseLin(QObject):
             test (bool):                        Test Modus
             neustart (bool):                    Neustart Modus, Startkonfigurationen werden übersprungen
             multilog_aktiv (bool):              Multilog-Read/Send Aktiviert
+            Log_WriteReadTime (bool):           Logge die Zeit wie lange die Write und Read Funktion dauern
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
             name (str, optional):               device name.
             typ (str, optional):                device typ.
@@ -77,6 +78,7 @@ class NemoAchseLin(QObject):
         self.config_dat                 = config_dat
         self.neustart                   = neustart
         self.multilog_OnOff             = multilog_aktiv
+        self.Log_WriteReadTime          = Log_WriteReadTime
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
         self.device_name                = name
         self.typ                        = typ
@@ -91,27 +93,28 @@ class NemoAchseLin(QObject):
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Einstellung für Log:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                                                                                                      'Configuration error in element:']
-        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                                                                                         'Possible values:']
-        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                                                                                               'The following types are possible:']
-        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                                                                                              'Default is used:']
-        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                                                                                                    'Error reading config during configuration:']
-        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                                                                                                  '; Set to default:']
-        self.Log_Pfad_conf_5_1  = ['; Register-Fehler -> Programm zu Ende!!!',                                                                                                                                              '; Register error -> program ends!!!']
-        self.Log_Pfad_conf_5_2  = ['; PID-Modus Aus!!',                                                                                                                                                                     '; PID mode off!!']
-        self.Log_Pfad_conf_5_3  = ['; Multilog-Link Aus!!',                                                                                                                                                                 '; Multilog-Link off!!']
-        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                                                                                          'Reason for error:']
-        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                                                                                                'Please correct and re-read config before use!']
-        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                                                                                                  'Incorrect input:']
-        self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                                                                                                                                                      'Incorrect type:']
-        self.Log_Pfad_conf_9    = ['Die Obergrenze ist kleiner als die Untergrenze! Setze die Limits auf Default:',                                                                                                         'The upper limit is smaller than the lower limit! Set the limits to default:']
-        self.Log_Pfad_conf_10   = ['zu',                                                                                                                                                                                    'to']
-        self.Log_Pfad_conf_11   = ['Geschwindhigkeit',                                                                                                                                                                      'Velocity']
-        self.Log_Pfad_conf_12   = ['PID-Eingang Istwert',                                                                                                                                                                   'PID input actual value']
-        self.Log_Pfad_conf_13   = ['Position',                                                                                                                                                                              'Position']
-        self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',                                                                           'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
-        Log_Text_PID_N18        = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
-        
+        self.Log_Pfad_conf_1        = ['Konfigurationsfehler im Element:',                                                                                                                                                      'Configuration error in element:']
+        self.Log_Pfad_conf_2        = ['Möglich sind:',                                                                                                                                                                         'Possible values:']
+        self.Log_Pfad_conf_2_1      = ['Möglich sind die Typen:',                                                                                                                                                               'The following types are possible:']
+        self.Log_Pfad_conf_3        = ['Default wird eingesetzt:',                                                                                                                                                              'Default is used:']
+        self.Log_Pfad_conf_4        = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                                                                                                    'Error reading config during configuration:']
+        self.Log_Pfad_conf_5        = ['; Setze auf Default:',                                                                                                                                                                  '; Set to default:']
+        self.Log_Pfad_conf_5_1      = ['; Register-Fehler -> Programm zu Ende!!!',                                                                                                                                              '; Register error -> program ends!!!']
+        self.Log_Pfad_conf_5_2      = ['; PID-Modus Aus!!',                                                                                                                                                                     '; PID mode off!!']
+        self.Log_Pfad_conf_5_3      = ['; Multilog-Link Aus!!',                                                                                                                                                                 '; Multilog-Link off!!']
+        self.Log_Pfad_conf_6        = ['Fehlergrund:',                                                                                                                                                                          'Reason for error:']
+        self.Log_Pfad_conf_7        = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                                                                                                'Please correct and re-read config before use!']
+        self.Log_Pfad_conf_8        = ['Fehlerhafte Eingabe:',                                                                                                                                                                  'Incorrect input:']
+        self.Log_Pfad_conf_8_1      = ['Fehlerhafte Typ:',                                                                                                                                                                      'Incorrect type:']
+        self.Log_Pfad_conf_9        = ['Die Obergrenze ist kleiner als die Untergrenze! Setze die Limits auf Default:',                                                                                                         'The upper limit is smaller than the lower limit! Set the limits to default:']
+        self.Log_Pfad_conf_10       = ['zu',                                                                                                                                                                                    'to']
+        self.Log_Pfad_conf_11       = ['Geschwindhigkeit',                                                                                                                                                                      'Velocity']
+        self.Log_Pfad_conf_12       = ['PID-Eingang Istwert',                                                                                                                                                                   'PID input actual value']
+        self.Log_Pfad_conf_13       = ['Position',                                                                                                                                                                              'Position']
+        self.Log_Pfad_conf_14       = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',                                                                           'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
+        Log_Text_PID_N18            = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
+        self.Log_Block_invert_Pos   = ['Wenn der simulierte Weg oder die Nemo-1-Anlage genutzt werden, wird die Positions invertierung auf False gesetzt!',                                                                     'If the simulated path or the Nemo-1 facility is used, the position inversion is set to False!']
+
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Übergeordnet:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -158,6 +161,24 @@ class NemoAchseLin(QObject):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|start_weg {self.Log_Pfad_conf_5[self.sprache]} 0')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.Start_Weg = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: self.control_pos_choise   = self.config['start']['pos_control'].upper()
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|pos_control {self.Log_Pfad_conf_5[self.sprache]} SIM')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.control_pos_choise = 'SIM' 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.save_mode = self.config['start']['sicherheit']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|sicherheit {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.save_mode = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: self.invert_Pos = self.config['start']['invert_Pos']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|invert_Pos {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.invert_Pos = 0
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Parameter:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -228,7 +249,21 @@ class NemoAchseLin(QObject):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|statusRegEil {self.Log_Pfad_conf_5_1[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.reg_PosAkt             = self.config['register']['posAktuel']        # Startregister für Status Eilgang
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|posAktuel {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.reg_Info             = self.config['register']['InfoReg']        # Startregister für Weitere Informationen
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|InfoReg {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Limits:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         try: self.oGv = self.config["limits"]['maxSpeed']
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxSpeed {self.Log_Pfad_conf_5[self.sprache]} 1')
@@ -414,6 +449,14 @@ class NemoAchseLin(QObject):
         if not type(self.reg_PLim) == int:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} posLimReg - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_PLim)}')
             exit()
+        ### Register Positions Ist:
+        if not type(self.reg_PosAkt) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} posAktuel - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_PosAkt)}')
+            exit()
+        ### Register Weitere Infos:
+        if not type(self.reg_Info) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} InfoReg - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_Info)}')
+            exit()
         ### Vorfaktor Ist:
         if not type(self.vF_ist) in [float, int] or not self.vF_ist >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Vorfaktor_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8[self.sprache]} {self.vF_ist}')
@@ -477,6 +520,23 @@ class NemoAchseLin(QObject):
         if not self.Anlage in [1, 2]:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nemo-Version - {self.Log_Pfad_conf_2[self.sprache]} [1, 2] - {self.Log_Pfad_conf_3[self.sprache]} 1')
             self.Anlage = 1
+        ### Positions Kontroll Wahl:
+        if not self.control_pos_choise in ['SIM', 'REAL']:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} pos_control - {self.Log_Pfad_conf_2[self.sprache]} [SIM, REAL] - {self.Log_Pfad_conf_3[self.sprache]} SIM')
+            self.control_pos_choise = 'SIM'
+        ### Anlagen-Sciherheit bei Realer-Positions-Limitregelung:
+        if not self.save_mode in [0, 1]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} sicherheit - {self.Log_Pfad_conf_2[self.sprache]} [0, 1] - {self.Log_Pfad_conf_3[self.sprache]} 0')
+            self.save_mode = 0
+        ### Positions Invertierung:
+        if not type(self.invert_Pos) == bool and not self.invert_Pos in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} invert_Pos - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.invert_Pos}')
+            self.invert_Pos = 0
+        if self.control_pos_choise == 'SIM' or self.Anlage == 1:
+            self.invert_Pos = 0  
+            logger.warning(f'{self.device_name} - {self.Log_Block_invert_Pos[self.sprache]}')
+        if self.invert_Pos: self.Pos_Invertierung = -1
+        else:               self.Pos_Invertierung = 1       
 
         ## Andere:
         self.Limit_stop         = False
@@ -562,8 +622,19 @@ class NemoAchseLin(QObject):
         self.Log_Text_LB_unit   = ['mm/min',                                                                                                                                                                                'mm/min']
         self.Log_Test_Ex_1      = ['Der Variablen-Typ der Größe',                                                                                                                                                           'The variable type of size']
         self.Log_Test_Ex_2      = ['ist nicht Float! Setze Nan ein! Fehlerhafter Wert:',                                                                                                                                    'is not Float! Insert Nan! Incorrect value:']
+        self.Log_Test_Ex_3      = ['Lese Position Aktuell für Kontrolle!',                                                                                                                                                  'Read Position Current for control!']
         self.Log_Filter_PID_S   = ['Sollwert',                                                                                                                                                                              'Setpoint'] 
         self.Log_Filter_PID_I   = ['Istwert',                                                                                                                                                                               'Actual value'] 
+        self.Log_Time_w         = ['Die write-Funktion hat',                                                                                                                                                                'The write function has']     
+        self.Log_Time_wr        = ['s gedauert!',                                                                                                                                                                           's lasted!']   
+        self.Log_Time_r         = ['Die read-Funktion hat',                                                                                                                                                                 'The read function has']  
+        self.Log_Text_N2_0_str  = ['mm',                                                                                                                                                                                    'mm']
+        self.Log_Text_N2_1_str  = ['Technologische Endlage oben  (TEO)',                                                                                                                                                    'Technological End Position Upper (TEO)']
+        self.Log_Text_N2_2_str  = ['Technologische Endlage unten (TEU)',                                                                                                                                                    'Technological End Position Down (TEU)']
+        self.Log_Text_N2_3_str  = ['Software Endlage oben        (SEO)',                                                                                                                                                    'Software end position up (SEO)']
+        self.Log_Text_N2_4_str  = ['Software Endlage unten       (SEU)',                                                                                                                                                    'Software end position down (SEU)']
+        self.Log_Text_N2_5_str  = ['Aktuelle Position Lineal',                                                                                                                                                              'Current Position Ruler']
+        self.Log_Text_N2_6_str  = ['Positions Offset',                                                                                                                                                                      'Position Offset']
         ## Ablaufdatei: ###############################################################################################################################################################################################################################################################################
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -621,12 +692,12 @@ class NemoAchseLin(QObject):
         #---------------------------------------
         self.start_Time = 0                                             # Startzeitpunkt
         self.ak_Time    = 0                                             # Endzeitpunkt/aktuelle Zeit
-        if self.Start_Weg > self.oGs:
+        if self.Start_Weg > self.oGs and self.control_pos_choise == 'SIM':
             value = self.oGs
             self.Auf_End = True                                         # Limit Hoch erreicht     (Maximum)
             self.Ab_End = False 
             logger.warning(f"{self.device_name} - {self.Log_Text_212_str[self.sprache]} - {self.Start_Weg} {self.Log_Text_216_str[self.sprache]} --> {value} {self.Log_Text_216_str[self.sprache]}")
-        elif self.Start_Weg < self.uGs:
+        elif self.Start_Weg < self.uGs and self.control_pos_choise == 'SIM':
             value = self.uGs
             self.Ab_End = True                                          # Limit Runter erreicht   (Minimum)
             self.Auf_End = False   
@@ -716,7 +787,7 @@ class NemoAchseLin(QObject):
             write_Okay (dict):  beinhaltet Boolsche Werte für das was beschrieben werden soll!
             write_value (dict): beinhaltet die Werte die geschrieben werden sollen
         '''
-
+        ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
         #++++++++++++++++++++++++++++++++++++++++++
         # Start:
         #++++++++++++++++++++++++++++++++++++++++++
@@ -740,7 +811,7 @@ class NemoAchseLin(QObject):
             self.PID_Input_Limit_Max = write_value['Limits'][4]
             self.PID_Input_Limit_Min = write_value['Limits'][5]
             logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')
-            
+
             write_Okay['Update Limit'] = False
 
         #++++++++++++++++++++++++++++++++++++++++++
@@ -751,9 +822,9 @@ class NemoAchseLin(QObject):
             self.akIWs = 0
 
             ## Grenzen Updaten:
-            with open(self.config_dat, encoding="utf-8") as f:
-                config = yaml.safe_load(f)
-                logger.info(f"{self.device_name} - {self.Log_Text_206_str[self.sprache]} {config}")
+            #with open(self.config_dat, encoding="utf-8") as f:
+            #    config = yaml.safe_load(f)
+            #    logger.info(f"{self.device_name} - {self.Log_Text_206_str[self.sprache]} {config}")
             
             #self.oGs = config['devices'][self.device_name]["limits"]['maxPos']
             #self.uGs = config['devices'][self.device_name]["limits"]['minPos']                       
@@ -762,6 +833,19 @@ class NemoAchseLin(QObject):
             if self.oGs == 0:  self.Auf_End = True
             else:              self.Auf_End = False
             write_Okay['Define Home'] = False
+
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Position auslesen:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if self.control_pos_choise == 'REAL':
+            ans_posAkt   = self.serial.read_input_registers(self.reg_PosAkt, 2)
+            value_posAkt = self.umwandeln_Float(ans_posAkt)
+            if value_posAkt == []:  posAkt = m.nan
+            else:                   posAkt = value_posAkt[0] * self.Pos_Invertierung
+
+            if not type(posAkt) == float:    
+                posAkt = m.nan
+                logger.warning(f'{self.Log_Test_Ex_1[self.sprache]} IWsd {self.Log_Test_Ex_2[self.sprache]} {posAkt} ({self.Log_Test_Ex_3[self.sprache]})')
 
         #++++++++++++++++++++++++++++++++++++++++++
         # Position berechnen und Limits beachten:
@@ -782,25 +866,35 @@ class NemoAchseLin(QObject):
                 self.akIWs = self.akIWs + pos
             elif self.rechne == 'Sub':
                 self.akIWs = self.akIWs - pos
+            ## Wert für die Kontrolle der Grenzen festlegen:
+            if self.control_pos_choise == 'REAL':   checkPos = posAkt
+            elif self.control_pos_choise == 'SIM':  checkPos = self.akIWs
             ## Kontrolliere die Grenzen:
-            if self.akIWs >= self.oGs and not self.Auf_End:
+            
+            if m.isnan(checkPos) and self.save_mode == 1:
+                write_Okay['Stopp']     = True
+                self.Limit_stop         = True
+                self.Limit_Stop_Text    = 4
+            elif m.isnan(checkPos) and self.save_mode == 0:
+                self.Limit_Stop_Text    = 5
+            if checkPos >= self.oGs and not self.Auf_End:
                 self.Auf_End = True
                 logger.warning(f'{self.device_name} - {self.Log_Text_217_str[self.sprache]}')
                 self.Limit_Stop_Text    = 0
                 self.Limit_stop         = True
                 write_Okay['Stopp']     = True
-            if self.akIWs <= self.uGs and not self.Ab_End:
+            if checkPos <= self.uGs and not self.Ab_End:
                 self.Ab_End = True
                 logger.warning(f'{self.device_name} - {self.Log_Text_218_str[self.sprache]}')
                 self.Limit_Stop_Text    = 1
                 self.Limit_stop         = True
                 write_Okay['Stopp']     = True
-            if self.akIWs > self.uGs and self.akIWs < self.oGs:
+            if checkPos > self.uGs and checkPos < self.oGs:
                 self.Auf_End            = False
                 self.Ab_End             = False
                 self.Limit_Stop_Text    = -1
                 self.Limit_stop         = False
-        
+
         #++++++++++++++++++++++++++++++++++++++++++
         # Normaler Betrieb:
         #++++++++++++++++++++++++++++++++++++++++++
@@ -948,6 +1042,13 @@ class NemoAchseLin(QObject):
                 write_Okay['Runter'] = False 
                 write_Okay['Hoch'] = False 
                 write_value['Speed'] = False
+        
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Funktions-Dauer aufnehmen:
+        #++++++++++++++++++++++++++++++++++++++++++
+        timediff = (datetime.datetime.now(datetime.timezone.utc).astimezone() - ak_time).total_seconds()  
+        if self.Log_WriteReadTime:
+            logger.info(f"{self.device_name} - {self.Log_Time_w[self.sprache]} {timediff} {self.Log_Time_wr[self.sprache]}")
 
     def Input_Filter(self, Input, Art = 'Ist'):
         ''' Input-Filter für den Multilog-VIFCON Link und die PID-Nutzung
@@ -1048,7 +1149,8 @@ class NemoAchseLin(QObject):
         Return: 
             Aktuelle Werte (dict)   - self.value_name
         '''
-        
+        ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
+
         # Lese: vIst, vSoll, posIst, posSoll, posMax, posMin
         ans = self.serial.read_input_registers(self.start_Lese_Register, self.lese_anz_Register)
         logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
@@ -1071,7 +1173,7 @@ class NemoAchseLin(QObject):
         self.value_name['IWv']  = round(value[0] * self.vF_ist, self.nKS) * multi   # Vorfaktor     # Einheit: mm/min 
         self.value_name['SWv']  = round(value[1] * self.vF_soll , self.nKS)         # Vorfaktor     # Einheit: mm/min
         self.value_name['IWs']  = round(self.akIWs, self.nKS)                                       # Einheit: mm
-        self.value_name['IWsd'] = round(value[2], self.nKS)                                         # Einheit: mm
+        self.value_name['IWsd'] = round(value[2] * self.Pos_Invertierung, self.nKS)                 # Einheit: mm
         self.value_name['SWs']  = round(value[3], self.nKS)                                         # Einheit: mm
         self.value_name['oGs']  = round(self.oGs, self.nKS)                         # value[4]      # Einheit: mm
         self.value_name['uGs']  = round(self.uGs, self.nKS)                         # value[5]      # Einheit: mm
@@ -1090,7 +1192,6 @@ class NemoAchseLin(QObject):
                 self.value_name['Status']   = 0                               
                 self.value_name['Status_2'] = 64
             
-        
         # Lese: Status-Eilgang
         if self.Anlage == 2:
             error_Stat = False
@@ -1107,6 +1208,13 @@ class NemoAchseLin(QObject):
         self.value_name['SWxPID'] = self.Soll
         self.value_name['IWxPID'] = self.Ist
         
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Funktions-Dauer aufnehmen:
+        #++++++++++++++++++++++++++++++++++++++++++
+        timediff = (datetime.datetime.now(datetime.timezone.utc).astimezone() - ak_time).total_seconds()  
+        if self.Log_WriteReadTime:
+            logger.info(f"{self.device_name} - {self.Log_Time_r[self.sprache]} {timediff} {self.Log_Time_wr[self.sprache]}")
+
         return self.value_name
 
     def umwandeln_Float(self, int_Byte_liste):
@@ -1171,10 +1279,25 @@ class NemoAchseLin(QObject):
     def Start_Werte(self):
         '''Lese und Schreibe bestimmte Werte bei Start des Gerätes!'''
         ans = self.serial.read_input_registers(self.reg_PLim, 4)
-        
         value = self.umwandeln_Float(ans)
+
+        if value == []: value = [m.nan, m.nan]
+
         logger.info(f"{self.device_name} - {self.Log_Text_176_str[self.sprache]} = {value[0]}!")
         logger.info(f"{self.device_name} - {self.Log_Text_177_str[self.sprache]} = {value[1]}!")
+
+        if self.Anlage == 2:
+            ans = self.serial.read_input_registers(self.reg_Info, 12)
+            value = self.umwandeln_Float(ans)
+
+            if value == []: value = [m.nan, m.nan, m.nan, m.nan, m.nan, m.nan]
+
+            logger.info(f"{self.device_name} - {self.Log_Text_N2_1_str[self.sprache]} = {value[0]} {self.Log_Text_N2_0_str[self.sprache]}!")
+            logger.info(f"{self.device_name} - {self.Log_Text_N2_2_str[self.sprache]} = {value[1]} {self.Log_Text_N2_0_str[self.sprache]}!")
+            logger.info(f"{self.device_name} - {self.Log_Text_N2_3_str[self.sprache]} = {value[2]} {self.Log_Text_N2_0_str[self.sprache]}!")
+            logger.info(f"{self.device_name} - {self.Log_Text_N2_4_str[self.sprache]} = {value[3]} {self.Log_Text_N2_0_str[self.sprache]}!")
+            logger.info(f"{self.device_name} - {self.Log_Text_N2_5_str[self.sprache]} = {value[4]} {self.Log_Text_N2_0_str[self.sprache]}!")
+            logger.info(f"{self.device_name} - {self.Log_Text_N2_6_str[self.sprache]} = {value[5]} {self.Log_Text_N2_0_str[self.sprache]}!")
 
     ###################################################
     # Messdatendatei erstellen und beschrieben:
@@ -1201,7 +1324,7 @@ class NemoAchseLin(QObject):
         '''Schreibe die Daten in die Datei.
 
         Args:
-            daten (Dict):               Dictionary mit den Daten in der Reihenfolge: 'IWs', 'IWv'
+            daten (Dict):               Dictionary mit den Daten in der Reihenfolge: 'IWs', 'IWsd', 'IWv', 'SWv', 'SWs', 'oGs', 'uGs', 'SWxPID', 'IWxPID'
             absolut_Time (datetime):    Absolute Zeit der Messung (Zeitstempel)
             relativ_Time (float):       Zeitpunkt der Messung zum Startzeiptpunkt.
         '''
@@ -1209,7 +1332,8 @@ class NemoAchseLin(QObject):
         #daten = daten[0:2] # Nur Position und Geschwindigkeit!
         line = f"{absolut_Time.isoformat(timespec='milliseconds').replace('T', ' ')},{relativ_Time},"
         for size in daten:
-            if not size == 'Status':
+            #if not size == 'Status':
+            if not 'Status' in size:
                 line = line + f'{daten[size]},'
         with open(self.filename, "a", encoding="utf-8") as f:
             f.write(f'{line}\n')

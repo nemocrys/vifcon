@@ -122,6 +122,7 @@ class PIAchseWidget(QWidget):
         self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                           'The following types are possible:']
         self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                          'Default is used:']
         self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                                'Error reading config during configuration:']
+        self.Log_Pfad_conf_4_1  = ['Fehler beim Auslesen der Config!',                                                                                  'Error reading config!']
         self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                              '; Set to default:']
         self.Log_Pfad_conf_5_4  = ['; Gamepad Aktivierung blockiert!',                                                                                  '; Gamepad activation blocked!']
         self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                      'Reason for error:']
@@ -397,6 +398,8 @@ class PIAchseWidget(QWidget):
         cb_sync_str             = ['Sync',                                                                                                      'Sync']
         cb_gPad_str             = ['GPad',                                                                                                      'GPad']
         cb_PID                  = ['PID',                                                                                                       'PID']
+        ## ToolTip: ###############################################################################################################################################################################################################################################################################                                                                                                   
+        self.TTLimit            = ['Limit:',                                                                                                    'Limit:']
         ## Einheiten mit Größe: ####################################################################################################################################################################################################################################################################
         self.s_str              = ['in mm:',                                                                                                    'in mm:']
         self.x_str              = [f'x in {self.unit_PIDIn}:',                                                                                  f'x in {self.unit_PIDIn}:']
@@ -415,6 +418,7 @@ class PIAchseWidget(QWidget):
         PID_Von_1               = ['Wert von Multilog',                                                                                         'Value of Multilog']
         PID_Von_2               = ['Wert von VIFCON',                                                                                           'Value ofVIFCON']
         PID_Zusatz              = ['ex,',                                                                                                       'ex,']
+        self.PID_G_Kurve        = ['PID-x',                                                                                                     'PID-x']
         ## Fehlermeldungen: #####################################################################################################################################################################################################################################################################
         self.err_0_str          = ['Fehler!',                                                                                                   'Error!']
         self.err_1_str          = ['Beide Felder benötigen\neine EINGABE!!',                                                                    'Both fields require\nan INPUT!!']
@@ -440,6 +444,8 @@ class PIAchseWidget(QWidget):
         self.Fehler_out_1       = ['Maximum Limit erreicht!\nStopp ausgelöst!',                                                                 'Maximum limit reached!\nStop triggered!']
         self.Fehler_out_2       = ['Minimum Limit erreicht!\nStopp ausgelöst!',                                                                 'Minimum limit reached!\nStop triggered!']
         self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
+        self.Log_Yaml_Error     = ['Mit der Config-Datei (Yaml) gibt es ein Problem.',                                                          'There is a problem with the config file (YAML).']
+        self.err_RezDef_str     = ['Yaml-Config Fehler\nDefault-Rezept eingefügt!',                                                             'Yaml config error\nDefault recipe inserted!']
         ## Plot-Legende: ########################################################################################################################################################################################################################################################################                                                    
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
@@ -508,6 +514,7 @@ class PIAchseWidget(QWidget):
         self.Text_PID_3         = ['Moduswechsel! Auslösung des Stopp-Knopfes aus Sicherheitsgründen!',                                         'Mode change! Stop button triggered for safety reasons!']
         self.Text_PID_4         = ['Rezept Beenden! Wechsel des Modus!',                                                                        'End recipe! Change mode!']
         self.Text_ExLimit_str   = ['Eingabefeld Fehlermeldung: Senden fehlgeschlagen, da Negativer Wert!',                                      'Input field error message: Sending failed because of negative value!']
+        self.Text_Update        = ['Update Fehlgeschlagen!',                                                                                    'Update Failed!']
         ## Extra: #############################################################################################################################################################################################################################################################################
         self.abLauf_Button_r    = ['rechter Knopf',                                                                                             'right button']
         self.abLauf_Button_l    = ['linker Knopf',                                                                                              'left button']    
@@ -603,9 +610,13 @@ class PIAchseWidget(QWidget):
         ### Eingabefelder:
         self.LE_Pos = QLineEdit()
         self.LE_Pos.setText(str(self.startPos))
+        TT_s = f'{self.TTLimit[self.sprache]} {self.uGPos} - {self.oGPos} {self.einheit_s_einzel[self.sprache]}'
+        self.LE_Pos.setToolTip(TT_s)
 
         self.LE_Speed = QLineEdit()
         self.LE_Speed.setText(str(self.startSpeed))
+        TT_v = f'{self.TTLimit[self.sprache]} {self.uGv} - {self.oGv} {self.einheit_v_einzel[self.sprache]}'
+        self.LE_Speed.setToolTip(TT_v)
 
         ### Checkbox:
         self.Auswahl = QCheckBox(cb_sync_str[self.sprache])
@@ -618,6 +629,9 @@ class PIAchseWidget(QWidget):
         self.PID_cb.clicked.connect(self.PID_ON_OFF)
         if not self.PID_Aktiv:
             self.PID_cb.setEnabled(False)
+        
+        TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} - {self.oGx} {self.einheit_x_einzel[self.sprache]}'
+        self.PID_cb.setToolTip(TT_PID)
 
         ### Label:
         #### Titel-Gerät:
@@ -850,6 +864,8 @@ class PIAchseWidget(QWidget):
             'SWv':      ['a2', pg.mkPen(self.color[3], width=2),                         f'{piAchse} - {v_einzel_str[self.sprache]}<sub>{sollwert_str[self.sprache]}</sub>'],
             'SWxPID':   ['a1', pg.mkPen(self.color[4], width=2, style=Qt.DashDotLine),   f'{PID_Label_Soll} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
             'IWxPID':   ['a1', pg.mkPen(self.color[5], width=2, style=Qt.DashDotLine),   f'{PID_Label_Ist} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
+            'oGPID':    ['a1', pg.mkPen(color=self.color[5], style=Qt.DashLine),         f'{piAchse} - {self.PID_G_Kurve[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGPID':    ['a1', pg.mkPen(color=self.color[5], style=Qt.DashDotDotLine),   f'{piAchse} - {self.PID_G_Kurve[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
         }
 
         ## Kurven erstellen:
@@ -895,22 +911,24 @@ class PIAchseWidget(QWidget):
         self.sollxPID       = []
         self.istxPID        = []
         ### Grenzen:
-        self.VoGList    = []
-        self.VuGList    = []
-        self.SoGList    = []
-        self.SuGList    = []
+        self.VoGList        = []
+        self.VuGList        = []
+        self.SoGList        = []
+        self.SuGList        = []
+        self.XoGList        = []
+        self.XuGList        = []
 
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
-        self.curveDict      = {'IWs': '', 'IWv': '', 'oGs': '', 'uGs': '', 'oGv': '', 'uGv': '', 'Rezv': '', 'SWxPID':'', 'IWxPID':'', 'SWv': ''}                                                                                                                              # Kurven
+        self.curveDict      = {'IWs': '', 'IWv': '', 'oGs': '', 'uGs': '', 'oGv': '', 'uGv': '', 'Rezv': '', 'SWxPID':'', 'IWxPID':'', 'SWv': '', 'oGPID':'', 'uGPID':''}                                                                                                                              # Kurven
         for kurve in self.kurven_dict:
             self.curveDict[kurve] = self.kurven_dict[kurve]
         self.labelDict      = {'IWs': self.La_IstPos_wert,                  'IWv': self.La_IstSpeed_wert,               'SWv': self.La_SollSpeed_wert,              'IWxPID': self.La_IstPID_wert,                 'SWxPID': self.La_SollPID_wert,}                            # Label
         self.labelUnitDict  = {'IWs': self.einheit_s_einzel[self.sprache],  'IWv': self.einheit_v_einzel[self.sprache], 'SWv': self.einheit_v_einzel[self.sprache], 'IWxPID': self.einheit_x_einzel[self.sprache], 'SWxPID': self.einheit_x_einzel[self.sprache]}              # Einheit
         self.listDict       = {'IWs': self.posList,                         'IWv': self.speedList,                      'SWv': self.speedSollList,                  'IWxPID': self.istxPID,                        'SWxPID': self.sollxPID,}                                   # Werteliste
-        self.grenzListDict  = {'oGv': self.VoGList,                         'uGv': self.VuGList,    'oGs': self.SoGList,    'uGs': self.SuGList}
-        self.grenzValueDict = {'oGv': self.oGv,                             'uGv': self.uGv,        'oGs': self.oGPos,      'uGs': self.uGPos}
+        self.grenzListDict  = {'oGv': self.VoGList,                         'uGv': self.VuGList,    'oGs': self.SoGList,    'uGs': self.SuGList,                    'oGPID': self.XoGList,                         'uGPID': self.XuGList}
+        self.grenzValueDict = {'oGv': self.oGv,                             'uGv': self.uGv,        'oGs': self.oGPos,      'uGs': self.uGPos,                      'oGPID': self.oGx,                             'uGPID': self.uGx}
 
         ## Plot-Skalierungsfaktoren:
         self.skalFak_dict = {}
@@ -1349,10 +1367,12 @@ class PIAchseWidget(QWidget):
 
         # Grenz-Kurven:
         ## Update Grenzwert-Dictionary:
-        self.grenzValueDict['oGv']  = self.oGv      * self.skalFak['Speed_1']
-        self.grenzValueDict['uGv']  = self.oGv*(-1) * self.skalFak['Speed_1']
-        self.grenzValueDict['oGs']  = self.oGPos    * self.skalFak['Pos']
-        self.grenzValueDict['uGs']  = self.uGPos    * self.skalFak['Pos']
+        self.grenzValueDict['oGv']      = self.oGv      * self.skalFak['Speed_1']
+        self.grenzValueDict['uGv']      = self.oGv*(-1) * self.skalFak['Speed_1']
+        self.grenzValueDict['oGs']      = self.oGPos    * self.skalFak['Pos']
+        self.grenzValueDict['uGs']      = self.uGPos    * self.skalFak['Pos']
+        self.grenzValueDict['oGPID']    = self.oGx      * self.skalFak['PIDA']
+        self.grenzValueDict['uGPID']    = self.uGx      * self.skalFak['PIDA']
         ## Update-Kurven:
         for kurve in self.kurven_dict:
             if kurve in self.grenzListDict:
@@ -1434,99 +1454,123 @@ class PIAchseWidget(QWidget):
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Yaml erneut laden:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        with open(self.config_dat, encoding="utf-8") as f: 
-            config = yaml.safe_load(f)
-            logger.info(f"{self.device_name} - {self.Log_Text_205_str[self.sprache]} {config}")
+        try:
+            with open(self.config_dat, encoding="utf-8") as f: 
+                config = yaml.safe_load(f)
+                logger.info(f"{self.device_name} - {self.Log_Text_205_str[self.sprache]} {config}")
+            skippen = 0
+        except Exception as e:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4_1[self.sprache]}')         
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            skippen = 1
         
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Konfiguration prüfen:
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        ### Geschwindigkeits-Limit:
-        try: self.oGv = config['devices'][self.device_name]["limits"]['maxSpeed']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxSpeed {self.Log_Pfad_conf_5[self.sprache]} 1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.oGv = 1
-        #//////////////////////////////////////////////////////////////////////
-        try: self.uGv = config['devices'][self.device_name]["limits"]['minSpeed']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minSpeed {self.Log_Pfad_conf_5[self.sprache]} -1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGv = -1
-        #//////////////////////////////////////////////////////////////////////
-        if not type(self.oGv) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGv)}')
-            self.oGv = 1
-        if not type(self.uGv) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} -1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGv)}')
-            self.uGv = -1
-        if self.oGv <= self.uGv:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} -1 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
-            self.uGv = -1
-            self.oGv = 1
-        #//////////////////////////////////////////////////////////////////////
-        ### Positions-Limit:
-        try: self.oGPos = config['devices'][self.device_name]["limits"]['maxPos']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxPos {self.Log_Pfad_conf_5[self.sprache]} 1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.oGPos = 1
-        #//////////////////////////////////////////////////////////////////////
-        try: self.uGPos = config['devices'][self.device_name]["limits"]['minPos']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minPos {self.Log_Pfad_conf_5[self.sprache]} 0')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGPos = 0
-        #//////////////////////////////////////////////////////////////////////
-        if not type(self.oGPos) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGPos)}')
-            self.oGPos = 1
-        if not type(self.uGPos) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGPos)}')
-            self.uGPos = 0
-        if self.oGPos <= self.uGPos:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
-            self.uGPos = 0
-            self.oGPos = 1
-        #//////////////////////////////////////////////////////////////////////
-        ### PID-Limit:
-        try: self.oGx = config['devices'][self.device_name]['PID']['Input_Limit_max']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_max {self.Log_Pfad_conf_5[self.sprache]} 1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.oGx = 1
-        #//////////////////////////////////////////////////////////////////////
-        try: self.uGx = self.uGx = config['devices'][self.device_name]['PID']['Input_Limit_min']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGx = 0
-        #//////////////////////////////////////////////////////////////////////
-        if not type(self.oGx) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGx)}')
-            self.oGx = 1
-        if not type(self.uGx) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_min - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGx)}')
-            self.uGx = 0
-        if self.oGx <= self.uGx:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
-            self.uGx = 0
-            self.oGx = 1
+        if not skippen:
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # Konfiguration prüfen:
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            ### Geschwindigkeits-Limit:
+            try: self.oGv = config['devices'][self.device_name]["limits"]['maxSpeed']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxSpeed {self.Log_Pfad_conf_5[self.sprache]} 1')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.oGv = 1
+            #//////////////////////////////////////////////////////////////////////
+            try: self.uGv = config['devices'][self.device_name]["limits"]['minSpeed']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minSpeed {self.Log_Pfad_conf_5[self.sprache]} -1')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.uGv = -1
+            #//////////////////////////////////////////////////////////////////////
+            if not type(self.oGv) in [float, int]:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGv)}')
+                self.oGv = 1
+            if not type(self.uGv) in [float, int]:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} -1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGv)}')
+                self.uGv = -1
+            if self.oGv <= self.uGv:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} -1 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
+                self.uGv = -1
+                self.oGv = 1
+            #//////////////////////////////////////////////////////////////////////
+            ### Positions-Limit:
+            try: self.oGPos = config['devices'][self.device_name]["limits"]['maxPos']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxPos {self.Log_Pfad_conf_5[self.sprache]} 1')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.oGPos = 1
+            #//////////////////////////////////////////////////////////////////////
+            try: self.uGPos = config['devices'][self.device_name]["limits"]['minPos']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minPos {self.Log_Pfad_conf_5[self.sprache]} 0')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.uGPos = 0
+            #//////////////////////////////////////////////////////////////////////
+            if not type(self.oGPos) in [float, int]:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGPos)}')
+                self.oGPos = 1
+            if not type(self.uGPos) in [float, int]:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGPos)}')
+                self.uGPos = 0
+            if self.oGPos <= self.uGPos:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
+                self.uGPos = 0
+                self.oGPos = 1
+            #//////////////////////////////////////////////////////////////////////
+            ### PID-Limit:
+            try: self.oGx = config['devices'][self.device_name]['PID']['Input_Limit_max']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_max {self.Log_Pfad_conf_5[self.sprache]} 1')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.oGx = 1
+            #//////////////////////////////////////////////////////////////////////
+            try: self.uGx = self.uGx = config['devices'][self.device_name]['PID']['Input_Limit_min']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.uGx = 0
+            #//////////////////////////////////////////////////////////////////////
+            if not type(self.oGx) in [float, int]:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGx)}')
+                self.oGx = 1
+            if not type(self.uGx) in [float, int]:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_min - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGx)}')
+                self.uGx = 0
+            if self.oGx <= self.uGx:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+                self.uGx = 0
+                self.oGx = 1
 
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Weiterleiten:
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGv} {self.Log_Text_LB_4[self.sprache]} {self.oGv} {self.einheit_v_einzel[self.sprache]}')
-        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGPos} {self.Log_Text_LB_4[self.sprache]} {self.oGPos} {self.einheit_s_einzel[self.sprache]}')
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # ToolTip Update:
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            TT_s = f'{self.TTLimit[self.sprache]} {self.uGPos} - {self.oGPos} {self.einheit_s_einzel[self.sprache]}'
+            self.LE_Pos.setToolTip(TT_s)
 
-        self.write_task['Update Limit']     = True
-        self.write_value['Limits']          = [self.oGv, self.uGv, self.oGPos, self.uGPos, self.oGx, self.uGx]
+            TT_v = f'{self.TTLimit[self.sprache]} {self.uGv} - {self.oGv} {self.einheit_v_einzel[self.sprache]}'
+            self.LE_Speed.setToolTip(TT_v)
+
+            TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} - {self.oGx} {self.einheit_x_einzel[self.sprache]}'
+            self.PID_cb.setToolTip(TT_PID)
+
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # Weiterleiten:
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGv} {self.Log_Text_LB_4[self.sprache]} {self.oGv} {self.einheit_v_einzel[self.sprache]}')
+            logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGPos} {self.Log_Text_LB_4[self.sprache]} {self.oGPos} {self.einheit_s_einzel[self.sprache]}')
+
+            self.write_task['Update Limit']     = True
+            self.write_value['Limits']          = [self.oGv, self.uGv, self.oGPos, self.uGPos, self.oGx, self.uGx]
+
+            self.Fehler_Output(0, self.La_error_1)
+        else:
+            self.Fehler_Output(1, self.La_error_1, self.Log_Yaml_Error[self.sprache], self.Text_Update[self.sprache])
 
     ##########################################
     # Reaktion auf Rezepte:
@@ -1813,23 +1857,33 @@ class PIAchseWidget(QWidget):
     def update_rezept(self):
         '''Liest die Config im Sinne der Rezepte neu ein und Updatet die Combo-Box'''
         if not self.Rezept_Aktiv:
+            error = False
             # Trennen von der Funktion:
             self.cb_Rezept.currentTextChanged.disconnect(self.RezKurveAnzeige)                    # Benötigt um Aufruf bei Leerer ComboBox zu vermeiden (sonst KeyError: '')
 
             # Combo-Box leeren:
             self.cb_Rezept.clear() 
 
-            # Yaml erneut laden:
-            with open(self.config_dat, encoding="utf-8") as f:
-                config = yaml.safe_load(f)
-
             # Config einlesen für das Gerät:
-            try: self.rezept_config = config['devices'][self.device_name]['rezepte']
+            try:
+                # Yaml erneut laden:
+                yaml_error = 1
+                with open(self.config_dat, encoding="utf-8") as f:
+                    config = yaml.safe_load(f)
+
+                yaml_error = 2
+                self.rezept_config = config['devices'][self.device_name]['rezepte']
             except Exception as e: 
                 self.rezept_config = {'rezept_Default':  {'n1': '10 ; 0 ; s'}}
-                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} rezepte {self.Log_Pfad_conf_5[self.sprache]} {self.rezept_config}')
-                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.Fehler_Output(1, self.err_RezDef_str[self.sprache])
+                error = True
+                if yaml_error == 1:
+                    logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4_1[self.sprache]} {self.Log_Pfad_conf_5[self.sprache]} {self.rezept_config}')
+                    logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                elif yaml_error == 2:
+                    logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} rezepte {self.Log_Pfad_conf_5[self.sprache]} {self.rezept_config}')
+                    logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                    logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             
             
             # Combo-Box neu beschreiben:
@@ -1840,11 +1894,12 @@ class PIAchseWidget(QWidget):
             except Exception as e:
                 self.Fehler_Output(1, self.err_21_str[self.sprache])
                 logger.exception(self.Log_Text_Ex2_str[self.sprache]) 
+                error = True
 
             # Neu verbinden von der Funktion:
             self.cb_Rezept.currentTextChanged.connect(self.RezKurveAnzeige)  
         
-            self.Fehler_Output(0, self.La_error_1)
+            if not error: self.Fehler_Output(0, self.La_error_1)
         else:
             self.Fehler_Output(1, self.La_error_1, self.err_14_str[self.sprache])
 

@@ -6,6 +6,9 @@ time:
 Function_Skip:                                                            # Skip die folgenden Funktionen
   Multilog_Link: 0                                                        # Multilog-Verbindung: True - On, False - Off | Default bei Fehler: False
   Generell_GamePad: 0                                                     # Übergeordnetes Ein- und Ausschalten des Gamepad: True - On, False - Off | Default bei Fehler: False
+  writereadTime: 0                                                        # Wenn True, dann wird die Zeitdauer bei den Funktionen read und write gemesen und gelogged! | Default bei Fehler: False
+                                                                          # Achtung:  Info muss bei Logging aktiv sein!!
+                                                                          #           Durch die Reaktionszeit, kann die Log-Datei schnell sehr groß werden!!
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 save:
   config_save: True                                                       # Speichere die Config, nach Ende im Messordner | Default bei Fehler: True
@@ -89,6 +92,7 @@ devices:
                                                                           # Default bei Fehler: False
       ramp_start_value: ist                                               # Start-Wert für die erste Rampe (beginnt Erstellung bei dieser) -> IST = Istwert, SOLL = Sollwert -> Upper genutzt! 
                                                                           # Default bei Fehler: IST
+      ramp_m_unit: K/h                                                    # Einheit der Eurotherm-Rampen Steigung: K/s, K/h, K/min | Default bei Fehler: K/s
     ende: 0                                                               # End-Bedingung (Programm-Exit Knopf):
                                                                           # True - Ausführung der Stopp-Funktion (Umschalten auf Manuell Modus mit 0 % Op)(Rezept wird ebenfals beendet, wenn es läuft!)
                                                                           # False - Nichts wird getann!
@@ -141,7 +145,7 @@ devices:
     GUI:
       legend: RezOp ; RezT ; IWT ; IWOp ; SWT                             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, Op - Leistung, T - Temperatur, Rez - Rezept, PID - PID Modus
-                                                                          # Eingebaut: RezT, RezOp, IWT, IWOp, IWTPID, SWT, SWTPID, uGT, oGT, uGOp, oGOp 
+                                                                          # Eingebaut: RezT, RezOp, IWT, IWOp, IWTPID, SWT, SWTPID, uGT, oGT, uGOp, oGOp, oGPID, uGPID
                                                                           # Default bei Fehler: IWT, IWOp
     defaults:
       startTemp: 20                                                       # Temperatur bei Programmstart [°C] | Default bei Fehler: 0
@@ -246,7 +250,7 @@ devices:
       legend: RezI ; RezU ; RezP ; Rezx ; IWU ; IWI ; IWP ; SWI ; SWU ; SWP ; IWf ; IWxPID ; SWxPID 
                                                                           # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, P - Leistung, I - Strom, U - Spannung, f - Frequenz, Rez - Rezept, x - PID-Input-Größe, PID - PID-Modus-Kurven
-                                                                          # Eingebaut: RezI, RezU, RezP, Rezx, IWI, IWU, IWP, IWf, SWI, SWU, SWP, uGI, oGI, uGU, oGU, uGP, oGP, IWxPID, SWxPID
+                                                                        # Eingebaut: RezI, RezU, RezP, Rezx, IWI, IWU, IWP, IWf, SWI, SWU, SWP, uGI, oGI, uGU, oGU, uGP, oGP, IWxPID, SWxPID, oGPID, uGPID
                                                                           # Default bei Fehler: IWI, IWP, IWU
     defaults:
       startCurrent: 2.5                                                   # Strom bei Programmstart [A] | Default bei Fehler: 0
@@ -348,7 +352,7 @@ devices:
                                                                           # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
       legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
-                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
                                                                           # Default: IWv, IWs
     defaults:
       startSpeed: 2                                                       # Startgeschwindigkeit [mm/s] | Default bei Fehler: 0
@@ -451,7 +455,7 @@ devices:
                                                                           # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
       legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
-                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
                                                                           # Default: IWv, IWs
     defaults:
       startSpeed: 2                                                       # Startgeschwindigkeit [mm/s] | Default bei Fehler: 0
@@ -553,7 +557,7 @@ devices:
                                                                           # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
       legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
-                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
                                                                           # Default: IWv, IWs
     defaults:
       startSpeed: 2                                                       # Startgeschwindigkeit [mm/s] | Default bei Fehler: 0
@@ -655,8 +659,8 @@ devices:
                                                                           # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
       legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
-                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID
-                                                                          # Default bei Fehler: IWv, IWs
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
+                                                                         # Default bei Fehler: IWv, IWs
     defaults:
       startSpeed: 2                                                       # Startgeschwindigkeit [mm/s] | Default bei Fehler: 0
       startPos: 0                                                         # Startposition/Startfahrweg [mm] | Default bei Fehler: 0
@@ -697,8 +701,15 @@ devices:
       invert: True                                                        # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
                                                                           # Eigentlich: Spindel:  Hoch-Fahren = Negative Geschwindigkeit
                                                                           #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
+                                                                          # Bei Nemo-2 nicht mehr so!
+                                                                          # Default bei Fehler: False
+      invert_Pos: True                                                    # Wenn True wird der Positionswert mal -1 genommen!! 
+                                                                          # Benötigt für die Nemo2 Spindel: ↑ Position sinkt, ↓ Position steigt
+                                                                          # Achtung: Achte auf oGs und uGs! Beim Tiegel liegt dieses Problem nicht vor! Dort Umbedingt auf False stellen!! 
                                                                           # Default bei Fehler: False
       start_weg: 0                                                        # Startweg in mm | Default bei Fehler: 0
+      pos_control: real                                                   # Positions-Limit-Kontrolle -> SIM - Simulierter Weg, REAL - Realer Weg (Nutzung von Upper) | Default bei Fehler: SIM
+      sicherheit: 1                                                       # Sicherheits Modus bei Nutzung des Realen Positions-Wertes: 0 - Error und Fehler ignorieren, 1 - Error und Stopp | Default bei Fehler: 0 
     ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
                                                                           # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
                                                                           # False - Nichts wird getann!
@@ -742,10 +753,12 @@ devices:
       hoch: 17                                                            # Coil    - Tiegel: 1, Spindel: 17 | Default bei Fehler: Programm-Exit!
       runter: 18                                                          # Coil    - Tiegel: 2, Spindel: 18 | Default bei Fehler: Programm-Exit!
       stopp: 16                                                           # Coil    - Tiegel: 0, Spindel: 16 | Default bei Fehler: Programm-Exit!
-      lese_st_Reg: 38                                                     # Input   - Auslese Start-Adresse: Nemo1 = Spindel: 38, Tiegel: 20 | Nemo2 = Spindel: 39, Tiegel: 20 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg: 39                                                     # Input   - Auslese Start-Adresse: Nemo1 = Spindel: 38, Tiegel: 20 | Nemo2 = Spindel: 39, Tiegel: 20 | Default bei Fehler: Programm-Exit!
       write_v_Reg: 4                                                      # Holding - Start Register für Geschwindigkeitswert: Spindel: 4, Tiegel: 0 | Default bei Fehler: Programm-Exit!
-      posLimReg: 46                                                       # Input   - Startregister Limits: Nemo1 = Spindel: 46, Tiegel 28 | Nemo2 = Spindel: 47, Tiegel 28 | Default bei Fehler: Programm-Exit!
-      statusReg: 50                                                       # Input   - Status: Nemo1 = Tiegel: 32, Spindel: 50 | Nemo2 = Tiegel: 32, Spindel: 51 | Default bei Fehler: Programm-Exit!
+      posAktuel: 43                                                       # Input   - Register für die aktuelle Position: Nemo1 = Spindel: 42, Tiegel: 24 | Nemo2 = Spindel: 43, Tiegel: 24 | Default bei Fehler: Programm-Exit!
+      posLimReg: 47                                                       # Input   - Startregister Limits: Nemo1 = Spindel: 46, Tiegel: 28 | Nemo2 = Spindel: 47, Tiegel: 28 | Default bei Fehler: Programm-Exit!
+      InfoReg: 143                                                        # Input   - Informationswerte: Nemo2 = Spindel: 143, Tiegel: 121 | Default bei Fehler: Programm-Exit!
+      statusReg: 51                                                       # Input   - Status: Nemo1 = Tiegel: 32, Spindel: 50 | Nemo2 = Tiegel: 32, Spindel: 51 | Default bei Fehler: Programm-Exit!
       statusRegEil: 155                                                   # Input   - Status Eilgang: Tiegel: 133, Spindel: 155 | Default bei Fehler: Programm-Exit! | Nur bei Nemo-2 vorhanden!
     parameter:
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3   
@@ -760,8 +773,9 @@ devices:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
       legend: Rezv ; IWs ; IWv ; IWsd ; SWv ; Rezx ; IWxPID ; SWxPID      # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!), x - Externe-PID-Input-Größe, PID- PID-Modus
-                                                                          # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID
+                                                                          # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID, oGPID, uGPID
                                                                           # Default bei Fehler: IWs, IWv
+                                                                          # Notiz: IWs ist ein simulierter Weg, IWsd ist der ausgelesene Wert!
     defaults:
       startSpeed: 1                                                       # Startgeschwindigkeit [mm/min] | Default bei Fehler: 0
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/min), Art der Rampe , Schritte/Steigung ((mm/min)/s)
@@ -853,9 +867,9 @@ devices:
       cw: 21                                                              # Coil    - Tiegel: 4, Spindel: 20 | Default bei Fehler: Programm-Exit! 
       ccw: 20                                                             # Coil    - Tiegel: 5, Spindel: 21 | Default bei Fehler: Programm-Exit!
       stopp: 19                                                           # Coil    - Tiegel: 3, Spindel: 19 | Default bei Fehler: Programm-Exit!
-      lese_st_Reg: 51                                                     # Input   - Auslese Start-Adresse: Nemo1 = Spindel: 51, Tiegel: 33 | Nemo2 = Spindel: 53, Tiegel: 34 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg: 53                                                     # Input   - Auslese Start-Adresse: Nemo1 = Spindel: 51, Tiegel: 33 | Nemo2 = Spindel: 53, Tiegel: 34 | Default bei Fehler: Programm-Exit!
       write_v_Reg: 6                                                      # Holding - Start Register für Geschwindigkeitswert: Spindel: 6, Tiegel: 2 | Default bei Fehler: Programm-Exit!
-      statusReg: 55                                                       # Input   - Status: Nemo1 = Tiegel: 37, Spindel: 55 | Nemo2 = Tiegel: 38, Spindel: 57 | Default bei Fehler: Programm-Exit!
+      statusReg: 57                                                       # Input   - Status: Nemo1 = Tiegel: 37, Spindel: 55 | Nemo2 = Tiegel: 38, Spindel: 57 | Default bei Fehler: Programm-Exit!
     parameter:
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3  
       Vorfaktor_Ist: 1                                                    # Vorfaktor für die Ist-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701) | Default bei Fehler: 1
@@ -869,7 +883,7 @@ devices:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
       legend: Rezv ; Rezx ; IWv ; SWv ; IWw ; IWxPID ; SWxPID             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Externe-PID-Input-Größe, PID- PID-Modus
-                                                                          # Eingebaut: Rezv, Rezx , IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID
+                                                                          # Eingebaut: Rezv, Rezx , IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID, oGPID, uGPID
                                                                           # Default bei Fehler: IWw, IWv
     defaults:
       startSpeed: 1                                                       # Startgeschwindigkeit [1/min] | Default bei Fehler: 0
@@ -915,8 +929,15 @@ devices:
       invert: False                                                       # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
                                                                           # Eigentlich: Spindel:  Hoch-Fahren = Negative Geschwindigkeit
                                                                           #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
+                                                                          # Bei Nemo-2 nicht mehr so!
+                                                                          # Default bei Fehler: False
+      invert_Pos: False                                                   # Wenn True wird der Positionswert mal -1 genommen!! 
+                                                                          # Benötigt für die Nemo2 Spindel: ↑ Position sinkt, ↓ Position steigt
+                                                                          # Achtung: Achte auf oGs und uGs! Beim Tiegel liegt dieses Problem nicht vor! Dort Umbedingt auf False stellen!! 
                                                                           # Default bei Fehler: False
       start_weg: 140                                                      # Startweg in mm | Default bei Fehler: 0
+      pos_control: real                                                   # Positions-Limit-Kontrolle -> SIM - Simulierter Weg, REAL - Realer Weg (Nutzung von Upper) | Default bei Fehler: SIM
+      sicherheit: 0                                                       # Sicherheits Modus bei Nutzung des Realen Positions-Wertes: 0 - Error und Fehler ignorieren, 1 - Error und Stopp | Default bei Fehler: 0 
     ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
                                                                           # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
                                                                           # False - Nichts wird getann!
@@ -962,7 +983,9 @@ devices:
       stopp: 0                                                            # Coil    - Tiegel: 0, Spindel: 16 | Default bei Fehler: Programm-Exit!
       lese_st_Reg: 20                                                     # Input   - Auslese Start-Adresse: Nemo1 = Spindel: 38, Tiegel: 20 | Nemo2 = Spindel: 39, Tiegel: 20 | Default bei Fehler: Programm-Exit!
       write_v_Reg: 0                                                      # Holding - Start Register für Geschwindigkeitswert: Spindel: 4, Tiegel: 0 | Default bei Fehler: Programm-Exit!
+      posAktuel: 24                                                       # Input   - Register für die aktuelle Position: Nemo1 = Spindel: 42, Tiegel: 24 | Nemo2 = Spindel: 43, Tiegel: 24 | Default bei Fehler: Programm-Exit!
       posLimReg: 28                                                       # Input   - Startregister Limits: Nemo1 = Spindel: 46, Tiegel 28 | Nemo2 = Spindel: 47, Tiegel 28 | Default bei Fehler: Programm-Exit!
+      InfoReg: 121                                                        # Input   - Informationswerte: Nemo2 = Spindel: 143, Tiegel: 121 | Default bei Fehler: Programm-Exit!
       statusReg: 32                                                       # Input   - Status: Nemo1 = Tiegel: 32, Spindel: 50 | Nemo2 = Tiegel: 32, Spindel: 51 | Default bei Fehler: Programm-Exit!
       statusRegEil: 133                                                   # Input   - Status Eilgang: Tiegel: 133, Spindel: 155 | Default bei Fehler: Programm-Exit! | Nur bei Nemo-2 vorhanden!
     parameter:
@@ -978,8 +1001,9 @@ devices:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
       legend: Rezv ; Rezx ; IWs ; IWv ; SWv ; IWxPID ; SWxPID             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!), x - Externe-PID-Input-Größe, PID- PID-Modus
-                                                                          # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID
+                                                                          # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID, oGPID, uGPID
                                                                           # Default bei Fehler: IWs, IWv
+                                                                          # Notiz: IWs ist ein simulierter Weg, IWsd ist der ausgelesene Wert!
     defaults:
       startSpeed: 1                                                       # Startgeschwindigkeit [mm/min] | Default bei Fehler: 0
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/min), Art der Rampe , Schritte/Steigung ((mm/min)/s)
@@ -1082,7 +1106,7 @@ devices:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
       legend: Rezv ; IWv ; SWv ; IWw ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Externe-PID-Input-Größe, PID- PID-Modus
-                                                                          # Eingebaut: Rezv, Rezx , IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID
+                                                                          # Eingebaut: Rezv, Rezx , IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID, oGPID, uGPID
                                                                           # Default bei Fehler: IWw, IWv
     defaults:
       startSpeed: 1                                                       # Startgeschwindigkeit [1/min] | Default bei Fehler: 0

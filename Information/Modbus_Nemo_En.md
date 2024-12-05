@@ -40,15 +40,18 @@ The systems differ in their registers. Because the drive status word of the driv
 
 ### Lift drive - spindle (top)
 
-Config name | Type | Nemo-1 start register | Nemo-2 start register
+Config-Bezeichnung |  Art | Nemo-1 Start-Register | Nemo-2 Start-Register
 --- | --- | --- | --- 
 hoch        | Coil    | 17 | 17
 runter      | Coil    | 18 | 18
 stopp       | Coil    | 16 | 16
 lese_st_Reg | Input   | 38 | 39
 write_v_Reg | Holding |  4 |  4
+posAktuel   | Input   | 42 | 43
 posLimReg   | Input   | 46 | 47
+InfoReg     | Input   |  / | 143
 statusReg   | Input   | 50 | 51
+statusRegEil| Input   |  / | 155
 
 ### Rotation drive - spindle (top)
 
@@ -63,15 +66,18 @@ statusReg   | Input   | 55 | 57
 
 ### Lift drive - crucible (bottom)
 
-Config name | Type | Nemo-1 start register | Nemo-2 start register
---- | --- | --- | ---
+Config-Bezeichnung |  Art | Nemo-1 Start-Register | Nemo-2 Start-Register
+--- | --- | --- | --- 
 hoch        | Coil    |  1 |  1
 runter      | Coil    |  2 |  2
 stopp       | Coil    |  0 |  0
 lese_st_Reg | Input   | 20 | 20
 write_v_Reg | Holding |  0 |  0
+posAktuel   | Input   | 24 | 24
 posLimReg   | Input   | 28 | 28
+InfoReg     | Input   |  / | 121
 statusReg   | Input   | 32 | 32
+statusRegEil| Input   |  / | 133
 
 ### Rotation drive - crucible (bottom)
 
@@ -95,4 +101,4 @@ lese_st_Reg_AS      | Input | / | 209
 
 ## Last change
 
-The last change to this description was: November 19, 2024
+The last change to this description was: December 03, 2024

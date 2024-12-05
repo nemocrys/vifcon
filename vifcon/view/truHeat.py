@@ -119,6 +119,7 @@ class TruHeatWidget(QWidget):
         self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                           'The following types are possible:']
         self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                          'Default is used:']
         self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                                'Error reading config during configuration:']
+        self.Log_Pfad_conf_4_1  = ['Fehler beim Auslesen der Config!',                                                                                  'Error reading config!']
         self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                              '; Set to default:']
         self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                      'Reason for error:']
         self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                            'Please correct and re-read config before use!']
@@ -397,6 +398,8 @@ class TruHeatWidget(QWidget):
         ## Checkbox: ###############################################################################################################################################################################################################################################################################    
         cb_sync_str             = ['Sync',                                                                                                      'Sync']
         cb_PID                  = ['PID',                                                                                                       'PID']
+        ## ToolTip: ###############################################################################################################################################################################################################################################################################                                                                                                   
+        self.TTLimit            = ['Limit:',                                                                                                    'Limit:']
         ## Einheiten mit Größe: ####################################################################################################################################################################################################################################################################
         self.P_str              = ['P in kW:',                                                                                                  'P in kW:']
         self.U_str              = ['U in V:',                                                                                                   'U in V:']
@@ -430,6 +433,7 @@ class TruHeatWidget(QWidget):
         self.PID_Out_P          = ['(P):',                                                                                                      '(P):']
         self.PID_Out_I          = ['(I):',                                                                                                      '(I):']
         self.PID_Out_U          = ['(U):',                                                                                                      '(U):']
+        self.PID_G_Kurve        = ['PID-x',                                                                                                     'PID-x']
         ## Fehlermeldungen: #######################################################################################################################################################################################################################################################################  
         self.err_0_str          = ['Fehler!',                                                                                                   'Error!']                  
         self.err_1_str          = ['Keine Eingabe!',                                                                                            'No input!']
@@ -447,6 +451,8 @@ class TruHeatWidget(QWidget):
         self.err_16_str         = ['Rezept läuft!\nRezept Start gesperrt!',                                                                     'Recipe running!\nRecipe start blocked!']
         self.err_21_str         = ['Fehler in der Rezept konfiguration\nder Config-Datei! Bitte beheben und Neueinlesen!',                      'Error in the recipe configuration of\nthe config file! Please fix and re-read!']
         self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
+        self.Log_Yaml_Error     = ['Mit der Config-Datei (Yaml) gibt es ein Problem.',                                                          'There is a problem with the config file (YAML).']
+        self.err_RezDef_str     = ['Yaml-Config Fehler\nDefault-Rezept eingefügt!',                                                             'Yaml config error\nDefault recipe inserted!']
         ## Plot-Legende: ##########################################################################################################################################################################################################################################################################                                               
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
@@ -511,6 +517,7 @@ class TruHeatWidget(QWidget):
         self.Text_PID_2         = ['Wechsel in TruHeat-Regel-Modus.',                                                                           'Switch to TruHeat control mode.']
         self.Text_PID_3         = ['Moduswechsel! Auslösung des Stopp-Knopfes aus Sicherheitsgründen!',                                         'Mode change! Stop button triggered for safety reasons!']
         self.Text_PID_4         = ['Rezept Beenden! Wechsel des Modus!',                                                                        'End recipe! Change mode!']
+        self.Text_Update        = ['Update Fehlgeschlagen!',                                                                                    'Update Failed!']
         ## Print: #################################################################################################################################################################################################################################################################################  
         self.ExPrint_str        = ['ACHTUNG: Keine regelmäßigen Lese-Befehle - RS232-User watchdog deaktivieren (auf Null stellen)!',           'ATTENTION: No regular read commands - deactivate RS232 user watchdog (set to zero)!']
         ## Message-Box: ###########################################################################################################################################################################################################################################################################
@@ -587,12 +594,18 @@ class TruHeatWidget(QWidget):
         ### Eingabefelder:
         self.LE_Pow = QLineEdit()
         self.LE_Pow.setText(str(self.startP))
+        TT_P = f'{self.TTLimit[self.sprache]} {self.uGP} - {self.oGP} {self.einheit_P_einzel[self.sprache]}'
+        self.LE_Pow.setToolTip(TT_P)
 
         self.LE_Voltage = QLineEdit()
         self.LE_Voltage.setText(str(self.startU))
+        TT_U = f'{self.TTLimit[self.sprache]} {self.uGU} - {self.oGU} {self.einheit_U_einzel[self.sprache]}'
+        self.LE_Voltage.setToolTip(TT_U)
 
         self.LE_Current = QLineEdit()
         self.LE_Current.setText(str(self.startI))
+        TT_I = f'{self.TTLimit[self.sprache]} {self.uGP} - {self.oGI} {self.einheit_I_einzel[self.sprache]}'
+        self.LE_Current.setToolTip(TT_I)
 
         ### Checkbox:
         self.Auswahl = QCheckBox(cb_sync_str[self.sprache])
@@ -601,6 +614,9 @@ class TruHeatWidget(QWidget):
         self.PID_cb.clicked.connect(self.PID_ON_OFF)
         if not self.PID_Aktiv:
             self.PID_cb.setEnabled(False)
+        
+        TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} - {self.oGx} {self.einheit_x_einzel[self.sprache]}'
+        self.PID_cb.setToolTip(TT_PID)
 
         ### Radiobutton:
         self.RB_choise_Pow = QRadioButton(f'{self.sollwert_str[self.sprache]}-{self.P_str[self.sprache]} ')
@@ -854,6 +870,8 @@ class TruHeatWidget(QWidget):
             'SWxPID':   ['a1', pg.mkPen(self.color[10], width=2, style=Qt.DashDotLine),     f'{PID_Label_Soll} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{self.sollwert_str[self.sprache]}</sub>'], 
             'IWxPID':   ['a1', pg.mkPen(self.color[11], width=2, style=Qt.DashDotLine),     f'{PID_Label_Ist} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
             'Rezx':     ['a1', pg.mkPen(color=self.color[12], width=3, style=Qt.DotLine),   f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{x_einzel_str[self.sprache]}</sub>'],
+            'oGPID':    ['a1', pg.mkPen(color=self.color[11], style=Qt.DashLine),           f'{truheat} - {self.PID_G_Kurve[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGPID':    ['a1', pg.mkPen(color=self.color[11], style=Qt.DashDotDotLine),     f'{truheat} - {self.PID_G_Kurve[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
         }
         
         ## Kurven erstellen:
@@ -911,18 +929,20 @@ class TruHeatWidget(QWidget):
         self.PuGList     = []
         self.UoGList     = []
         self.UuGList     = []
+        self.XoGList     = []
+        self.XuGList     = []
                
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
-        self.curveDict      = {'IWP': '', 'IWU': '', 'IWI': '', 'IWf': '', 'SWP': '', 'SWU': '', 'SWI': '', 'oGI':'', 'uGI':'', 'oGU':'', 'uGU':'', 'oGP':'', 'uGP':'', 'RezI':'', 'RezU':'', 'RezP':'', 'SWxPID':'', 'IWxPID':'', 'Rezx': ''}                                                                                                                                                                              # Kurven
+        self.curveDict      = {'IWP': '', 'IWU': '', 'IWI': '', 'IWf': '', 'SWP': '', 'SWU': '', 'SWI': '', 'oGI':'', 'uGI':'', 'oGU':'', 'uGU':'', 'oGP':'', 'uGP':'', 'RezI':'', 'RezU':'', 'RezP':'', 'SWxPID':'', 'IWxPID':'', 'Rezx': '', 'oGPID':'', 'uGPID':''}                                                                                                                                                                              # Kurven
         for kurve in self.kurven_dict: 
             self.curveDict[kurve] = self.kurven_dict[kurve]
         self.labelDict      = {'IWP': self.La_IstPow_wert,                                  'IWU': self.La_IstVoltage_wert,                              'IWI': self.La_IstCurrent_wert,                'IWf': self.La_IstFre_wert,                       'IWxPID': self.La_IstPID_wert,                 'SWxPID': self.La_SollPID_wert, 'SWP': self.La_SollP_wert,  'SWU': self.La_SollU_wert,  'SWI': self.La_SollI_wert}  # Label
         self.labelUnitDict  = {'IWP': self.einheit_P_einzel[self.sprache],                  'IWU': self.einheit_U_einzel[self.sprache],                  'IWI': self.einheit_I_einzel[self.sprache],    'IWf': self.einheit_f_einzel[self.sprache],       'IWxPID': self.einheit_x_einzel[self.sprache], 'SWxPID': self.einheit_x_einzel[self.sprache]}                                                                      # Einheit
         self.listDict       = {'IWP': self.IWPList,                                         'IWU': self.IWUList,                                         'IWI': self.IWIList,                           'IWf': self.IWfList,                              'IWxPID': self.istxPID,                        'SWxPID': self.sollxPID,        'SWP': self.SWPList,        'SWU': self.SWUList,        'SWI': self.SWIList}        # Werte-Listen
-        self.grenzListDict  = {'oGP': self.PoGList,     'uGP': self.PuGList,                'oGU': self.UoGList,             'uGU': self.UuGList,        'oGI': self.IoGList,  'uGI': self.IuGList}
-        self.grenzValueDict = {'oGP': self.oGP,         'uGP': self.uGP,                    'oGU': self.oGU,                 'uGU': self.uGU,            'oGI': self.oGI,      'uGI': self.uGI}
+        self.grenzListDict  = {'oGP': self.PoGList,     'uGP': self.PuGList,                'oGU': self.UoGList,             'uGU': self.UuGList,        'oGI': self.IoGList,  'uGI': self.IuGList,     'oGPID': self.XoGList,                            'uGPID': self.XuGList}
+        self.grenzValueDict = {'oGP': self.oGP,         'uGP': self.uGP,                    'oGU': self.oGU,                 'uGU': self.uGU,            'oGI': self.oGI,      'uGI': self.uGI,         'oGPID': self.oGx,                                'uGPID': self.uGx}
 
         ## Plot-Skalierungsfaktoren:
         self.skalFak_dict = {}
@@ -1323,136 +1343,163 @@ class TruHeatWidget(QWidget):
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Yaml erneut laden:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        with open(self.config_dat, encoding="utf-8") as f: 
-            config = yaml.safe_load(f)
-            logger.info(f"{self.device_name} - {self.Log_Text_205_str[self.sprache]} {config}")
+        try:
+            with open(self.config_dat, encoding="utf-8") as f: 
+                config = yaml.safe_load(f)
+                logger.info(f"{self.device_name} - {self.Log_Text_205_str[self.sprache]} {config}")
+            skippen = 0
+        except Exception as e:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4_1[self.sprache]}')         
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            skippen = 1
         
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Konfiguration prüfen:
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        ### Sollleistung:
-        try: self.oGP = config['devices'][self.device_name]["limits"]['maxP'] 
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxP {self.Log_Pfad_conf_5[self.sprache]} 1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.oGP = 1       
-        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-        try: self.uGP = config['devices'][self.device_name]["limits"]['minP']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minP {self.Log_Pfad_conf_5[self.sprache]} 0')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGP = 0
-        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-        if not type(self.oGP) in [float, int] or not self.oGP >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGP)}')
-            self.oGP = 1
-        if not type(self.uGP) in [float, int] or not self.oGP >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGP)}')
-            self.uGP = 0
-        if self.oGP <= self.uGP:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_15[self.sprache]})')
-            self.uGP = 0
-            self.oGP = 1
-        ### Sollstrom:
-        try: self.oGI = config['devices'][self.device_name]["limits"]['maxI'] 
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxI {self.Log_Pfad_conf_5[self.sprache]} 1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.oGI = 1 
-        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\      
-        try: self.uGI = config['devices'][self.device_name]["limits"]['minI']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minI {self.Log_Pfad_conf_5[self.sprache]} 0')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGI = 0
-        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-        if not type(self.oGI) in [float, int] or not self.oGI >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGI)}')
-            self.oGI = 1
-        if not type(self.uGI) in [float, int] or not self.oGI >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGI)}')
-            self.uGI = 0
-        if self.oGI <= self.uGI:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
-            self.uGI = 0
-            self.oGI = 1
-        ### Sollspannung:
-        try: self.oGU = config['devices'][self.device_name]["limits"]['maxU']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxU {self.Log_Pfad_conf_5[self.sprache]} 1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.oGU = 1  
-        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\        
-        try: self.uGU = config['devices'][self.device_name]["limits"]['minU']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minU {self.Log_Pfad_conf_5[self.sprache]} 0')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGU = 0  
-        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-        if not type(self.oGU) in [float, int] or not self.oGU >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGU)}')
-            self.oGU = 1
-        if not type(self.uGU) in [float, int] or not self.oGU >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGU)}')
-            self.uGU = 0
-        if self.oGU <= self.uGU:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_13[self.sprache]})')
-            self.uGU = 0
-            self.oGU = 1
-        ### PID-Input-Output:
-        try: self.oGx = config['devices'][self.device_name]['PID']['Input_Limit_max']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_max {self.Log_Pfad_conf_5[self.sprache]} 1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.oGx = 1
-        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-        try: self.uGx = config['devices'][self.device_name]['PID']['Input_Limit_min']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGx = 0
-        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-        if not type(self.oGx) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGx)}')
-            self.oGx = 1
-        if not type(self.uGx) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_min - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGx)}')
-            self.uGx = 0
-        if self.oGx <= self.uGx:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
-            self.uGx = 0
-            self.oGx = 1
+        if not skippen:
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # Konfiguration prüfen:
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            ### Sollleistung:
+            try: self.oGP = config['devices'][self.device_name]["limits"]['maxP'] 
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxP {self.Log_Pfad_conf_5[self.sprache]} 1')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.oGP = 1       
+            #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            try: self.uGP = config['devices'][self.device_name]["limits"]['minP']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minP {self.Log_Pfad_conf_5[self.sprache]} 0')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.uGP = 0
+            #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            if not type(self.oGP) in [float, int] or not self.oGP >= 0:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGP)}')
+                self.oGP = 1
+            if not type(self.uGP) in [float, int] or not self.oGP >= 0:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGP)}')
+                self.uGP = 0
+            if self.oGP <= self.uGP:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_15[self.sprache]})')
+                self.uGP = 0
+                self.oGP = 1
+            ### Sollstrom:
+            try: self.oGI = config['devices'][self.device_name]["limits"]['maxI'] 
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxI {self.Log_Pfad_conf_5[self.sprache]} 1')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.oGI = 1 
+            #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\      
+            try: self.uGI = config['devices'][self.device_name]["limits"]['minI']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minI {self.Log_Pfad_conf_5[self.sprache]} 0')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.uGI = 0
+            #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            if not type(self.oGI) in [float, int] or not self.oGI >= 0:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGI)}')
+                self.oGI = 1
+            if not type(self.uGI) in [float, int] or not self.oGI >= 0:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGI)}')
+                self.uGI = 0
+            if self.oGI <= self.uGI:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
+                self.uGI = 0
+                self.oGI = 1
+            ### Sollspannung:
+            try: self.oGU = config['devices'][self.device_name]["limits"]['maxU']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxU {self.Log_Pfad_conf_5[self.sprache]} 1')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.oGU = 1  
+            #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\        
+            try: self.uGU = config['devices'][self.device_name]["limits"]['minU']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minU {self.Log_Pfad_conf_5[self.sprache]} 0')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.uGU = 0  
+            #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            if not type(self.oGU) in [float, int] or not self.oGU >= 0:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGU)}')
+                self.oGU = 1
+            if not type(self.uGU) in [float, int] or not self.oGU >= 0:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGU)}')
+                self.uGU = 0
+            if self.oGU <= self.uGU:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_13[self.sprache]})')
+                self.uGU = 0
+                self.oGU = 1
+            ### PID-Input-Output:
+            try: self.oGx = config['devices'][self.device_name]['PID']['Input_Limit_max']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_max {self.Log_Pfad_conf_5[self.sprache]} 1')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.oGx = 1
+            #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            try: self.uGx = config['devices'][self.device_name]['PID']['Input_Limit_min']
+            except Exception as e: 
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.uGx = 0
+            #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            if not type(self.oGx) in [float, int]:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGx)}')
+                self.oGx = 1
+            if not type(self.uGx) in [float, int]:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_min - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGx)}')
+                self.uGx = 0
+            if self.oGx <= self.uGx:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+                self.uGx = 0
+                self.oGx = 1
 
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Weiterleiten:
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if self.RB_choise_Current.isChecked():
-            oG    = self.oGI
-            uG    = self.uGI
-            self.write_value['Limit Unit']  = self.einheit_I_einzel[self.sprache]
-        elif self.RB_choise_Pow.isChecked():
-            oG    = self.oGP
-            uG    = self.uGP
-            self.write_value['Limit Unit']  = self.einheit_P_einzel[self.sprache]
-        elif self.RB_choise_Voltage.isChecked():
-            oG    = self.oGU
-            uG    = self.uGU
-            self.write_value['Limit Unit']  = self.einheit_U_einzel[self.sprache]
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # ToolTip Update:
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            TT_P = f'{self.TTLimit[self.sprache]} {self.uGP} - {self.oGP} {self.einheit_P_einzel[self.sprache]}'
+            self.LE_Pow.setToolTip(TT_P)
 
-        self.write_task['Update Limit']     = True
-        self.write_value['Limits']          = [oG, uG, self.oGx, self.uGx, True]
+            TT_I = f'{self.TTLimit[self.sprache]} {self.uGI} - {self.oGI} {self.einheit_I_einzel[self.sprache]}'
+            self.LE_Current.setToolTip(TT_I)
 
-        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGI} {self.Log_Text_LB_4[self.sprache]} {self.oGI} {self.einheit_I_einzel[self.sprache]}')
-        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGU} {self.Log_Text_LB_4[self.sprache]} {self.oGU} {self.einheit_U_einzel[self.sprache]}')
-        logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3_1[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGP} {self.Log_Text_LB_4[self.sprache]} {self.oGP} {self.einheit_P_einzel[self.sprache]}')
+            TT_U = f'{self.TTLimit[self.sprache]} {self.uGU} - {self.oGU} {self.einheit_U_einzel[self.sprache]}'
+            self.LE_Voltage.setToolTip(TT_U)
+
+            TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} - {self.oGx} {self.einheit_x_einzel[self.sprache]}'
+            self.PID_cb.setToolTip(TT_PID)
+
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # Weiterleiten:
+            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            if self.RB_choise_Current.isChecked():
+                oG    = self.oGI
+                uG    = self.uGI
+                self.write_value['Limit Unit']  = self.einheit_I_einzel[self.sprache]
+            elif self.RB_choise_Pow.isChecked():
+                oG    = self.oGP
+                uG    = self.uGP
+                self.write_value['Limit Unit']  = self.einheit_P_einzel[self.sprache]
+            elif self.RB_choise_Voltage.isChecked():
+                oG    = self.oGU
+                uG    = self.uGU
+                self.write_value['Limit Unit']  = self.einheit_U_einzel[self.sprache]
+
+            self.write_task['Update Limit']     = True
+            self.write_value['Limits']          = [oG, uG, self.oGx, self.uGx, True]
+
+            logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGI} {self.Log_Text_LB_4[self.sprache]} {self.oGI} {self.einheit_I_einzel[self.sprache]}')
+            logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGU} {self.Log_Text_LB_4[self.sprache]} {self.oGU} {self.einheit_U_einzel[self.sprache]}')
+            logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3_1[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGP} {self.Log_Text_LB_4[self.sprache]} {self.oGP} {self.einheit_P_einzel[self.sprache]}')
+        
+            self.Fehler_Output(0)
+        else:
+            self.Fehler_Output(1, self.Log_Yaml_Error[self.sprache], self.Text_Update[self.sprache])
 
     ##########################################
     # Betrachtung der Labels und Plots:
@@ -1495,12 +1542,14 @@ class TruHeatWidget(QWidget):
 
         ## Grenz-Kurven:
         ### Update Grenzwert-Dictionary:
-        self.grenzValueDict['oGP'] = self.oGP * self.skalFak['Pow']
-        self.grenzValueDict['uGP'] = self.uGP * self.skalFak['Pow']
-        self.grenzValueDict['oGU'] = self.oGU * self.skalFak['Voltage']
-        self.grenzValueDict['uGU'] = self.uGU * self.skalFak['Voltage']
-        self.grenzValueDict['oGI'] = self.oGI * self.skalFak['Current']
-        self.grenzValueDict['uGI'] = self.uGI * self.skalFak['Current']
+        self.grenzValueDict['oGP']      = self.oGP * self.skalFak['Pow']
+        self.grenzValueDict['uGP']      = self.uGP * self.skalFak['Pow']
+        self.grenzValueDict['oGU']      = self.oGU * self.skalFak['Voltage']
+        self.grenzValueDict['uGU']      = self.uGU * self.skalFak['Voltage']
+        self.grenzValueDict['oGI']      = self.oGI * self.skalFak['Current']
+        self.grenzValueDict['uGI']      = self.uGI * self.skalFak['Current']
+        self.grenzValueDict['oGPID'] = self.oGx * self.skalFak['PIDG']
+        self.grenzValueDict['uGPID'] = self.uGx * self.skalFak['PIDG']
         ### Update-Kurven:
         for kurve in self.kurven_dict:
             if kurve in self.grenzListDict:
@@ -1862,40 +1911,48 @@ class TruHeatWidget(QWidget):
     def update_rezept(self):
         '''Liest die Config im Sinne der Rezepte neu ein und Updatet die Combo-Box'''
         if not self.Rezept_Aktiv:
+            error = False
             # Trennen von der Funktion:
             self.cb_Rezept.currentTextChanged.disconnect(self.RezKurveAnzeige)                    # Benötigt um Aufruf bei Leerer ComboBox zu vermeiden (sonst KeyError: '')
 
             # Combo-Box leeren:
             self.cb_Rezept.clear() 
 
-            # Yaml erneut laden:
-            with open(self.config_dat, encoding="utf-8") as f:
-                config = yaml.safe_load(f)
-
             # Config einlesen für das Gerät:
-            try: self.rezept_config = config['devices'][self.device_name]['rezepte']
+            try:
+                # Yaml erneut laden:
+                yaml_error = 1
+                with open(self.config_dat, encoding="utf-8") as f:
+                    config = yaml.safe_load(f)
+
+                yaml_error = 2
+                self.rezept_config = config['devices'][self.device_name]['rezepte']
             except Exception as e: 
                 self.rezept_config = {'rezept_Default':  {'n1': '10 ; 0 ; s'}}
-                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} rezepte {self.Log_Pfad_conf_5[self.sprache]} {self.rezept_config}')
-                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.Fehler_Output(1, self.err_RezDef_str[self.sprache])
+                error = True
+                if yaml_error == 1:
+                    logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4_1[self.sprache]} {self.Log_Pfad_conf_5[self.sprache]} {self.rezept_config}')
+                    logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                elif yaml_error == 2:
+                    logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} rezepte {self.Log_Pfad_conf_5[self.sprache]} {self.rezept_config}')
+                    logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+                    logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             
             # Combo-Box neu beschreiben:
             self.cb_Rezept.addItem('------------')
             try:
                 for rezept in self.rezept_config:
                     self.cb_Rezept.addItem(rezept) 
-                error = 0
             except Exception as e:
                 self.Fehler_Output(1, self.err_21_str[self.sprache])
                 logger.exception(self.Log_Text_Ex2_str[self.sprache])
-                error = 1
+                error = True
 
             # Neu verbinden von der Funktion:
             self.cb_Rezept.currentTextChanged.connect(self.RezKurveAnzeige) 
             
-            if not error:
-                self.Fehler_Output(0)
+            if not error: self.Fehler_Output(0)
         else:
             self.Fehler_Output(1, self.err_14_str[self.sprache])
 

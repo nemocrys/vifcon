@@ -27,7 +27,7 @@ from pyModbusTCP import utils
 import datetime
 import time
 import math as m
-import threading
+# import threading
 import random
 
 ## Eigene:
@@ -52,7 +52,7 @@ class SerialMock:
 class NemoAchseRot(QObject):
     signal_PID  = pyqtSignal(float, float, bool, float)
 
-    def __init__(self, sprache, config, config_dat, com_dict, test, neustart, multilog_aktiv, add_Ablauf_function, name="Nemo-Achse-Rotation", typ = 'Antrieb'):
+    def __init__(self, sprache, config, config_dat, com_dict, test, neustart, multilog_aktiv, Log_WriteReadTime, add_Ablauf_function, name="Nemo-Achse-Rotation", typ = 'Antrieb'):
         """ Erstelle Nemo-Achse Rot Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
         Args:
@@ -63,6 +63,7 @@ class NemoAchseRot(QObject):
             test (bool):                        Test Modus
             neustart (bool):                    Neustart Modus, Startkonfigurationen werden übersprungen
             multilog_aktiv (bool):              Multilog-Read/Send Aktiviert
+            Log_WriteReadTime (bool):           Logge die Zeit wie lange die Write und Read Funktion dauern
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
             name (str, optional):               device name.
             typ (str, optional):                device typ.
@@ -78,6 +79,7 @@ class NemoAchseRot(QObject):
         self.config_dat                 = config_dat
         self.neustart                   = neustart
         self.multilog_OnOff             = multilog_aktiv
+        self.Log_WriteReadTime          = Log_WriteReadTime
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
         self.device_name                = name
         self.typ                        = typ
@@ -534,6 +536,9 @@ class NemoAchseRot(QObject):
         self.Log_Test_Ex_2      = ['ist nicht Float! Setze Nan ein! Fehlerhafter Wert:',                                                                                                                                    'is not Float! Insert Nan! Incorrect value:']
         self.Log_Filter_PID_S   = ['Sollwert',                                                                                                                                                                              'Setpoint'] 
         self.Log_Filter_PID_I   = ['Istwert',                                                                                                                                                                               'Actual value'] 
+        self.Log_Time_w         = ['Die write-Funktion hat',                                                                                                                                                                'The write function has']     
+        self.Log_Time_wr        = ['s gedauert!',                                                                                                                                                                           's lasted!']   
+        self.Log_Time_r         = ['Die read-Funktion hat',                                                                                                                                                                 'The read function has']  
         ## Ablaufdatei: ###############################################################################################################################################################################################################################################################################
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -687,7 +692,7 @@ class NemoAchseRot(QObject):
             write_Okay (dict):  beinhaltet Boolsche Werte für das was beschrieben werden soll!
             write_value (dict): beinhaltet die Werte die geschrieben werden sollen
         '''
-
+        ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
         #++++++++++++++++++++++++++++++++++++++++++
         # Start:
         #++++++++++++++++++++++++++++++++++++++++++
@@ -730,9 +735,9 @@ class NemoAchseRot(QObject):
             self.akIWw = 0
 
             ## Grenzen Updaten:
-            with open(self.config_dat, encoding="utf-8") as f:
-                config = yaml.safe_load(f)
-                logger.info(f"{self.device_name} - {self.Log_Text_207_str[self.sprache]} {config}")
+            #with open(self.config_dat, encoding="utf-8") as f:
+            #    config = yaml.safe_load(f)
+            #    logger.info(f"{self.device_name} - {self.Log_Text_207_str[self.sprache]} {config}")
             
             #self.oGw = config['devices'][self.device_name]["limits"]['maxWinkel']
             #self.uGw = config['devices'][self.device_name]["limits"]['minWinkel']
@@ -930,6 +935,13 @@ class NemoAchseRot(QObject):
                 write_Okay['CCW'] = False 
                 write_Okay['CW'] = False
                 write_value['Speed'] = False
+        
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Funktions-Dauer aufnehmen:
+        #++++++++++++++++++++++++++++++++++++++++++
+        timediff = (datetime.datetime.now(datetime.timezone.utc).astimezone() - ak_time).total_seconds()  
+        if self.Log_WriteReadTime:
+            logger.info(f"{self.device_name} - {self.Log_Time_w[self.sprache]} {timediff} {self.Log_Time_wr[self.sprache]}")
 
     def Input_Filter(self, Input, Art = 'Ist'):
         ''' Input-Filter für den Multilog-VIFCON Link und die PID-Nutzung
@@ -1030,6 +1042,7 @@ class NemoAchseRot(QObject):
         Return: 
             Aktuelle Werte (dict)   - self.value_name
         '''
+        ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
         
         # Lese: vIst, vsoll
         ans = self.serial.read_input_registers(self.start_Lese_Register, self.lese_anz_Register)
@@ -1066,6 +1079,13 @@ class NemoAchseRot(QObject):
         self.value_name['SWxPID'] = self.Soll
         self.value_name['IWxPID'] = self.Ist
         
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Funktions-Dauer aufnehmen:
+        #++++++++++++++++++++++++++++++++++++++++++
+        timediff = (datetime.datetime.now(datetime.timezone.utc).astimezone() - ak_time).total_seconds()  
+        if self.Log_WriteReadTime:
+            logger.info(f"{self.device_name} - {self.Log_Time_r[self.sprache]} {timediff} {self.Log_Time_wr[self.sprache]}")
+
         return self.value_name
 
     def umwandeln_Float(self, int_Byte_liste):
