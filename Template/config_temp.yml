@@ -57,19 +57,19 @@ skalFak:                                                                  # Skal
                                                                           # Default bei Fehler: {'Pos': 1, 'Win': 1, 'Speed_1': 1, 'Speed_2': 1, 'WinSpeed': 1, 'Temp': 1, 'Op': 1,  'Current': 1, 'Voltage': 1, 'Pow': 1, 'Freq': 1, 'PIDA': 1, 'PIDG': 1} 
                                                                           #                   - Wenn einer der Schlüssel fehlt, wird dieser eingesetzt und der Wert auf Null gesetzt!
                                                                           #                   - Ein fehlerhafter Wert sorgt für den Defaultwert 1 bei dem Schlüssel! 
-  Pos:      1                                                             # Position in mm                 a1
-  Win:      0                                                             # Winkel in °                    a1
-  Speed_1:  1                                                             # Geschwindigkeit in mm/s        a2
-  Speed_2:  0                                                             # Geschwindigkeit in mm/min      a2
-  WinSpeed: 0                                                             # Winkelgeschwindigkeit in 1/min a2
-  Temp:     1                                                             # Temperatur in °C               a1
-  Op:       1                                                             # Leistung in %                  a2
-  Current:  0                                                             # Strom in A                     a1
-  Voltage:  0                                                             # Spannung in V                  a1
-  Pow:      0                                                             # Leistung in kW                 a2
-  Freq:     0                                                             # Frequenz in kHz                a2
-  PIDA:     0                                                             # PID-Größe Input Antriebe       a1
-  PIDG:     0                                                             # PID-Größe Input Generator      a1
+  Pos:      1                                                             # Position in mm                 a1 (Nemo-Linear, PI-Achse)
+  Win:      0                                                             # Winkel in °                    a1 (Nemo-Rotation)
+  Speed_1:  1                                                             # Geschwindigkeit in mm/s        a2 (PI-Achse)
+  Speed_2:  0                                                             # Geschwindigkeit in mm/min      a2 (Nemo-Linear)
+  WinSpeed: 0                                                             # Winkelgeschwindigkeit in 1/min a2 (Nemo-Rotation)
+  Temp:     1                                                             # Temperatur in °C               a1 (Eurotherm)
+  Op:       1                                                             # Leistung in %                  a2 (Eurotherm) 
+  Current:  0                                                             # Strom in A                     a1 (TruHeat)
+  Voltage:  0                                                             # Spannung in V                  a1 (TruHeat)
+  Pow:      0                                                             # Leistung in kW                 a2 (TruHeat)
+  Freq:     0                                                             # Frequenz in kHz                a2 (TruHeat)
+  PIDA:     0                                                             # PID-Größe Input Antriebe       a1 (Nemo-Linear, Nemo-Rotation, PI-Achse)
+  PIDG:     0                                                             # PID-Größe Input Generator      a1 (TruHeat)
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 devices:
   # --------------------------------------------------------------------------------------------------------------------------------------------------------
