@@ -661,7 +661,7 @@ class GUI(QMainWindow, Cursor):
         self.Bereich_Unten_Layout_2.addWidget(QLabel(self.Language_Label_1[self.sprache]),         row+1,        0)
         self.Bereich_Unten_Layout_2.addWidget(QLabel(self.Language_Label_2[self.sprache]),         row+2,        0)
 
-        size_list = ['T [°C]', 'P [%]', 'P [kW]', 'I [A]', 'U [V]', 'f [kHz]', 'v [mm/s]', 'v [mm/min]', '\u03C9 [1/min]', 's [mm]', '\u03B1 [°]', 'xA [s.G.]', 'xG [s.G.]']
+        size_list = ['T [°C]', 'P [%]', 'P [kW]', 'I [A]', 'U [V]', 'f [kHz]', 'f [Hz]', 'v [mm/s]', 'v [mm/min]', '\u03C9 [1/min]', 's [mm]', '\u03B1 [°]', 'xA [s.G.]', 'xG [s.G.]']
         self.size_dict = {}
         colom = 1
         for n in size_list:

@@ -2,7 +2,7 @@
 # Beschreibung:
 # ++++++++++++++++++++++++++++
 '''
-TruHeat Generator:
+Nemo Generator:
 - Schnittstelle erstellen
 - Werte Lesen und schreiben
 - Messdatei updaten
@@ -21,10 +21,10 @@ from PyQt5.QtCore import (
 
 ## Allgemein:
 import logging
-from serial import Serial, SerialException
+from pyModbusTCP.client import ModbusClient
+from pyModbusTCP import utils
 import time
 import math as m
-# import threading
 import datetime
 
 ## Eigene:
@@ -45,12 +45,11 @@ class SerialMock: # Notiz: Näher ansehen!
     def readline(self):
         return "".encode()
 
-
-class TruHeat(QObject):
+class NemoGenerator(QObject):
     signal_PID  = pyqtSignal(float, float, bool, float)
 
-    def __init__(self, sprache, config, com_dict, test, neustart, multilog_aktiv, Log_WriteReadTime, add_Ablauf_function, name="TruHeat", typ = 'Generator'):
-        """ Erstelle TruHeat Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
+    def __init__(self, sprache, config, com_dict, test, neustart, multilog_aktiv, Log_WriteReadTime, add_Ablauf_function, name="Nemo-Generator", typ = 'Generator'):
+        """ Erstelle Nemo-Generator Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
         Args:
             sprache (int):                      Sprache des Programms (GUI, Files)
@@ -78,19 +77,6 @@ class TruHeat(QObject):
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
         self.device_name                = name
         self.typ                        = typ
-        
-        ## Auflösung und Umrechnung:
-        ### Auflösung (Resolution):
-        self.resP = 10
-        self.resU = 1
-        self.resI = 100
-        self.resf = 1
-
-        ### Umrechnungsfaktor
-        self.umP = 1000                                         # Leistung in kW
-        self.umU = 1                                            # Spannung in V
-        self.umI = 1000                                         # Strom in A
-        self.umf = 1                                            # Frequenz in kHz
 
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
@@ -124,43 +110,27 @@ class TruHeat(QObject):
         Log_Text_PID_N18        = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
         
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Übergeordnet:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.Anlage = self.config['nemo-Version']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} nemo-Version {self.Log_Pfad_conf_5[self.sprache]} 2')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.Anlage = 2
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Zum Start:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        try: self.init       = self.config['start']['init']           # Initialisierung
+        try: self.init           = self.config['start']['init']                            # Initialisierung
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|init {self.Log_Pfad_conf_5[self.sprache]} False')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.init = False
         #//////////////////////////////////////////////////////////////////////
-        try: self.messZeit   = self.config['start']["readTime"]       # Auslesezeit
+        try: self.messZeit       = self.config['start']["readTime"]                        # Auslesezeit
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|readTime {self.Log_Pfad_conf_5[self.sprache]} 2')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.messZeit = 2
-        #//////////////////////////////////////////////////////////////////////
-        try: self.adress     = self.config['start']['ad']             # Generatoradresse
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|ad {self.Log_Pfad_conf_5_1[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            exit()
-        #//////////////////////////////////////////////////////////////////////
-        try: self.wdT        = self.config['start']['watchdog_Time']  # Watchdog-Zeit in ms
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|watchdog_Time {self.Log_Pfad_conf_5[self.sprache]} 5000')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.wdT = 5000
-        #//////////////////////////////////////////////////////////////////////
-        try: self.Delay_sT   = self.config['start']['send_Delay']     # Sende Delay in ms
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|send_Delay {self.Log_Pfad_conf_5[self.sprache]} 20')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.Delay_sT = 20
-        #//////////////////////////////////////////////////////////////////////
-        try: self.startMod   = self.config['start']['start_modus'].upper()
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|start_modus {self.Log_Pfad_conf_5[self.sprache]} P')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.startMod = 'P'
         #//////////////////////////////////////////////////////////////////////
         try: self.Ist                    = self.config['PID']["start_ist"] 
         except Exception as e: 
@@ -172,7 +142,21 @@ class TruHeat(QObject):
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|start_soll {self.Log_Pfad_conf_5[self.sprache]} 0')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.Soll = 0 
+            self.Soll = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: self.startMod   = self.config['start']['start_modus'].upper()
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|start_modus {self.Log_Pfad_conf_5[self.sprache]} I')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.startMod = 'I'
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ### Parameter:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.nKS        = self.config['parameter']['nKS_Aus']                     # Nachkommerstellen
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} parameter|nKS_Aus {self.Log_Pfad_conf_5[self.sprache]} 3')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.nKS = 3
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
         ## Limits:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -218,22 +202,8 @@ class TruHeat(QObject):
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.uGU = 0
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        ## Schnittstelle Extra:
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        try: self.Loop = self.config['serial-loop-read']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} serial-loop-read {self.Log_Pfad_conf_5[self.sprache]} 10')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.Loop = 10
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## PID:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        try: self.unit_PIDIn             = self.config['PID']['Input_Size_unit']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Size_unit {self.Log_Pfad_conf_5[self.sprache]} mm')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.unit_PIDIn = 'mm'
-        #//////////////////////////////////////////////////////////////////////
         error_PID = False
         try: self.PID_Config             = self.config['PID']
         except Exception as e: 
@@ -250,37 +220,23 @@ class TruHeat(QObject):
                 logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
                 self.PID_Aktiv = 0 
         #//////////////////////////////////////////////////////////////////////
+        try: self.unit_PIDIn             = self.config['PID']['Input_Size_unit']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Size_unit {self.Log_Pfad_conf_5[self.sprache]} mm')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.unit_PIDIn = 'mm'
+        #//////////////////////////////////////////////////////////////////////
         try: self.PID_Option             = self.config['PID']['Value_Origin'].upper()
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Value_Origin {self.Log_Pfad_conf_5[self.sprache]} VV')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.PID_Option = 'VV'
+            self.PID_Option = 'VV' 
         #//////////////////////////////////////////////////////////////////////
         try: self.PID_Sample_Time        = self.config['PID']['sample']
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|sample {self.Log_Pfad_conf_5[self.sprache]} 500')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.PID_Sample_Time = 500 
-        #//////////////////////////////////////////////////////////////////////
-        try: self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_max {self.Log_Pfad_conf_5[self.sprache]} 1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.PID_Input_Limit_Max  = 1 
-        #//////////////////////////////////////////////////////////////////////
-        try: self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.PID_Input_Limit_Min = 0 
-        #//////////////////////////////////////////////////////////////////////
-        try: self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Error_option {self.Log_Pfad_conf_5[self.sprache]} error')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.PID_Input_Error_Option = 'error'
         #//////////////////////////////////////////////////////////////////////
         try: self.M_device_ist           = self.config['multilog']['read_trigger_ist'] 
         except Exception as e: 
@@ -309,14 +265,92 @@ class TruHeat(QObject):
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.sensor_soll = ''
             self.multilog_OnOff = False
-
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_max {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Input_Limit_Max  = 1 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Input_Limit_Min = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Error_option {self.Log_Pfad_conf_5[self.sprache]} error')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Input_Error_Option = 'error'
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Register:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.reg_GEin                  = self.config['register']['gen_Ein']             # Generator Ein Coil Register
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|gen_Ein {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.reg_GAus                  = self.config['register']['gen_Aus']             # Generator Aus Coil Register
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|gen_Aus {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.reg_PEin                  = self.config['register']['gen_P_Ein']             # Generator Leistungswahl Coil Register
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|gen_P_Ein {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.reg_IEin                  = self.config['register']['gen_I_Ein']             # Generator Stromwahl Register
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|gen_I_Ein {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.reg_UEin                  = self.config['register']['gen_U_Ein']             # Generator Spannungswahl Coil Rergister
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|gen_U_Ein {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.reg_lese_SollIst         = self.config['register']['lese_st_Reg']             # Soll- und Istwert Input Register
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|lese_st_Reg {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.reg_lese_Info            = self.config['register']['lese_st_Reg_Info']             # Info Input Register
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|lese_st_Reg_Info {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.reg_Status               = self.config['register']['lese_st_Reg_Status']             # Status Input Register
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|lese_st_Reg_Status {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.reg_lese_Kombi           = self.config['register']['lese_st_Reg_Gkombi']             # Generator Schnittstelle/Kombi Input Register
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|lese_st_Reg_Gkombi {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.reg_write_Soll           = self.config['register']['write_Soll_Reg']             # Schreibe Sollwert Holding Rergister
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|write_Soll_Reg {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Config-Fehler und Defaults:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        ### While-Check-Loop:
-        if not type(self.Loop) == int or not self.Loop >= 1:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} serial-loop-read - {self.Log_Pfad_conf_2[self.sprache]} Integer (>=1) - {self.Log_Pfad_conf_3[self.sprache]} 10 - {self.Log_Pfad_conf_8[self.sprache]} {self.Loop}')
-            self.Loop = 10
         ### PID-Aktiviert:
         if not type(self.PID_Aktiv) == bool and not self.PID_Aktiv in [0,1]: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} PID_Aktiv - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Aktiv}')
@@ -325,22 +359,85 @@ class TruHeat(QObject):
         if not type(self.init) == bool and not self.init in [0,1]: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} init - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.init}')
             self.init = 0
+        ### Register Generator Ein:
+        if not type(self.reg_GEin) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} gen_Ein - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_r)}')
+            exit()
+        ### Register Generator Aus:
+        if not type(self.reg_GAus) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} gen_Aus - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_r)}')
+            exit()
+        ### Register Generator P-Wahl:
+        if not type(self.reg_PEin) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} gen_P_Ein - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_r)}')
+            exit()
+        ### Register Generator I-Wahl:
+        if not type(self.reg_IEin) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} gen_I_Ein - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_r)}')
+            exit()
+        ### Register Generator U-Wahl:
+        if not type(self.reg_UEin) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} gen_U_Ein - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_r)}')
+            exit()
+        ### Register Generator Soll- und Istwerte lesen:
+        if not type(self.reg_lese_SollIst) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_st_Reg - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_r)}')
+            exit()
+        ### Register Generator Informationen lesen:
+        if not type(self.reg_lese_Info) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_st_Reg_Info - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_r)}')
+            exit()
+        ### Register Generator Status lesen:
+        if not type(self.reg_Status) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_st_Reg_Status - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_r)}')
+            exit()
+        ### Register Generator Schnittstelle lesen:
+        if not type(self.reg_lese_Kombi) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_st_Reg_Gkombi - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_r)}')
+            exit()
+        ### Register Generator Sollwert schreiben:
+        if not type(self.reg_write_Soll) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} write_Soll_Reg - {self.Log_Pfad_conf_2_1[self.sprache]} [int] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_r)}')
+            exit()
         ### Messzeit:
         if not type(self.messZeit) in [int, float] or not self.messZeit >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} readTime - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 2 - {self.Log_Pfad_conf_8[self.sprache]} {self.messZeit}')
             self.messZeit = 2
-        ### Start-Modus:
-        if not self.startMod in ['P', 'I', 'U']:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_modus - {self.Log_Pfad_conf_2[self.sprache]} [P, I, U] - {self.Log_Pfad_conf_3[self.sprache]} P - {self.Log_Pfad_conf_8[self.sprache]} {self.startMod}')
-            self.startMod = 'P'
-        ### Watchdog-Zeit:
-        if not type(self.wdT) == int or not self.wdT >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} watchdog_Time - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 5000 - {self.Log_Pfad_conf_8[self.sprache]} {self.wdT}')
-            self.wdT = 5000
-        ### Sende Delay:
-        if not type(self.Delay_sT) == int or not self.Delay_sT >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} send_Delay - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 20 - {self.Log_Pfad_conf_8[self.sprache]} {self.Delay_sT}')
-            self.Delay_sT = 20
+        ### PID Sample Zeit:
+        if not type(self.PID_Sample_Time) in [int] or not self.PID_Sample_Time >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} sample - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 500 - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Sample_Time}')
+            self.PID_Sample_Time = 500
+        ### PID-Wert-Fehler:
+        if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
+            logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
+            self.PID_Input_Error_Option = 'error'
+        ### PID-Limit:
+        if not type(self.PID_Input_Limit_Max) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Input_Limit_Max)}')
+            self.PID_Input_Limit_Max = 1
+        if not type(self.PID_Input_Limit_Min) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_min - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Input_Limit_Min)}')
+            self.PID_Input_Limit_Min = 0
+        if self.PID_Input_Limit_Max <= self.PID_Input_Limit_Min:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+            self.PID_Input_Limit_Min = 0
+            self.PID_Input_Limit_Max = 1
+        ### Multilog_Sensor Ist:
+        if not type(self.sensor_ist) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Multilog_Sensor_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.sensor_ist)}')
+            self.multilog_OnOff = False
+        ### Multilog_Sensor Soll:
+        if not type(self.sensor_soll) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Multilog_Sensor_Soll - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.sensor_soll)}')
+            self.multilog_OnOff = False
+        ### read-Trigger Multilog Ist:
+        if not type(self.M_device_ist) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} read_trigger_ist - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.M_device_ist)}')
+            self.multilog_OnOff = False
+        ### read-Trigger Multilog Soll:
+        if not type(self.M_device_soll) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} read_trigger_soll - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.M_device_soll)}')
+            self.multilog_OnOff = False
         ### PID-Start-Soll:
         if not type(self.Soll) in [float, int] or not self.Soll >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_soll - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {self.Soll}')
@@ -349,6 +446,14 @@ class TruHeat(QObject):
         if not type(self.Ist) in [float, int] or not self.Ist >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_ist - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {self.Ist}')
             self.Ist = 0
+        ### Anlagen-Version:
+        if not self.Anlage in [2]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nemo-Version - {self.Log_Pfad_conf_2[self.sprache]} [2] - {self.Log_Pfad_conf_3[self.sprache]} 2')
+            self.Anlage = 2
+        ### Start-Modus:
+        if not self.startMod in ['P', 'I', 'U']:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_modus - {self.Log_Pfad_conf_2[self.sprache]} [P, I, U] - {self.Log_Pfad_conf_3[self.sprache]} I - {self.Log_Pfad_conf_8[self.sprache]} {self.startMod}')
+            self.startMod = 'I'
         ### Leistungs-Limit:
         if not type(self.oGP) in [float, int] or not self.oGP >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxP - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGP)}')
@@ -382,46 +487,7 @@ class TruHeat(QObject):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
             self.uGU = 0
             self.oGU = 1
-        ### PID Sample Zeit:
-        if not type(self.PID_Sample_Time) in [int] or not self.PID_Sample_Time >= 0:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} sample - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 500 - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Sample_Time}')
-            self.PID_Sample_Time = 500 
-        ### PID-Limit:
-        if not type(self.PID_Input_Limit_Max) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Input_Limit_Max)}')
-            self.PID_Input_Limit_Max = 1
-        if not type(self.PID_Input_Limit_Min) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_min - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Input_Limit_Min)}')
-            self.PID_Input_Limit_Min = 0
-        if self.PID_Input_Limit_Max <= self.PID_Input_Limit_Min:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
-            self.PID_Input_Limit_Min = 0
-            self.PID_Input_Limit_Max = 1
-        ### Multilog_Sensor Ist:
-        if not type(self.sensor_ist) == str:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Multilog_Sensor_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.sensor_ist)}')
-            self.multilog_OnOff = False
-        ### Multilog_Sensor Soll:
-        if not type(self.sensor_soll) == str:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Multilog_Sensor_Soll - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.sensor_soll)}')
-            self.multilog_OnOff = False
-        ### read-Trigger Multilog Ist:
-        if not type(self.M_device_ist) == str:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} read_trigger_ist - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.M_device_ist)}')
-            self.multilog_OnOff = False
-        ### read-Trigger Multilog Soll:
-        if not type(self.M_device_soll) == str:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} read_trigger_soll - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.M_device_soll)}')
-            self.multilog_OnOff = False
-        ### Adresse:
-        if not type(self.adress) == str:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} ad - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.adress)}')
-            exit()
-        ### PID-Fehlerbehandlung:
-        if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
-            logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
-            self.PID_Input_Error_Option = 'error'
-
+        
         #--------------------------------------- 
         # Sprach-Einstellung:
         #---------------------------------------
@@ -429,44 +495,16 @@ class TruHeat(QObject):
         self.Log_Text_60_str    = ['Erstelle das Schnittstellen Objekt!',                                                                                                                                                   'Create the interface object!']
         self.Log_Text_61_str    = ['Aufbau Schnittstelle des Geräts fehlgeschlagen! Programm wird beendet!',                                                                                                                'Setup of the device interface failed! Program will end!']
         self.Log_Text_62_str    = ['Fehler Grund (Schnittstellen Aufbau):',                                                                                                                                                 'Error reason (interface structure):']
-        self.Log_Text_64_str    = ['Das Gerät konnte nicht ausgelesen werden.',                                                                                                                                             'The device could not be read.']
+        self.Log_Text_63_str    = ['Antwort Messwerte:',                                                                                                                                                                    'Answer measurements:']
+        self.Log_Text_66_str    = ['Antwort Register Integer:',                                                                                                                                                             'Response Register Integer:']
+        self.Log_Text_67_str    = ['Messwerte Umgewandelt - Messwert',                                                                                                                                                      'Measured Values Converted - Measured Value']
         self.Log_Text_68_str    = ['Das Gerät konnte nicht initialisiert werden!',                                                                                                                                          'The device could not be initialized!']
         self.Log_Text_69_str    = ['Fehler Grund (Initialisierung):',                                                                                                                                                       'Error reason (initialization):']
         self.Log_Text_70_str    = ['Initialisierung aufheben! Gerät abtrennen!',                                                                                                                                            'Cancel initialization! Disconnect device!']
         self.Log_Text_71_str    = ['Erstelle die Messdatei mit dem Pfad:',                                                                                                                                                  'Create the measurement file with the path:']
         self.Log_Text_72_str    = ['Keine Messdatenerfassung aktiv!',                                                                                                                                                       'No measurement data recording active!']
-        self.Log_Text_73_str    = ['Startfehler!',                                                                                                                                                                          'Start error!']
-        self.Log_Text_74_str    = ['Fehler Grund (Startwert Fehler):',                                                                                                                                                      'Error reason (start value error):']
-        self.Log_Text_75_str    = ['Liste der gesendeten Befehle (Schreibe):',                                                                                                                                              'List of commands sent (Write):']
         self.Log_Text_76_str    = ['Das Senden an das Gerät ist fehlgeschlagen.',                                                                                                                                           'Sending to the device failed.']
         self.Log_Text_77_str    = ['Fehler Grund (Senden):',                                                                                                                                                                'Error reason (send):']
-        self.Log_Text_78_str    = ['Ausgelesene Werte (Schreiben):',                                                                                                                                                        'Read values (Write):']
-        self.Log_Text_79_str    = ['Schreibbefehl:',                                                                                                                                                                        'Write command:']
-        self.Log_Text_80_str    = ['Antwort ist ein ACK!',                                                                                                                                                                  'Answer is an ACK!']
-        self.Log_Text_81_str    = ['Checksumme stimmt. Bestätige Befehl! Sende ACK!',                                                                                                                                       'Checksum is correct. Confirm command! Send ACK!']
-        self.Log_Text_82_str    = ['Schreibbefehl erfolgreich gesendet!',                                                                                                                                                   'Write command sent successfully!']
-        self.Log_Text_83_str    = ['Leistung ist eingeschaltet, diese Änderung ist während dieses Zustands nicht erlaubt!',                                                                                                 'Power is switched on, this change is not permitted during this state!']
-        self.Log_Text_84_str    = ['Wert überschreitet die erlaubten Grenzen!',                                                                                                                                             'Value exceeds the permitted limits!']
-        self.Log_Text_85_str    = ['Nicht erlaubter Parameter!',                                                                                                                                                            'Not allowed parameter!']
-        self.Log_Text_86_str    = ['Mindestens eine Störmeldung liegt noch an!',                                                                                                                                            'At least one error message is still pending!']
-        self.Log_Text_87_str    = ['Anzahl der Datenbytes sind falsch!',                                                                                                                                                    'Number of data bytes are incorrect!']
-        self.Log_Text_88_str    = ['Befehl wird nicht akzeptiert! Grund: Ungültiges Interface, etc.',                                                                                                                       'Command is not accepted! Reason: Invalid interface, etc.']
-        self.Log_Text_89_str    = ['Unbekannter Befehl! Wird ignoriert!',                                                                                                                                                   'Unknown command! Will be ignored!']
-        self.Log_Text_90_str    = ['Antwort ist ein NAK!',                                                                                                                                                                  'Answer is a NAK!']
-        self.Log_Text_91_str    = ['Antwort ist kein ACK oder NAK!',                                                                                                                                                        'Answer is not an ACK or NAK!']
-        self.Log_Text_92_str    = ['Wiederholung',                                                                                                                                                                          'Repetition']
-        self.Log_Text_93_str    = ['Senden des Befehls zum Schreiben ist fehlgeschlagen!',                                                                                                                                  'Sending write command failed!']
-        self.Log_Text_94_str    = ['Liste der gesendeten Befehle (Lese):',                                                                                                                                                  'List of commands sent (Read):']
-        self.Log_Text_95_str    = ['Sende das Hexadezimal Zeichen',                                                                                                                                                         'Send the hexadecimal character']
-        self.Log_Text_96_str    = ['Ausgelesene Werte (Lesen):',                                                                                                                                                            'Values read (read):']
-        self.Log_Text_97_str    = ['ACK beim Lese Befehl:',                                                                                                                                                                 'ACK on read command:']
-        self.Log_Text_98_str    = ['Checksumme stimmt!',                                                                                                                                                                    'Checksum is correct!']
-        self.Log_Text_99_str    = ['Sende ACK an Generator!',                                                                                                                                                               'Send ACK to generator!']
-        self.Log_Text_100_str   = ['NAK beim Lese Befehl:',                                                                                                                                                                 'NAK on read command:']
-        self.Log_Text_101_str   = ['Kein ACK oder NAK beim Lese Befehl:',                                                                                                                                                   'No ACK or NAK when reading command:']
-        self.Log_Text_102_str   = ['Lese Befehl:',                                                                                                                                                                          'Read command:']
-        self.Log_Text_103_str   = ['Wiederhole senden nach NAK oder keiner Antwort!',                                                                                                                                       'Repeat send after NAK or no response!']
-        self.Log_Text_104_str   = ['Wert:',                                                                                                                                                                                 'Value:']
         self.Log_Text_105_str   = ['Lese Istwert Leistung',                                                                                                                                                                 'Read actual value power']
         self.Log_Text_106_str   = ['Lese Istwert Spannung',                                                                                                                                                                 'Read actual voltage value']
         self.Log_Text_107_str   = ['Lese Istwert Strom',                                                                                                                                                                    'Read actual current value']
@@ -475,25 +513,12 @@ class TruHeat(QObject):
         self.Log_Text_110_str   = ['Lese Sollwert Spannung',                                                                                                                                                                'Read setpoint voltage']
         self.Log_Text_111_str   = ['Lese Sollwert Strom',                                                                                                                                                                   'Read setpoint current']
         self.Log_Text_112_str   = ['Fehler Grund (Auslesen):',                                                                                                                                                              'Error reason (reading):']
-        self.Log_Text_113_str   = ['Watchdog wird gesetzt auf:',                                                                                                                                                            'Watchdog is set to:']
-        self.Log_Text_114_str   = ['ms',                                                                                                                                                                                    'ms']
-        self.Log_Text_115_str   = ['Ausgelesener Watchdog:',                                                                                                                                                                'Read watchdog:']
-        self.Log_Text_116_str   = ['Gesendeter Watchdog stimmt nicht mit ausgelesenen überein!',                                                                                                                            'Sent watchdog does not match the one read out!']
-        self.Log_Text_117_str   = ['Softwareversion:',                                                                                                                                                                      'Software version:']
-        self.Log_Text_118_str   = ['Seriennummer der Stromversorgung:',                                                                                                                                                     'Power supply serial number:']
-        self.Log_Text_119_str   = ['Netzteil-Typ:',                                                                                                                                                                         'Power supply type:']
-        self.Log_Text_120_str   = ['minimaler Sollwert für den Ausgangsstrom:',                                                                                                                                             'Minimum setpoint for the output current:']
-        self.Log_Text_121_str   = ['minimaler Sollwert für die Kondensatorspannung:',                                                                                                                                       'Minimum setpoint for the capacitor voltage:']
-        self.Log_Text_122_str   = ['max. Sollleistung:',                                                                                                                                                                    'max. target power:']
         self.Log_Text_123_str   = ['kW',                                                                                                                                                                                    'kW']
-        self.Log_Text_124_str   = ['max. Sollspannung (UC):',                                                                                                                                                               'max. target voltage (UC):']
         self.Log_Text_125_str   = ['V',                                                                                                                                                                                     'V']
-        self.Log_Text_126_str   = ['max. Sollstrom (HF):',                                                                                                                                                                  'max. target current (HF):']
         self.Log_Text_127_str   = ['A',                                                                                                                                                                                     'A']
-        self.Log_Text_128_str   = ['Aktives Interface:',                                                                                                                                                                    'Active interface:']
-        self.Log_Text_129_str   = ['Aktives Interface: Unbekannt! Ausgelesen:',                                                                                                                                             'Active Interface: Unknown! Read:']
-        self.Log_Text_130_str   = ['Gibt es:',                                                                                                                                                                              'There is:']
-        self.Log_Text_131_str   = ['Das aktuelle Interface ist nicht RS-232!',                                                                                                                                              'The current interface is not RS-232!']
+        self.Log_Text_172_str   = ['Befehl wurde nicht akzeptiert (Sollwert)!',                                                                                                                                             'Command was not accepted (setpoint)!']
+        self.Log_Text_173_str   = ['Das Senden des Sollwertes an das Gerät ist fehlgeschlagen!',                                                                                                                            'Sending setpoint to device failed!']
+        self.Log_Text_174_str   = ['Fehler Grund (Sende Sollwert):',                                                                                                                                                        'Error reason (send setpoint):']
         self.Log_Text_PID_str   = ['Start des PID-Threads!',                                                                                                                                                                'Start of the PID thread!']
         Log_Text_PID_N1         = ['Die Konfiguration',                                                                                                                                                                     'The configuration']
         Log_Text_PID_N2         = ['existiert nicht! Möglich sind nur VV, VM, MM oder MV. Nutzung von Default VV!',                                                                                                         'does not exist! Only VV, VM, MM or MV are possible. Use default VV!']
@@ -525,28 +550,67 @@ class TruHeat(QObject):
         self.Log_Text_LB_7      = ['Output',                                                                                                                                                                                'Outout']
         self.Log_Text_LB_8      = ['Input',                                                                                                                                                                                 'Input']
         self.Log_Text_PID1_str  = ['Die PID-Start-Modus aus der Config-Datei existiert nicht! Setze auf Default P! Fehlerhafter Eintrag:',                                                                                  'The PID start mode from the config file does not exist! Set to default P! Incorrect entry:']
-        self.Log_Nan_1_Float    = ['Wert ist nicht vom Type Float! Setze Wert auf Nan!',                                                                                                                                    'Value is not of type Float! Set value to Nan!']
+        self.Log_Test_Ex_1      = ['Der Variablen-Typ der Größe',                                                                                                                                                           'The variable type of size']
+        self.Log_Test_Ex_2      = ['ist nicht Float! Setze Nan ein! Fehlerhafter Wert:',                                                                                                                                    'is not Float! Insert Nan! Incorrect value:']
         self.Log_Filter_PID_S   = ['Sollwert',                                                                                                                                                                              'Setpoint'] 
         self.Log_Filter_PID_I   = ['Istwert',                                                                                                                                                                               'Actual value'] 
         self.Log_Time_w         = ['Die write-Funktion hat',                                                                                                                                                                'The write function has']     
         self.Log_Time_wr        = ['s gedauert!',                                                                                                                                                                           's lasted!']   
         self.Log_Time_r         = ['Die read-Funktion hat',                                                                                                                                                                 'The read function has']  
-        ## Ablaufdatei: ##############################################################################################################################################################################################################################################################################
+        self.Log_Text_NG_1      = ['Auswahl P-Modus wurde nicht akzeptiert!',                                                                                                                                               'P-mode selection was not accepted!']
+        self.Log_Text_NG_2      = ['Auswahl I-Modus wurde nicht akzeptiert!',                                                                                                                                               'I-mode selection was not accepted!']
+        self.Log_Text_NG_3      = ['Auswahl U-Modus wurde nicht akzeptiert!',                                                                                                                                               'U-mode selection was not accepted!']
+        self.Log_Text_NG_4      = ['Befehl Generator Ein wurde nicht akzeptiert!',                                                                                                                                          'Command Generator On was not accepted!']
+        self.Log_Text_NG_5      = ['Befehl Generator Aus wurde nicht akzeptiert!',                                                                                                                                          'Command Generator Off was not accepted!']
+        self.Log_Text_Port_1    = ['Verbindungsfehler:',                                                                                                                                                                    'Connection error:']
+        self.Log_Text_Port_2    = ['Der Test für den Verbindungsaufbau ist fehlgeschlagen!',                                                                                                                                'The connection establishment test failed!']
+        self.Log_Text_Port_3    = ['Antwort der Test-Abfrage war None. Bearbeitung nicht möglich!',                                                                                                                         'The answer to the test query was None. Processing not possible!']
+        self.Log_Text_Port_4    = ['Bei der Werte-Umwandlung ist ein Fehler aufgetreten!',                                                                                                                                  'An error occurred during value conversion!']
+        self.Log_Text_Port_5    = ['Fehlerbeschreibung:',                                                                                                                                                                   'Error description:']
+        self.Log_ST_NG_1        = ['Fehler bei den Start-Werten!',                                                                                                                                                          'Error in the initial values!']
+        self.Log_ST_NG_2        = ['Fehler',                                                                                                                                                                                'Error']
+        self.Log_ST_NG_3        = ['Schnittstelle 1',                                                                                                                                                                       'Interface 1']
+        self.Log_ST_NG_4        = ['Schnittstelle 2',                                                                                                                                                                       'Interface 2']
+        self.Log_ST_NG_5        = ['Schnittstelle 3',                                                                                                                                                                       'Interface 3']
+        self.Log_ST_NG_6        = ['Schnittstelle 1 und 2',                                                                                                                                                                 'Interface 1 and 2']
+        self.Log_ST_NG_7        = ['Schnittstelle 1 und 3',                                                                                                                                                                 'Interface 1 and 3']
+        self.Log_ST_NG_8        = ['Schnittstelle 2 und 3',                                                                                                                                                                 'Interface 2 and 3']
+        self.Log_ST_NG_9        = ['Der Generator',                                                                                                                                                                         'The Generator']
+        self.Log_ST_NG_10       = ['wurde an der Anlage ausgewählt - siehe Service bzw. Typ und Limit-Werte!',                                                                                                              'was selected on the system - see service or typ and limit values!']
+        self.Log_ST_NG_11       = ['Leistungsmaximum = ',                                                                                                                                                                   'Power Maximum     = ']
+        self.Log_ST_NG_12       = ['Strommaximum     = ',                                                                                                                                                                   'Current maximum   = ']
+        self.Log_ST_NG_13       = ['Spannungsmaximum = ',                                                                                                                                                                   'Voltage maximum   = ']
+        self.Log_ST_NG_14       = ['Frequenzmaximum  = ',                                                                                                                                                                   'Frequency maximum = ']
+        self.Log_ST_NG_15       = ['Hz',                                                                                                                                                                                    'Hz']
+        self.Log_ST_NG_16       = ['Der gewählte Generator hat den Typ:',                                                                                                                                                   'The selected generator has the typ:']
+        self.Log_ST_NG_17       = ['Generator-Anlagen-GUI Kombination',                                                                                                                                                     'Generator-Plant-GUI Combination']
+        self.Log_ST_NG_18       = ['Bei der Umwandlung des Typs gab es einen Fehler!',                                                                                                                                      'There was an error while converting the typ!']
+        ## Ablaufdatei: ###############################################################################################################################################################################################################################################################################
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
-        self.Text_53_str        = ['Wert wurde angenommen (ACK)!',                                                                                                                                                          'Value was accepted (ACK)!']
-        self.Text_54_str        = ['Wert wurde nicht angenommen (NAK)!',                                                                                                                                                    'Value was not accepted (NAK)!']
-        self.Text_55_str        = ['Senden fehlgeschlagen (Keine Antwort)!',                                                                                                                                                'Sending failed (no response)!']
+        self.Text_61_str        = ['Das Senden ist fehlgeschlagen!',                                                                                                                                                        'Sending failed!']
+        self.Text_69_str        = ['Sollwert erfolgreich gesendet!',                                                                                                                                                        'Setpoint sent successfully!']
+        self.Text_70_str        = ['Befehl sende Sollwert fehlgeschlagen!',                                                                                                                                                 'Command send setpoint failed!']
+        self.Text_NG_1          = ['Auswahl P-Modus fehlgeschlagen!',                                                                                                                                                       'Selection P-mode failed!']
+        self.Text_NG_2          = ['Auswahl P-Modus erfolgreich gesendet!',                                                                                                                                                 'Selection P-mode sent successfully!']
+        self.Text_NG_3          = ['Auswahl I-Modus fehlgeschlagen!',                                                                                                                                                       'Selection I-mode failed!']
+        self.Text_NG_4          = ['Auswahl I-Modus erfolgreich gesendet!',                                                                                                                                                 'Selection I-mode sent successfully!']
+        self.Text_NG_5          = ['Auswahl U-Modus fehlgeschlagen!',                                                                                                                                                       'Selection U-mode failed!']
+        self.Text_NG_6          = ['Auswahl U-Modus erfolgreich gesendet!',                                                                                                                                                 'Selection U-mode sent successfully!']
+        self.Text_NG_7          = ['Befehl Generator Ein fehlgeschlagen!',                                                                                                                                                  'Command Generator On failed!']
+        self.Text_NG_8          = ['Befehl Generator Ein erfolgreich gesendet!',                                                                                                                                            'Command Generator On sent successfully!']
+        self.Text_NG_9          = ['Befehl Generator Aus fehlgeschlagen!',                                                                                                                                                  'Command Generator Off failed!']
+        self.Text_NG_10         = ['Befehl Generator Aus erfolgreich gesendet!',                                                                                                                                            'Command Generator Off sent successfully!']
 
         #---------------------------------------
         # Werte Dictionary:
         #---------------------------------------
-        self.value_name = {'IWP': 0, 'IWU': 0, 'IWI': 0, 'IWf': 0, 'SWP': 0, 'SWU': 0, 'SWI': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist}
+        self.value_name = {'IWP': 0, 'IWU': 0, 'IWI': 0, 'IWf': 0, 'SWP': 0, 'SWU': 0, 'SWI': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0, 'Status_Name': '', 'Status_Typ': 0, 'Status_Kombi': 0}
 
         #---------------------------------------
         # Schnittstelle:
         #---------------------------------------
-        logger.info(f" {self.device_name} - {self.Log_Text_60_str[self.sprache]}")
+        logger.info(f"{self.device_name} - {self.Log_Text_60_str[self.sprache]}")
         try:
             if not test:
                 com_ak = ''
@@ -555,34 +619,34 @@ class TruHeat(QObject):
                         com_ak = com
                         break
                 if com_ak == '':
-                    self.serial = Serial(**config["serial-interface"])
+                    self.serial = ModbusClient(**config["serial-interface"])
                 else:
                     self.serial = com_dict[com_ak]
-        except SerialException as e:
+        except Exception as e:
             self.serial = SerialMock()
             logger.warning(f"{self.device_name} - {self.Log_Text_61_str[self.sprache]}")
             logger.exception(f"{self.device_name} - {self.Log_Text_62_str[self.sprache]}")
             exit()
-
+        
+        if self.init and not test:
+            Meldungen = False
+            for n in range(0,5,1):
+                if not self.serial.is_open:
+                    self.Test_Connection(Meldungen)
+                if n == 4:
+                    Meldungen = True
+            if not self.serial.is_open:
+                logger.warning(f"{self.device_name} - {self.Log_Text_Port_2[self.sprache]}")
+                logger.warning(f"{self.device_name} - {self.Log_Text_61_str[self.sprache]}")
+                exit()
+        
         #---------------------------------------
         # Befehle:
         #---------------------------------------
-        ## Lesen:
-        self.rbefSP = '8E'       # Sollleistung
-        self.rbefIP = 'A5'       # Istleistung
-        self.rbefSU = '8F'       # Sollspannung 
-        self.rbefIU = 'A6'       # Istspannung
-        self.rbefSI = '8D'       # Sollstrom
-        self.rbefII = 'A4'       # Iststrom
-        self.rbefIf = 'C4'       # Istfrequenz
-        
-        ## Schreiben:
-        self.wbefSP = '32'       # Sollleistung
-        self.wbefSU = '33'       # Sollspannung
-        self.wbefSI = '31'       # Sollstrom
-        self.wEin   = '02'       # Einschalten
-        self.wAus   = '01'       # Ausschalten
-        self.wWDT   = '2D'       # Watchdog Zeit
+        self.lese_anz_Register_SI   = 12
+        self.lese_anz_Register_Info = 19
+        self.lese_anz_Register_GK   = 1
+        self.lese_anz_Register_Stat = 1
 
         #---------------------------------------
         # PID-Regler:
@@ -590,10 +654,10 @@ class TruHeat(QObject):
         ## PID-Regler:
         if not self.startMod in ['P', 'I', 'U']:
             logger.warning(f'{self.device_name} - {self.Log_Text_PID1_str} {self.startMod}')
-            self.startMod = 'P'
-        if self.startMod == 'P':      oG, uG, unit = self.oGP, self.uGP, self.Log_Text_123_str[self.sprache]
-        elif self.startMod == 'I':    oG, uG, unit = self.oGI, self.uGI, self.Log_Text_127_str[self.sprache]
-        elif self.startMod == 'U':    oG, uG, unit = self.oGU, self.uGU, self.Log_Text_125_str[self.sprache]
+            self.startMod = 'I'
+        if self.startMod == 'P':      oG, uG, unit, self.ak_Size = self.oGP, self.uGP, self.Log_Text_123_str[self.sprache], 'P'
+        elif self.startMod == 'I':    oG, uG, unit, self.ak_Size = self.oGI, self.uGI, self.Log_Text_127_str[self.sprache], 'I'
+        elif self.startMod == 'U':    oG, uG, unit, self.ak_Size = self.oGU, self.uGU, self.Log_Text_125_str[self.sprache], 'U'
 
         self.PID = PID(self.sprache, self.device_name, self.PID_Config, oG, uG)
         ## Info und Warnungen: --> Überarbeiten da VIFCON Istwert noch nicht vorhanden!
@@ -658,6 +722,13 @@ class TruHeat(QObject):
         '''
         ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
         #++++++++++++++++++++++++++++++++++++++++++
+        # Start:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if write_Okay['Start'] and not self.neustart:
+            self.Start_Werte()
+            write_Okay['Start'] = False
+
+        #++++++++++++++++++++++++++++++++++++++++++
         # Update Limit:
         #++++++++++++++++++++++++++++++++++++++++++
         if write_Okay['Update Limit']:
@@ -672,6 +743,11 @@ class TruHeat(QObject):
                 logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')
                 
             write_Okay['Update Limit'] = False
+
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Aktuelle Größe:
+        #++++++++++++++++++++++++++++++++++++++++++
+        self.ak_Size = write_value['Ak_Size']
 
         #++++++++++++++++++++++++++++++++++++++++++
         # Normaler Betrieb:
@@ -746,49 +822,75 @@ class TruHeat(QObject):
         # Schreiben:
         #++++++++++++++++++++++++++++++++++++++++++
         for auswahl in write_Okay:
-            ## Soll-Leistung:
-            if write_Okay[auswahl] and auswahl == 'Soll-Leistung':
-                self.write_read_answer(self.wbefSP, sollwert, self.resP, self.umP,  '010')
+            ## P-Auswahl:
+            if write_Okay[auswahl] and auswahl == 'Wahl_P':
+                ans = self.serial.write_single_coil(self.reg_PEin, True)
+                if not ans:
+                    logger.warning(f'{self.device_name} - {self.Log_Text_NG_1[self.sprache]}')
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_NG_1[self.sprache]}') 
+                else:
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_NG_2[self.sprache]}')  
                 write_Okay[auswahl] = False
-            ## Soll-Spannung:
-            elif write_Okay[auswahl] and auswahl == 'Soll-Spannung':
-                self.write_read_answer(self.wbefSU, sollwert, self.resU, self.umU, '010')
+            ## I-Auswahl:
+            elif write_Okay[auswahl] and auswahl == 'Wahl_I':
+                ans = self.serial.write_single_coil(self.reg_IEin, True)
+                if not ans:
+                    logger.warning(f'{self.device_name} - {self.Log_Text_NG_2[self.sprache]}')
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_NG_3[self.sprache]}') 
+                else:
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_NG_4[self.sprache]}') 
                 write_Okay[auswahl] = False
-            ## Soll-Strom:
+            ## U-Auswahl:
+            elif write_Okay[auswahl] and auswahl == 'Wahl_U':
+                ans = self.serial.write_single_coil(self.reg_UEin, True)
+                if not ans:
+                    logger.warning(f'{self.device_name} - {self.Log_Text_NG_3[self.sprache]}')
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_NG_5[self.sprache]}') 
+                else:
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_NG_6[self.sprache]}') 
+                write_Okay[auswahl] = False
+            ## Sende Soll-Leistung:
+            elif write_Okay[auswahl] and auswahl == 'Soll-Leistung':
+                self.write_PUI(sollwert)
+                write_Okay[auswahl] = False
+            ## Sende Soll-Strom:
             elif write_Okay[auswahl] and auswahl == 'Soll-Strom':
-                self.write_read_answer(self.wbefSI, sollwert, self.resI, self.umI, '010')
+                self.write_PUI(sollwert)
+                write_Okay[auswahl] = False
+            ## Sende Soll-Spannung:
+            elif write_Okay[auswahl] and auswahl == 'Soll-Spannung':
+                self.write_PUI(sollwert)
                 write_Okay[auswahl] = False
             ## PID-Modus:
             elif PID_write_wert:
-                if write_value['PID Output-Size']   == 'P': befehl, resolution, umFak = self.wbefSP, self.resP, self.umP
-                elif write_value['PID Output-Size'] == 'I': befehl, resolution, umFak = self.wbefSI, self.resI, self.umI
-                elif write_value['PID Output-Size'] == 'U': befehl, resolution, umFak = self.wbefSU, self.resU, self.umU 
-                self.write_read_answer(befehl, wert_vorgabe, resolution, umFak,  '010')
+                self.write_PUI(wert_vorgabe)
                 PID_write_wert = False
-            ## Generator Ein:
+            ## Schalte Generator Ein:
             elif write_Okay[auswahl] and auswahl == 'Ein':
-                self.write_read_answer(self.wEin, 0, 0, 0, '000')
+                ans = self.serial.write_single_coil(self.reg_GEin, True)
+                if not ans:
+                    logger.warning(f'{self.device_name} - {self.Log_Text_NG_4[self.sprache]}')
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_NG_7[self.sprache]}') 
+                else:
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_NG_8[self.sprache]}') 
                 write_Okay[auswahl] = False
-            ## Generator Aus:
+            ## Schalte Generator Aus:
             elif write_Okay[auswahl] and auswahl == 'Aus':
-                self.write_read_answer(self.wAus, 0, 0, 0, '000')
+                ans = self.serial.write_single_coil(self.reg_GAus, True)
+                if not ans:
+                    logger.warning(f'{self.device_name} - {self.Log_Text_NG_5[self.sprache]}')
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_NG_9[self.sprache]}') 
+                else:
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_NG_10[self.sprache]}') 
                 write_Okay[auswahl] = False
-            ## Startwerte auslesen:
-            elif write_Okay[auswahl] and auswahl == 'Start' and not self.neustart:
-                try:
-                    self.Start_Werte()
-                    write_Okay[auswahl] = False
-                except Exception as e:
-                    logger.warning(f"{self.device_name} - {self.Log_Text_73_str[self.sprache]}")
-                    logger.exception(f"{self.device_name} - {self.Log_Text_74_str[self.sprache]}")
-        
+
         #++++++++++++++++++++++++++++++++++++++++++
         # Funktions-Dauer aufnehmen:
         #++++++++++++++++++++++++++++++++++++++++++
         timediff = (datetime.datetime.now(datetime.timezone.utc).astimezone() - ak_time).total_seconds()  
         if self.Log_WriteReadTime:
             logger.info(f"{self.device_name} - {self.Log_Time_w[self.sprache]} {timediff} {self.Log_Time_wr[self.sprache]}")
-
+    
     def Input_Filter(self, Input, Art = 'Ist'):
         ''' Input-Filter für den Multilog-VIFCON Link und die PID-Nutzung
         
@@ -826,345 +928,83 @@ class TruHeat(QObject):
 
         return Input, error_Input
 
-    def hex_schnitt(self, hex_value):
-        ''' Für das Senden muss der Hex-String in der Form ohne '0x' vorliegen.
-            Weiterhin wird eine Null angefügt, sollte der Wert zu kurz sein!
-
-        Args:
-            hex_value (str):    Hexadezimalwert in der Form '0x'
-        Return:
-            value (str):        Hexadezimalwert, bestehend aus einem Byte
-        '''
-        value = hex_value[2:]       # Wegschneiden des 0x am Anfang
-        if len(value) == 1:
-            value = '0' + value     # Anfügen einer 0, wenn nur ein Halber-Byte bekannt z.B. 0x8 --> 8 --> 08
-        return value
-    
-    def write_checksum(self, liste):
-        ''' XOR-Verknüpfung von Hex-Strings ohne Prefix
-
-        Args:
-            liste (list):   Liste mit den Werten in String
-        Return:
-            cs (str):       Checksumme
-        '''
-        cs_alt = 0                      # Dezimal, Startwert
-        for n in liste:
-            cs = int(n,16) ^ cs_alt     # Berechnet den Dezimalwert mit XOR
-            cs_alt = cs
-        cs = hex(cs)                    # Umwandeln in Hex (Dezimal zu Hexadezimal)
-        return cs
-
-    def write_read_answer(self, befehl, value, res, um, Anz_DatBy, op_Anz_DatBy = '00000000'):
-        ''' Lese die Antowrt des Schreibbefehls aus!
+    def write_PUI(self, sollwert):
+        ''' Schreibe den gewollten Sollwert in das Register
         
         Args:
-            befehl (str):       String mit Hex-Zahl
-            value (float):      übergebender Wert
-            res (int):          Auflösung (Resolution) des Wertes
-            um (int):           Umrechnungswert
-            Anz_DatBy (str):    Anzahl der Datenbytes in Binär!
-            op_Anz_DatBy (Str): Optionales Längenbyte
+            sollwert (float):   Sollwert 
+        Return:
+            ans (bool):         Senden funktioniert
+            False:              Exception ausgelöst!         
         '''
-        # Kurze Verzögerung:
-        time.sleep(self.Delay_sT/1000)                          # ms in s
-        # Schreibe:
-        ## Vorbereitung:
-        write_list = []                                         # Aussehen: [Header, Befehl, (optionales Längenbyte), Datenbytes, Checksumme]
-        ### Header und Anzahl Datenbytes:
-        header = hex(int(self.adress + Anz_DatBy, 2))           # Header bestimmen (Binär zu Hexadezimal-String)
-        header = self.hex_schnitt(header)                       # wegschneiden des Prefix
-        write_list.append(header)
-        ### Befehl:
-        write_list.append(befehl)
-        ### Optionales Länegnbyte:
-        if Anz_DatBy == '111':
-            op_LB = hex(int(op_Anz_DatBy, 2)) 
-            op_LB = self.hex_schnitt(op_LB)
-            write_list.append(op_LB)
-        ### Datenbytes:
-            # Eingabefeld:  kW,  A, V, kHz
-            # Senden:       W,  mA, V, kHz
-            # Beispiel:     149 bedeutet 14,9 A. --> erst umrechnen, dann Auflösung
-        if not Anz_DatBy == '000':
-            send_value_dec = value * um/res
-            send_value_hex = hex(int(send_value_dec))           # hex erwartet einen Integer-Typ
-            if len(send_value_hex) > 4:                         # Wenn das Auflösen und Umrechnen mehr als 1 Byte bringen, dann ist das zweite Datenbyte ungleich Null
-                dat_1 = send_value_hex[-2:]
-                dat_2 = self.hex_schnitt(send_value_hex[:-2])
+        try:
+            sollwert = round(sollwert, 2)                       
+            sollwert_hex = utils.encode_ieee(sollwert)
+            if sollwert_hex == 0:
+                sollwert_hex = '0x00000000'
             else:
-                dat_1 = self.hex_schnitt(send_value_hex)
-                dat_2 = '00'
-            write_list.append(dat_1)
-            write_list.append(dat_2)
-        ### Checksumme:
-        cs = self.hex_schnitt(self.write_checksum(write_list))
-        write_list.append(cs)
-        logging.debug(f"{self.device_name} - {self.Log_Text_75_str[self.sprache]} {write_list}")
+                sollwert_hex = hex(sollwert_hex)[2:]            # Wegschneiden von 0x
+            sollwert_hex_HB = sollwert_hex[0:4]                 # ersten 4 Bit
+            sollwert_hex_LB = sollwert_hex[4:]                  # letzten 4 Bit
 
-        # Senden des Befehls und Auslesen der Antwort:
-        while_n = 0
-        while while_n != self.Loop:
-            ans_list = []
-            ## Senden
-            error = False
-            try:
-                for n in write_list:
-                    self.serial.write(bytearray.fromhex(n))
-                    #logging.debug(f"{self.device_name} - Sende das Hexadezimal Zeichen: {n}")
-            except Exception as e:
-                logger.warning(f"{self.device_name} - {self.Log_Text_76_str[self.sprache]}")
-                logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")
-                error = True
-
-            if not error:
-                ## Lese Antwort (Kontrolle des Eingangs des Befehls):
-                for byte_bef in range(1,6):                         # ACK, Header, Befehl, Quittierungsnachricht, CS
-                    ans = self.serial.read()                        # Notiz: eventuell wird noch ein Try-Except gebraucht!
-                    ans_list.append(ans)
-                    #time.sleep(0.1)
-                logging.debug(f"{self.device_name} - {self.Log_Text_78_str[self.sprache]} {ans_list}")
-                if ans_list[0] == b'\x06':
-                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_53_str[self.sprache]}')             
-                    logging.debug(f"{self.device_name} - {self.Log_Text_79_str[self.sprache]} {befehl} - {self.Log_Text_80_str[self.sprache]}")
-                    ans_list.pop(0)
-                    ### Prüfe-Checksumme:
-                    key_alt = b'\x00'                               # Vieleicht noch in Funktion da 2mal gebraucht
-                    for n in ans_list:
-                        key = self.byte_xor(key_alt, n)
-                        key_alt = key
-                    if key == b'\x00':
-                        ans_list.pop(-1)
-                        logging.debug(f"{self.device_name} - {self.Log_Text_81_str[self.sprache]}")
-                        self.serial.write(bytearray.fromhex('06'))  # bestätigte das alles in Ordnung ist!
-                        # Quittierungsmedlung ansehen:
-                        quittierung = int(ans_list[2].hex(),16)
-                        if quittierung == 0:
-                            logging.debug(f"{self.device_name} - {self.Log_Text_82_str[self.sprache]}")
-                        elif quittierung == 2:
-                            logging.warning(f"{self.device_name} - {self.Log_Text_83_str[self.sprache]}")
-                        elif quittierung == 4:
-                            logging.warning(f"{self.device_name} - {self.Log_Text_84_str[self.sprache]}")
-                        elif quittierung == 5:
-                            logging.warning(f"{self.device_name} - {self.Log_Text_85_str[self.sprache]}")
-                        elif quittierung == 7:
-                            logging.warning(f"{self.device_name} - {self.Log_Text_86_str[self.sprache]}")
-                        elif quittierung == 9:
-                            logging.warning(f"{self.device_name} - {self.Log_Text_87_str[self.sprache]}")
-                        elif quittierung == 22:
-                            logging.warning(f"{self.device_name} - {self.Log_Text_88_str[self.sprache]}")
-                        elif quittierung == 99:
-                            logging.warning(f"{self.device_name} - {self.Log_Text_89_str[self.sprache]}")
-                        break   
-                elif ans_list[0] == b'\x15':
-                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_54_str[self.sprache]}')       
-                    logging.warning(f"{self.device_name} - {self.Log_Text_79_str[self.sprache]} {befehl} - {self.Log_Text_90_str[self.sprache]}")
-                else:
-                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_55_str[self.sprache]}')  
-                    logging.warning(f"{self.device_name} - {self.Log_Text_79_str[self.sprache]} {befehl} - {self.Log_Text_91_str[self.sprache]}")
-                
-            # Kurze Verzögerung:
-            time.sleep(self.Delay_sT/1000) # ms in s
-            # Wiederhole Senden!
-            while_n += 1 
-            logging.debug(f"{self.device_name} - {self.Log_Text_79_str[self.sprache]} {befehl} - {self.Log_Text_92_str[self.sprache]} {while_n}")
-
-        if while_n == self.Loop:
-            logging.warning(f"{self.device_name} - {self.Log_Text_93_str[self.sprache]}")
+            ans = self.serial.write_multiple_registers(self.reg_write_Soll, [int(sollwert_hex_HB,16), int(sollwert_hex_LB,16)])
+            if ans:
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_69_str[self.sprache]}') 
+            else:
+                logger.warning(f'{self.device_name} - {self.Log_Text_172_str[self.sprache]}')
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_70_str[self.sprache]}') 
+                ans = False
+            return ans 
+        except Exception as e:
+            logger.warning(f"{self.device_name} - {self.Log_Text_173_str[self.sprache]}")
+            logger.exception(f"{self.device_name} - {self.Log_Text_174_str[self.sprache]}")
+            return False
 
     ##########################################
     # Schnittstelle (lesen):
     ##########################################
-    def byte_xor(self, ba1, ba2): 
-        ''' Funktion wurde der Quelle: https://nitratine.net/blog/post/xor-python-byte-strings/
-        entnommen. Sie berechnet aus Byte-Arrays ein XOR.
-        
-        Args:
-            ba1 (bytes):    Bytearray 1
-            ba2 (bytes):    Bytearray 2
-
-        Return:
-            XOR von zwei Bytes, als Bytearray
-        '''                                    
-        
-        return bytes([_a ^ _b for _a, _b in zip(ba1, ba2)])        
-
-    def read_send(self, befehl, dat_Anz, res, um, dreh = True):
-        ''' Sende Lese-Befehl und Lese die Antowrt des Lesebefehls aus!
-        
-        Args:
-            befehl (str):       String mit Hex-Zahl
-            dat_Anz (int):      Anzahl der Datenbytes der Antwort
-            res (int):          Auflösung (Resolution) des Wertes
-            um (int):           Umrechnungsfaktor
-            dreh (bool):        True - Datenwertbytes werden von rechts nach links gelesen
-        Return:
-            value   (float, String):  ausgelesener Wert aus den Datenbytes
-                                      Im Fall des Befehls 0x82 sind in der Antwort zwei Werte enthalten, da es den Max. Stromsollwert seperat
-                                      gibt, muss hier etwas spezielles getan werden!
-        '''
-        # Kurze Verzögerung:
-        time.sleep(self.Delay_sT/1000)              # ms in s
-        # Befehl erstellen:
-        ## Vorbereitung:
-        write_list = []                             # Aussehen: [Header, Befehl, Checksumme]
-        ## Header:
-        header = hex(int(self.adress + '000', 2))   # Header bestimmen, Binär zu Hexadezimal-String
-        header = self.hex_schnitt(header)
-        write_list.append(header)
-        ## Befehl:
-        write_list.append(befehl)
-        ## Checksumme:
-        write_list.append(self.hex_schnitt(self.write_checksum(write_list)))
-        logging.debug(f"{self.device_name} - {self.Log_Text_94_str[self.sprache]} {write_list}")
-
-        # Senden und Auslesen:
-        n = 0
-        while n != self.Loop:
-            ans_list = []
-            ## Sende Befehl:
-            for send_byte in write_list:
-                self.serial.write(bytearray.fromhex(send_byte))
-                logging.debug(f"{self.device_name} - {self.Log_Text_95_str[self.sprache]} {send_byte}!")
-
-            ## Antwort auslesen:
-            for ans_byte in range(1,dat_Anz + 6):   # ACK, Header, Befehl, Datenbytes, CS, Optionales Längenbyte bei Datenbytes >7 (oder 6)           
-                ans = self.serial.read()
-                ans_list.append(ans)
-                #time.sleep(0.1)
-            logging.debug(f"{self.device_name} - {self.Log_Text_96_str[self.sprache]} {ans_list}")
-            
-            ## Antwort verarbeiten:
-            if b'' in ans_list:                     # Entferne Leere Byte-Arrays
-                ans_list.remove(b'')   
-            ### Überprüfe Sendebestätigung 
-            if ans_list[0] == b'\x06':              
-                logger.debug(f"{self.device_name} - {self.Log_Text_97_str[self.sprache]} {befehl}")
-                ans_list.pop(0)                     # Entferne ACK
-                ### Prüfe-Checksumme:
-                key_alt = b'\x00'   
-                for ans_byte in ans_list:
-                    key = self.byte_xor(key_alt, ans_byte)
-                    key_alt = key
-                if key == b'\x00':
-                    ans_list.pop(-1)                # Entferne Checksumme
-                    logger.debug(f"{self.device_name} - {self.Log_Text_98_str[self.sprache]}")
-                    ### Bestätige dem Generator das alles in Ordnung ist:
-                    logger.debug(f"{self.device_name} - {self.Log_Text_99_str[self.sprache]}")
-                    self.serial.write(bytearray.fromhex('06')) 
-                    break
-            elif ans_list[0] == b'\x15':
-                logger.warning(f"{self.device_name} - {self.Log_Text_100_str[self.sprache]} {befehl}")
-                # Wenn NAK erhalten wurde, dann wird dem Generator nicht NAK gesendet, sondern einfach noch einmal der Befehl!
-                # Wenn der Generator NAK erhalten würde, so würde er den letzten Befehl nochmal bearbeiten.
-                # Im Programm sollte das Schreiben dann vor die While-Schleife kommen! 
-                # Notiz: mal ansprechen was lieber ist und was bei Fall 3 passieren soll!
-            else:
-                logger.warning(f"{self.device_name} - {self.Log_Text_101_str[self.sprache]} {befehl}")
-                #break
-            
-            # Kurze Verzögerung:
-            time.sleep(self.Delay_sT/1000)                      # ms in s
-            # Nächste Schleife:
-            n += 1
-            logger.debug(f"{self.device_name} - {self.Log_Text_102_str[self.sprache]} {befehl} - {self.Log_Text_92_str[self.sprache]} {n}: {self.Log_Text_103_str[self.sprache]}")
-
-        # Auswertung der Datenbytes:
-        if not n == self.Loop:
-            ## Header und Anzahl Datenbytes:
-            header_ans = ans_list[0].hex()                      # Umwandeln in Hex (Quelle: https://java2blog.com/print-bytes-as-hex-python/)
-            anz_ans_DatBy = bin(int(header_ans,16))[-3:]        # Umwandeln in Binär (Quelle: https://www.geeksforgeeks.org/python-ways-to-convert-hex-into-binary/) und Anzahl Datenbytes auslesen                
-
-            ## Optionales Längenbyte, wenn vorhanden:
-            if not anz_ans_DatBy == '111':
-                anz_DatBy = int(anz_ans_DatBy,2) 
-                for n in range(1,3):                            # Header und Befehl weg
-                    ans_list.pop(0)
-            else:
-                op_L = ans_list[2].hex()
-                anz_ans_DatBy = bin(int(op_L,16))
-                anz_DatBy = int(anz_ans_DatBy,2)   
-                for n in range(1,4):                            # Header, Befehl und Optionales Längenbyte weg
-                    ans_list.pop(0) 
-
-            ## Datenbytes:
-            dat_list = []
-            if dreh:
-                for n in range(1 - anz_DatBy,1,1):
-                    dat_list.append(ans_list[abs(n)].hex())
-                if befehl == '82':
-                    dat_list = dat_list[0:2]
-                value = ''.join(dat_list)
-                value = int(value, 16)
-                value = value * res/um
-            else:                                               # Wird bei Versionsnummer und Netzteil-Typ gebraucht:
-                for n in range(0,anz_DatBy,1):
-                    wert = chr(int(ans_list[abs(n)].hex(), 16))
-                    dat_list.append(wert)
-                value = ''.join(dat_list)
-        else:
-            value = m.nan                                        
-        logger.debug(f"{self.device_name} - {self.Log_Text_104_str[self.sprache]} {value}")
-
-        return value
-            
     def read(self):
-        ''' Lese TruHeat aus!
+        ''' Sende Befehle an die Anlage um Werte auszulesen.
 
         Return: 
-            self.value_name (dict): Aktuelle Werte 
+            Aktuelle Werte (dict)   - self.value_name
         '''
         ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
 
-        try:
-            # Lese Ist-Leistung:
-            logger.debug(f"{self.device_name} - {self.Log_Text_105_str[self.sprache]}")
-            value = self.read_send(self.rbefIP, 2, self.resP, self.umP)
-            value = value if type(value) == float else m.nan
-            if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} ({self.rbefIP})')
-            self.value_name['IWP'] = value                                                  # Einheit: kW
-            # Lese Ist-Spannung:
-            logger.debug(f"{self.device_name} - {self.Log_Text_106_str[self.sprache]}")
-            value = self.read_send(self.rbefIU, 2, self.resU, self.umU)
-            value = value if type(value) == float else m.nan
-            if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} ({self.rbefIU})')
-            self.value_name['IWU'] = value                                                  # Einheit: V 
-            # Lese Ist-Strom:
-            logger.debug(f"{self.device_name} - {self.Log_Text_107_str[self.sprache]}")
-            value = self.read_send(self.rbefII, 2, self.resI, self.umI)
-            if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} ({self.rbefII})')
-            value = value if type(value) == float else m.nan
-            self.value_name['IWI'] = value                                                  # Einheit: A
-            # Lese Ist-Frequenz:
-            logger.debug(f"{self.device_name} - {self.Log_Text_108_str[self.sprache]}")
-            value = self.read_send(self.rbefIf, 2, self.resf, self.umf)
-            value = value if type(value) == float else m.nan
-            if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} ({self.rbefIf})')
-            self.value_name['IWf'] = value                                                  # Einheit: kHz
-            # Lese Soll-Leistung:
-            logger.debug(f"{self.device_name} - {self.Log_Text_109_str[self.sprache]}")
-            value = self.read_send(self.rbefSP, 2, self.resP, self.umP) 
-            value = value if type(value) == float else m.nan
-            if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} ({self.rbefSP})')
-            self.value_name['SWP'] = value                                                 # Einheit: kW
-            # Lese Soll-Spannung:
-            logger.debug(f"{self.device_name} - {self.Log_Text_110_str[self.sprache]}")
-            value = self.read_send(self.rbefSU, 2, self.resU, self.umU)
-            value = value if type(value) == float else m.nan
-            if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} ({self.rbefSU})')
-            self.value_name['SWU'] = value                                                 # Einheit: V
-            # Lese Soll-Leistung:
-            logger.debug(f"{self.device_name} - {self.Log_Text_111_str[self.sprache]}")
-            value = self.read_send(self.rbefSI, 2, self.resI, self.umI)
-            value = value if type(value) == float else m.nan
-            if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} ({self.rbefSI})')
-            self.value_name['SWI'] = value                                                 # Einheit: A
-            # PID-Modus:
-            self.value_name['SWxPID'] = self.Soll
-            self.value_name['IWxPID'] = self.Ist
-        except Exception as e:
-            logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
-            logger.exception(f"{self.device_name} - {self.Log_Text_112_str[self.sprache]}")
+        # Lese: Soll, PIst, IIst, UIst, AHFSoll, fIst -> AHFSoll exestiert nicht mehr
+        ans = self.serial.read_input_registers(self.reg_lese_SollIst, self.lese_anz_Register_SI)
+        logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
+        value = self.umwandeln_Float(ans)
+
+        # Fehlerfall:
+        if value == []: value = [m.nan, m.nan, m.nan, m.nan, m.nan, m.nan]
+
+        # Kontrolle der ausgelesenen Werte:
+        i = 0
+        value_Def = ['SW', 'IWP', 'IWI', 'IWU', 'SWAHf', 'IWf']
+        for n in value:
+            if not type(n) == float:    
+                value[i] = m.nan
+                logger.warning(f'{self.Log_Test_Ex_1[self.sprache]} {value_Def[i]} {self.Log_Test_Ex_2[self.sprache]} {n}')
+            i += 1
+        
+        # Reiehnfolge: vIst, vSoll, posIst, posSoll, posMax, posMin
+        self.value_name['SWP']  = round(value[0], self.nKS) if self.ak_Size == 'P' else 0                    # Einheit: kW 
+        self.value_name['SWI']  = round(value[0], self.nKS) if self.ak_Size == 'I' else 0                    # Einheit: A
+        self.value_name['SWU']  = round(value[0], self.nKS) if self.ak_Size == 'U' else 0                    # Einheit: V
+        self.value_name['IWP']  = round(value[1], self.nKS)                                                  # Einheit: kW
+        self.value_name['IWI']  = round(value[2], self.nKS)                                                  # Einheit: A
+        self.value_name['IWU']  = round(value[3], self.nKS)                                                  # Einheit: V
+        self.value_name['IWf']  = round(value[5], self.nKS)                                                  # Einheit: Hz
+
+        # Lese: Status
+        ans = self.serial.read_input_registers(self.reg_Status, self.lese_anz_Register_Stat)
+        if not ans == None and type(ans[0]) == int: self.value_name['Status'] = ans[0]
+        else:                                       self.value_name['Status'] = 64
+
+        # PID-Modus:
+        self.value_name['SWxPID'] = self.Soll
+        self.value_name['IWxPID'] = self.Ist
 
         #++++++++++++++++++++++++++++++++++++++++++
         # Funktions-Dauer aufnehmen:
@@ -1172,25 +1012,60 @@ class TruHeat(QObject):
         timediff = (datetime.datetime.now(datetime.timezone.utc).astimezone() - ak_time).total_seconds()  
         if self.Log_WriteReadTime:
             logger.info(f"{self.device_name} - {self.Log_Time_r[self.sprache]} {timediff} {self.Log_Time_wr[self.sprache]}")
-
+        
         return self.value_name
+    
+    def umwandeln_Float(self, int_Byte_liste):
+        ''' Sendet den Lese-Befehl an die Achse.
+
+        Args:
+            int_Byte_liste (list):            Liste der ausgelesenen Bytes mit Integern
+        Return:
+            value_list (list):                Umgewandelte Zahlen
+        '''
+        try:
+            Bits_List_32 = utils.word_list_to_long(int_Byte_liste, big_endian=True, long_long=False)
+            logger.debug(f'{self.device_name} - {self.Log_Text_66_str[self.sprache]} {Bits_List_32}')
+
+            value_list = []
+            i = 1
+            for word in Bits_List_32:
+                value = utils.decode_ieee(word)
+                value_list.append(round(value, self.nKS))
+                logger.debug(f'{self.device_name} - {self.Log_Text_67_str[self.sprache]} {i}: {value}')
+                i += 1
+        except Exception as e:
+            logger.warning(self.Log_Text_Port_4[self.sprache])
+            logger.exception(self.Log_Text_Port_5[self.sprache])
+            value_list = []
+
+        return value_list
 
     ##########################################
-    # Reaktion auf Initialisierung und Start:
+    # Reaktion auf Initialisierung:
     ##########################################
     def init_device(self):
-        ''' Initialisierung des Gerätes TruHeat. Solange die Variable init auf False steht, kann das Gerät initialisiert werden! '''
+        ''' Initialisierung des Gerätes Nemo Rotation. Solange die Variable init auf False steht, kann das Gerät initialisiert werden! '''
         if not self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_51_str[self.sprache]}')
             logger.info(f"{self.device_name} - {self.Text_51_str[self.sprache]}")
             # Schnittstelle prüfen:
-            try:
+            try: 
                 ## Start Werte abfragen:
                 self.Start_Werte()
                 ## Setze Init auf True:
                 self.init = True
+                ## Prüfe Verbindung:
+                Meldungen = False
+                for n in range(0,5,1):
+                    if not self.serial.is_open:
+                        self.Test_Connection(Meldungen)
+                    if n == 4:
+                        Meldungen = True
+                if not self.serial.is_open:
+                    raise ValueError(self.Log_Text_Port_2[self.sprache])
             except Exception as e:
-                logger.warning(f"{self.device_name} - {self.Log_Text_68_str[self.sprache]}")
+                logger.warning(f"{self.device_name} - {self.Log_Text_68_str[self.sprache]}.")
                 logger.exception(f"{self.device_name} - {self.Log_Text_69_str[self.sprache]}")
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_52_str[self.sprache]}')
                 self.init = False
@@ -1198,73 +1073,74 @@ class TruHeat(QObject):
             logger.info(f"{self.device_name} - {self.Log_Text_70_str[self.sprache]}")
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Log_Text_70_str[self.sprache]}')
             self.init = False
-    
+
     def Start_Werte(self):
         '''Lese und Schreibe bestimmte Werte bei Start des Gerätes!'''
-        ## Watchdog:
-        self.write_read_answer(self.wWDT, self.wdT, 1, 1, '010')
-        logger.info(f"{self.device_name} - {self.Log_Text_113_str[self.sprache]} {self.wdT} {self.Log_Text_114_str[self.sprache]}")
-        value = self.read_send('91', 2, 1, 1, True)
-        value = value if type(value) == float else m.nan
-        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (91)')
-        watchdog = value
-        logger.info(f"{self.device_name} - {self.Log_Text_115_str[self.sprache]} {watchdog} {self.Log_Text_114_str[self.sprache]}")
-        if self.wdT != watchdog:
-            logger.warning(f"{self.device_name} - {self.Log_Text_116_str[self.sprache]}")
-        ## Software Version:
-        soft_version = self.read_send('C6', 11, 1, 1, False)
-        logger.info(f"{self.device_name} - {self.Log_Text_117_str[self.sprache]} {soft_version}")
-        ## Seriennummer Modul:
-        value = self.read_send('C7', 4, 1, 1)
-        value = value if type(value) == float else m.nan
-        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (C7)')
-        snr = value
-        logger.info(f"{self.device_name} - {self.Log_Text_118_str[self.sprache]} {int(snr) if not m.isnan(snr) else m.nan}")
-        ## Netzteil-Typ:
-        netzTyp = self.read_send('80', 21, 1, 1, False)
-        logger.info(f"{self.device_name} - {self.Log_Text_119_str[self.sprache]} {netzTyp}")
-        ## SIMIN und SUMIN:
-        value = self.read_send('D0',2, self.resI, self.umI)
-        value = value if type(value) == float else m.nan
-        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (D0)')
-        simin = value
-        logger.info(f"{self.device_name} - {self.Log_Text_120_str[self.sprache]} {simin}")
-        value = self.read_send('D2',2, self.resU, self.umU)
-        value = value if type(value) == float else m.nan
-        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (D2)')
-        sumin = value
-        logger.info(f"{self.device_name} - {self.Log_Text_121_str[self.sprache]} {sumin}")
-        ## Maximale Leistung (und Strom):
-        value = self.read_send('82', 4, 100, self.umP)
-        value = value if type(value) == float else m.nan
-        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (82)')
-        max_P = value
-        logger.info(f"{self.device_name} - {self.Log_Text_122_str[self.sprache]} {max_P} {self.Log_Text_123_str[self.sprache]}")
-        ## Maximale Spannung:
-        value = self.read_send('CA',2, self.resU, self.umU)
-        value = value if type(value) == float else m.nan
-        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (CA)')
-        max_U = value
-        logger.info(f"{self.device_name} - {self.Log_Text_124_str[self.sprache]} {max_U} {self.Log_Text_125_str[self.sprache]}")
-        ## Maximaler Strom (Teil vom Kombi-Befehl):
-        value = self.read_send('CB',2, self.resI, self.umI)
-        value = value if type(value) == float else m.nan
-        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (CB)')
-        max_I = value
-        logger.info(f"{self.device_name} - {self.Log_Text_126_str[self.sprache]} {max_I} {self.Log_Text_127_str[self.sprache]}")
-        ## Aktives Interface:
-        interface = {0:'Bedienpanel', 1:'RS-232' , 2:'PROFIBUS' , 3:'CANopen' , 4:'Terminal' , 5:'AD-Schnittstelle' , 6:'Regulus (Temp)', 7:'User 1' , 8:'User 2' , 9:'User 3' , 10:'User 4'}
-        value = self.read_send('9B',1, 1, 1)
-        value = value if type(value) == float else m.nan
-        if m.isnan(value): logger.warning(f'{self.device_name} - {self.Log_Nan_1_Float[self.sprache]} (9B)')
-        else:
-            ak_intF = value
-            try:
-                logger.info(f"{self.device_name} - {self.Log_Text_128_str[self.sprache]} {interface[ak_intF]}")
-            except:
-                logger.info(f"{self.device_name} - {self.Log_Text_129_str[self.sprache]} {ak_intF} | {self.Log_Text_130_str[self.sprache]} {interface}")
-            if ak_intF != 1 and ak_intF != 10:
-                logger.warning(f"{self.device_name} - {self.Log_Text_131_str[self.sprache]}")
+        
+        # Reihenfolge: Pmax, Imax, Umax, fmax, Name, Typ, Mode
+        # Max-Werte: Register mit Größe 2
+        # Name: 9 Register
+        # Typ, Mode: Dezimalzahlen jeweils 1 Register
+        value_error = [m.nan, m.nan, m.nan, m.nan]
+        try:
+            ans_1 = self.serial.read_input_registers(self.reg_lese_Info, self.lese_anz_Register_Info)
+            value = self.umwandeln_Float(ans_1[0:8])
+            liste = [ans_1[8], ans_1[9], ans_1[10], ans_1[11], ans_1[12], ans_1[13], ans_1[14], ans_1[15], ans_1[16]]
+
+            ans_2 = self.serial.read_input_registers(self.reg_lese_Kombi, self.lese_anz_Register_GK)
+            kombi = {0: self.Log_ST_NG_2[self.sprache], 1: self.Log_ST_NG_3[self.sprache], 2: self.Log_ST_NG_4[self.sprache], 3: self.Log_ST_NG_5[self.sprache], 4: self.Log_ST_NG_6[self.sprache], 5: self.Log_ST_NG_7[self.sprache], 6: self.Log_ST_NG_8[self.sprache]}
+        except Exception as e:
+            value = []
+            ans_1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, self.Log_ST_NG_2[self.sprache], self.Log_ST_NG_2[self.sprache]]
+            ans_2 = 0
+            liste = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            logger.warning(f'{self.device_name} - {self.Log_ST_NG_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Text_112_str[self.sprache]}')
+
+        if value == []:     value = value_error
+
+        # Umwanldung Name:
+        try:
+            new_list = liste[1:]                        # Register 1 - Nicht Teil des Namens, sondern Extra Vorwahl
+            ## Alles in Hex umwandeln:
+            liste_letter_hex = []                   
+            for n in new_list:                          
+                a = hex(n)[2:]
+                if not n == 0: 
+                    liste_letter_hex.append(a[0:2])
+                    liste_letter_hex.append(a[2:])
+            ## Alles in Dez umwandeln:
+            liste_letter_dez = []
+            for n in liste_letter_hex:
+                liste_letter_dez.append(int(n, 16))
+            ## Alles in ASCII Zeichen umwandeln:
+            liste_letter_ASCII = []
+            for n in liste_letter_dez:
+                liste_letter_ASCII.append(chr(n))
+            Name = ''.join(liste_letter_ASCII)
+            if Name == '': Name = self.Log_ST_NG_2[self.sprache]
+        except Exception as e:
+            Name = self.Log_ST_NG_2[self.sprache]
+            logger.warning(f'{self.device_name} - {self.Log_ST_NG_18[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Text_112_str[self.sprache]}')
+
+        logger.info(f'{self.device_name} - {self.Log_ST_NG_9[self.sprache]} {ans_1[17]} {self.Log_ST_NG_10[self.sprache]}')
+        logger.info(f'{self.device_name} - {self.Log_ST_NG_16[self.sprache]} {Name}')
+        logger.info(f'{self.device_name} - {self.Log_ST_NG_11[self.sprache]} {value[0]} {self.Log_Text_123_str[self.sprache]}')
+        logger.info(f'{self.device_name} - {self.Log_ST_NG_12[self.sprache]} {value[1]} {self.Log_Text_127_str[self.sprache]}')
+        logger.info(f'{self.device_name} - {self.Log_ST_NG_13[self.sprache]} {value[2]} {self.Log_Text_125_str[self.sprache]}')
+        logger.info(f'{self.device_name} - {self.Log_ST_NG_14[self.sprache]} {value[3]} {self.Log_ST_NG_15[self.sprache]}')
+
+        try:
+            kombination_Generator = kombi[ans_2[0]]
+        except:
+            kombination_Generator = '/'
+
+        logger.info(f'{self.device_name} - {self.Log_ST_NG_17[self.sprache]} {ans_2[0]}: {kombination_Generator}')
+
+        self.value_name['Status_Name']  = Name
+        self.value_name['Status_Typ']   = ans_1[17]
+        self.value_name['Status_Kombi'] = kombination_Generator + f' ({ans_2[0]})'
 
     ###################################################
     # Messdatendatei erstellen und beschrieben:
@@ -1277,7 +1153,7 @@ class TruHeat(QObject):
         """
         PID_x_unit = self.unit_PIDIn
         self.filename = f"{pfad}/{self.device_name}.csv"
-        units = f"# datetime,s,kW,V,A,kHz,kW,V,A,{PID_x_unit},{PID_x_unit},\n"
+        units = f"# datetime,s,kW,V,A,Hz,kW,V,A,{PID_x_unit},{PID_x_unit},\n"
         #scaling = f"# -,-,{self.}"
         header = "time_abs,time_rel,Ist-Leistung,Ist-Spannung,Ist-Strom,Ist-Frequenz,Soll-Leistung,Soll-Spannung,Soll-Strom,Soll-x_PID-Modus_G,Ist-x_PID-Modus_G,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
@@ -1292,16 +1168,17 @@ class TruHeat(QObject):
         '''Schreibe die Daten in die Datei.
 
         Args:
-            daten (Dict):               Dictionary mit den Daten in der Reihenfolge: Ist-PUIf, Soll-PUI ('IWP', 'IWU', 'IWI', 'IWf', 'SWP', 'SWU', 'SWI')
+            daten (Dict):               Dictionary mit den Daten in der Reihenfolge: 'IWs', 'IWv'
             absolut_Time (datetime):    Absolute Zeit der Messung (Zeitstempel)
             relativ_Time (float):       Zeitpunkt der Messung zum Startzeiptpunkt.
         '''
         line = f"{absolut_Time.isoformat(timespec='milliseconds').replace('T', ' ')},{relativ_Time},"
         for size in daten:
-            line = line + f'{daten[size]},'
+            if not 'Status' in size:
+                line = line + f'{daten[size]},'
         with open(self.filename, "a", encoding="utf-8") as f:
             f.write(f'{line}\n')
-    
+
     ##########################################
     # PID-Regler:
     ##########################################
@@ -1311,18 +1188,33 @@ class TruHeat(QObject):
             if not self.PID.PID_speere:
                 self.signal_PID.emit(self.Ist, self.Soll, False, 0)
                 self.PID_Out = self.PID.Output
-
-##########################################
-# Verworfen:
-##########################################
-## Bereich für alten Code, denn man noch nicht vollkommen löschen will,
-## da dieser später vieleicht wieder ergänzt wird!!
-'''
-        a = round(random.uniform(0,50))
-        if a in [10, 40, 50]:  
-            exst = ['0.fffßfvvk', b''] 
-            value = random.choice(exst)
-            print(value)
-            print('Fehler')
-
-'''
+    
+    ###################################################
+    # Prüfe die Verbindung:
+    ###################################################
+    def Test_Connection(self, test=True):
+        '''Aufbau Versuch der TCP/IP-Verbindung zur Nemo-Anlage
+        Args:
+            test (bool)     - Wenn False werden die Fehlermeldungen nicht mehr in die Log-Datei geschrieben
+        Return: 
+            True or False   - Eingeschaltet/Ausgeschaltet
+        '''
+        try:
+            self.serial.open()
+            time.sleep(0.1)         # Dadurch kann es in Ruhe öffnen
+            ans = self.serial.read_input_registers(self.reg_lese_SollIst, 2)  # Sollwert 
+            if ans == None:
+                raise ValueError(self.Log_Text_Port_3[self.sprache])
+            else:
+                antwort = self.umwandeln_Float(ans)
+        except Exception as e:
+            if test: logger.exception(self.Log_Text_Port_1[self.sprache])
+            self.serial.close()
+            return False
+        return True
+    
+    ##########################################
+    # Verworfen:
+    ##########################################
+    ## Bereich für alten Code, denn man noch nicht vollkommen löschen will,
+    ## da dieser später vieleicht wieder ergänzt wird!!

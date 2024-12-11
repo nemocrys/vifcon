@@ -471,6 +471,7 @@ class NemoAchseRotWidget(QWidget):
         self.Log_Text_PS_1      = ['Auslösung des priorisierten Stopps! Richtungswechsel: Von',                                                 'Initiation of the prioritized stop! Change of direction: From']
         self.Log_Text_PS_2      = ['zu',                                                                                                        'to']
         self.Log_Text_Kurve     = ['Kurvenbezeichnung existiert nicht:',                                                                        'Curve name does not exist:']
+        self.Log_Status_Int     = ['Status-Integer',                                                                                            'Status-Integer']
         ## Ablaufdatei: #############################################################################################################################################################################################################################################################################
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -1050,7 +1051,7 @@ class NemoAchseRotWidget(QWidget):
             self.write_task['EndRot'] = True
         else:
             self.write_task['EndRot'] = False
-            self.typ_widget.Message(self.Pop_up_EndRot[self.sprache], 3, 500)
+            self.typ_widget.Message(f'{self.device_name} - {self.Pop_up_EndRot[self.sprache]}', 3, 500)
 
     def PID_ON_OFF(self):    
         '''PID-Modus toggeln'''                   
@@ -1167,6 +1168,8 @@ class NemoAchseRotWidget(QWidget):
                     faktor = self.skalFak_dict[messung]
                     y = [a * faktor for a in self.listDict[messung]]
                     self.curveDict[messung].setData(x_value, y)   
+            elif 'Status' in messung:
+                logger.debug(f'{self.device_name} - {self.Log_Status_Int[self.sprache]} ({messung}): {value_dict[messung]}')
 
         # Grenz-Kurven:
         ## Update Grenzwert-Dictionary:
@@ -1793,7 +1796,7 @@ class NemoAchseRotWidget(QWidget):
                 self.rezept_config = config['devices'][self.device_name]['rezepte']
             except Exception as e: 
                 self.rezept_config = {'rezept_Default':  {'n1': '10 ; 0 ; s'}}
-                self.Fehler_Output(1, self.err_RezDef_str[self.sprache])
+                self.Fehler_Output(1, self.La_error_1, self.err_RezDef_str[self.sprache])
                 error = True
                 if yaml_error == 1:
                     logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4_1[self.sprache]} {self.Log_Pfad_conf_5[self.sprache]} {self.rezept_config}')

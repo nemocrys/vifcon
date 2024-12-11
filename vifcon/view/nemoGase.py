@@ -190,7 +190,8 @@ class NemoGaseWidget:
         self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                      '; Set to default:']
         self.Log_Pfad_conf_6    = ['Fehlergrund:',                                              'Reason for error:']
         self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                      'Incorrect input:']
-
+        self.Log_Status_Int     = ['Status-Integer',                                                                                            'Status-Integer']
+        
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
         #---------------------------------------------------------
@@ -764,6 +765,8 @@ class NemoGaseWidget:
         for messung in value_dict:
             if not 'Status' in messung:
                 self.labelDict[messung].setText(f'{value_dict[messung]}')
+            elif 'Status' in messung:
+                logger.debug(f'{self.device_name} - {self.Log_Status_Int[self.sprache]} ({messung}): {value_dict[messung]}')
 
         # Status:
         ## Listen:

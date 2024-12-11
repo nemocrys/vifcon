@@ -1222,7 +1222,7 @@ class EurothermWidget(QWidget):
                 self.write_value['HO'] = self.oGOp
             elif self.Safety:
                 logger.warning(f"{self.device_name} - {self.Log_Text_242_str[self.sprache]}")
-                self.typ_widget.Message(self.puF_HO_str[self.sprache], 3, 600)
+                self.typ_widget.Message(f'{self.device_name} - {self.puF_HO_str[self.sprache]}', 3, 600)
             else:
                 self.Fehler_Output(1, self.err_4_str[self.sprache])
         else:
@@ -1336,7 +1336,7 @@ class EurothermWidget(QWidget):
         ## Pop-Up-Fenster verzögert zum Start starten:
         if self.start_later:
             self.start_later = False
-            self.typ_widget.Message(self.puF_HO_str_2[self.sprache], 3, 450) 
+            self.typ_widget.Message(f'{self.device_name} - {self.puF_HO_str_2[self.sprache]}', 3, 450) 
     
     ########################################## 
     # Reaktion auf Initialisierung:
@@ -1346,7 +1346,7 @@ class EurothermWidget(QWidget):
         self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_23_str[self.sprache]}')
         self.write_task['Init'] = True
         if self.Safety: 
-            self.typ_widget.Message(self.puF_HO_str_2[self.sprache], 3, 450)
+            self.typ_widget.Message(f'{self.device_name} - {self.puF_HO_str_2[self.sprache]}', 3, 450)
             
     def init_controll(self, init_okay, menu):
         ''' Anzeige auf GUI ändern 
@@ -1786,7 +1786,7 @@ class EurothermWidget(QWidget):
         # Pop-Up-Fenster:
         #////////////////////////////////////////////////////////////
         if not self.Rezept_Aktiv and not self.cb_Rezept.currentText() == '------------':
-            self.typ_widget.Message(self.puF_RezeptAnz_str[self.sprache], 3, 450)
+            self.typ_widget.Message(f'{self.device_name} - {self.puF_RezeptAnz_str[self.sprache]}', 3, 450)
 
         #////////////////////////////////////////////////////////////
         # Variablen:

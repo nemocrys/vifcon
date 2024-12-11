@@ -198,7 +198,7 @@ class Generator(QWidget, Cursor, PopUpWindow):
         self.splitter_main.splitter.addWidget(self.splitter_row_one.splitter)
 
         # Faktoren bestimmen für Label:
-        label_dict = {'Temp': 'T [°C]', 'Current': 'I [A]', 'Voltage': 'U [V]', 'Op': 'P [%]', 'Pow': 'P [kW]', 'Freq': 'f [kHz]', 'PIDG': f'x [{sehe_device[self.sprache]}]'}
+        label_dict = {'Temp': 'T [°C]', 'Current': 'I [A]', 'Voltage': 'U [V]', 'Op': 'P [%]', 'Pow': 'P [kW]', 'Freq': 'f [kHz]', 'Freq_2': 'f [Hz]', 'PIDG': f'x [{sehe_device[self.sprache]}]'}
         label_list = []
         for size in label_dict:
             if not self.Faktor[size] == 1:
@@ -218,10 +218,10 @@ class Generator(QWidget, Cursor, PopUpWindow):
             self.legend_achsen_Links_widget = Widget_VBox()
             self.splitter_row_one.splitter.addWidget(self.legend_achsen_Links_widget.widget)
 
-        Achse_y1_str = f'{label_list[0]} | {label_list[1]} | {label_list[2]} | {label_list[6]}'.replace(' | 0', '').replace('0 |','')
+        Achse_y1_str = f'{label_list[0]} | {label_list[1]} | {label_list[2]} | {label_list[7]}'.replace(' | 0', '').replace('0 |','')
         if Achse_y1_str == '0':
             Achse_y1_str = self.Eintrag_Achse[self.sprache]
-        Achse_y2_str = f'{label_list[3]} | {label_list[4]} | {label_list[5]}'.replace(' | 0', '').replace('0 |','')
+        Achse_y2_str = f'{label_list[3]} | {label_list[4]} | {label_list[5]} | {label_list[6]}'.replace(' | 0', '').replace('0 |','')
         if Achse_y2_str == '0':
             Achse_y2_str = self.Eintrag_Achse[self.sprache]
         self.plot = PlotWidget(menu_dict, self.btn_AS, self.legend_ops, self.sprache, 'Generator', 't [s]', Achse_y1_str, Achse_y2_str)            

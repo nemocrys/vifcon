@@ -200,7 +200,7 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                 elif 'Nemo-Achse' in self.device_name and self.device.Limit_Stop_Text == 5:
                     self.device_widget.BTN_Back(self.device.Limit_Stop_Text)
                     self.device.Limit_Stop_Text = -1
-                if ('TruHeat' in self.device_name or 'Eurotherm' in self.device_name) and self.device_widget.start_later:
+                if ('TruHeat' in self.device_name or 'Eurotherm' in self.device_name or 'Nemo-Generator' in self.device_name) and self.device_widget.start_later:
                     self.device_widget.signal_Pop_up.emit()
 
                 #---------------------------------------
@@ -492,6 +492,7 @@ class Controller(QObject):
         from .devices.nemoAchseLin import NemoAchseLin
         from .devices.nemoAchseRot import NemoAchseRot
         from .devices.nemoGase import NemoGase
+        from .devices.nemoGenerator import NemoGenerator
         from .devices.multilog import Multilog
         from .devices.gamepad import Gamepad_1
 
@@ -508,6 +509,7 @@ class Controller(QObject):
         from .view.nemoAchseLin import NemoAchseLinWidget
         from .view.nemoAchseRot import NemoAchseRotWidget
         from .view.nemoGase import NemoGaseWidget
+        from .view.nemoGenerator import NemoGeneratortWidget
 
         #---------------------------------------------------------------------------
         # Vorbereitung:
@@ -587,13 +589,13 @@ class Controller(QObject):
 
         #### Konfigurationscheck Skalierungsfaktoren:
         default_scale = {'Pos': 1, 'Win': 1, 'Speed_1': 1, 'Speed_2': 1, 'WinSpeed': 1, 'Temp': 1, 'Op': 1, 
-                         'Current': 1, 'Voltage': 1, 'Pow': 1, 'Freq': 1, 'PIDA': 1, 'PIDG': 1} 
+                         'Current': 1, 'Voltage': 1, 'Pow': 1, 'Freq': 1, 'Freq_2': 1, 'PIDA': 1, 'PIDG': 1} 
         try: scale = self.config['skalFak']
         except Exception as e:
             scale = default_scale
             logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} skalFak {self.Log_Pfad_conf_5[self.sprache]} {scale}')
             logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
-        size_List = ['Pos', 'Win', 'Speed_1', 'Speed_2', 'WinSpeed', 'Temp', 'Op', 'Current', 'Voltage', 'Pow', 'Freq', 'PIDA', 'PIDG']
+        size_List = ['Pos', 'Win', 'Speed_1', 'Speed_2', 'WinSpeed', 'Temp', 'Op', 'Current', 'Voltage', 'Pow', 'Freq', 'Freq_2', 'PIDA', 'PIDG']
         list_drin = []
         for size in scale:
             if not size in size_List:
@@ -783,6 +785,12 @@ class Controller(QObject):
                         #### Objekte erstellen:
                         device = TruHeat(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, multilog_Link, WriteReadTime, self.add_Ablauf, device_name) 
                         widget = TruHeatWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name)
+                        #### Farben-Option:
+                        color_Gen_n = color_Gen_n + 13
+                    elif 'Nemo-Generator' in device_name:
+                        #### Objekte erstellen:
+                        device = NemoGenerator(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, multilog_Link, WriteReadTime, self.add_Ablauf, device_name) 
+                        widget = NemoGeneratortWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name)
                         #### Farben-Option:
                         color_Gen_n = color_Gen_n + 13
                     else:

@@ -2,7 +2,7 @@
 # Beschreibung:
 # ++++++++++++++++++++++++++++
 '''
-TruHeat Generator Widget:
+Nemo Generator Widget:
 - Anheften von weiteren Widgets (Knöpfe, Eingabefelder, Label, etc.)
 - Messwert Angabe und Eingabe
 - Kurven und Legende
@@ -50,12 +50,11 @@ import yaml
 # ++++++++++++++++++++++++++++
 logger = logging.getLogger(__name__)
 
-
-class TruHeatWidget(QWidget):
+class NemoGeneratortWidget(QWidget):
     signal_Pop_up       = pyqtSignal()
 
-    def __init__(self, sprache, Frame_Anzeige, widget, line_color, config, config_dat, neustart, multilog_aktiv, add_Ablauf_function, truheat = 'TruHeat', typ = 'Generator', parent=None):
-        """GUI widget of TruHeat generator.
+    def __init__(self, sprache, Frame_Anzeige, widget, line_color, config, config_dat, neustart, multilog_aktiv, add_Ablauf_function, nemoGenerator = 'Nemo-Generator', typ = 'Generator', parent=None):
+        """GUI widget of Nemo generator.
 
         Args:
             sprache (int):                      Sprache der GUI (Listenplatz)
@@ -67,7 +66,7 @@ class TruHeatWidget(QWidget):
             neustart (bool):                    Neustart Modus, Startkonfigurationen werden übersprungen
             multilog_aktiv (bool):              Multilog-Read/Send Aktiviert
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
-            truheat (str):                      Name des Gerätes
+            nemoGenerator (str):                Name des Gerätes
             typ (str):                          Typ des Gerätes
         """
         super().__init__()
@@ -84,7 +83,7 @@ class TruHeatWidget(QWidget):
         self.neustart                   = neustart
         self.multilog_OnOff             = multilog_aktiv
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
-        self.device_name                = truheat
+        self.device_name                = nemoGenerator
         self.typ                        = typ
 
         ## Signal:
@@ -103,6 +102,7 @@ class TruHeatWidget(QWidget):
         self.Rezept_Aktiv   = False
         self.data           = {}
         self.start_later    = False
+        self.Generator_Ein  = False
 
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
@@ -132,7 +132,16 @@ class TruHeatWidget(QWidget):
         self.Log_Pfad_conf_13   = ['Spannung',                                                                                                          'Voltage']
         self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilog-Link abgeschaltet ist! Setze Default VV!',   'Configuration with VM, MV or MM is not possible because the Multilog-Link is disabled! Set default VV!']
         self.Log_Pfad_conf_15   = ['Leistung',                                                                                                          'Power']
-        
+        self.Log_Pfad_conf_NGe1 = ['Konfiguration start|start_modus wird auf Default I gesetzt!!',                                                      'Configuration start|start_modus is set to Default I!!']
+
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Übergeordnet:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.Anlage = self.config['nemo-Version']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} nemo-Version {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.Anlage = 1
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Zum Start:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -146,13 +155,21 @@ class TruHeatWidget(QWidget):
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|start_modus {self.Log_Pfad_conf_5[self.sprache]} P')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.stMode = 'P'
+            self.stMode = 'I'
+        #//////////////////////////////////////////////////////////////////////
+        try: self.Auswahl_PUI = self.config['start']['Auswahl'].upper()
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|Auswahl {self.Log_Pfad_conf_5[self.sprache]} I')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_NGe1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.stMode = 'I'
+            self.Auswahl_PUI = 'I'
         #//////////////////////////////////////////////////////////////////////
         try: self.messZeit = self.config['start']["readTime"]
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|readTime {self.Log_Pfad_conf_5[self.sprache]} 2')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.messZeit = 2
+            self.messZeit = 2 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Limits:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -288,11 +305,15 @@ class TruHeatWidget(QWidget):
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|umstell_wert_U {self.Log_Pfad_conf_5[self.sprache]} 0')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.PID_Mode_Switch_Value_U = 0  
+            self.PID_Mode_Switch_Value_U = 0
         
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Config-Fehler und Defaults:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ### Anlagenbezeichnung:
+        if not self.Anlage in [2]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nemo-Version - {self.Log_Pfad_conf_2[self.sprache]} [2] - {self.Log_Pfad_conf_3[self.sprache]} 2')
+            self.Anlage = 2
         ### PID-Aktiv:
         if not type(self.PID_Aktiv) == bool and not self.PID_Aktiv in [0,1]: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} PID_Aktiv - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Aktiv}')
@@ -303,8 +324,14 @@ class TruHeatWidget(QWidget):
             self.init = 0
         ### Start-Modus:
         if not self.stMode in ['P', 'I', 'U']:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_modus - {self.Log_Pfad_conf_2[self.sprache]} [P, I, U] - {self.Log_Pfad_conf_3[self.sprache]} P - {self.Log_Pfad_conf_8[self.sprache]} {self.stMode}')
-            self.stMode = 'P'
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_modus - {self.Log_Pfad_conf_2[self.sprache]} [P, I, U] - {self.Log_Pfad_conf_3[self.sprache]} I - {self.Log_Pfad_conf_8[self.sprache]} {self.stMode}')
+            self.stMode = 'I'
+        ### Auswahl:
+        if not self.Auswahl_PUI in ['I', 'PUI']:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Auswahl - {self.Log_Pfad_conf_2[self.sprache]} [PUI, I] - {self.Log_Pfad_conf_3[self.sprache]} I - {self.Log_Pfad_conf_8[self.sprache]} {self.Auswahl_PUI}')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_NGe1[self.sprache]}')
+            self.stMode = 'I'
+            self.Auswahl_PUI = 'I'
         ### PID-Limit:
         if not type(self.oGx) in [float, int]:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGx)}')
@@ -384,7 +411,7 @@ class TruHeatWidget(QWidget):
         if not type(self.PID_Mode_Switch_Value_U) in [float, int] or not self.PID_Mode_Switch_Value_U >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} umstell_wert_U - {self.Log_Pfad_conf_2[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Mode_Switch_Value_U}')
             self.PID_Mode_Switch_Value_U = 0
-
+        
         #--------------------------------------- 
         # Sprach-Einstellung:
         #--------------------------------------- 
@@ -400,6 +427,9 @@ class TruHeatWidget(QWidget):
         cb_PID                  = ['PID',                                                                                                       'PID']
         ## ToolTip: ###############################################################################################################################################################################################################################################################################                                                                                                   
         self.TTLimit            = ['Limit:',                                                                                                    'Limit:']
+        self.TTName             = ['Typ:',                                                                                                      'Typ:']
+        self.TTSKombi           = ['Schnittstellen Kombination:',                                                                               'Interface Combination:']
+        self.TTTM               = ['TM',                                                                                                        'TM']
         ## Einheiten mit Größe: ####################################################################################################################################################################################################################################################################
         self.P_str              = ['P in kW:',                                                                                                  'P in kW:']
         self.U_str              = ['U in V:',                                                                                                   'U in V:']
@@ -413,7 +443,7 @@ class TruHeatWidget(QWidget):
         st_P_str                = ['XXX.XX kW',                                                                                                 'XXX.XX kW']
         st_U_str                = ['XXX.XX V',                                                                                                  'XXX.XX V']
         st_I_str                = ['XXX.XX A',                                                                                                  'XXX.XX A']
-        st_f_str                = ['XXX.XX kHz',                                                                                                'XXX.XX kHz']
+        st_f_str                = ['XXX.XX Hz',                                                                                                 'XXX.XX Hz']
         st_x_str                = [f'XXX.XX {self.unit_PIDIn}',                                                                                 f'XXX.XX {self.unit_PIDIn}'] 
         st_Wsoll_str            = ['(XXX.XX)',                                                                                                  '(XXX.XX)']
         I_einzel_str            = ['I',                                                                                                         'I']
@@ -424,7 +454,7 @@ class TruHeatWidget(QWidget):
         self.einheit_I_einzel   = ['A',                                                                                                         'A']
         self.einheit_U_einzel   = ['V',                                                                                                         'V']
         self.einheit_P_einzel   = ['kW',                                                                                                        'kW']
-        self.einheit_f_einzel   = ['kHz',                                                                                                       'kHz']
+        self.einheit_f_einzel   = ['Hz',                                                                                                        'Hz']
         self.einheit_x_einzel   = [f'{self.unit_PIDIn}',                                                                                        f'{self.unit_PIDIn}']
         PID_Von_1               = ['Wert von Multilog',                                                                                         'Value of Multilog']
         PID_Von_2               = ['Wert von VIFCON',                                                                                           'Value ofVIFCON']
@@ -453,6 +483,26 @@ class TruHeatWidget(QWidget):
         self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
         self.Log_Yaml_Error     = ['Mit der Config-Datei (Yaml) gibt es ein Problem.',                                                          'There is a problem with the config file (YAML).']
         self.err_RezDef_str     = ['Yaml-Config Fehler\nDefault-Rezept eingefügt!',                                                             'Yaml config error\nDefault recipe inserted!']
+        ## Status-N2: ##############################################################################################################################################################################################################################################################################          
+        status_1_str            = ['Status: Inaktiv',                                                                                           'Status: Inactive']
+        self.status_2_str       = ['Kein Status',                                                                                               'No Status']
+        self.status_3_str       = ['Status:',                                                                                                   'Status:']
+        self.Stat_N2_Bit0       = ['Generator Aktiv',                                                                                           'Generator Active']
+        self.Stat_N2_Bit1       = ['Interlock',                                                                                                 'Interlock']   
+        self.Stat_N2_Bit2       = ['externe Steuerung',                                                                                         'external control'] 
+        self.Stat_N2_Bit3       = ['Fehler',                                                                                                    'Error'] 
+        self.Stat_N2_Bit4       = ['Generator ist eingeschaltet',                                                                               'Generator is on'] 
+        self.Stat_N2_Bit5       = ['Hochfrequenz ist eingeschaltet',                                                                            'High frequency is on'] 
+        self.Stat_N2_Bit6       = ['',                                                                                                          ''] 
+        self.Stat_N2_Bit7       = ['',                                                                                                          ''] 
+        self.Stat_N2_Bit8       = ['P-Regelung gewählt',                                                                                        'P-control selected'] 
+        self.Stat_N2_Bit9       = ['I-Regelung gewählt',                                                                                        'I-control selected'] 
+        self.Stat_N2_Bit10      = ['U-Regelung gewählt',                                                                                        'U-control selected'] 
+        self.Stat_N2_Bit11      = ['',                                                                                                          '']  
+        self.Stat_N2_Bit12      = ['',                                                                                                          '']  
+        self.Stat_N2_Bit13      = ['',                                                                                                          '']  
+        self.Stat_N2_Bit14      = ['Schnittstellenfehler',                                                                                      'Interface error']  
+        self.Stat_N2_Bit15      = ['Test-Modus Aktiv',                                                                                          'Test Mode Active']
         ## Plot-Legende: ##########################################################################################################################################################################################################################################################################                                               
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
@@ -462,9 +512,6 @@ class TruHeatWidget(QWidget):
         self.Log_Text_28_str    = ['Gerät wurde Gestartet/Initialisiert!',                                                                      'Device has been started/initialized!']
         self.Log_Text_29_str    = ['Gerät wurde nicht Initialisiert! Initialisierung durch Menü im späteren!',                                  'Device was not initialized! Initialization through menu later!']
         self.Log_Text_30_str    = ['Neustart Modus.',                                                                                           'Restart mode.']
-        self.Log_Text_31_str    = ['Der RS232-User Watchdog, sollte auf NULL gesetzt werden, da keine regelmäßigen Lese-Befehle kommen!',       'The RS232 user watchdog should be set to ZERO because there are no regular read commands!']
-        self.Log_Text_32_str    = ['Störungen verhindern einschalten des Generators!',                                                          'Prevent interference when switching on the generator!']
-        self.Log_Text_33_str    = ['Bei nicht angeschlossenen Gerät --> Fehlermeldungen da Lese-Befehle senden eingeschaltet!',                 'If the device is not connected --> error messages because sending read commands is switched on!']
         self.Log_Text_34_str    = ['Startmodus Leistung!',                                                                                      'Start mode power!']
         self.Log_Text_35_str    = ['Startmodus Spannung!',                                                                                      'Start mode voltage!']
         self.Log_Text_36_str    = ['Startmodus Strom!',                                                                                         'Start mode current!']
@@ -483,6 +530,10 @@ class TruHeatWidget(QWidget):
         self.Log_Text_LB_4      = ['bis',                                                                                                       'to']
         self.Log_Text_LB_5      = ['nach Update',                                                                                               'after update']
         self.Log_Text_Kurve     = ['Kurvenbezeichnung existiert nicht:',                                                                        'Curve name does not exist:']
+        self.Log_Text_NG_1_str  = ['Bei dem Generator sind alle drei Größen (PUI) auswählbar!',                                                 'All three sizes (PUI) are selectable in the generator!']
+        self.Log_Text_NG_2_str  = ['Bei dem Generator ist nur der Strom nutzbar!',                                                              'With the generator only the electricity can be used!']
+        self.Log_Text_NG_3_str  = ['Unbekannte Auswahl!',                                                                                       'Unknown selection!']
+        self.Log_Status_Int     = ['Status-Integer',                                                                                            'Status-Integer']
         ## Ablaufdatei: ###########################################################################################################################################################################################################################################################################
         self.Text_13_str        = ['Auswahl Leistung senden.',                                                                                  'Send power selection.']
         self.Text_14_str        = ['Auswahl Spannung senden.',                                                                                  'Send voltage selection.']
@@ -508,23 +559,21 @@ class TruHeatWidget(QWidget):
         self.Text_90_str        = ['Sicherer Endzustand wird hergestellt! Auslösung des Stopp-Knopfes!',                                        'Safe final state is established! Stop button is activated!']
         self.Text_91_str        = ['Rezept Beenden - Sicherer Endzustand',                                                                      'Recipe Ends - Safe End State']
         self.Text_PID_1         = ['Wechsel in PID-Modus.',                                                                                     'Switch to PID mode.']
-        self.Text_PID_2         = ['Wechsel in TruHeat-Regel-Modus.',                                                                           'Switch to TruHeat control mode.']
+        self.Text_PID_2         = ['Wechsel in Nemo-Generator-Regel-Modus.',                                                                    'Switch to Nemo-Generator control mode.']
         self.Text_PID_3         = ['Moduswechsel! Auslösung des Stopp-Knopfes aus Sicherheitsgründen!',                                         'Mode change! Stop button triggered for safety reasons!']
         self.Text_PID_4         = ['Rezept Beenden! Wechsel des Modus!',                                                                        'End recipe! Change mode!']
         self.Text_Update        = ['Update Fehlgeschlagen!',                                                                                    'Update Failed!']
         self.Text_Neu_1         = ['Knopf betätigt - Generator Ein!',                                                                           'Button pressed - generator on!']
         self.Text_Neu_2         = ['Knopf betätigt - Generator Aus!',                                                                           'Button pressed - generator off!']
-        ## Print: #################################################################################################################################################################################################################################################################################  
-        self.ExPrint_str        = ['ACHTUNG: Keine regelmäßigen Lese-Befehle - RS232-User watchdog deaktivieren (auf Null stellen)!',           'ATTENTION: No regular read commands - deactivate RS232 user watchdog (set to zero)!']
         ## Message-Box: ###########################################################################################################################################################################################################################################################################
-        self.Message_1          = ['Der Watchdog sollte auf Null gesetzt (Deaktiviert) werden, da die Lese-Befehle ausgestellt worden sind.',   'The watchdog should be set to zero (disabled) since the read commands have been issued.']
+        self.Message_1          = ['Beachten Sie die Einstellungen des gewählten Generators! Diese werden als Tooltip beim Namen angezeigt und können in der Anlagen-GUI eingestellt werden!\n\nBei Änderung wird ein Neustart empfohlen!',   
+                                   'Note the settings of the selected generator! These are displayed as a tooltip next to the name and can be set in the system GUI!\n\nIf changes are made, a restart is recommended!']
 
         #---------------------------------------
         # Konfigurationen für das Senden:
         #---------------------------------------
-        #self.send_betätigt = True
-        self.write_task  = {'Soll-Leistung': False, 'Soll-Strom': False, 'Soll-Spannung': False, 'Init':False, 'Ein': False, 'Aus': False, 'Start': False, 'Update Limit': False, 'PID': False}
-        self.write_value = {'Sollwert': 0, 'Limits': [0, 0, 0, 0, False], 'PID-Sollwert': 0, 'Limit Unit':self.einheit_P_einzel[self.sprache], 'PID Output-Size': 'P'} # Limits: oGWahl, uGWahl, oGx, uGx, Input Update True?
+        self.write_task  = {'Soll-Leistung': False, 'Soll-Strom': False, 'Soll-Spannung': False, 'Init':False, 'Start': False, 'Ein': False, 'Aus': False, 'Update Limit': False, 'PID': False, 'Wahl_P': False, 'Wahl_I': False, 'Wahl_U': False}
+        self.write_value = {'Sollwert': 0, 'Limits': [0, 0, 0, 0, False], 'PID-Sollwert': 0, 'Limit Unit': self.einheit_I_einzel[self.sprache], 'PID Output-Size': 'I', 'Ak_Size': 'I'} # Limits: oGWahl, uGWahl, oGx, uGx, Input Update True?
 
         if self.init and not self.neustart:
             self.write_task['Start'] = True
@@ -546,19 +595,15 @@ class TruHeatWidget(QWidget):
         # Nachrichten im Log-File:
         #---------------------------------------
         logger.info(f"{self.device_name} - {self.Log_Text_28_str[self.sprache]}") if self.init else logger.warning(f"{self.device_name} - {self.Log_Text_29_str[self.sprache]}")
-        if self.neustart: logger.info(f"{self.device_name} - {self.Log_Text_30_str[self.sprache]}") 
-        if self.messZeit == 0:  
-            logger.warning(f"{self.device_name} - {self.Log_Text_31_str[self.sprache]}")  
-            logger.warning(f"{self.device_name} - {self.Log_Text_32_str[self.sprache]}") 
-            self.start_later = True 
-            print(self.ExPrint_str[self.sprache])
-        if not self.init and not self.messZeit == 0: logger.warning(f"{self.device_name} - {self.Log_Text_33_str[self.sprache]}")
-        logger.info(f"{self.device_name} - {self.Log_Text_34_str[self.sprache]}") if self.stMode == 'P' else (logger.info(f"{self.device_name} - {self.Log_Text_35_str[self.sprache]}") if self.stMode == 'U' else (logger.info(f"{self.device_name} - {self.Log_Text_36_str[self.sprache]}") if self.stMode == 'I' else logger.info(f"{self.device_name} - {self.Log_Text_37_str[self.sprache]}")))        
+        if self.neustart: logger.info(f"{self.device_name} - {self.Log_Text_30_str[self.sprache]}")
+        logger.info(f"{self.device_name} - {self.Log_Text_34_str[self.sprache]}") if self.stMode == 'P' else (logger.info(f"{self.device_name} - {self.Log_Text_35_str[self.sprache]}") if self.stMode == 'U' else (logger.info(f"{self.device_name} - {self.Log_Text_36_str[self.sprache]}") if self.stMode == 'I' else logger.info(f"{self.device_name} - {self.Log_Text_37_str[self.sprache]}"))) 
+        logger.info(f"{self.device_name} - {self.Log_Text_NG_2_str[self.sprache]}") if self.Auswahl_PUI == 'I' else (logger.info(f"{self.device_name} - {self.Log_Text_NG_1_str[self.sprache]}") if self.Auswahl_PUI == 'PUI' else logger.info(f"{self.device_name} - {self.Log_Text_37_str[self.sprache]}")) 
+        self.start_later = True
         ## Limit-Bereiche:
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]}: {self.uGI} {self.Log_Text_LB_4[self.sprache]} {self.oGI} {self.einheit_I_einzel[self.sprache]}')
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]}: {self.uGU} {self.Log_Text_LB_4[self.sprache]} {self.oGU} {self.einheit_U_einzel[self.sprache]}')
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3_1[self.sprache]}: {self.uGP} {self.Log_Text_LB_4[self.sprache]} {self.oGP} {self.einheit_P_einzel[self.sprache]}')
-
+        
         #---------------------------------------    
         # GUI:
         #---------------------------------------
@@ -567,7 +612,7 @@ class TruHeatWidget(QWidget):
         self.layer_layout = QGridLayout()
         self.layer_widget.setLayout(self.layer_layout)
         self.typ_widget.splitter_main.splitter.addWidget(self.layer_widget)
-        logger.info(f"{self.device_name} - {self.Log_Text_1_str[self.sprache]}")
+        #logger.info(f"{self.device_name} - {self.Log_Text_1_str[self.sprache]}")
         #________________________________________
         ## Kompakteres Darstellen:
         ### Grid Size - bei Verschieben der Splitter zusammenhängend darstellen:
@@ -585,6 +630,7 @@ class TruHeatWidget(QWidget):
         self.layer_layout.setColumnMinimumWidth(0, 120)
         self.layer_layout.setColumnMinimumWidth(1, 150)
         self.layer_layout.setColumnMinimumWidth(3, 160)
+
         #________________________________________
         ## Widgets:
         ### Eingabefelder:
@@ -613,7 +659,7 @@ class TruHeatWidget(QWidget):
         
         TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} - {self.oGx} {self.einheit_x_einzel[self.sprache]}'
         self.PID_cb.setToolTip(TT_PID)
-
+        
         ### Radiobutton:
         self.RB_choise_Pow = QRadioButton(f'{self.sollwert_str[self.sprache]}-{self.P_str[self.sprache]} ')
         if self.color_Aktiv: self.RB_choise_Pow.setStyleSheet(f"color: {self.color[0]}")
@@ -628,12 +674,18 @@ class TruHeatWidget(QWidget):
         self.RB_choise_Current.clicked.connect(self.BlassOutPU)
 
         ### Start-Modus:
+        if self.Auswahl_PUI == 'I':
+            self.stMode = 'I'
+            self.RB_choise_Voltage.setEnabled(False)
+            self.RB_choise_Pow.setEnabled(False)
+
         if self.init: 
             self.Start()
-            
+
         ### Label:
         #### Geräte-Titel:
-        self.La_name = QLabel(f'<b>{truheat}</b>')
+        self.La_name = QLabel(f'<b>{nemoGenerator}</b>')
+        self.La_name.setToolTip(f'{self.TTName[self.sprache]} ... (...)\n{self.TTSKombi[self.sprache]} ...')
         #### Istleistung:
         self.La_IstPow_text = QLabel(f'{istwert_str[self.sprache]}-{sP_str[self.sprache]} ')
         self.La_IstPow_wert = QLabel(st_P_str[self.sprache])
@@ -673,6 +725,8 @@ class TruHeatWidget(QWidget):
         if self.color_Aktiv: self.La_SollU_wert.setStyleSheet(f"color: {self.color[1]}")
         self.La_SollI_wert = QLabel(st_Wsoll_str[self.sprache])
         if self.color_Aktiv: self.La_SollI_wert.setStyleSheet(f"color: {self.color[2]}")
+        #### Status ausgelesen:
+        self.La_Status = QLabel(status_1_str[self.sprache])
 
         ### Knöpfe:
         #### Senden:
@@ -687,11 +741,11 @@ class TruHeatWidget(QWidget):
         #### Generator Ein/Aus;
         self.btn_Ein = QPushButton(QIcon("./vifcon/icons/p_TH_Ein.png"), '')
         self.btn_Ein.setFlat(True)
-        self.btn_Ein.clicked.connect(self.THEin)   
+        self.btn_Ein.clicked.connect(self.NGEin)   
 
         self.btn_Aus = QPushButton(QIcon("./vifcon/icons/p_TH_Aus.png"), '')
         self.btn_Aus.setFlat(True)
-        self.btn_Aus.clicked.connect(self.THAus)   
+        self.btn_Aus.clicked.connect(self.NGAus) 
 
         ### Combobox:
         self.cb_Rezept = QComboBox()
@@ -786,7 +840,7 @@ class TruHeatWidget(QWidget):
         for n in widget_list:
             self.V_layout.addWidget(n)
         self.V_layout.setContentsMargins(0,0,0,0)
-        
+
         #________________________________________
         ## Platzierung der einzelnen Widgets im Layout:
         self.layer_layout.addWidget(self.first_row_group,       0, 0, 1, 5, alignment=Qt.AlignLeft)  # Reihe, Spalte, RowSpan, ColumSpan, Ausrichtung
@@ -794,6 +848,7 @@ class TruHeatWidget(QWidget):
         self.layer_layout.addWidget(self.RB_choise_Voltage,     2, 0)
         self.layer_layout.addWidget(self.RB_choise_Current,     3, 0)
         self.layer_layout.addWidget(self.btn_send_value,        4, 0) 
+        self.layer_layout.addWidget(self.La_Status,             5, 0, 1, 6, alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(group_wid_list[0],          1, 1, alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(group_wid_list[1],          2, 1, alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(group_wid_list[2],          3, 1, alignment=Qt.AlignLeft)
@@ -801,6 +856,7 @@ class TruHeatWidget(QWidget):
         self.layer_layout.addWidget(self.V,                     1, 2, 4, 2, alignment=Qt.AlignLeft)
         self.layer_layout.addWidget(self.btn_group_Rezept,      1, 4, 3, 1, alignment=Qt.AlignTop)
         self.layer_layout.addWidget(self.btn_group,             1, 5, 4, 1, alignment=Qt.AlignTop)
+
         #________________________________________
         ## Größen (Size) - Widgets:
         ### Button-Icon:
@@ -822,6 +878,7 @@ class TruHeatWidget(QWidget):
         self.btn_rezept_start.setFixedWidth(100)
         self.btn_rezept_ende.setFixedWidth(100)
         self.cb_Rezept.setFixedWidth(100)
+
         #________________________________________
         ## Border Sichtbar:
         if Frame_Anzeige:
@@ -847,29 +904,29 @@ class TruHeatWidget(QWidget):
         else:                 PID_Label_Soll = PID_Von_2[sprache]
 
         kurv_dict = {                                                                   # Wert: [Achse, Farbe/Stift, Name]
-            'IWI':      ['a1', pg.mkPen(self.color[5], width=2),                            f'{truheat} - {I_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'SWI':      ['a1', pg.mkPen(self.color[2]),                                     f'{truheat} - {I_einzel_str[self.sprache]}<sub>{self.sollwert_str[self.sprache]}</sub>'],
-            'IWU':      ['a1', pg.mkPen(self.color[4], width=2),                            f'{truheat} - {U_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'SWU':      ['a1', pg.mkPen(self.color[1]),                                     f'{truheat} - {U_einzel_str[self.sprache]}<sub>{self.sollwert_str[self.sprache]}</sub>'],
-            'IWP':      ['a2', pg.mkPen(self.color[3], width=2),                            f'{truheat} - {P_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'SWP':      ['a2', pg.mkPen(self.color[0]),                                     f'{truheat} - {P_einzel_str[self.sprache]}<sub>{self.sollwert_str[self.sprache]}</sub>'],
-            'IWf':      ['a2', pg.mkPen(self.color[6], width=2),                            f'{truheat} - {f_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'oGI':      ['a1', pg.mkPen(color=self.color[5], style=Qt.DashLine),            f'{truheat} - {I_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGI':      ['a1', pg.mkPen(color=self.color[5], style=Qt.DashDotDotLine),      f'{truheat} - {I_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'oGU':      ['a1', pg.mkPen(color=self.color[4], style=Qt.DashLine),            f'{truheat} - {U_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGU':      ['a1', pg.mkPen(color=self.color[4], style=Qt.DashDotDotLine),      f'{truheat} - {U_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'oGP':      ['a2', pg.mkPen(color=self.color[3], style=Qt.DashLine),            f'{truheat} - {P_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGP':      ['a2', pg.mkPen(color=self.color[3], style=Qt.DashDotDotLine),      f'{truheat} - {P_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'RezI':     ['a1', pg.mkPen(color=self.color[9], width=3, style=Qt.DotLine),    f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{I_einzel_str[self.sprache]}</sub>'],
-            'RezU':     ['a1', pg.mkPen(color=self.color[8], width=3, style=Qt.DotLine),    f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{U_einzel_str[self.sprache]}</sub>'],
-            'RezP':     ['a2', pg.mkPen(color=self.color[7], width=3, style=Qt.DotLine),    f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{P_einzel_str[self.sprache]}</sub>'],
+            'IWI':      ['a1', pg.mkPen(self.color[5], width=2),                            f'{nemoGenerator} - {I_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'SWI':      ['a1', pg.mkPen(self.color[2]),                                     f'{nemoGenerator} - {I_einzel_str[self.sprache]}<sub>{self.sollwert_str[self.sprache]}</sub>'],
+            'IWU':      ['a1', pg.mkPen(self.color[4], width=2),                            f'{nemoGenerator} - {U_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'SWU':      ['a1', pg.mkPen(self.color[1]),                                     f'{nemoGenerator} - {U_einzel_str[self.sprache]}<sub>{self.sollwert_str[self.sprache]}</sub>'],
+            'IWP':      ['a2', pg.mkPen(self.color[3], width=2),                            f'{nemoGenerator} - {P_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'SWP':      ['a2', pg.mkPen(self.color[0]),                                     f'{nemoGenerator} - {P_einzel_str[self.sprache]}<sub>{self.sollwert_str[self.sprache]}</sub>'],
+            'IWf':      ['a2', pg.mkPen(self.color[6], width=2),                            f'{nemoGenerator} - {f_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'oGI':      ['a1', pg.mkPen(color=self.color[5], style=Qt.DashLine),            f'{nemoGenerator} - {I_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGI':      ['a1', pg.mkPen(color=self.color[5], style=Qt.DashDotDotLine),      f'{nemoGenerator} - {I_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'oGU':      ['a1', pg.mkPen(color=self.color[4], style=Qt.DashLine),            f'{nemoGenerator} - {U_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGU':      ['a1', pg.mkPen(color=self.color[4], style=Qt.DashDotDotLine),      f'{nemoGenerator} - {U_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'oGP':      ['a2', pg.mkPen(color=self.color[3], style=Qt.DashLine),            f'{nemoGenerator} - {P_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGP':      ['a2', pg.mkPen(color=self.color[3], style=Qt.DashDotDotLine),      f'{nemoGenerator} - {P_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'RezI':     ['a1', pg.mkPen(color=self.color[9], width=3, style=Qt.DotLine),    f'{nemoGenerator} - {rezept_Label_str[self.sprache]}<sub>{I_einzel_str[self.sprache]}</sub>'],
+            'RezU':     ['a1', pg.mkPen(color=self.color[8], width=3, style=Qt.DotLine),    f'{nemoGenerator} - {rezept_Label_str[self.sprache]}<sub>{U_einzel_str[self.sprache]}</sub>'],
+            'RezP':     ['a2', pg.mkPen(color=self.color[7], width=3, style=Qt.DotLine),    f'{nemoGenerator} - {rezept_Label_str[self.sprache]}<sub>{P_einzel_str[self.sprache]}</sub>'],
             'SWxPID':   ['a1', pg.mkPen(self.color[10], width=2, style=Qt.DashDotLine),     f'{PID_Label_Soll} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{self.sollwert_str[self.sprache]}</sub>'], 
             'IWxPID':   ['a1', pg.mkPen(self.color[11], width=2, style=Qt.DashDotLine),     f'{PID_Label_Ist} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
-            'Rezx':     ['a1', pg.mkPen(color=self.color[12], width=3, style=Qt.DotLine),   f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{x_einzel_str[self.sprache]}</sub>'],
-            'oGPID':    ['a1', pg.mkPen(color=self.color[11], style=Qt.DashLine),           f'{truheat} - {self.PID_G_Kurve[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGPID':    ['a1', pg.mkPen(color=self.color[11], style=Qt.DashDotDotLine),     f'{truheat} - {self.PID_G_Kurve[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'Rezx':     ['a1', pg.mkPen(color=self.color[12], width=3, style=Qt.DotLine),   f'{nemoGenerator} - {rezept_Label_str[self.sprache]}<sub>{x_einzel_str[self.sprache]}</sub>'],
+            'oGPID':    ['a1', pg.mkPen(color=self.color[11], style=Qt.DashLine),           f'{nemoGenerator} - {self.PID_G_Kurve[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGPID':    ['a1', pg.mkPen(color=self.color[11], style=Qt.DashDotDotLine),     f'{nemoGenerator} - {self.PID_G_Kurve[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
         }
-        
+
         ## Kurven erstellen:
         ist_drin_list = []                                                              # Jede Kurve kann nur einmal gesetzt werden!
         self.kurven_dict = {}
@@ -888,7 +945,6 @@ class TruHeatWidget(QWidget):
                 ist_drin_list.append(legend_kurve)
             elif not legend_kurve in kurv_dict:
                 logger.warning(f'{self.device_name} - {self.Log_Text_Kurve[self.sprache]} {legend_kurve}')
-        # Notiz: Frequenzgrenzen auch?
                 
         ## Checkboxen erstellen:
         self.kurven_side_legend         = {}
@@ -927,7 +983,7 @@ class TruHeatWidget(QWidget):
         self.UuGList     = []
         self.XoGList     = []
         self.XuGList     = []
-               
+
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
@@ -950,7 +1006,7 @@ class TruHeatWidget(QWidget):
             if 'WU' in size:
                 self.skalFak_dict.update({size: self.skalFak['Voltage']})
             if 'Wf' in size:
-                self.skalFak_dict.update({size: self.skalFak['Freq']})
+                self.skalFak_dict.update({size: self.skalFak['Freq_2']})
             if 'Wx' in size:
                 self.skalFak_dict.update({size: self.skalFak['PIDG']})
 
@@ -973,7 +1029,7 @@ class TruHeatWidget(QWidget):
         # Rezept-Anzeige Funktion aktivieren:
         #---------------------------------------
         self.cb_Rezept.currentTextChanged.connect(self.RezKurveAnzeige) 
-    
+
     ##########################################
     # Legenden an der Seite:
     ##########################################
@@ -1022,7 +1078,7 @@ class TruHeatWidget(QWidget):
             self.curveDict[kurve].setVisible(True)
         else:
             self.curveDict[kurve].setVisible(False)
-    
+
     ##########################################
     # Fehlermedlung:
     ##########################################
@@ -1061,6 +1117,8 @@ class TruHeatWidget(QWidget):
             self.LE_Pow.setEnabled(True)
             self.LE_Current.setEnabled(False)
             self.LE_Voltage.setEnabled(False)
+            self.write_value['Ak_Size'] = 'P'
+            self.write_task['Wahl_P'] = True
 
     def BlassOutPI(self, selected):
         ''' Spannungs Eingabefeld ist Verfügbar '''
@@ -1069,6 +1127,8 @@ class TruHeatWidget(QWidget):
             self.LE_Pow.setEnabled(False)
             self.LE_Current.setEnabled(False)
             self.LE_Voltage.setEnabled(True)
+            self.write_value['Ak_Size'] = 'U'
+            self.write_task['Wahl_U'] = True
 
     def BlassOutPU(self, selected):
         ''' Strom Eingabefeld ist Verfügbar '''
@@ -1077,7 +1137,9 @@ class TruHeatWidget(QWidget):
             self.LE_Pow.setEnabled(False)
             self.LE_Current.setEnabled(True)
             self.LE_Voltage.setEnabled(False)
-
+            self.write_value['Ak_Size'] = 'I'
+            self.write_task['Wahl_I'] = True
+    
     ##########################################
     # Reaktion auf Butttons:
     ##########################################
@@ -1134,24 +1196,33 @@ class TruHeatWidget(QWidget):
         else:
             self.Fehler_Output(1, self.err_4_str[self.sprache])
 
-    def THEin(self):
+    def NGEin(self):
         '''Schalte Generator Ein'''
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Neu_1[self.sprache]}')
             self.write_task['Ein'] = True
             self.write_task['Aus'] = False
+            self.Generator_Ein = True
+            self.RB_choise_Pow.setEnabled(False)
+            self.RB_choise_Current.setEnabled(False)
+            self.RB_choise_Voltage.setEnabled(False)
         else:
             self.Fehler_Output(1, self.err_4_str[self.sprache])
-
-    def THAus(self):
+    
+    def NGAus(self):
         '''Schalte Generator Aus'''
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Neu_2[self.sprache]}')
             self.write_task['Aus'] = True
             self.write_task['Ein'] = False
+            self.Generator_Ein = False
+            if self.Auswahl_PUI == 'PUI':
+                self.RB_choise_Pow.setEnabled(True)
+                self.RB_choise_Voltage.setEnabled(True) 
+            self.RB_choise_Current.setEnabled(True)
         else:
             self.Fehler_Output(1, self.err_4_str[self.sprache])
-
+    
     ##########################################
     # Eingabefeld Kontrolle:
     ##########################################
@@ -1182,12 +1253,12 @@ class TruHeatWidget(QWidget):
                 logger.exception(f"{self.device_name} - {self.Log_Text_38_str[self.sprache]}")
                                 
         return -1
-    
+
     ##########################################
     # Reaktion Checkbox:
     ##########################################    
     def PID_ON_OFF(self):  
-        '''PID-Modus toggeln'''                     
+        '''PID-Modus toggeln'''
         if self.PID_cb.isChecked():
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_1[self.sprache]}')
             # Aufgaben setzen:
@@ -1230,7 +1301,7 @@ class TruHeatWidget(QWidget):
                 if self.color_Aktiv: self.La_SollU_wert.setStyleSheet(f"color: {self.color[10]}")
                 self.La_SollPID_text.setText(f'{self.PID_Out[self.sprache]} {self.PID_Out_U[self.sprache]}')
                 color_Size = 1
-
+            
             label.setText(f'{self.sollwert_str[self.sprache]}-{self.x_str[self.sprache]}')
             if self.color_Aktiv: label.setStyleSheet(f"color: {self.color[10]}")
             if self.color_Aktiv: self.La_SollPID_text.setStyleSheet(f"color: {self.color[color_Size]}")
@@ -1249,6 +1320,7 @@ class TruHeatWidget(QWidget):
                 self.btn_rezept_ende.setEnabled(False)
                 self.cb_Rezept.setEnabled(False)
                 self.btn_send_value.setEnabled(False)
+        
         else:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_2[self.sprache]}')
             # Aufgaben setzen:
@@ -1295,24 +1367,26 @@ class TruHeatWidget(QWidget):
             else:
                 self.write_value[Task] = value
 
-            # GUI-ändern:             
+            # GUI-ändern:
             label.setText(f'{self.sollwert_str[self.sprache]}-{text[self.sprache]}')
             if self.color_Aktiv: label.setStyleSheet(f"color: {self.color[cn]}")    
             self.La_SollPID_text.setText(f'{self.sollwert_str[self.sprache]}-{self.sx_str[self.sprache]}') 
             if self.color_Aktiv: self.La_SollPID_text.setStyleSheet(f"color: {self.color[10]}")
-            if self.color_Aktiv: self.La_SollPID_wert.setStyleSheet(f"color: {self.color[10]}")       
+            if self.color_Aktiv: self.La_SollPID_wert.setStyleSheet(f"color: {self.color[10]}")  
 
             # Zugriff sperren; Zugriff freigeben:
-            self.RB_choise_Pow.setEnabled(True)
-            self.RB_choise_Current.setEnabled(True)
-            self.RB_choise_Voltage.setEnabled(True)
+            if not self.Generator_Ein:
+                if self.Auswahl_PUI == 'PUI':
+                    self.RB_choise_Pow.setEnabled(True)
+                    self.RB_choise_Voltage.setEnabled(True)
+                self.RB_choise_Current.setEnabled(True)
             # Bei Multilog-Sollwert:
             if self.origin[1] == 'M':
                 self.btn_rezept_start.setEnabled(True)
                 self.btn_rezept_ende.setEnabled(True)
                 self.cb_Rezept.setEnabled(True)
                 self.btn_send_value.setEnabled(True)
-            
+    
     ##########################################
     # Reaktion auf übergeordnete Butttons:
     ##########################################
@@ -1326,7 +1400,7 @@ class TruHeatWidget(QWidget):
             # Beende Rezept:
             self.RezEnde(n)
             # Schalte Generator aus:
-            self.THAus()
+            self.NGAus()
             # Sende Befehle:
             self.write_value['Sollwert'] = 0
             self.write_task['Soll-Leistung'] = True
@@ -1510,33 +1584,45 @@ class TruHeatWidget(QWidget):
             x_value (list):     Werte für die x-Achse
         '''
 
+        ## Setze ToolTip Name:
+        if value_dict["Status_Name"] == 128:   Name = self.Stat_N2_Bit15[self.sprache]
+        else:                                  Name = value_dict["Status_Name"]
+        if value_dict["Status_Typ"] == 128:    Typ = self.TTTM[self.sprache]
+        else:                                  Typ = value_dict["Status_Typ"]
+        if value_dict["Status_Kombi"] == 128:  Kombi = self.TTTM[self.sprache]
+        else:                                  Kombi = value_dict["Status_Kombi"]
+        self.La_name.setToolTip(f'{self.TTName[self.sprache]} {Name} ({Typ})\n{self.TTSKombi[self.sprache]} {Kombi}')
+
         ## Kurven Update:
         self.data.update({'Time' : x_value[-1]})         
-        self.data.update(value_dict)   
+        self.data.update(value_dict) 
 
         for messung in value_dict:
-            if 'SW' in messung:
-                if messung =='SWxPID':
-                    if   self.PID_cb.isChecked() and self.RB_choise_Current.isChecked():    self.labelDict['SWI'].setText(f'({value_dict[messung]})')
-                    elif self.PID_cb.isChecked() and self.RB_choise_Voltage.isChecked():    self.labelDict['SWU'].setText(f'({value_dict[messung]})')
-                    elif self.PID_cb.isChecked() and self.RB_choise_Pow.isChecked():        self.labelDict['SWP'].setText(f'({value_dict[messung]})')
-                    else:                                                                   self.labelDict[messung].setText(f'{value_dict[messung]} {self.labelUnitDict[messung]}')
-                if messung == 'SWI':
-                    if   self.PID_cb.isChecked() and self.RB_choise_Current.isChecked():    self.labelDict['SWxPID'].setText(f'{value_dict[messung]} {self.labelUnitDict["IWI"]}')
-                    else:                                                                   self.labelDict[messung].setText(f'({value_dict[messung]})')
-                if messung == 'SWP':
-                    if   self.PID_cb.isChecked() and self.RB_choise_Pow.isChecked():        self.labelDict['SWxPID'].setText(f'{value_dict[messung]} {self.labelUnitDict["IWP"]}')
-                    else:                                                                   self.labelDict[messung].setText(f'({value_dict[messung]})')
-                if messung == 'SWU':
-                    if   self.PID_cb.isChecked() and self.RB_choise_Voltage.isChecked():    self.labelDict['SWxPID'].setText(f'{value_dict[messung]} {self.labelUnitDict["IWU"]}')
-                    else:                                                                   self.labelDict[messung].setText(f'({value_dict[messung]})')
-            else:
-                self.labelDict[messung].setText(f'{value_dict[messung]} {self.labelUnitDict[messung]}')
-            self.listDict[messung].append(value_dict[messung])
-            if not self.curveDict[messung] == '':
-                faktor = self.skalFak_dict[messung]
-                y = [a * faktor for a in self.listDict[messung]]
-                self.curveDict[messung].setData(x_value, y)
+            if not 'Status' in messung:
+                if 'SW' in messung:
+                    if messung =='SWxPID':
+                        if   self.PID_cb.isChecked() and self.RB_choise_Current.isChecked():    self.labelDict['SWI'].setText(f'({value_dict[messung]})')
+                        elif self.PID_cb.isChecked() and self.RB_choise_Voltage.isChecked():    self.labelDict['SWU'].setText(f'({value_dict[messung]})')
+                        elif self.PID_cb.isChecked() and self.RB_choise_Pow.isChecked():        self.labelDict['SWP'].setText(f'({value_dict[messung]})')
+                        else:                                                                   self.labelDict[messung].setText(f'{value_dict[messung]} {self.labelUnitDict[messung]}')
+                    if messung == 'SWI':
+                        if   self.PID_cb.isChecked() and self.RB_choise_Current.isChecked():    self.labelDict['SWxPID'].setText(f'{value_dict[messung]} {self.labelUnitDict["IWI"]}')
+                        else:                                                                   self.labelDict[messung].setText(f'({value_dict[messung]})')
+                    if messung == 'SWP':
+                        if   self.PID_cb.isChecked() and self.RB_choise_Pow.isChecked():        self.labelDict['SWxPID'].setText(f'{value_dict[messung]} {self.labelUnitDict["IWP"]}')
+                        else:                                                                   self.labelDict[messung].setText(f'({value_dict[messung]})')
+                    if messung == 'SWU':
+                        if   self.PID_cb.isChecked() and self.RB_choise_Voltage.isChecked():    self.labelDict['SWxPID'].setText(f'{value_dict[messung]} {self.labelUnitDict["IWU"]}')
+                        else:                                                                   self.labelDict[messung].setText(f'({value_dict[messung]})')
+                else:
+                    self.labelDict[messung].setText(f'{value_dict[messung]} {self.labelUnitDict[messung]}')
+                self.listDict[messung].append(value_dict[messung])
+                if not self.curveDict[messung] == '':
+                    faktor = self.skalFak_dict[messung]
+                    y = [a * faktor for a in self.listDict[messung]]
+                    self.curveDict[messung].setData(x_value, y)
+            #elif 'Status' in messung:
+            #    logger.debug(f'{self.device_name} - {self.Log_Status_Int[self.sprache]} ({messung}): {value_dict[messung]}')
 
         ## Grenz-Kurven:
         ### Update Grenzwert-Dictionary:
@@ -1554,6 +1640,64 @@ class TruHeatWidget(QWidget):
                 self.grenzListDict[kurve].append(float(self.grenzValueDict[kurve]))
                 self.kurven_dict[kurve].setData(x_value, self.grenzListDict[kurve])
 
+        ## Status:
+        status_1 = value_dict['Status']
+        logger.debug(f'{self.device_name} - {self.Log_Status_Int[self.sprache]} (Status): {value_dict["Status"]}')
+        status_1 = self.status_report_umwandlung(status_1)
+        ### Status-Liste:
+        status = [self.Stat_N2_Bit0[self.sprache], self.Stat_N2_Bit1[self.sprache], self.Stat_N2_Bit2[self.sprache], self.Stat_N2_Bit3[self.sprache], self.Stat_N2_Bit4[self.sprache], self.Stat_N2_Bit5[self.sprache], self.Stat_N2_Bit6[self.sprache], self.Stat_N2_Bit7[self.sprache], self.Stat_N2_Bit8[self.sprache], self.Stat_N2_Bit9[self.sprache], self.Stat_N2_Bit10[self.sprache], self.Stat_N2_Bit11[self.sprache], self.Stat_N2_Bit12[self.sprache], self.Stat_N2_Bit13[self.sprache], self.Stat_N2_Bit14[self.sprache], self.Stat_N2_Bit15[self.sprache]]
+        ### Status Zusammenfügen:
+        label_s1 = ''
+        l = len(status_1)
+        for n in range(0,l):
+            if status_1[n] == '1':
+                if not status[n] == '':
+                    label_s1 = label_s1 + f'{status[n]}, '
+        if label_s1 == '':
+            label_s1 = self.status_2_str[self.sprache]
+        else:
+            label_s1 = label_s1[:-2]
+        self.La_Status.setText(f'{self.status_3_str[self.sprache]} {label_s1}')
+    
+    def status_report_umwandlung(self, StatusInteger):
+        ''' Umwandlung des Status - Integer zu Umgedrehten Binärcode: \n
+        Beispiel:   \n
+                    512                 - StatusInteger (Args) \n
+                    10 0000 0000        - Lower Byte, Higher Byte \n
+                    0000 0000           - Higher Byte \n
+                    0000 0010           - Lower Byte \n
+                    0000 0000 0000 0010 - Gewollte Bit-Folge \n
+                    0100 0000 0000 0000 - Umkehren um mit Liste zu Vergleichen 
+        '''
+
+        status = bin(StatusInteger)[2:]            # Status Integer in Binär-Code
+        l = len(status)                            # Länge bestimmen
+
+        anz = int(l/8)                             # Anzahl von vollen Byte auslesen
+
+        # Bytes aus den String lesen:
+        byte_list = []                             
+        for n in range(0,anz):
+            byte_list.append(status[-8:])
+            status = status[0:-8]
+
+        # Unvolständige Bytes Auffüllen und auf 8 Bit kürzen:
+        if len(status) < 8 and not status == '':                             
+            status = '0000000' + status
+            byte_list.append(status[-8:])
+        elif status == '' and len(byte_list) == 1:
+            byte_list.append('00000000')
+
+        if len(byte_list) == 1:
+            byte_list.append('00000000')
+
+        # Byte zusammensetzen in der richtigen Reihenfolge:
+        byte_string = ''
+        for n in byte_list:
+            byte_string = byte_string + n
+
+        return byte_string[::-1]   # [::-1] --> dreht String um! (Lowest Bit to Highest Bit)
+
     def Pop_Up_Start_Later(self):
         ## Pop-Up-Fenster verzögert zum Start starten:
         if self.start_later:
@@ -1567,9 +1711,7 @@ class TruHeatWidget(QWidget):
         ''' Initialisierung soll durch geführt werden '''
         self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_23_str[self.sprache]}')
         self.write_task['Init'] = True
-        if self.messZeit == 0:  
-            self.typ_widget.Message(f'{self.device_name} - {self.Message_1[self.sprache]}', 3)
-            
+    
     def init_controll(self, init_okay, menu):
         ''' Anzeige auf GUI ändern 
         
@@ -1592,16 +1734,22 @@ class TruHeatWidget(QWidget):
             self.LE_Pow.setEnabled(False)
             self.LE_Voltage.setEnabled(True)
             self.LE_Current.setEnabled(False)
-        elif self.stMode == 'I':
+            self.write_value['Ak_Size'] = 'U'
+            self.write_task['Wahl_U'] = True
+        elif self.stMode == 'I':                            # Strom ist Default
             self.RB_choise_Current.setChecked(True)
             self.LE_Pow.setEnabled(False)
             self.LE_Voltage.setEnabled(False)
             self.LE_Current.setEnabled(True)
-        elif self.stMode == 'P':                                           # Leistung ist Default!
+            self.write_value['Ak_Size'] = 'I'
+            self.write_task['Wahl_I'] = True
+        elif self.stMode == 'P':                                           
             self.RB_choise_Pow.setChecked(True)
             self.LE_Pow.setEnabled(True)
             self.LE_Voltage.setEnabled(False)
             self.LE_Current.setEnabled(False)
+            self.write_value['Ak_Size'] = 'P'
+            self.write_task['Wahl_P'] = True
 
     ##########################################
     # Reaktion auf Rezepte:
@@ -1677,9 +1825,10 @@ class TruHeatWidget(QWidget):
             self.cb_Rezept.setEnabled(True)
             if self.PID_Aktiv: self.PID_cb.setEnabled(True)
             self.btn_rezept_start.setEnabled(True)
-            if not self.PID_cb.isChecked():
-                self.RB_choise_Pow.setEnabled(True)
-                self.RB_choise_Voltage.setEnabled(True)
+            if not self.PID_cb.isChecked() and not self.Generator_Ein:
+                if self.Auswahl_PUI == 'PUI':
+                    self.RB_choise_Pow.setEnabled(True)
+                    self.RB_choise_Voltage.setEnabled(True)
                 self.RB_choise_Current.setEnabled(True)
             self.btn_send_value.setEnabled(True)
             self.Auswahl.setEnabled(True)
@@ -1728,6 +1877,7 @@ class TruHeatWidget(QWidget):
         Return:
             error (Bool):   Fehler vorhanden oder nicht
         '''
+
         # Variablen:
         error = False  
         self.time_list  = []
@@ -1819,7 +1969,7 @@ class TruHeatWidget(QWidget):
         else:
             self.Fehler_Output(0)
         return error
-    
+
     def RezKurveAnzeige(self):
         '''Soll die Rezept-Kurve anzeigen und erstellen!
         
@@ -1904,8 +2054,8 @@ class TruHeatWidget(QWidget):
                     self.curveDict['Rezx'].setData(self.RezTimeList, y)
                     self.typ_widget.plot.achse_1.autoRange()
 
-        return error                                                                    
-    
+        return error
+
     def update_rezept(self):
         '''Liest die Config im Sinne der Rezepte neu ein und Updatet die Combo-Box'''
         if not self.Rezept_Aktiv:
@@ -1950,21 +2100,13 @@ class TruHeatWidget(QWidget):
             # Neu verbinden von der Funktion:
             self.cb_Rezept.currentTextChanged.connect(self.RezKurveAnzeige) 
             
-            if not error: self.Fehler_Output(0)
+            if not error:
+                self.Fehler_Output(0)
         else:
             self.Fehler_Output(1, self.err_14_str[self.sprache])
-
-##########################################
-# Verworfen:
-##########################################
-## Bereich für alten Code, denn man noch nicht vollkommen löschen will,
-## da dieser später vieleicht wieder ergänzt wird!!
-'''
-                if   self.PID_cb.isChecked() and self.RB_choise_Current.isChecked() and messung == 'SWxPID':    self.labelDict['SWI'].setText(f'({value_dict[messung]})')
-                elif messung == 'SWI':                                                                          self.labelDict[messung].setText(f'({value_dict[messung]})')
-                if   self.PID_cb.isChecked() and self.RB_choise_Pow.isChecked() and messung == 'SWxPID':        self.labelDict['SWP'].setText(f'({value_dict[messung]})')
-                elif messung == 'SWP':                                                                          self.labelDict[messung].setText(f'({value_dict[messung]})')
-                if   self.PID_cb.isChecked() and self.RB_choise_Voltage.isChecked() and messung == 'SWxPID':    self.labelDict['SWU'].setText(f'({value_dict[messung]})')
-                elif messung == 'SWU':                                                                          self.labelDict[messung].setText(f'({value_dict[messung]})')
-
-'''
+  
+    ##########################################
+    # Verworfen:
+    ##########################################
+    ## Bereich für alten Code, denn man noch nicht vollkommen löschen will,
+    ## da dieser später vieleicht wieder ergänzt wird!!
