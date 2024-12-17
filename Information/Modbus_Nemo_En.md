@@ -99,6 +99,23 @@ lese_st_Reg_VGP_2   | Input | / |  58
 lese_st_Reg_K       | Input | / | 161
 lese_st_Reg_AS      | Input | / | 209
 
+### Generators
+
+The generators only exist in the Nemo-2 system!
+
+Config name | Type | Generator interface 1 start register | Generator interface 2 start register | Generator interface 3 start register
+--- | --- | --- | --- | ---
+lese_st_Reg         | Input   | 217 | 257 | 297
+lese_st_Reg_Info    | Input   | 229 | 269 | 309
+lese_st_Reg_Status  | Input   | 248 | 288 | 328
+lese_st_Reg_Gkombi  | Input   | 337 | 337 | 337
+write_Soll_Reg      | Holding |  72 |  78 |  84
+gen_Ein             | Coil    | 129 | 136 | 143
+gen_Aus             | Coil    | 130 | 137 | 144
+gen_P_Ein           | Coil    | 132 | 139 | 146
+gen_I_Ein           | Coil    | 133 | 140 | 147
+gen_U_Ein           | Coil    | 134 | 141 | 148
+
 ## Last change
 
 The last change to this description was: December 03, 2024

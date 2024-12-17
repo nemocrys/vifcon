@@ -99,6 +99,24 @@ lese_st_Reg_VGP_2   | Input | / |  58
 lese_st_Reg_K       | Input | / | 161
 lese_st_Reg_AS      | Input | / | 209
 
+### Generatoren
+
+Die Generatoren exestieren nur bei der Nemo-2-Anlage!
+
+Config-Bezeichnung |  Art | Generator-Schnitstelle 1 Start-Register | Generator-Schnitstelle 2 Start-Register | Generator-Schnitstelle 3 Start-Register
+--- | --- | --- | --- | ---
+lese_st_Reg         | Input   | 217 | 257 | 297
+lese_st_Reg_Info    | Input   | 229 | 269 | 309
+lese_st_Reg_Status  | Input   | 248 | 288 | 328
+lese_st_Reg_Gkombi  | Input   | 337 | 337 | 337
+write_Soll_Reg      | Holding |  72 |  78 |  84
+gen_Ein             | Coil    | 129 | 136 | 143
+gen_Aus             | Coil    | 130 | 137 | 144
+gen_P_Ein           | Coil    | 132 | 139 | 146
+gen_I_Ein           | Coil    | 133 | 140 | 147
+gen_U_Ein           | Coil    | 134 | 141 | 148
+
+
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 03.12.2024
+Die Letzte Änderung dieser Beschreibung war: 17.12.2024
