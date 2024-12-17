@@ -69,8 +69,8 @@ Die Konfiguration von VIFCON wird durch die Datei config.yml erreicht. Anhand de
 
 Neben dieser Datei sind auch ein Template für die Ablauf-Datei und die Log-Datei zu finden. In der Modellexperimente-Gruppe des IKZ gibt es drei Anlagen die mit VIFCON betrieben werden: Nemo-1, Nemo-2 und Demo-FZ. Für alle diese Anlagen gibt es auch ein Template. 
 
-Nemo-1: Nemo-Achse-Linear (2x), Nemo-Achse-Rotation (2x), Nemo-Gase, Eurotherm ([config_temp_Nemo-1.yml](../Template/config_temp_Nemo-1.yml))
-Nemo-2: Nemo-Achse-Linear (2x), Nemo-Achse-Rotation (2x), Nemo-Gase, Nemo-Generator (2x) ([config_temp_Nemo-2.yml](../Template/config_temp_Nemo-2.yml))
+Nemo-1: Nemo-Achse-Linear (2x), Nemo-Achse-Rotation (2x), Nemo-Gase, Eurotherm ([config_temp_Nemo-1.yml](../Template/config_temp_Nemo-1.yml))    
+Nemo-2: Nemo-Achse-Linear (2x), Nemo-Achse-Rotation (2x), Nemo-Gase, Nemo-Generator (2x) ([config_temp_Nemo-2.yml](../Template/config_temp_Nemo-2.yml))    
 Demo-FZ: PI-Achse (4x), TruHeat ([config_temp_DemoFZ.yml](../Template/config_temp_DemoFZ.yml))
 
 In der Konfigurationsdatei gibt es Kommentare die die einzelnen Zeilen beschreiben und auch deren Default-Fehler nennen, sollte das Einlesen misslingen. Weitere Informationen zu der Konfigurationsdatei sind in der Datei [Config_DE.md](Config_DE.md) zu finden.
