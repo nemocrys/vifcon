@@ -35,6 +35,8 @@ Legend:
 - RTI - ramp jump time interval
 - SVR - start value ramp
 
+For the Nemo drives, a special string is required in PID mode. In these recipes, only **jump** and **ramp** are possible. At the end of the recipe line, **DOWN** or **UP** must appear for stroke and **CW** or **CCW** for rotation. Examples can be found in the [Examples](#Examples) chapter.
+
 ### Description:
 1. Time: 			
     - The segment lasts in seconds
@@ -70,6 +72,7 @@ Legend:
 - With the Eurotherm ramp, the gradient (calculation: m = delta y / delta x) is calculated in the program. Apart from the start value of the ramp, everything else is set in the configuration: m = (start value - target value)/segment time
 - With the ramps, the user can select either start with actual value or start with setpoint in the configuration. This configuration is only necessary for the first ramp in a recipe.
 - With the Eurotherm ramp, it must be known that this is an internal program of the Eurotherm controller. The ramps always start from the current actual value!!
+- A different limit value is used in the PID Modbus. The Nemo drives also require a direction specification so that the program knows which direction the recipe steps should take. In normal operation, the direction is specified by the sign of the speed. However, since a different value is determined by the recipe in the PID Modbus and the speed is the PID output value, the direction must now be specified differently!
 
 ## Outsourcing of recipes
 
@@ -191,6 +194,24 @@ Plot:
 
 This recipe can also be found in the [template of the config file](../Template/config_temp.yml). This recipe is for the PI axis, for example.
 
+---
+
+Recipe:
+```
+n1: 20 ; 74 ; s ; UP
+n2: 20 ; 75 ; s ; Down
+n3: 100 ; 74 ; r ; 10 ; DOWN
+```
+```
+n1: 20 ; 74 ; s ; CW
+n2: 20 ; 75 ; s ; CCW
+n3: 100 ; 74 ; r ; 10 ; CW
+```
+Plot:  
+<img src="../Bilder/Beispiel_Rezept_7.png" alt="Recipe Example 7" title='Recipe Example Nemo-Axis-PID' width=700/>
+
+These recipes can be found in the template of the config file for the Nemo systems [1](../Template/config_temp_Nemo-1.yml) and [2](../Template/config_temp_Nemo-2.yml) for the spindle drives. The upper one shows the lifting drive and the lower one shows the rotation drive.
+
 ## Last change
 
-The last change of this description was: October 15, 2024
+The last change of this description was: December 17, 2024

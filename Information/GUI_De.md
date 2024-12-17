@@ -119,6 +119,11 @@ Stand der Bilder: 03.12.24
 
 Je nach Anlage ist das Monitoring verschieden. Die Bilder zeigen die Monitorings-Werte der Nemo-1 und Nemo-2-Anlage des IKZ. 
 
+### Nemo-Anlage: Generator
+<img src="../Bilder/WidgetDe_NemoGen.png" alt="Nemo2-Generator-Widget" title='Beispiel für Nemo-Anlage-2-Generator-Widget' width=700/>
+
+Das Widget zeigt das Nemo-Generator-Modul. Der Aufbau ist wie bei [TruHeat](#TruHeat).
+
 ## Weiteres
 
 <img src="../Bilder/Rahmen_DE.png" alt="Widgetrahmen" title='Widget Rahmen sichtbar' width=700/> 
@@ -127,4 +132,4 @@ Durch die Konfigurationen können die Widget-Rahmen sichtbar gemacht werden, sod
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 03.12.2024
+Die Letzte Änderung dieser Beschreibung war: 17.12.2024

@@ -37,6 +37,8 @@ Legend:
 - SoL - Sollwert Leistung
 - SR - Startwert Rampe
 
+Bei den Nemo-Antrieben wird im PID-Modus noch ein spezieller String benötigt. In diesen Rezepten sind nur **Sprung** und **Rampe** möglich. Am Ende der Rezept-Zeile müssen bei Hub **DOWN** oder **UP** und bei Rotation **CW** oder **CCW** stehen. Beispiele sind im Kapitel [Beispiele](#Beispiele) zu finden. 
+
 ### Beschreibung:
 1. Zeit:	
     - Solange dauert das Segment, Einheit Sekunden
@@ -72,6 +74,7 @@ Legend:
 - Bei der Eurotherm-Rampe wird die Steigung (Berechnung: m = delta y / delta x) im Programm berechnet. Bis auf den Startwert der Rampe, wird alles andere in der Konfiguration gesetzt: m = (Startwert - Zielwert)/Segmentzeit
 - Bei den Rampen kann der Nutzer in der Konfiguration entweder Start mit Istwert oder Start mit Sollwert auswählen. Diese konfiguration ist nur für die erste Rampe in einem Rezept notwendig.
 - Bei der Eurotherm-Rampe muss gewusst werden, das dies ein internes Programm des Eurotherm-Reglers ist. Die Rampen starten immer vom aktuellen Istwert!!
+- Im PID-Modbus wird ein anderer Limit-Wert genutzt. Bei den Nemo-Antrieben benötigt es hierbei noch eine Richtungsangabe, sodas das Programm weiß, welche Richtung bei den Rezept-Schritten gefahren werden soll. Im Normal-Betrieb wird die Richtung durch das Vorzeichen der Geschwindigkeit angegeben. Da im PID-Modbus aber eine andere Größe durch das Rezept bestimmt wird und die Geschwindigkeit die PID-Output Größe ist, muss die Richtung nun anders angebene werden!
 
 ## Auslagern von Rezepten
 
@@ -192,6 +195,24 @@ Plot:
 
 Auch dieses Rezept ist im [Template der Configdatei](../Template/config_temp.yml) zu finden. Dieses Rezept ist z.B. für die PI-Achse. 
 
+---
+
+Rezept:
+```
+n1: 20 ; 74 ; s ; UP
+n2: 20 ; 75 ; s ; Down
+n3: 100 ; 74 ; r ; 10 ; DOWN
+```
+```
+n1: 20 ; 74 ; s ; CW
+n2: 20 ; 75 ; s ; CCW
+n3: 100 ; 74 ; r ; 10 ; CW
+```
+Plot:  
+<img src="../Bilder/Beispiel_Rezept_7.png" alt="Rezept Beispiel 7" title='Rezept Beispiel Nemo-Achse-PID' width=700/>
+
+Diese Rezepte sind im Template der Configdatei für die Nemo-Anlagen [1](../Template/config_temp_Nemo-1.yml) und [2](../Template/config_temp_Nemo-2.yml) bei dem Spindel-Antrieben zu finden. Das obere zeigt den Hub-Antrieb und das untere den Rotations-Antrieb.
+
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 15.10.2024
+Die Letzte Änderung dieser Beschreibung war: 17.12.2024

@@ -119,6 +119,11 @@ Status of images: 12/3/24
 
 Monitoring varies depending on the system. The images show the monitoring values ​​of the Nemo-1 and Nemo-2 systems of the IKZ.
 
+### Nemo system: generator
+<img src="../Bilder/WidgetDe_NemoGen.png" alt="Nemo2-Generator-Widget" title='Example of Nemo-Anlage-2-Generator-Widget' width=700/>
+
+The widget shows the Nemo generator module. The structure is the same as [TruHeat](#TruHeat).
+
 ## More
 
 <img src="../Bilder/Rahmen_EN.png" alt="Widget frame" title='Widget frame visible' width=700/>
@@ -127,4 +132,4 @@ The configurations can be used to make the widget frames visible so that placeme
 
 ## Last change
 
-The last change to this description was: December 03, 2024
+The last change to this description was: December 17, 2024

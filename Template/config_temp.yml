@@ -93,7 +93,7 @@ devices:
                                                                           # Default bei Fehler: False
       ramp_start_value: ist                                               # Start-Wert für die erste Rampe (beginnt Erstellung bei dieser) -> IST = Istwert, SOLL = Sollwert -> Upper genutzt! 
                                                                           # Default bei Fehler: IST
-      ramp_m_unit: K/h                                                    # Einheit der Eurotherm-Rampen Steigung: K/s, K/h, K/min | Default bei Fehler: K/s
+      ramp_m_unit: K/s                                                    # Einheit der Eurotherm-Rampen Steigung: K/s, K/h, K/min | Default bei Fehler: K/s
     ende: 0                                                               # End-Bedingung (Programm-Exit Knopf):
                                                                           # True - Ausführung der Stopp-Funktion (Umschalten auf Manuell Modus mit 0 % Op)(Rezept wird ebenfals beendet, wenn es läuft!)
                                                                           # False - Nichts wird getann!
@@ -110,7 +110,7 @@ devices:
       write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
       read_trigger_ist: DAQ-6510                                          # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
       read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
-      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_trigger_soll: IGA-6-23-adv                                     # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
@@ -144,7 +144,8 @@ devices:
       opMax: 35                                                           # Maximale Leistung [%] | Default bei Fehler: 1
       opMin: 0                                                            # Minimale Leistung [%] | Default bei Fehler: 0
     GUI:
-      legend: RezOp ; RezT ; IWT ; IWOp ; SWT                             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+      legend: RezOp ; RezT ; IWT ; IWOp ; SWT                             
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, Op - Leistung, T - Temperatur, Rez - Rezept, PID - PID Modus
                                                                           # Eingebaut: RezT, RezOp, IWT, IWOp, IWTPID, SWT, SWTPID, uGT, oGT, uGOp, oGOp, oGPID, uGPID
                                                                           # Default bei Fehler: IWT, IWOp
@@ -232,7 +233,7 @@ devices:
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
-      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -251,7 +252,7 @@ devices:
       legend: RezI ; RezU ; RezP ; Rezx ; IWU ; IWI ; IWP ; SWI ; SWU ; SWP ; IWf ; IWxPID ; SWxPID 
                                                                           # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, P - Leistung, I - Strom, U - Spannung, f - Frequenz, Rez - Rezept, x - PID-Input-Größe, PID - PID-Modus-Kurven
-                                                                        # Eingebaut: RezI, RezU, RezP, Rezx, IWI, IWU, IWP, IWf, SWI, SWU, SWP, uGI, oGI, uGU, oGU, uGP, oGP, IWxPID, SWxPID, oGPID, uGPID
+                                                                          # Eingebaut: RezI, RezU, RezP, Rezx, IWI, IWU, IWP, IWf, SWI, SWU, SWP, uGI, oGI, uGU, oGU, uGP, oGP, IWxPID, SWxPID, oGPID, uGPID
                                                                           # Default bei Fehler: IWI, IWP, IWU
     defaults:
       startCurrent: 2.5                                                   # Strom bei Programmstart [A] | Default bei Fehler: 0
@@ -312,7 +313,7 @@ devices:
       read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
       read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
-    PID:                                                                   # Erstellung eines PID-Reglers
+    PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
       Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
@@ -327,7 +328,7 @@ devices:
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
-      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -341,7 +342,7 @@ devices:
       mvtime: 25                                                          # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV) | Default bei Fehler: 25
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3  
     limits:
-      maxPos: 0                                                           # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
+      maxPos: 50                                                           # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
       minPos: -50                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
       maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s] | Default bei Fehler: 1
       minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s] | Default bei Fehler: -1
@@ -351,7 +352,8 @@ devices:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
                                                                           # Mode 0: Knöpfe bleiben Grün, bis andere Richtung oder Stopp betätigt werden!
                                                                           # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
-      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
                                                                           # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
                                                                           # Default: IWv, IWs
@@ -430,7 +432,7 @@ devices:
       Multilog_Sensor_Ist: Pyro_h1                                        # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
-      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -454,7 +456,8 @@ devices:
       knopf_anzeige: 0                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
                                                                           # Mode 0: Knöpfe bleiben Grün, bis andere Richtung oder Stopp betätigt werden!
                                                                           # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
-      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
                                                                           # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
                                                                           # Default: IWv, IWs
@@ -532,7 +535,7 @@ devices:
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
-      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -556,7 +559,8 @@ devices:
       knopf_anzeige: 0                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
                                                                           # Mode 0: Knöpfe bleiben Grün, bis andere Richtung oder Stopp betätigt werden!
                                                                           # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
-      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
                                                                           # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
                                                                           # Default: IWv, IWs
@@ -634,7 +638,7 @@ devices:
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
-      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -658,10 +662,11 @@ devices:
       knopf_anzeige: 0                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
                                                                           # Mode 0: Knöpfe bleiben Grün, bis andere Richtung oder Stopp betätigt werden!
                                                                           # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
-      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
                                                                           # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
-                                                                         # Default bei Fehler: IWv, IWs
+                                                                          # Default bei Fehler: IWv, IWs
     defaults:
       startSpeed: 2                                                       # Startgeschwindigkeit [mm/s] | Default bei Fehler: 0
       startPos: 0                                                         # Startposition/Startfahrweg [mm] | Default bei Fehler: 0
@@ -710,6 +715,7 @@ devices:
                                                                           # Default bei Fehler: False
       start_weg: 0                                                        # Startweg in mm | Default bei Fehler: 0
       pos_control: real                                                   # Positions-Limit-Kontrolle -> SIM - Simulierter Weg, REAL - Realer Weg (Nutzung von Upper) | Default bei Fehler: SIM
+                                                                          # Bitte bei REAL `invert_Pos` auf True setzen, wenn Spindel Nemo-2 genutzt wird!
       sicherheit: 1                                                       # Sicherheits Modus bei Nutzung des Realen Positions-Wertes: 0 - Error und Fehler ignorieren, 1 - Error und Stopp | Default bei Fehler: 0 
     ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
                                                                           # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
@@ -742,7 +748,7 @@ devices:
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
-      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -772,7 +778,8 @@ devices:
       minSpeed: -60                                                       # Minimale Geschwindigkeit [mm/min] | Default bei Fehler: -1
     GUI:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
-      legend: Rezv ; IWs ; IWv ; IWsd ; SWv ; Rezx ; IWxPID ; SWxPID      # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+      legend: Rezv ; IWs ; IWv ; IWsd ; SWv ; Rezx ; IWxPID ; SWxPID      
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!), x - Externe-PID-Input-Größe, PID- PID-Modus
                                                                           # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID, oGPID, uGPID
                                                                           # Default bei Fehler: IWs, IWv
@@ -856,7 +863,7 @@ devices:
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
-      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -882,7 +889,8 @@ devices:
       minSpeed: -3                                                        # Minimale Geschwindigkeit [1/min] | Default bei Fehler: -1
     GUI:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
-      legend: Rezv ; Rezx ; IWv ; SWv ; IWw ; IWxPID ; SWxPID             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+      legend: Rezv ; Rezx ; IWv ; SWv ; IWw ; IWxPID ; SWxPID             
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Externe-PID-Input-Größe, PID- PID-Modus
                                                                           # Eingebaut: Rezv, Rezx , IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID, oGPID, uGPID
                                                                           # Default bei Fehler: IWw, IWv
@@ -938,6 +946,7 @@ devices:
                                                                           # Default bei Fehler: False
       start_weg: 140                                                      # Startweg in mm | Default bei Fehler: 0
       pos_control: real                                                   # Positions-Limit-Kontrolle -> SIM - Simulierter Weg, REAL - Realer Weg (Nutzung von Upper) | Default bei Fehler: SIM
+                                                                          # Bitte bei REAL `invert_Pos` auf True setzen, wenn Spindel Nemo-2 genutzt wird!
       sicherheit: 0                                                       # Sicherheits Modus bei Nutzung des Realen Positions-Wertes: 0 - Error und Fehler ignorieren, 1 - Error und Stopp | Default bei Fehler: 0 
     ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
                                                                           # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
@@ -970,7 +979,7 @@ devices:
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
-      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -1000,7 +1009,8 @@ devices:
       minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/min] | Default bei Fehler: -1
     GUI:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
-      legend: Rezv ; Rezx ; IWs ; IWv ; SWv ; IWxPID ; SWxPID             # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+      legend: Rezv ; Rezx ; IWs ; IWv ; SWv ; IWxPID ; SWxPID             
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!), x - Externe-PID-Input-Größe, PID- PID-Modus
                                                                           # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID, oGPID, uGPID
                                                                           # Default bei Fehler: IWs, IWv
@@ -1079,7 +1089,7 @@ devices:
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
-      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -1105,7 +1115,8 @@ devices:
       minSpeed: -3                                                        # Minimale Geschwindigkeit [1/min] | Default bei Fehler: -1
     GUI:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
-      legend: Rezv ; IWv ; SWv ; IWw ; IWxPID ; SWxPID                    # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+      legend: Rezv ; IWv ; SWv ; IWw ; IWxPID ; SWxPID                    
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Externe-PID-Input-Größe, PID- PID-Modus
                                                                           # Eingebaut: Rezv, Rezx , IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID, oGPID, uGPID
                                                                           # Default bei Fehler: IWw, IWv
@@ -1203,7 +1214,7 @@ devices:
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
-      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -1304,7 +1315,7 @@ devices:
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
-      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
@@ -1405,7 +1416,7 @@ devices:
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
-      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
                                                                           # Default bei Fehler: Multilog-Link ausgeschaltet!
       Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1

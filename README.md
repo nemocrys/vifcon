@@ -65,7 +65,11 @@ python .\vifcon_main.py -t -c ./Template/config_temp.yml
 
 The configuration of VIFCON is achieved through the config.yml file. VIFCON is created using this file. The template [config_temp.yml](Template/config_temp.yml) shows this config file. In order to use VIFCON, it must be copied and modified for the respective experiment.
 
-In addition to this file, you will also find a template for the execution file and the log file.
+In addition to this file, there is also a template for the process file and the log file. In the IKZ model experiments group, there are three systems that are operated with VIFCON: Nemo-1, Nemo-2 and Demo-FZ. There is also a template for all of these systems.
+
+Nemo-1: Nemo-Achse-Linear (2x), Nemo-Achse-Rotation (2x), Nemo-Gase, Eurotherm ([config_temp_Nemo-1.yml](../Template/config_temp_Nemo-1.yml))
+Nemo-2: Nemo-Achse-Linear (2x), Nemo-Achse-Rotation (2x), Nemo-Gase, Nemo-Generator (2x) ([config_temp_Nemo-2.yml](../Template/config_temp_Nemo-2.yml))
+Demo-FZ: PI-Achse (4x), TruHeat ([config_temp_DemoFZ.yml](../Template/config_temp_DemoFZ.yml))
 
 The configuration file contains comments that describe the individual lines and also state the default error if the reading fails. Further information about the configuration file can be found in the file [Config_En.md](Information/Config_En.md).
 
