@@ -1,0 +1,1472 @@
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+time:
+  dt-main: 150                                                            # Reaktionszeit [ms] | Default bei Fehler: 150
+  timeout_exit: 10                                                        # Timeout für die Thread-Abarbeitung bei Exit [s] -> ACHTUNG: Nicht zu niedrig setzen, da der Sichere Endzustand sonst eventuell nicht erreicht werden kann!!!! | Default bei Fehler: 10
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Function_Skip:                                                            # Skip die folgenden Funktionen
+  Multilog_Link: 0                                                        # Multilog-Verbindung: True - On, False - Off | Default bei Fehler: False
+  Generell_GamePad: 0                                                     # Übergeordnetes Ein- und Ausschalten des Gamepad: True - On, False - Off | Default bei Fehler: False
+  writereadTime: 0                                                        # Wenn True, dann wird die Zeitdauer bei den Funktionen read und write gemesen und gelogged! | Default bei Fehler: False
+                                                                          # Achtung:  Info muss bei Logging aktiv sein!!
+                                                                          #           Durch die Reaktionszeit, kann die Log-Datei schnell sehr groß werden!!
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+save:
+  config_save: True                                                       # Speichere die Config, nach Ende im Messordner | Default bei Fehler: True
+  log_save: True                                                          # Speichere die Log-Datei, nach Ende im Messordner | Default bei Fehler: True
+  plot_save: True                                                         # Speicher die beiden Plots | Default bei Fehler: True
+                                                                          # Achtung: Bei Legende Side, werden die Legenden nur dann gspeichert, wenn diese zu sehen sind!
+  GUI_save: True                                                          # Speichert zum Schluss die aktuelle GUI | Default bei Fehler: False
+                                                                          # Achtung: Bei dem Plot, der Legende und der GUI wird nur das gespeichert, was zur Beendigung zu sehen ist!
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+GUI:
+  language: en                                                            # DE - Deutsch, EN - Englisch  (im Code wird upper genutzt -> de, en, De, En auch erlaubt) | Default bei Fehler: EN
+  GUI_Frame: 0                                                            # True - Zeigt die Frames der Widgets in den Geräte-Widgets an
+  GUI_color_Widget: 1                                                     # True - Die Größen-Label und Werte werden in der Farbe der Kurven angezeigt, False - Alles Schwarz
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+logging:
+  level: 20                                                               # 10: debug, 20: info, 30: warning, 40: error | Default bei Fehler: 20
+  filename: vifcon.log                                                    # if not given, logs are printed in console   | Default bei Fehler: vifcon.log
+  format: '%(asctime)s %(levelname)s %(name)s - %(message)s'              # Default bei Fehler: %(asctime)s %(levelname)s %(name)s - %(message)s
+  filemode: w                                                             # w: overwrite old logfile, a: append to existing logfile | Default bei Fehler: w
+  #encoding: 'utf-8'                                                       # only available for python >= 3.9, Bei Linux auskommentieren!
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+consol_Logging:
+  # Ausgabe in der Konsole von Logging!
+  # ACHTUNG: Level logging darf nicht größer sein als Level consol_logging!!
+  # Beispiel: logging - level = 40 und consol_Logging - level 30, print 1 --> Keine Konsolen Ausdgabe
+  #           logging - level = 40 und consol_Logging - level 30, print 3 --> Ausdgabe von Error Nachrichten in Konsole
+  # Dies liegt daran, dass die Einstellungen bei logging priorisiert werden!
+  level: 30                                                               # 10: Debug, 20: info, 30: warning, 40: error | Default bei Fehler: 30
+  print: 1                                                                # 1: Nur das Level, 2: Auch alle kleineren, 3: Auch alle Größeren | Default bei Fehler: 1
+  format: '%(asctime)s %(levelname)s %(name)s - %(message)s'              # Default bei Fehler: %(asctime)s %(levelname)s %(name)s - %(message)s
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+legend:
+  # Nutzung von upper im Code! (Bedeutet: rl = RL = Rl = rL | Side = sIdE = etc.)
+  generator:                                                              # Default bei Fehler: {'legend_pos': 'Side', 'legend_anz': 2, 'side': 'l'}
+    legend_pos: Side                                                      # In - Im Plot (In = default), Out - Unter dem Plot, Side - Kurven neben den Achsen
+    legend_anz: 2                                                         # Anzahl der Legenden Labels in einer Reihe (Bei Side keine Wirkung!!) - In, Out
+    side: rl                                                              # Einstellung Side: rl - an jeweiliger Achse, r - alle rechts, l - alle links - Side | Fehlerhafteeingabe -> Keine Legende
+  antrieb:                                                                # Default bei Fehler: {'legend_pos': 'Side', 'legend_anz': 2, 'side': 'l'}
+    legend_pos: Side                                                      # In - Im Plot (In = default), Out - Unter dem Plot, Side - Kurven neben den Achsen
+    legend_anz: 2                                                         # Anzahl der Legenden Labels in einer Reihe (Bei Side keine Wirkung!!) - In, Out
+    side: l                                                               # Einstellung Side: rl - an jeweiliger Achse, r - alle rechts, l - alle links - Side | Fehlerhafteeingabe -> Keine Legende
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+skalFak:                                                                  # Skalierungsfaktor für die Plotkurven (Wird Mal genommen!) (a - Achse, 1 - links, 2 - rechts)
+                                                                          # INFO:    Bei Null wird die Größe aus dem Label genommen!
+                                                                          # ACHTUNG: Bei Null wird der Wert auch auf Null skaliert!!
+                                                                          # Default bei Fehler: {'Pos': 1, 'Win': 1, 'Speed_1': 1, 'Speed_2': 1, 'WinSpeed': 1, 'Temp': 1, 'Op': 1,  'Current': 1, 'Voltage': 1, 'Pow': 1, 'Freq': 1, 'PIDA': 1, 'PIDG': 1} 
+                                                                          #                   - Wenn einer der Schlüssel fehlt, wird dieser eingesetzt und der Wert auf Null gesetzt!
+                                                                          #                   - Ein fehlerhafter Wert sorgt für den Defaultwert 1 bei dem Schlüssel! 
+  Pos:      1                                                             # Position in mm                 a1 (Nemo-Linear, PI-Achse)
+  Win:      1                                                             # Winkel in °                    a1 (Nemo-Rotation)
+  Speed_1:  0                                                             # Geschwindigkeit in mm/s        a2 (PI-Achse)
+  Speed_2:  1                                                             # Geschwindigkeit in mm/min      a2 (Nemo-Linear)
+  WinSpeed: 1                                                             # Winkelgeschwindigkeit in 1/min a2 (Nemo-Rotation)
+  Temp:     0                                                             # Temperatur in °C               a1 (Eurotherm)
+  Op:       0                                                             # Leistung in %                  a2 (Eurotherm) 
+  Current:  1                                                             # Strom in A                     a1 (TruHeat)
+  Voltage:  1                                                             # Spannung in V                  a1 (TruHeat)
+  Pow:      1                                                             # Leistung in kW                 a2 (TruHeat)
+  Freq:     0                                                             # Frequenz in kHz                a2 (TruHeat)
+  Freq_2:   1                                                             # Frequenz in Hz                 a2 (Nemo-Generator)
+  PIDA:     1                                                             # PID-Größe Input Antriebe       a1 (Nemo-Linear, Nemo-Rotation, PI-Achse)
+  PIDG:     0                                                             # PID-Größe Input Generator      a1 (TruHeat)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+devices:
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Eurotherm 3504:                                                         # Muss "Eurotherm" enthalten!
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ:  Generator                                                       # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    start:
+      sicherheit: 1                                                       # Sicherheitsschalter 
+                                                                          # True:   HO kann nur am Gerät geändert werden - HO kann von Vifcon nur gelesen werden, wodurch OPmax angepasst wird (1. Menü-Knopf, 2. Umschalten auf Manuel-Mode)
+                                                                          # False:  Vifcon sendet HO an Gerät - Start: OPmax (Config) zu HO, Später: Limit-Änderung durch Menü
+                                                                          # Default bei Fehler: True
+      PID_Write: 0                                                        # Schreibe zum Start die neuen PID-Werte - True: Schreibe, False: Später über Menü | Default bei Fehler: False
+      start_modus: Manuel                                                 # Auto - Automatisch (Temperatur), Manuel - Manueller Modus (Leistung) | Default bei Fehler: Manuel
+      readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
+      init: 1                                                             # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Instrument Identity, Software Version, Instrumenten Modus, Display-Temperatur (Max., Min.), Solltemperatur (Max., Min.), PID-Parameter, Statuswort
+                                                                          # ggf. Setzen:  Start-Modus (Auto, Manuel), Maximale Ausgangsleistung (HO)
+                                                                          # Default bei Fehler: False
+      ramp_start_value: ist                                               # Start-Wert für die erste Rampe (beginnt Erstellung bei dieser) -> IST = Istwert, SOLL = Sollwert -> Upper genutzt! 
+                                                                          # Default bei Fehler: IST
+      ramp_m_unit: K/s                                                    # Einheit der Eurotherm-Rampen Steigung: K/s, K/h, K/min | Default bei Fehler: K/s
+    ende: 1                                                               # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Umschalten auf Manuell Modus mit 0 % Op)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
+    serial-interface:
+      port: /dev/ttyr04
+      baudrate: 9600
+      bytesize: 7
+      stopbits: 1
+      parity: E
+      timeout: 0.1
+    multilog:
+      write_trigger: Eurotherm1                                           # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen) | Default bei Fehler: Port auf Null
+      write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+      read_trigger_ist: DAQ-6510                                          # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: IGA-6-23-adv                                     # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+    PID:                                                                  # Erstellung eines PID-Reglers
+      PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 200                                                             # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.3                                                             # I-Anteil [] | Default bei Fehler: 0
+      kd: 0                                                               # D-Anteil [] | Default bei Fehler: 0
+      sample: 500                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 25                                                       # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 25                                                      # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) | Default bei Fehler: 0
+      Multilog_Sensor_Ist: TE_1_K air 155 mm over crucible                # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 500                                                # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
+    PID-Device:
+      PB: 11.8                                                            # Proportionalband [Eng] oder [%] - Eng: °C, F  - 0 bis 99999   - Float   (eine Nachkommastelle)   | Default bei Fehler: Werden nicht weitergegeben!
+      TI: 114                                                             # Integralzeit [s]                - Off = 0     - Aus bis 99999 - Integer (keine Nachkommerstelle) | Default bei Fehler: Werden nicht weitergegeben!
+      TD: 0                                                               # Differenzialzeit [s]            - Off = 0     - Aus bis 99999 - Integer (keine Nachkommerstelle) | Default bei Fehler: Werden nicht weitergegeben!
+    limits:
+      maxTemp: 500                                                        # Maximale Temperatur [°C] | Default bei Fehler: 1
+      minTemp: 0                                                          # Minimale Temperatur [°C] | Default bei Fehler: 0
+      opMax: 35                                                           # Maximale Leistung [%] | Default bei Fehler: 1
+      opMin: 0                                                            # Minimale Leistung [%] | Default bei Fehler: 0
+    GUI:
+      legend: RezOp ; RezT ; IWT ; IWOp ; SWT                             
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, Op - Leistung, T - Temperatur, Rez - Rezept, PID - PID Modus
+                                                                          # Eingebaut: RezT, RezOp, IWT, IWOp, IWTPID, SWT, SWTPID, uGT, oGT, uGOp, oGOp, oGPID, uGPID
+                                                                          # Default bei Fehler: IWT, IWOp
+    defaults:
+      startTemp: 20                                                       # Temperatur bei Programmstart [°C] | Default bei Fehler: 0
+      startPow: 0                                                         # Leistung bei Programmstart [%] | Default bei Fehler: 0
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen ; Sollwert (°C/%) (Rampe: Endwert) ; Art der Rampe ; Abstand der Sprünge in s (r) | Sollwert Ausgangsleistung (op, opr) - IST bedeutet nur Wechsel zu Manuel-Mode ; Schritte in %/s (opr) ; Start der Rampe (opr)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe, er - Eurotherm-Rampe, op - Leistungssprung in einem Temperaturrezept, opr - Leistungsrampe in einem Temperaturrezept
+                                                                          # Bei einem Leistungsrezept werden nur s und r genutzt!
+                                                                          # Beispiel:
+                                                                          # Sprung                        -> n5: 10 ; 80 ; s
+                                                                          # Rampe                         -> n3: 30 ; 100 ; r ; 1
+                                                                          # Eurotherm-Rampe               -> n1: 30 ; 100 ; er 
+                                                                          # Sprung Leistung in T-rezept   -> n2: 20 ; 100 ; op ; 5
+                                                                          # Rampe Leistung in T-rezept    -> n4: 30 ; 100 ; opr ; 0 ; 0.667 ; 20
+                                                                          #                               -> n1: 30 ; 20 ; opr ; 20 ; 0.6               
+                                                                          # Steigung: r - z.B. 1      --> bei 10 s und Ziel: 100°C, Start: 30°C -> 10 s/1 = 10 s -> (100°C-30°C)/10 s = 7 °C/s (Sprünge)
+                                                                          #           opr - z.B. 1    --> bei 10 s und Ziel: 50 %, Start: 10 % -> 10 s/1 = 10 s -> (50 % - 10 %)/10 s = 4 %/s (Sprünge)
+                                                                          # op und oprs sind nur bei einem Temperaturrezept möglich!
+                                                                          #   - op: Die Rezeptkurve enthält dann Sprünge von Null auf den gewünschten Wert, die Reale Kurve muss dabei nicht auf Null sein!
+                                                                          #   - op: Wenn IST angegeben, dann wird nur Umgeschaltet in den Manuellen Modus. Kein Plot wenn nur IST!
+                                                                          #   - opr: Fehlt das letzte wird bei Null begonnen!
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
+      Template_Dat:
+        dat: rec_example.yml
+      Template_Config:
+        n1: 10 ; 100 ; er ; 8
+        n2: 10 ; 100 ; s
+        n3: 10 ; 200 ; r ; 0,667
+        n4: 10 ; 200 ; op ; 20
+        n5: 10 ; 200 ; opr ; 0 ; 0,667 ; 20
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  TruHeat:                                                                # Muss "TruHeat" enthalten! (Name nicht doppelt vergeben!!!)         
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ: Generator                                                        # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    start:  
+      start_modus: P                                                      # P - Leistung, I - Strom, U - Spannung | Nutzung von Upper | Default bei Fehler: P
+      readTime: 2                                                         # Auslesezeit [s] (Sollte die Watchdog Zeit nicht überschreiten) | Default bei Fehler: 2
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Watchdog, Software Version, Netzteil-Typ, Minimumwerte (SIMIN, SUMIN), Maxiamlewerte (Leistung, Strom, Spannung), Aktives Interface
+                                                                          #      Setzen:  Watchdog
+                                                                          # Default bei Fehler: False
+      ad: '00001'                                                         # Addresse des Generators, Binär, (nach Doku bei Generator fest auf 1) - String! | Default bei Fehler: Programm Exit!
+      watchdog_Time: 5000                                                 # Watchdog-Zeit [ms] (Integer) - Wertebereich: 0 bis 10000 - Deaktivierung: 0 - Notiz: Im Fall init = False und readTime = 0, sollte der Watchdog deaktiviert werden, da dann keine regelmäßigen Befehle kommen! | Default bei Fehler: 5000
+      send_Delay: 20                                                      # Sende Delay [ms] (Sollte die Watchdog Zeit nicht überschreiten) | Default bei Fehler: 20
+    ende: False                                                           # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Setze P und U auf Null, I auf Minimum)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
+    serial-interface:
+      port: COM11
+      baudrate: 19200
+      bytesize: 8
+      stopbits: 1
+      parity: N
+      timeout: 0.1
+    serial-loop-read: 3                                                   # Anzahl der Wiederholung bei dem Auslesen der Antwort bei Fehlschlag! | Default bei Fehler: 10
+    multilog:
+      write_trigger: Vifcon_generator                                     # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen) | Default bei Fehler: Port auf Null                                     
+      write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+    PID:                                                                  # Erstellung eines PID-Reglers
+      PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog 
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
+      kd: 0.16                                                            # D-Anteil [] | Default bei Fehler: 0
+      sample: 150                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert_P: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (P-Wert) | Default bei Fehler: 0
+      umstell_wert_I: 2,5                                                 # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (I-Wert) | Default bei Fehler: 0
+      umstell_wert_U: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (U-Wert) | Default bei Fehler: 0
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      Input_Size_unit: mm                                                 # Einheit der Input-Größe | Default bei Fehler: mm
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
+    limits:
+      maxI: 35                                                            # Maximaler Strom [A]     (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 49) | Default bei Fehler: 1
+      minI: 2.5                                                           # Minimaler Strom [A]     (SIMIN (minimaler Sollwert für den Ausgangsstrom) - Betriebsanleitung Generator S. 155 - Befehl 49) | Default bei Fehler: 0
+      maxP: 11.2                                                          # Maximale Leistung [kW]  (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 50) | Default bei Fehler: 1
+      minP: 0                                                             # Minimale Leistung [kW]  (nach Betriebsanleitung Generator S. 155 - Befehl 50) | Default bei Fehler: 0
+      maxU: 1200                                                          # Maximale Spannung [V]   (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 51) | Default bei Fehler: 1
+      minU: 0                                                             # Minimale Spannung [V]   (SUMIN (minimaler Sollwert für die Kondensatorspannung - Betriebsanleitung Generator S. 155 - Befehl 51) | Default bei Fehler: 0
+    GUI:
+      legend: RezI ; RezU ; RezP ; Rezx ; IWU ; IWI ; IWP ; SWI ; SWU ; SWP ; IWf ; IWxPID ; SWxPID 
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, P - Leistung, I - Strom, U - Spannung, f - Frequenz, Rez - Rezept, x - PID-Input-Größe, PID - PID-Modus-Kurven
+                                                                          # Eingebaut: RezI, RezU, RezP, Rezx, IWI, IWU, IWP, IWf, SWI, SWU, SWP, uGI, oGI, uGU, oGU, uGP, oGP, IWxPID, SWxPID, oGPID, uGPID
+                                                                          # Default bei Fehler: IWI, IWP, IWU
+    defaults:
+      startCurrent: 2.5                                                   # Strom bei Programmstart [A] | Default bei Fehler: 0
+      startPow: 11.2                                                      # Leistung bei Programmstart [kW] | Default bei Fehler: 0
+      startVoltage: 1200                                                  # Spannung bei Programmstart [V] | Default bei Fehler: 0
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (kW/V/A), Art der Rampe, Schritt/Steigung (kW/s, V/s, A/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 10   --> 10 V Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild) 
+                                                                          # Default bei Fehler: {'rezept_Default':  {'n1': '10 ; 0 ; s'}}    
+      rezept_P1:
+        n1: 10 ; 10 ; s
+        n2: 3 ; 100 ; s
+        n3: 5 ; 1 ; s
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  PI-Achse_h:                                                             # Muss "PI-Achse" enthalten!
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    mercury_model: C862                                                   # C862 (schwarz), C863 (grau) | Default bei Fehler: Programm Exit bei Fehler!
+    read_TT_log: True                                                     # Anzeige der Zielwerte in Log-Datei | Default bei Fehler: False
+    gamepad_Button: PIh                                                   # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: PIh, PIz, PIx, PIy
+                                                                          # PIh - ← & → (Axis)
+                                                                          # PIz - ↑ & ↓ (Axis)
+                                                                          # PIx - X & B (Button)
+                                                                          # PIy - Y & A (Button)
+                                                                          # Knöpfe: X - ↑ (Raus), B - ↓ (Rein), Y - ← (Links), A - → (Rechts), ← & ↑ - ↑ (hoch), → & ↓ (Runter)
+                                                                          # Default bei Fehler: Gamepad ausgeschaltet!
+    start:
+      readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Board Adresse, Status, Version, Start-Position
+                                                                          # Default bei Fehler: False
+      mode: 1                                                             # Modus für Entriegelung der Bewegungsknöpfe: 0 - Keine Verrrigelung, 1 - Entriegelung durch Timer, 2 - Entriegelung bei erreichen von 0 mm/s | Default bei Fehler: 1
+    ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
+    serial-interface:
+      port: COM9
+      baudrate: 9600
+      bytesize: 8
+      stopbits: 1
+      parity: N
+      timeout: 0.1
+    serial-loop-read: 3                                                   # Anzahl der Wiederholung bei dem Auslesen der Antwort bei Fehlschlag! | Default bei Fehler: 10
+    multilog:
+      write_trigger: Pi1                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi | Default bei Fehler: Port auf Null
+      write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+    PID:                                                                   # Erstellung eines PID-Reglers
+      PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
+      kd: 0.16                                                            # D-Anteil [] | Default bei Fehler: 0
+      sample: 150                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      Input_Size_unit: 'mm'                                               # Einheit der Input-Größe | Default bei Fehler: mm
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
+    parameter:
+      adv: '0133'                                                         # Adressauswahlcode | Default bei Fehler: Programm Exit!
+      cpm: 29752                                                          # Counts per mm | Default bei Fehler: 29752
+      mvtime: 25                                                          # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV) | Default bei Fehler: 25
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3  
+    limits:
+      maxPos: 0                                                           # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
+      minPos: -50                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
+      maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s] | Default bei Fehler: 1
+      minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s] | Default bei Fehler: -1
+    GUI:
+      bewegung: 'z'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter | Default bei Fehler: z
+      piSymbol: 'Un'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus) | Default bei Fehler: UN
+      knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
+                                                                          # Mode 0: Knöpfe bleiben Grün, bis andere Richtung oder Stopp betätigt werden!
+                                                                          # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
+      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
+                                                                          # Default: IWv, IWs
+    defaults:
+      startSpeed: 2                                                       # Startgeschwindigkeit [mm/s] | Default bei Fehler: 0
+      startPos: 0                                                         # Startposition/Startfahrweg [mm] | Default bei Fehler: 0
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/s), Art der Rampe, Schritte/Steigung ((mm/s)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> 2 mm/s Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)   
+                                                                          # Default: {'rezept_Default':  {'n1': '10 ; 0 ; s'}} 
+      Template_Test:
+        n1: 1 ; -2 ; s
+        n2: 4 ; -1 ; s
+        n3: 1 ; -0.5 ; s
+        n4: 1 ; 1 ; s
+        n5: 5 ; 2 ; s
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  PI-Achse_y:                                                             # Muss "PI-Achse" enthalten!
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    mercury_model: C863                                                   # C862 (schwarz), C863 (grau) | Default bei Fehler: Programm Exit bei Fehler!
+    read_TT_log: True                                                     # Anzeige der Zielwerte in Log-Datei | Default bei Fehler: False
+    gamepad_Button: PIy                                                   # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: PIh, PIz, PIx, PIy
+                                                                          # PIh - ← & → (Axis)
+                                                                          # PIz - ↑ & ↓ (Axis)
+                                                                          # PIx - X & B (Button)
+                                                                          # PIy - Y & A (Button)
+                                                                          # Knöpfe: X - ↑ (Raus), B - ↓ (Rein), Y - ← (Links), A - → (Rechts), ← & ↑ - ↑ (hoch), → & ↓ (Runter)
+                                                                          # Default bei Fehler: Gamepad ausgeschaltet!
+    start:
+      readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Board Adresse, Status, Version, Start-Position
+                                                                          # Default bei Fehler: False
+      mode: 1                                                             # Modus für Entriegelung der Bewegungsknöpfe: 0 - Keine Verrrigelung, 1 - Entriegelung durch Timer, 2 - Entriegelung bei erreichen von 0 mm/s | Default bei Fehler: 1
+    ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
+    serial-interface:
+      port: COM9
+      baudrate: 9600
+      bytesize: 8
+      stopbits: 1
+      parity: N
+      timeout: 0.1
+    serial-loop-read: 3                                                   # Anzahl der Wiederholung bei dem Auslesen der Antwort bei Fehlschlag! | Default bei Fehler: 10
+    multilog:
+      write_trigger: Pi2                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi | Default bei Fehler: Port auf Null
+      write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+      read_trigger_ist: Series-600                                        # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+    PID:                                                                  # Erstellung eines PID-Reglers
+      PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
+      kd: 0.16                                                            # D-Anteil [] | Default bei Fehler: 0
+      sample: 150                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
+      Multilog_Sensor_Ist: Pyro_h1                                        # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      Input_Size_unit: 'mm'                                               # Einheit der Input-Größe | Default bei Fehler: mm
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
+    parameter:
+      adv: '0131'                                                         # Adressauswahlcode | Default bei Fehler: Programm Exit!
+      cpm: 29586                                                          # Counts per mm | Default bei Fehler: 29752
+      mvtime: 100                                                         # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV) | Default bei Fehler: 25
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3  
+    limits:
+      maxPos: 50                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
+      minPos: -20                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
+      maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s] | Default bei Fehler: 1
+      minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s] | Default bei Fehler: -1
+    GUI:
+      bewegung: 'y'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter | Default bei Fehler: z
+      piSymbol: 'Re'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus) | Default bei Fehler: UN
+      knopf_anzeige: 0                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
+                                                                          # Mode 0: Knöpfe bleiben Grün, bis andere Richtung oder Stopp betätigt werden!
+                                                                          # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
+      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
+                                                                          # Default: IWv, IWs
+    defaults:
+      startSpeed: 2                                                       # Startgeschwindigkeit [mm/s] | Default bei Fehler: 0
+      startPos: 0                                                         # Startposition/Startfahrweg [mm] | Default bei Fehler: 0
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/s), Art der Rampe, Schritte/Steigung ((mm/s)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> 2 mm/s Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)   
+                                                                          # Default: {'rezept_Default':  {'n1': '10 ; 0 ; s'}} 
+      Template_Test:
+        n1: 10 ; 0.5 ; s
+        n2: 20 ; 1 ; s
+        n3: 20 ; -1 ; s
+        n4: 10 ; -0,5 ; s 
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  PI-Achse_x:                                                             # Muss "PI-Achse" enthalten! 
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    mercury_model: C863                                                   # C862 (schwarz), C863 (grau) | Default bei Fehler: Programm Exit bei Fehler!
+    read_TT_log: True                                                     # Anzeige der Zielwerte in Log-Datei | Default bei Fehler: False
+    gamepad_Button: PIx                                                   # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: PIh, PIz, PIx, PIy
+                                                                          # PIh - ← & → (Axis)
+                                                                          # PIz - ↑ & ↓ (Axis)
+                                                                          # PIx - X & B (Button)
+                                                                          # PIy - Y & A (Button)
+                                                                          # Knöpfe: X - ↑ (Raus), B - ↓ (Rein), Y - ← (Links), A - → (Rechts), ← & ↑ - ↑ (hoch), → & ↓ (Runter)
+                                                                          # Default bei Fehler: Gamepad ausgeschaltet!
+    start:
+      readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Board Adresse, Status, Version, Start-Position
+                                                                          # Default bei Fehler: False
+      mode: 1                                                             # Modus für Entriegelung der Bewegungsknöpfe: 0 - Keine Verrrigelung, 1 - Entriegelung durch Timer, 2 - Entriegelung bei erreichen von 0 mm/s | Default bei Fehler: 1
+    ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
+    serial-interface:
+      port: COM9
+      baudrate: 9600
+      bytesize: 8
+      stopbits: 1
+      parity: N
+      timeout: 0.1
+    serial-loop-read: 3                                                   # Anzahl der Wiederholung bei dem Auslesen der Antwort bei Fehlschlag! | Default bei Fehler: 10
+    multilog:
+      write_trigger: Pi3                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi | Default bei Fehler: Port auf Null
+      write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+    PID:                                                                  # Erstellung eines PID-Reglers
+      PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
+      kd: 0.16                                                            # D-Anteil [] | Default bei Fehler: 0
+      sample: 150                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      Input_Size_unit: 'mm'                                               # Einheit der Input-Größe | Default bei Fehler: mm
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
+    parameter:
+      adv: '0130'                                                         # Adressauswahlcode | Default bei Fehler: Programm Exit!
+      cpm: 29586                                                          # Counts per mm | Default bei Fehler: 29752
+      mvtime: 100                                                         # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV) | Default bei Fehler: 25
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3  
+    limits:
+      maxPos: 10                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
+      minPos: -10                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
+      maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s] | Default bei Fehler: 1
+      minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s] | Default bei Fehler: -1
+    GUI:
+      bewegung: 'x'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter | Default bei Fehler: z
+      piSymbol: 'Vo'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus) | Default bei Fehler: UN
+      knopf_anzeige: 0                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
+                                                                          # Mode 0: Knöpfe bleiben Grün, bis andere Richtung oder Stopp betätigt werden!
+                                                                          # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
+      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
+                                                                          # Default: IWv, IWs
+    defaults:
+      startSpeed: 2                                                       # Startgeschwindigkeit [mm/s] | Default bei Fehler: 0
+      startPos: 0                                                         # Startposition/Startfahrweg [mm] | Default bei Fehler: 0
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/s), Art der Rampe, Schritte/Steigung ((mm/s)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> 2 mm/s Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)   
+                                                                          # Default: {'rezept_Default':  {'n1': '10 ; 0 ; s'}} 
+      rezept_1:
+        n1: 10 ; 0.5 ; s
+        n2: 20 ; 1 ; s
+        n3: 20 ; -1 ; s
+        n4: 10 ; -0,5 ; s
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  PI-Achse_z:                                                             # Muss "PI-Achse" enthalten! 
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    mercury_model: C862                                                   # C862 (schwarz), C863 (grau) | Default bei Fehler: Programm Exit bei Fehler!
+    read_TT_log: True                                                     # Anzeige der Zielwerte in Log-Datei | Default bei Fehler: False
+    gamepad_Button: PIz                                                   # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: PIh, PIz, PIx, PIy
+                                                                          # PIh - ← & → (Axis)
+                                                                          # PIz - ↑ & ↓ (Axis)
+                                                                          # PIx - X & B (Button)
+                                                                          # PIy - Y & A (Button)
+                                                                          # Knöpfe: X - ↑ (Raus), B - ↓ (Rein), Y - ← (Links), A - → (Rechts), ← & ↑ - ↑ (hoch), → & ↓ (Runter)
+                                                                          # Default bei Fehler: Gamepad ausgeschaltet!
+    start:
+      readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Board Adresse, Status, Version, Start-Position
+                                                                          # Default bei Fehler: False
+      mode: 0                                                             # Modus für Entriegelung der Bewegungsknöpfe: 0 - Keine Verrrigelung, 1 - Entriegelung durch Timer, 2 - Entriegelung bei erreichen von 0 mm/s | Default bei Fehler: 1
+    ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
+    serial-interface:
+      port: COM9
+      baudrate: 9600
+      bytesize: 8
+      stopbits: 1
+      parity: N
+      timeout: 0.1
+    serial-loop-read: 3                                                   # Anzahl der Wiederholung bei dem Auslesen der Antwort bei Fehlschlag! | Default bei Fehler: 10
+    multilog:
+      write_trigger: Pi4                                                  # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Pi | Default bei Fehler: Port auf Null
+      write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+    PID:                                                                  # Erstellung eines PID-Reglers
+      PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
+      kd: 0.16                                                            # D-Anteil [] | Default bei Fehler: 0
+      sample: 150                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      Input_Size_unit: 'mm'                                               # Einheit der Input-Größe | Default bei Fehler: mm
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
+    parameter:
+      adv: '0132'                                                         # Adressauswahlcode | Default bei Fehler: Programm Exit!
+      cpm: 29752                                                          # Counts per mm | Default bei Fehler: 29752
+      mvtime: 25                                                          # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV) | Default bei Fehler: 25
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3  
+    limits:
+      maxPos: 10                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
+      minPos: -50                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
+      maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s] | Default bei Fehler: 1
+      minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s] | Default bei Fehler: -1
+    GUI:
+      bewegung: 'z'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter | Default bei Fehler: z
+      piSymbol: 'Ob'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus) | Default bei Fehler: UN
+      knopf_anzeige: 0                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
+                                                                          # Mode 0: Knöpfe bleiben Grün, bis andere Richtung oder Stopp betätigt werden!
+                                                                          # Mode 1 & 2: Knöpfe sind aufgrund des setEnable Grau hinterlegt!
+      legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
+                                                                          # Default bei Fehler: IWv, IWs
+    defaults:
+      startSpeed: 2                                                       # Startgeschwindigkeit [mm/s] | Default bei Fehler: 0
+      startPos: 0                                                         # Startposition/Startfahrweg [mm] | Default bei Fehler: 0
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/s), Art der Rampe, Schritte/Steigung ((mm/s)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> 2 mm/s Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)   
+                                                                          # Default bei Fehler: {'rezept_Default':  {'n1': '10 ; 0 ; s'}} 
+      rezept_Syn:
+        n1: 1 ; 2 ; s
+        n2: 4 ; 1 ; s
+        n3: 10 ; 0.5 ; s
+        n4: 1 ; -1 ; s
+        n5: 5 ; -2 ; s
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Nemo-Achse-Linear_Spindel:                                              # Muss "Nemo-Achse-Linear" enthalten! 
+    skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    nemo-Version: 2                                                       # gewählte Anlage: 1, 2 | Default bei Fehler: 1
+    gamepad_Button: HubS                                                  # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: HubS, HubT
+                                                                          # HubS - X & B (Spindel) (Button) 
+                                                                          # HubT - ↑ & ↓ (Tiegel)  (Axes)
+                                                                          # Knöpfe: X & Y - ↑ (Hoch), B & A - ↓ (Runter)
+                                                                          # Default bei Fehler: Gamepad ausgeschaltet!
+    start:
+      readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Minamles und Maximales Positionslimit
+                                                                          # Default bei Fehler: False
+      invert: True                                                        # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
+                                                                          # Eigentlich: Spindel:  Hoch-Fahren = Negative Geschwindigkeit
+                                                                          #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
+                                                                          # Bei Nemo-2 nicht mehr so!
+                                                                          # Default bei Fehler: False
+      invert_Pos: False                                                   # Wenn True wird der Positionswert mal -1 genommen!! 
+                                                                          # Benötigt für die Nemo2 Spindel: ↑ Position sinkt, ↓ Position steigt
+                                                                          # Achtung: Achte auf oGs und uGs! Beim Tiegel liegt dieses Problem nicht vor! Dort Umbedingt auf False stellen!! 
+                                                                          # Default bei Fehler: False
+      start_weg: 0                                                        # Startweg in mm | Default bei Fehler: 0
+      pos_control: SIM                                                    # Positions-Limit-Kontrolle -> SIM - Simulierter Weg, REAL - Realer Weg (Nutzung von Upper) | Default bei Fehler: SIM
+                                                                          # Bitte bei REAL `invert_Pos` auf True setzen, wenn Spindel Nemo-2 genutzt wird!
+      sicherheit: 0                                                       # Sicherheits Modus bei Nutzung des Realen Positions-Wertes: 0 - Error und Fehler ignorieren, 1 - Error und Stopp | Default bei Fehler: 0 
+    ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
+    serial-interface:
+      host: '192.168.117.199'                                             # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      port: 502
+      debug: False                                                        # Funktioniert nur bei pyModbusTCP < 0.3.0, funktioniert bei 0.2.1
+      timeout: 0.1                                                        # Default = 30 s
+    multilog:
+      write_trigger: Hub1                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Hub | Default bei Fehler: Port auf Null
+      write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+    PID:                                                                  # Erstellung eines PID-Reglers
+      PID_Aktiv: 1                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
+      kd: 0.16                                                            # D-Anteil [] | Default bei Fehler: 0
+      sample: 150                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      Input_Size_unit: 'mm'                                               # Einheit der Input-Größe | Default bei Fehler: mm
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
+    register:
+      hoch: 17                                                            # Coil    - Tiegel: 1, Spindel: 17 | Default bei Fehler: Programm-Exit!
+      runter: 18                                                          # Coil    - Tiegel: 2, Spindel: 18 | Default bei Fehler: Programm-Exit!
+      stopp: 16                                                           # Coil    - Tiegel: 0, Spindel: 16 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg: 39                                                     # Input   - Auslese Start-Adresse: Nemo1 = Spindel: 38, Tiegel: 20 | Nemo2 = Spindel: 39, Tiegel: 20 | Default bei Fehler: Programm-Exit!
+      write_v_Reg: 4                                                      # Holding - Start Register für Geschwindigkeitswert: Spindel: 4, Tiegel: 0 | Default bei Fehler: Programm-Exit!
+      posAktuel: 43                                                       # Input   - Register für die aktuelle Position: Nemo1 = Spindel: 42, Tiegel: 24 | Nemo2 = Spindel: 43, Tiegel: 24 | Default bei Fehler: Programm-Exit!
+      posLimReg: 47                                                       # Input   - Startregister Limits: Nemo1 = Spindel: 46, Tiegel: 28 | Nemo2 = Spindel: 47, Tiegel: 28 | Default bei Fehler: Programm-Exit!
+      InfoReg: 143                                                        # Input   - Informationswerte: Nemo2 = Spindel: 143, Tiegel: 121 | Default bei Fehler: Programm-Exit!
+      statusReg: 51                                                       # Input   - Status: Nemo1 = Tiegel: 32, Spindel: 50 | Nemo2 = Tiegel: 32, Spindel: 51 | Default bei Fehler: Programm-Exit!
+      statusRegEil: 155                                                   # Input   - Status Eilgang: Tiegel: 133, Spindel: 155 | Default bei Fehler: Programm-Exit! | Nur bei Nemo-2 vorhanden!
+    parameter:
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3   
+      Vorfaktor_Ist: 1                                                    # Vorfaktor für die Ist-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701) | Default bei Fehler: 1
+      Vorfaktor_Soll: 1                                                   # Vorfaktor für die Soll-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701) | Default bei Fehler: 1
+    limits:
+      maxPos: 10                                                          # Maximale Position [mm] | Default bei Fehler: 1
+      minPos: -10                                                         # Minimale Position [mm] | Default bei Fehler: 0
+      maxSpeed: 60                                                        # Maximale Geschwindigkeit [mm/min] | Default bei Fehler: 1
+      minSpeed: -60                                                       # Minimale Geschwindigkeit [mm/min] | Default bei Fehler: -1
+    GUI:
+      knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
+      legend: Rezv ; IWs ; IWv ; IWsd ; SWv ; Rezx ; IWxPID ; SWxPID       
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!), x - Externe-PID-Input-Größe, PID- PID-Modus
+                                                                          # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID, oGPID, uGPID
+                                                                          # Default bei Fehler: IWs, IWv
+                                                                          # Notiz: IWs ist ein simulierter Weg, IWsd ist der ausgelesene Wert!
+    defaults:
+      startSpeed: 1                                                       # Startgeschwindigkeit [mm/min] | Default bei Fehler: 0
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/min), Art der Rampe , Schritte/Steigung ((mm/min)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Im PID-Modus benötigt es noch einen Wert am Ende der Schritte:
+                                                                          #    - diese geben die Bewegungsrichtung an
+                                                                          #    - im Normalen-Betrieb wird die Richtung anhand des Vorzeichens erkannt
+                                                                          #    - Möglich: UP, DOWN (Nutzung von upper im Code!)
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> 2 mm/min Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
+                                                                          # Default bei Fehler: {'rezept_Default':  {'n1': '10 ; 0 ; s'}}
+      PID_Test:
+        n1: 20 ; 74 ; s ; UP
+        n2: 20 ; 75 ; s ; Down
+        n3: 100 ; 74 ; r ; 10 ; DOWN
+      v_Test:
+        n1: 20 ; 3 ; s
+        n2: 20 ; -3 ; s
+        n3: 100 ; 3 ; r ; 10
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Nemo-Achse-Rotation_Spindel:                                            # Muss "Nemo-Achse-Rotation" enthalten! 
+    skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    nemo-Version: 2                                                       # gewählte Anlage: 1, 2 | Default bei Fehler: 1
+    gamepad_Button: RotS                                                  # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: RotS, RotT
+                                                                          # RotS - Y & A (Spindel) (Button)
+                                                                          # RotT - ← & → (Tiegel)  (Axes)
+                                                                          # Knöpfe: ↑ & ← - ↻ (CW), ↓ & → - ↺ (CCW)
+                                                                          # Default bei Fehler: Gamepad ausgeschaltet!
+    start:
+      readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Nichts
+                                                                          # Default bei Fehler: False
+      invert: True                                                        # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
+                                                                          # Eigentlich: Spindel:  CW-Fahren   = Negative Geschwindigkeit
+                                                                          #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
+                                                                          # Default bei Fehler: False
+      start_winkel: 0                                                     # Startwinkel in ° | Default bei Fehler: 0
+      kont_rot: 0                                                         # Setze Kontinuierlisches Drehen ein oder Aus | Default bei Fehler: False
+    ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
+    serial-interface:
+      host: '192.168.117.199'                                             # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      port: 502
+      debug: False                                                        # Funktioniert nur bei pyModbusTCP < 0.3.0, funktioniert bei 0.2.1
+      timeout: 0.1                                                        # Default = 30 s
+    multilog:
+      write_trigger: Rot1                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Rot | Default bei Fehler: Port auf Null
+      write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+    PID:                                                                  # Erstellung eines PID-Reglers
+      PID_Aktiv: 1                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
+      kd: 0.16                                                            # D-Anteil [] | Default bei Fehler: 0
+      sample: 150                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      Input_Size_unit: 'mm'                                               # Einheit der Input-Größe | Default bei Fehler: mm
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
+    register:
+      cw: 21                                                              # Coil    - Tiegel: 4, Spindel: 21 | Default bei Fehler: Programm-Exit! 
+      ccw: 20                                                             # Coil    - Tiegel: 5, Spindel: 20 | Default bei Fehler: Programm-Exit!
+      stopp: 19                                                           # Coil    - Tiegel: 3, Spindel: 19 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg: 53                                                     # Input   - Auslese Start-Adresse: Nemo1 = Spindel: 51, Tiegel: 33 | Nemo2 = Spindel: 53, Tiegel: 34 | Default bei Fehler: Programm-Exit!
+      write_v_Reg: 6                                                      # Holding - Start Register für Geschwindigkeitswert: Spindel: 6, Tiegel: 2 | Default bei Fehler: Programm-Exit!
+      statusReg: 57                                                       # Input   - Status: Nemo1 = Tiegel: 37, Spindel: 55 | Nemo2 = Tiegel: 38, Spindel: 57 | Default bei Fehler: Programm-Exit!
+    parameter:
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3  
+      Vorfaktor_Ist: 1                                                    # Vorfaktor für die Ist-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701) | Default bei Fehler: 1
+      Vorfaktor_Soll: 1                                                   # Vorfaktor für die Soll-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701) | Default bei Fehler: 1
+    limits:
+      maxWinkel: 180                                                      # Maximaler Winkel [°] | Default bei Fehler: 180
+      minWinkel: -1                                                       # Minimaler Winkel [°] | Default bei Fehler: 0
+      maxSpeed: 3                                                         # Maximale Geschwindigkeit [1/min] | Default bei Fehler: 1
+      minSpeed: -3                                                        # Minimale Geschwindigkeit [1/min] | Default bei Fehler: -1
+    GUI:
+      knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
+      legend: Rezv ; IWv ; SWv ; IWw ; Rezx ; IWxPID ; SWxPID             
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Externe-PID-Input-Größe, PID- PID-Modus
+                                                                          # Eingebaut: Rezv, Rezx , IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID, oGPID, uGPID
+                                                                          # Default bei Fehler: IWw, IWv
+    defaults:
+      startSpeed: 1                                                       # Startgeschwindigkeit [1/min] | Default bei Fehler: 0
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (1/min), Art der Rampe , Schritte/Steigung ((1/min)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> Alle 2 s erfolgt ein Sollwertsprung!
+                                                                          # Im PID-Modus benötigt es noch einen Wert am Ende der Schritte:
+                                                                          #    - diese geben die Bewegungsrichtung an
+                                                                          #    - im Normalen-Betrieb wird die Richtung anhand des Vorzeichens erkannt
+                                                                          #    - Möglich: CW, CCW (Nutzung von upper im Code!)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
+                                                                          # Default bei Fehler: {'rezept_Default':  {'n1': '10 ; 0 ; s'}}
+      PID_Test:
+        n1: 20 ; 74 ; s ; CW
+        n2: 20 ; 75 ; s ; CCW
+        n3: 100 ; 74 ; r ; 10 ; CW
+      v_Test:
+        n1: 20 ; 3 ; s
+        n2: 20 ; -3 ; s
+        n3: 100 ; 3 ; r ; 10
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Nemo-Achse-Linear_Tiegel:                                               # Muss "Nemo-Achse-Linear" enthalten! 
+    skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    nemo-Version: 2                                                       # gewählte Anlage: 1, 2 | Default bei Fehler: 1
+    gamepad_Button: HubT                                                  # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: HubS, HubT
+                                                                          # HubS - X & B (Spindel)
+                                                                          # HubT - ↑ & ↓ (Tiegel)
+                                                                          # Knöpfe: X & Y - ↑ (Hoch), B & A - ↓ (Runter)
+                                                                          # Default bei Fehler: Gamepad ausgeschaltet!
+    start:
+      readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Minamles und Maximales Positionslimit
+      invert: False                                                       # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
+                                                                          # Eigentlich: Spindel:  Hoch-Fahren = Negative Geschwindigkeit
+                                                                          #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
+                                                                          # Bei Nemo-2 nicht mehr so!
+                                                                          # Default bei Fehler: False
+      invert_Pos: False                                                   # Wenn True wird der Positionswert mal -1 genommen!! 
+                                                                          # Benötigt für die Nemo2 Spindel: ↑ Position sinkt, ↓ Position steigt
+                                                                          # Achtung: Achte auf oGs und uGs! Beim Tiegel liegt dieses Problem nicht vor! Dort Umbedingt auf False stellen!! 
+                                                                          # Default bei Fehler: False
+      start_weg: 140                                                      # Startweg in mm | Default bei Fehler: 0
+      pos_control: SIM                                                    # Positions-Limit-Kontrolle -> SIM - Simulierter Weg, REAL - Realer Weg (Nutzung von Upper) | Default bei Fehler: SIM
+                                                                          # Bitte bei REAL `invert_Pos` auf True setzen, wenn Spindel Nemo-2 genutzt wird!
+      sicherheit: 0                                                       # Sicherheits Modus bei Nutzung des Realen Positions-Wertes: 0 - Error und Fehler ignorieren, 1 - Error und Stopp | Default bei Fehler: 0 
+    ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
+    serial-interface:
+      host: '192.168.117.199'                                             # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      port: 502
+      debug: False                                                        # Funktioniert nur bei pyModbusTCP < 0.3.0, funktioniert bei 0.2.1
+      timeout: 0.1                                                        # Default = 30 s
+    multilog:
+      write_trigger: Hub2                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Hub | Default bei Fehler: Port auf Null
+      write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+    PID:                                                                  # Erstellung eines PID-Reglers
+      PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
+      kd: 0.16                                                            # D-Anteil [] | Default bei Fehler: 0
+      sample: 150                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      Input_Size_unit: 'mm'                                               # Einheit der Input-Größe | Default bei Fehler: mm
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5 
+    register:
+      hoch: 1                                                             # Coil    - Tiegel: 1, Spindel: 17 | Default bei Fehler: Programm-Exit!
+      runter: 2                                                           # Coil    - Tiegel: 2, Spindel: 18 | Default bei Fehler: Programm-Exit!
+      stopp: 0                                                            # Coil    - Tiegel: 0, Spindel: 16 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg: 20                                                     # Input   - Auslese Start-Adresse: Nemo1 = Spindel: 38, Tiegel: 20 | Nemo2 = Spindel: 39, Tiegel: 20 | Default bei Fehler: Programm-Exit!
+      write_v_Reg: 0                                                      # Holding - Start Register für Geschwindigkeitswert: Spindel: 4, Tiegel: 0 | Default bei Fehler: Programm-Exit!
+      posAktuel: 24                                                       # Input   - Register für die aktuelle Position: Nemo1 = Spindel: 42, Tiegel: 24 | Nemo2 = Spindel: 43, Tiegel: 24 | Default bei Fehler: Programm-Exit!
+      posLimReg: 28                                                       # Input   - Startregister Limits: Nemo1 = Spindel: 46, Tiegel 28 | Nemo2 = Spindel: 47, Tiegel 28 | Default bei Fehler: Programm-Exit!
+      InfoReg: 121                                                        # Input   - Informationswerte: Nemo2 = Spindel: 143, Tiegel: 121 | Default bei Fehler: Programm-Exit!
+      statusReg: 32                                                       # Input   - Status: Nemo1 = Tiegel: 32, Spindel: 50 | Nemo2 = Tiegel: 32, Spindel: 51 | Default bei Fehler: Programm-Exit!
+      statusRegEil: 133                                                   # Input   - Status Eilgang: Tiegel: 133, Spindel: 155 | Default bei Fehler: Programm-Exit! | Nur bei Nemo-2 vorhanden!
+    parameter:
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3
+      Vorfaktor_Ist: 1                                                    # Vorfaktor für die Ist-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701) | Default bei Fehler: 1
+      Vorfaktor_Soll: 1                                                   # Vorfaktor für die Soll-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701) | Default bei Fehler: 1
+    limits:
+      maxPos: 200                                                         # Maximale Position [mm] | Default bei Fehler: 1
+      minPos: 0                                                           # Minimale Position [mm] | Default bei Fehler: 0
+      maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/min] | Default bei Fehler: 1
+      minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/min] | Default bei Fehler: -1
+    GUI:
+      knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
+      legend: Rezv ; IWs ; IWv ; SWv            
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!), x - Externe-PID-Input-Größe, PID- PID-Modus
+                                                                          # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID, oGPID, uGPID
+                                                                          # Default bei Fehler: IWs, IWv
+                                                                          # Notiz: IWs ist ein simulierter Weg, IWsd ist der ausgelesene Wert!
+    defaults:
+      startSpeed: 1                                                       # Startgeschwindigkeit [mm/min] | Default bei Fehler: 0
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/min), Art der Rampe , Schritte/Steigung ((mm/min)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Im PID-Modus benötigt es noch einen Wert am Ende der Schritte:
+                                                                          #    - diese geben die Bewegungsrichtung an
+                                                                          #    - im Normalen-Betrieb wird die Richtung anhand des Vorzeichens erkannt
+                                                                          #    - Möglich: UP, DOWN (Nutzung von upper im Code!)
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> 2 mm/min Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
+                                                                          # Default bei Fehler: {'rezept_Default':  {'n1': '10 ; 0 ; s'}}
+      Template_Test:
+        n1: 5 ; 1 ; s
+        n2: 5 ; -1 ; s
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Nemo-Achse-Rotation_Tiegel:                                             # Muss "Nemo-Achse-Rotation" enthalten! 
+    skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    nemo-Version: 2                                                       # gewählte Anlage: 1, 2 | Default bei Fehler: 1
+    gamepad_Button: RotT                                                  # Verknüpfung Gamepad-Knöpfe und Achsen:
+                                                                          # Möglich: RotS, RotT
+                                                                          # RotS - Y & A (Spindel) (Button)
+                                                                          # RotT - ← & → (Tiegel)  (Axes)
+                                                                          # Knöpfe: ↑ & ← - ↻ (CW), ↓ & → - ↺ (CCW)
+                                                                          # Default bei Fehler: Gamepad ausgeschaltet!
+    start:
+      readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Minamles und Maximales Positionslimit
+                                                                          # Default bei Fehler: False
+      invert: False                                                       # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
+                                                                          # Eigentlich: Spindel:  CW-Fahren   = Negative Geschwindigkeit
+                                                                          #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
+                                                                          # Default bei Fehler: False
+      start_winkel: 0                                                     # Startwinkel in ° | Default bei Fehler: 0
+      kont_rot: 1                                                         # Setze Kontinuierlisches Drehen ein oder Aus | Default bei Fehler: False
+    ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True  - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
+    serial-interface:
+      host: '192.168.1171.99'                                             # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      port: 502
+      debug: False                                                        # Funktioniert nur bei pyModbusTCP < 0.3.0, funktioniert bei 0.2.1
+      timeout: 0.1                                                        # Default = 30 s
+    multilog:
+      write_trigger: Rot2                                                 # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Rot | Default bei Fehler: Port auf Null
+      write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+    PID:                                                                  # Erstellung eines PID-Reglers
+      PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
+      kd: 0.16                                                            # D-Anteil [] | Default bei Fehler: 0
+      sample: 150                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) | Default bei Fehler: 0
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      Input_Size_unit: mm                                                 # Einheit der Input-Größe | Default bei Fehler: mm
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
+    register:
+      cw: 4                                                               # Coil    - Tiegel: 4, Spindel: 21 | Default bei Fehler: Programm-Exit! 
+      ccw: 5                                                              # Coil    - Tiegel: 5, Spindel: 20 | Default bei Fehler: Programm-Exit!
+      stopp: 3                                                            # Coil    - Tiegel: 3, Spindel: 19 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg: 34                                                     # Input   - Auslese Start-Adresse: Nemo1 = Spindel: 51, Tiegel: 33 | Nemo2 = Spindel: 53, Tiegel: 34 | Default bei Fehler: Programm-Exit!
+      write_v_Reg: 2                                                      # Holding - Start Register für Geschwindigkeitswert: Spindel: 6, Tiegel: 2 | Default bei Fehler: Programm-Exit!
+      statusReg: 38                                                       # Input   - Status: Nemo1 = Tiegel: 37, Spindel: 55 | Nemo2 = Tiegel: 38, Spindel: 57 | Default bei Fehler: Programm-Exit!
+    parameter:
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3 
+      Vorfaktor_Ist: 1                                                    # Vorfaktor für die Ist-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701) | Default bei Fehler: 1
+      Vorfaktor_Soll: 1                                                   # Vorfaktor für die Soll-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701) | Default bei Fehler: 1
+    limits:
+      maxWinkel: 180                                                      # Maximaler Winkel [°] | Default bei Fehler: 180
+      minWinkel: -1                                                       # Minimaler Winkel [°] | Default bei Fehler: 0
+      maxSpeed: 3                                                         # Maximale Geschwindigkeit [1/min] | Default bei Fehler: 1
+      minSpeed: -3                                                        # Minimale Geschwindigkeit [1/min] | Default bei Fehler: -1
+    GUI:
+      knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
+      legend: Rezv ; IWv ; SWv ; IWw                    
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Externe-PID-Input-Größe, PID- PID-Modus
+                                                                          # Eingebaut: Rezv, Rezx , IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID, oGPID, uGPID
+                                                                          # Default bei Fehler: IWw, IWv
+    defaults:
+      startSpeed: 1                                                       # Startgeschwindigkeit [1/min] | Default bei Fehler: 0
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (1/min), Art der Rampe , Schritte/Steigung ((1/min)/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 2    --> Alle 2 s erfolgt ein Sollwertsprung!
+                                                                          # Im PID-Modus benötigt es noch einen Wert am Ende der Schritte:
+                                                                          #    - diese geben die Bewegungsrichtung an
+                                                                          #    - im Normalen-Betrieb wird die Richtung anhand des Vorzeichens erkannt
+                                                                          #    - Möglich: CW, CCW (Nutzung von upper im Code!)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
+                                                                          # Default bei Fehler: {'rezept_Default':  {'n1': '10 ; 0 ; s'}}
+      Template_Test:
+        n1: 20 ; 3 ; s
+        n2: 20 ; -3 ; s
+        n3: 100 ; 3 ; r ; 10
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Nemo-Gase_1:                                                            # Muss "Nemo-Gase" enthalten! 
+    skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ: Monitoring                                                       # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    nemo-Version: 2                                                       # gewählte Anlage: 1, 2 | Default bei Fehler: 1
+    start:
+      readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Nichts
+                                                                          # Default bei Fehler: False
+    serial-interface:
+      host: '192.168.117.199'                                             # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      port: 502
+      debug: False                                                        # Funktioniert nur bei pyModbusTCP < 0.3.0, funktioniert bei 0.2.1
+      timeout: 0.1                                                        # Default = 30 s
+    multilog:
+      write_trigger: Vifcon_gase                                          # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen) | Default bei Fehler: Port auf Null
+      write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+    register:
+      lese_st_Reg_VGP_1: 2                                                # Auslese Start-Adresse für Vakuum/Gas/Pumpe 1: 2   | Default bei Fehler: Programm-Exit!
+      lese_st_Reg_VGP_2: 58                                               # Auslese Start-Adresse für Vakuum/Gas/Pumpe 2: 58  | Default bei Fehler: Programm-Exit! | Nur bei Nemo-2 vorhanden!!
+      lese_st_Reg_K: 161                                                  # Auslese Start-Adresse für Kühlungswerte:      161 | Default bei Fehler: Programm-Exit! | Nur bei Nemo-2 vorhanden!!
+      lese_st_Reg_AS: 209                                                 # Auslese Start-Adresse für Anlagensicherheit:  209 | Default bei Fehler: Programm-Exit! | Nur bei Nemo-2 vorhanden!!
+    parameter:
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3   
+# --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Nemo-Generator_TIG50_100:                                               # Muss "Nemo-Generator" enthalten! 
+    skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ: Generator                                                        # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    nemo-Version: 2                                                       # gewählte Anlage: 2 | Default bei Fehler: 2
+    
+    
+    start:
+      start_modus: P                                                      # P - Leistung, I - Strom, U - Spannung | Nutzung von Upper | Default bei Fehler: I
+      Auswahl: PUI                                                        # Auswahl der möglichen Größen: I -> Nur Strom, PUI -> Alle drei Größen (Nutzung von upper) | Default bei Fehler: I -> start_modus = I
+      readTime: 0.5                                                       # Auslesezeit [s] (Sollte die Watchdog Zeit nicht überschreiten) | Default bei Fehler: 2
+      init: 1                                                             # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  
+                                                                          # Default bei Fehler: False
+    ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Setze Alle Größen auf Null, Stoppe Generator)
+                                                                          # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
+    serial-interface:
+      host: '192.168.117.199'                                             # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      port: 502
+      debug: False                                                        # Funktioniert nur bei pyModbusTCP < 0.3.0, funktioniert bei 0.2.1
+      timeout: 0.1                                                        # Default = 30 s
+    multilog:
+      write_trigger: Vifcon_generator_1                                   # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen) | Default bei Fehler: Port auf Null                                     
+      write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+    PID:                                                                  # Erstellung eines PID-Reglers
+      PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog 
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
+      kd: 0.16                                                            # D-Anteil [] | Default bei Fehler: 0
+      sample: 150                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert_P: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (P-Wert) | Default bei Fehler: 0
+      umstell_wert_I: 2,5                                                 # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (I-Wert) | Default bei Fehler: 0
+      umstell_wert_U: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (U-Wert) | Default bei Fehler: 0
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      Input_Size_unit: mm                                                 # Einheit der Input-Größe | Default bei Fehler: mm
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
+    register:
+      gen_Ein: 129                                                        # Coil    - Gen-1: 129, Gen-2: 136, Gen-3: 143 | Default bei Fehler: Programm-Exit! 
+      gen_Aus: 130                                                        # Coil    - Gen-1: 130, Gen-2: 137, Gen-3: 144 | Default bei Fehler: Programm-Exit! 
+      gen_P_Ein: 132                                                      # Coil    - Gen-1: 132, Gen-2: 139, Gen-3: 146 | Default bei Fehler: Programm-Exit! 
+      gen_I_Ein: 133                                                      # Coil    - Gen-1: 133, Gen-2: 140, Gen-3: 147 | Default bei Fehler: Programm-Exit! 
+      gen_U_Ein: 134                                                      # Coil    - Gen-1: 134, Gen-2: 141, Gen-3: 148 | Default bei Fehler: Programm-Exit! 
+      lese_st_Reg: 217                                                    # Input   - Auslese Start-Adresse (Soll, Ist):              Gen-1: 217, Gen-2: 257, Gen-3: 297 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg_Info: 229                                               # Input   - Auslese Start-Adresse (Info - Max, Name, etc.): Gen-1: 229, Gen-2: 269, Gen-3: 309 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg_Status: 248                                             # Input   - Auslese Start-Adresse (Status):                 Gen-1: 248, Gen-2: 288, Gen-3: 328 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg_Gkombi: 337                                             # Input   - Auslese Start-Adresse (Generator Kombi):        Gen-1: 337, Gen-2: 337, Gen-3: 337 | Default bei Fehler: Programm-Exit!
+      write_Soll_Reg: 72                                                  # Holding - Start Register für Sollwert:                    Gen-1: 72,  Gen-2: 78,  Gen-3: 84  | Default bei Fehler: Programm-Exit!
+    limits:
+      maxI: 99                                                            # Maximaler Strom [A]     (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 49) | Default bei Fehler: 1
+      minI: 0                                                             # Minimaler Strom [A]     (SIMIN (minimaler Sollwert für den Ausgangsstrom) - Betriebsanleitung Generator S. 155 - Befehl 49) | Default bei Fehler: 0
+      maxP: 50                                                            # Maximale Leistung [kW]  (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 50) | Default bei Fehler: 1
+      minP: 0                                                             # Minimale Leistung [kW]  (nach Betriebsanleitung Generator S. 155 - Befehl 50) | Default bei Fehler: 0
+      maxU: 100                                                           # Maximale Spannung [V]   (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 51) | Default bei Fehler: 1
+      minU: 0                                                             # Minimale Spannung [V]   (SUMIN (minimaler Sollwert für die Kondensatorspannung - Betriebsanleitung Generator S. 155 - Befehl 51) | Default bei Fehler: 0
+    GUI:
+      legend: RezI ; RezU ; RezP ; IWU ; IWI ; IWP ; SWI ; SWU ; SWP ; IWf 
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, P - Leistung, I - Strom, U - Spannung, f - Frequenz, Rez - Rezept, x - PID-Input-Größe, PID - PID-Modus-Kurven
+                                                                          # Eingebaut: RezI, RezU, RezP, Rezx, IWI, IWU, IWP, IWf, SWI, SWU, SWP, uGI, oGI, uGU, oGU, uGP, oGP, IWxPID, SWxPID, oGPID, uGPID
+                                                                          # Default bei Fehler: IWI, IWP, IWU
+    parameter:
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3 
+    defaults:
+      startCurrent: 0                                                     # Strom bei Programmstart [A] | Default bei Fehler: 0
+      startPow: 0                                                         # Leistung bei Programmstart [kW] | Default bei Fehler: 0
+      startVoltage: 0                                                     # Spannung bei Programmstart [V] | Default bei Fehler: 0
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (kW/V/A), Art der Rampe, Schritt/Steigung (kW/s, V/s, A/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 10   --> 10 V Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild) 
+                                                                          # Default bei Fehler: {'rezept_Default':  {'n1': '10 ; 0 ; s'}}    
+      rezept_test:
+        n1: 10 ; 0.3 ; s
+        n2: 10 ; 0.6 ; s
+        n3: 10 ; 0.2 ; s
+# --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Nemo-Generator_2:                                                       # Muss "Nemo-Generator" enthalten! 
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ: Generator                                                        # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    nemo-Version: 2                                                       # gewählte Anlage: 2 | Default bei Fehler: 2
+    
+    
+    start:
+      start_modus: I                                                      # P - Leistung, I - Strom, U - Spannung | Nutzung von Upper | Default bei Fehler: I
+      Auswahl: PUI                                                        # Auswahl der möglichen Größen: I -> Nur Strom, PUI -> Alle drei Größen (Nutzung von upper) | Default bei Fehler: I -> start_modus = I
+      readTime: 0.5                                                       # Auslesezeit [s] (Sollte die Watchdog Zeit nicht überschreiten) | Default bei Fehler: 2
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  
+                                                                          # Default bei Fehler: False
+    ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Setze Alle Größen auf Null, Stoppe Generator)
+                                                                          # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
+    serial-interface:
+      host: '192.168.117.199'                                             # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      port: 502
+      debug: False                                                        # Funktioniert nur bei pyModbusTCP < 0.3.0, funktioniert bei 0.2.1
+      timeout: 0.1                                                        # Default = 30 s
+    multilog:
+      write_trigger: Vifcon_generator_2                                   # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen) | Default bei Fehler: Port auf Null                                     
+      write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+    PID:                                                                  # Erstellung eines PID-Reglers
+      PID_Aktiv: 1                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog 
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
+      kd: 0.16                                                            # D-Anteil [] | Default bei Fehler: 0
+      sample: 150                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert_P: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (P-Wert) | Default bei Fehler: 0
+      umstell_wert_I: 2,5                                                 # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (I-Wert) | Default bei Fehler: 0
+      umstell_wert_U: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (U-Wert) | Default bei Fehler: 0
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      Input_Size_unit: mm                                                 # Einheit der Input-Größe | Default bei Fehler: mm
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
+    register:
+      gen_Ein: 136                                                        # Coil    - Gen-1: 129, Gen-2: 136, Gen-3: 143 | Default bei Fehler: Programm-Exit! 
+      gen_Aus: 137                                                        # Coil    - Gen-1: 130, Gen-2: 137, Gen-3: 144 | Default bei Fehler: Programm-Exit! 
+      gen_P_Ein: 139                                                      # Coil    - Gen-1: 132, Gen-2: 139, Gen-3: 146 | Default bei Fehler: Programm-Exit! 
+      gen_I_Ein: 140                                                      # Coil    - Gen-1: 133, Gen-2: 140, Gen-3: 147 | Default bei Fehler: Programm-Exit! 
+      gen_U_Ein: 141                                                      # Coil    - Gen-1: 134, Gen-2: 141, Gen-3: 148 | Default bei Fehler: Programm-Exit! 
+      lese_st_Reg: 257                                                    # Input   - Auslese Start-Adresse (Soll, Ist):              Gen-1: 217, Gen-2: 257, Gen-3: 297 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg_Info: 269                                               # Input   - Auslese Start-Adresse (Info - Max, Name, etc.): Gen-1: 229, Gen-2: 269, Gen-3: 309 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg_Status: 288                                             # Input   - Auslese Start-Adresse (Status):                 Gen-1: 248, Gen-2: 288, Gen-3: 328 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg_Gkombi: 337                                             # Input   - Auslese Start-Adresse (Generator Kombi):        Gen-1: 337, Gen-2: 337, Gen-3: 337 | Default bei Fehler: Programm-Exit!
+      write_Soll_Reg: 78                                                  # Holding - Start Register für Sollwert:                    Gen-1: 72,  Gen-2: 78,  Gen-3: 84  | Default bei Fehler: Programm-Exit!
+    limits:
+      maxI: 99                                                            # Maximaler Strom [A]     (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 49) | Default bei Fehler: 1
+      minI: 0                                                             # Minimaler Strom [A]     (SIMIN (minimaler Sollwert für den Ausgangsstrom) - Betriebsanleitung Generator S. 155 - Befehl 49) | Default bei Fehler: 0
+      maxP: 50                                                            # Maximale Leistung [kW]  (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 50) | Default bei Fehler: 1
+      minP: 0                                                             # Minimale Leistung [kW]  (nach Betriebsanleitung Generator S. 155 - Befehl 50) | Default bei Fehler: 0
+      maxU: 100                                                           # Maximale Spannung [V]   (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 51) | Default bei Fehler: 1
+      minU: 0                                                             # Minimale Spannung [V]   (SUMIN (minimaler Sollwert für die Kondensatorspannung - Betriebsanleitung Generator S. 155 - Befehl 51) | Default bei Fehler: 0
+    GUI:
+      legend: RezI ; RezU ; RezP ; IWU ; IWI ; IWP ; SWI ; SWU ; SWP ; IWf ;Rezx ; IWxPID ; SWxPID 
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, P - Leistung, I - Strom, U - Spannung, f - Frequenz, Rez - Rezept, x - PID-Input-Größe, PID - PID-Modus-Kurven
+                                                                          # Eingebaut: RezI, RezU, RezP, Rezx, IWI, IWU, IWP, IWf, SWI, SWU, SWP, uGI, oGI, uGU, oGU, uGP, oGP, IWxPID, SWxPID, oGPID, uGPID
+                                                                          # Default bei Fehler: IWI, IWP, IWU
+    parameter:
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3 
+    defaults:
+      startCurrent: 2.5                                                   # Strom bei Programmstart [A] | Default bei Fehler: 0
+      startPow: 11.2                                                      # Leistung bei Programmstart [kW] | Default bei Fehler: 0
+      startVoltage: 1200                                                  # Spannung bei Programmstart [V] | Default bei Fehler: 0
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (kW/V/A), Art der Rampe, Schritt/Steigung (kW/s, V/s, A/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 10   --> 10 V Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild) 
+                                                                          # Default bei Fehler: {'rezept_Default':  {'n1': '10 ; 0 ; s'}}    
+      rezept_test:
+        n1: 10 ; 1.3 ; s
+        n2: 10 ; 1.6 ; s
+        n3: 10 ; 1.2 ; s
+# --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Nemo-Generator_HF5010:                                                  # Muss "Nemo-Generator" enthalten! 
+    skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ: Generator                                                        # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    nemo-Version: 2                                                       # gewählte Anlage: 2 | Default bei Fehler: 2
+    
+    
+    start:
+      start_modus: I                                                      # P - Leistung, I - Strom, U - Spannung | Nutzung von Upper | Default bei Fehler: I
+      Auswahl: I                                                          # Auswahl der möglichen Größen: I -> Nur Strom, PUI -> Alle drei Größen (Nutzung von upper) | Default bei Fehler: I -> start_modus = I
+      readTime: 0.5                                                       # Auslesezeit [s] (Sollte die Watchdog Zeit nicht überschreiten) | Default bei Fehler: 2
+      init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  
+                                                                          # Default bei Fehler: False
+    ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Setze Alle Größen auf Null, Stoppe Generator)
+                                                                          # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
+    serial-interface:
+      host: '192.168.117.199'                                             # Server-IP-Adresse (Nemo1 - 192.168.117.99, Nemo2 - 192.168.117.199)
+      port: 502
+      debug: False                                                        # Funktioniert nur bei pyModbusTCP < 0.3.0, funktioniert bei 0.2.1
+      timeout: 0.1                                                        # Default = 30 s
+    multilog:
+      write_trigger: Vifcon_generator_3                                   # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen) | Default bei Fehler: Port auf Null                                     
+      write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+      read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+    PID:                                                                  # Erstellung eines PID-Reglers
+      PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog 
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
+      kd: 0.16                                                            # D-Anteil [] | Default bei Fehler: 0
+      sample: 150                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert_P: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (P-Wert) | Default bei Fehler: 0
+      umstell_wert_I: 2,5                                                 # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (I-Wert) | Default bei Fehler: 0
+      umstell_wert_U: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (U-Wert) | Default bei Fehler: 0
+      Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: TE_1_K air 155 mm over crucible               # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 100                                                # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      Input_Size_unit: mm                                                 # Einheit der Input-Größe | Default bei Fehler: mm
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
+    register:
+      gen_Ein: 143                                                        # Coil    - Gen-1: 129, Gen-2: 136, Gen-3: 143 | Default bei Fehler: Programm-Exit! 
+      gen_Aus: 144                                                        # Coil    - Gen-1: 130, Gen-2: 137, Gen-3: 144 | Default bei Fehler: Programm-Exit! 
+      gen_P_Ein: 146                                                      # Coil    - Gen-1: 132, Gen-2: 139, Gen-3: 146 | Default bei Fehler: Programm-Exit! 
+      gen_I_Ein: 147                                                      # Coil    - Gen-1: 133, Gen-2: 140, Gen-3: 147 | Default bei Fehler: Programm-Exit! 
+      gen_U_Ein: 148                                                      # Coil    - Gen-1: 134, Gen-2: 141, Gen-3: 148 | Default bei Fehler: Programm-Exit! 
+      lese_st_Reg: 297                                                    # Input   - Auslese Start-Adresse (Soll, Ist):              Gen-1: 217, Gen-2: 257, Gen-3: 297 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg_Info: 309                                               # Input   - Auslese Start-Adresse (Info - Max, Name, etc.): Gen-1: 229, Gen-2: 269, Gen-3: 309 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg_Status: 328                                             # Input   - Auslese Start-Adresse (Status):                 Gen-1: 248, Gen-2: 288, Gen-3: 328 | Default bei Fehler: Programm-Exit!
+      lese_st_Reg_Gkombi: 337                                             # Input   - Auslese Start-Adresse (Generator Kombi):        Gen-1: 337, Gen-2: 337, Gen-3: 337 | Default bei Fehler: Programm-Exit!
+      write_Soll_Reg: 84                                                  # Holding - Start Register für Sollwert:                    Gen-1: 72,  Gen-2: 78,  Gen-3: 84  | Default bei Fehler: Programm-Exit!
+    limits:
+      maxI: 34.52                                                         # Maximaler Strom [A]     (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 49) | Default bei Fehler: 1
+      minI: 0                                                             # Minimaler Strom [A]     (SIMIN (minimaler Sollwert für den Ausgangsstrom) - Betriebsanleitung Generator S. 155 - Befehl 49) | Default bei Fehler: 0
+      maxP: 10.72                                                         # Maximale Leistung [kW]  (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 50) | Default bei Fehler: 1
+      minP: 0                                                             # Minimale Leistung [kW]  (nach Betriebsanleitung Generator S. 155 - Befehl 50) | Default bei Fehler: 0
+      maxU: 988.8                                                         # Maximale Spannung [V]   (je nach Netzteil - Betriebsanleitung Generator S. 155 - Befehl 51) | Default bei Fehler: 1
+      minU: 0                                                             # Minimale Spannung [V]   (SUMIN (minimaler Sollwert für die Kondensatorspannung - Betriebsanleitung Generator S. 155 - Befehl 51) | Default bei Fehler: 0
+    GUI:
+      legend: RezI ; RezU ; RezP ; IWU ; IWI ; IWP ; SWI ; SWU ; SWP ; IWf  
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, P - Leistung, I - Strom, U - Spannung, f - Frequenz, Rez - Rezept, x - PID-Input-Größe, PID - PID-Modus-Kurven
+                                                                          # Eingebaut: RezI, RezU, RezP, Rezx, IWI, IWU, IWP, IWf, SWI, SWU, SWP, uGI, oGI, uGU, oGU, uGP, oGP, IWxPID, SWxPID, oGPID, uGPID
+                                                                          # Default bei Fehler: IWI, IWP, IWU
+    parameter:
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3 
+    defaults:
+      startCurrent: 0                                                     # Strom bei Programmstart [A] | Default bei Fehler: 0
+      startPow: 0                                                         # Leistung bei Programmstart [kW] | Default bei Fehler: 0
+      startVoltage: 0                                                     # Spannung bei Programmstart [V] | Default bei Fehler: 0
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (kW/V/A), Art der Rampe, Schritt/Steigung (kW/s, V/s, A/s)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe
+                                                                          # Schritte/Steigung wird bei Sprung nicht benötigt!
+                                                                          # Steigung: r - z.B. 10   --> 10 V Sollwertsteigung je Sekunde (Sprünge)
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild) 
+                                                                          # Default bei Fehler: {'rezept_Default':  {'n1': '10 ; 0 ; s'}}    
+      rezept_test:
+        n1: 10 ; 1.3 ; s
+        n2: 10 ; 1.6 ; s
+        n3: 10 ; 1.2 ; s    
