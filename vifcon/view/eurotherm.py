@@ -560,12 +560,12 @@ class EurothermWidget(QWidget):
         ### Eingabefelder:
         self.LE_Temp = QLineEdit()
         self.LE_Temp.setText(str(self.startTemp))
-        TT_Temp = f'{self.TTLimit[self.sprache]} {self.uGST} - {self.oGST}{self.T_unit_einzel[self.sprache]}'
+        TT_Temp = f'{self.TTLimit[self.sprache]} {self.uGST} ... {self.oGST}{self.T_unit_einzel[self.sprache]}'
         self.LE_Temp.setToolTip(TT_Temp)
 
         self.LE_Pow = QLineEdit()
         self.LE_Pow.setText(str(self.startPow))
-        TT_Pow = f'{self.TTLimit[self.sprache]} {self.uGOp} - {self.oGOp} {self.P_unit_einzel[self.sprache]}'
+        TT_Pow = f'{self.TTLimit[self.sprache]} {self.uGOp} ... {self.oGOp} {self.P_unit_einzel[self.sprache]}'
         self.LE_Pow.setToolTip(TT_Pow)
 
         ### Checkbox:
@@ -575,7 +575,7 @@ class EurothermWidget(QWidget):
         if not self.PID_Aktiv:
             self.PID_cb.setEnabled(False)
         
-        TT_PID = f'{self.TTLimit[self.sprache]} {self.uGPID} - {self.oGPID}{self.T_unit_einzel[self.sprache]}'
+        TT_PID = f'{self.TTLimit[self.sprache]} {self.uGPID} ... {self.oGPID}{self.T_unit_einzel[self.sprache]}'
         self.PID_cb.setToolTip(TT_PID)
 
         ### Radiobutton:
@@ -1197,13 +1197,13 @@ class EurothermWidget(QWidget):
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # ToolTip Update:
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            TT_Temp = f'{self.TTLimit[self.sprache]} {self.uGST} - {self.oGST}{self.T_unit_einzel[self.sprache]}'
+            TT_Temp = f'{self.TTLimit[self.sprache]} {self.uGST} ... {self.oGST}{self.T_unit_einzel[self.sprache]}'
             self.LE_Temp.setToolTip(TT_Temp)
 
-            TT_Pow = f'{self.TTLimit[self.sprache]} {self.uGOp} - {self.oGOp} {self.P_unit_einzel[self.sprache]}'
+            TT_Pow = f'{self.TTLimit[self.sprache]} {self.uGOp} ... {self.oGOp} {self.P_unit_einzel[self.sprache]}'
             self.LE_Pow.setToolTip(TT_Pow)
 
-            TT_PID = f'{self.TTLimit[self.sprache]} {self.uGPID} - {self.oGPID}{self.T_unit_einzel[self.sprache]}'
+            TT_PID = f'{self.TTLimit[self.sprache]} {self.uGPID} ... {self.oGPID}{self.T_unit_einzel[self.sprache]}'
             self.PID_cb.setToolTip(TT_PID)
 
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~

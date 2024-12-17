@@ -610,12 +610,12 @@ class PIAchseWidget(QWidget):
         ### Eingabefelder:
         self.LE_Pos = QLineEdit()
         self.LE_Pos.setText(str(self.startPos))
-        TT_s = f'{self.TTLimit[self.sprache]} {self.uGPos} - {self.oGPos} {self.einheit_s_einzel[self.sprache]}'
+        TT_s = f'{self.TTLimit[self.sprache]} {self.uGPos} ... {self.oGPos} {self.einheit_s_einzel[self.sprache]}'
         self.LE_Pos.setToolTip(TT_s)
 
         self.LE_Speed = QLineEdit()
         self.LE_Speed.setText(str(self.startSpeed))
-        TT_v = f'{self.TTLimit[self.sprache]} {self.uGv} - {self.oGv} {self.einheit_v_einzel[self.sprache]}'
+        TT_v = f'{self.TTLimit[self.sprache]} {self.uGv} ... {self.oGv} {self.einheit_v_einzel[self.sprache]}'
         self.LE_Speed.setToolTip(TT_v)
 
         ### Checkbox:
@@ -630,7 +630,7 @@ class PIAchseWidget(QWidget):
         if not self.PID_Aktiv:
             self.PID_cb.setEnabled(False)
         
-        TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} - {self.oGx} {self.einheit_x_einzel[self.sprache]}'
+        TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} ... {self.oGx} {self.einheit_x_einzel[self.sprache]}'
         self.PID_cb.setToolTip(TT_PID)
 
         ### Label:
@@ -1550,13 +1550,13 @@ class PIAchseWidget(QWidget):
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # ToolTip Update:
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            TT_s = f'{self.TTLimit[self.sprache]} {self.uGPos} - {self.oGPos} {self.einheit_s_einzel[self.sprache]}'
+            TT_s = f'{self.TTLimit[self.sprache]} {self.uGPos} ... {self.oGPos} {self.einheit_s_einzel[self.sprache]}'
             self.LE_Pos.setToolTip(TT_s)
 
-            TT_v = f'{self.TTLimit[self.sprache]} {self.uGv} - {self.oGv} {self.einheit_v_einzel[self.sprache]}'
+            TT_v = f'{self.TTLimit[self.sprache]} {self.uGv} ... {self.oGv} {self.einheit_v_einzel[self.sprache]}'
             self.LE_Speed.setToolTip(TT_v)
 
-            TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} - {self.oGx} {self.einheit_x_einzel[self.sprache]}'
+            TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} ... {self.oGx} {self.einheit_x_einzel[self.sprache]}'
             self.PID_cb.setToolTip(TT_PID)
 
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~

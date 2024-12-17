@@ -130,6 +130,27 @@ Das Widget zeigt das Nemo-Generator-Modul. Der Aufbau ist wie bei [TruHeat](#Tru
 
 Durch die Konfigurationen können die Widget-Rahmen sichtbar gemacht werden, sodas eine Platzierung verbessert werden kann. Weiterhin können die Farben der Labels abgestellt werden. Die Farben bei den Labels spiegeln die dazugehörigen Kurven im Plot wieder. 
 
+<img src="../Bilder/Widget_ToolTip_DE.png" alt="Limit-Tool-Tip" title='Widget Limit-Tool-Tip' width=700/> 
+
+Alle Eingabefelder und die PID-Checkbox, zeigen die dazugehörigen Limits. 
+
+## Pop-Up-Fenster
+
+In VIFCON gibt es verschiedene Pop-Up-Fenster. Diese Fenster können durch verschiedene Umstände aufgerufen werden. Am Ende der Anwendung, wenn diese über das Windows-X geschlossen werden soll, wird folgendes Fenster angezeigt. Mit *Yes* wird das schließen bestätigt und die Exit-Funktion von VIFCON ausgelöst.
+
+<img src="../Bilder/PU_Ende_De.png" alt="Anwednung_Beenden" title='Pop-Up-Fenster Anwendung beenden' width=300/> 
+
+Neben diesem Pop-Up-Fenster gibt es noch sechs weitere:
+
+Gerät | Auslösung | Text
+--- | --- | ---
+Eurotherm           | sicherheit = 1 & Update Limit ausgelöst | Die maximale Ausgangsleistung (HO) wird nicht an das Limit angepasst! Die Einstellung Sicherheit wurde auf True gesetzt. Das bedeutet das der Wert nur direkt am Eurotherm geändert werden kann!      
+Eurotherm           | sicherheit = 1 & Programm Start oder Init auf True  | Bitte beachten Sie, dass bei der Config-Einstellung "sicherheit" True der OPmax Wert nicht mit dem in dem Gerät übereinstimmen muss. Bitte Betätigen Sie zur Anpassung im Menü "Eurotherm HO lesen" oder Wechseln Sie in den Manuellen Modus, damit der OPmax-Wert in VIFCON aktualisiert wird!
+Eurotherm           | Auswahl eines Rezeptes | Beachte Konfikuration am Gerät:<br>1. Sehe nach ob die richtige Einstellung für die Rampensteigung eingegeben ist (Am Eurotherm: Drücke 2xBlatt, 3xPfeil CCW -> Ramp Units -> Pfeiltasten zur Auswahl)(Achtung: Wähle das richtige Programm nach einmal Blatt)!<br>2. Beachte Konfigurationseinstellung (Eurotherm) "Servo" (Eurotherm-Rampe: Start Soll- oder Istwert)!!
+Nemo-Achse-Rotation | Uncheck kontinuierliche Rotation | Das kontinuierlische rotieren wurde beendet. Bitte beachte, dass zu diesem Zeitpunkt bereits ein Limit überschritten sein kann. In Fall der Überschreitung setze den Winkel auf Null, schalte die kontinuierlische Rotation wieder ein oder fahre in die andere Richtung. Wenn z.B. das CCW Limit erreicht wurde, so kann der Antrieb noch immer bis zum CW Limit fahren.
+Nemo-Generator      | Start von VIFCON oder Init auf True | Beachten Sie die Einstellungen des gewählten Generators! Diese werden als Tooltip beim Namen angezeigt und können in der Anlagen-GUI eingestellt werden!<br><br>Bei Änderung wird ein Neustart empfohlen!   
+TruHeat             | Messzeit auf Null Sekunden setzen! Auch beim Init! | Der Watchdog sollte auf Null gesetzt (Deaktiviert) werden, da die Lese-Befehle ausgestellt worden sind.
+
 ## Letzte Änderung
 
 Die Letzte Änderung dieser Beschreibung war: 17.12.2024

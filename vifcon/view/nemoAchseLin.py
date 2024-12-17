@@ -596,7 +596,7 @@ class NemoAchseLinWidget(QWidget):
         ### Eingabefelder:
         self.LE_Speed = QLineEdit()
         self.LE_Speed.setText(str(self.startSpeed))
-        TT_v = f'{self.TTLimit[self.sprache]} {self.uGv} - {self.oGv} {self.einheit_v_einzel[self.sprache]}'
+        TT_v = f'{self.TTLimit[self.sprache]} {self.uGv} ... {self.oGv} {self.einheit_v_einzel[self.sprache]}'
         self.LE_Speed.setToolTip(TT_v)
 
         ### Checkbox:
@@ -611,7 +611,7 @@ class NemoAchseLinWidget(QWidget):
         if not self.PID_Aktiv:
             self.PID_cb.setEnabled(False)
         
-        TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} - {self.oGx} {self.einheit_x_einzel[self.sprache]}'
+        TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} ... {self.oGx} {self.einheit_x_einzel[self.sprache]}'
         self.PID_cb.setToolTip(TT_PID)
 
         ### Label:
@@ -1449,10 +1449,10 @@ class NemoAchseLinWidget(QWidget):
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # ToolTip Update:
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            TT_v = f'{self.TTLimit[self.sprache]} {self.uGv} - {self.oGv} {self.einheit_v_einzel[self.sprache]}'
+            TT_v = f'{self.TTLimit[self.sprache]} {self.uGv} ... {self.oGv} {self.einheit_v_einzel[self.sprache]}'
             self.LE_Speed.setToolTip(TT_v)
 
-            TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} - {self.oGx} {self.einheit_x_einzel[self.sprache]}'
+            TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} ... {self.oGx} {self.einheit_x_einzel[self.sprache]}'
             self.PID_cb.setToolTip(TT_PID)
 
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1182,7 +1182,7 @@ devices:
                                                                           # Start-Werte:  
                                                                           # Default bei Fehler: False
     ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
-                                                                          # True - Ausführung der Stopp-Funktion (Setze ...)
+                                                                          # True - Ausführung der Stopp-Funktion (Setze Alle Größen auf Null, Stoppe Generator)
                                                                           # False - Nichts wird getann!
                                                                           # Default bei Fehler: True
     serial-interface:
@@ -1283,7 +1283,7 @@ devices:
                                                                           # Start-Werte:  
                                                                           # Default bei Fehler: False
     ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
-                                                                          # True - Ausführung der Stopp-Funktion (Setze ...)
+                                                                          # True - Ausführung der Stopp-Funktion (Setze Alle Größen auf Null, Stoppe Generator)
                                                                           # False - Nichts wird getann!
                                                                           # Default bei Fehler: True
     serial-interface:
@@ -1292,7 +1292,7 @@ devices:
       debug: False                                                        # Funktioniert nur bei pyModbusTCP < 0.3.0, funktioniert bei 0.2.1
       timeout: 0.1                                                        # Default = 30 s
     multilog:
-      write_trigger: Vifcon_generator_2                                           # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen) | Default bei Fehler: Port auf Null                                     
+      write_trigger: Vifcon_generator_2                                   # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen) | Default bei Fehler: Port auf Null                                     
       write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
       read_trigger_ist: IGA-6-23-adv                                      # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
       read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
@@ -1384,7 +1384,7 @@ devices:
                                                                           # Start-Werte:  
                                                                           # Default bei Fehler: False
     ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
-                                                                          # True - Ausführung der Stopp-Funktion (Setze ...)
+                                                                          # True - Ausführung der Stopp-Funktion (Setze Alle Größen auf Null, Stoppe Generator)
                                                                           # False - Nichts wird getann!
                                                                           # Default bei Fehler: True
     serial-interface:

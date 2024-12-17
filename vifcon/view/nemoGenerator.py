@@ -636,17 +636,17 @@ class NemoGeneratortWidget(QWidget):
         ### Eingabefelder:
         self.LE_Pow = QLineEdit()
         self.LE_Pow.setText(str(self.startP))
-        TT_P = f'{self.TTLimit[self.sprache]} {self.uGP} - {self.oGP} {self.einheit_P_einzel[self.sprache]}'
+        TT_P = f'{self.TTLimit[self.sprache]} {self.uGP} ... {self.oGP} {self.einheit_P_einzel[self.sprache]}'
         self.LE_Pow.setToolTip(TT_P)
 
         self.LE_Voltage = QLineEdit()
         self.LE_Voltage.setText(str(self.startU))
-        TT_U = f'{self.TTLimit[self.sprache]} {self.uGU} - {self.oGU} {self.einheit_U_einzel[self.sprache]}'
+        TT_U = f'{self.TTLimit[self.sprache]} {self.uGU} ... {self.oGU} {self.einheit_U_einzel[self.sprache]}'
         self.LE_Voltage.setToolTip(TT_U)
 
         self.LE_Current = QLineEdit()
         self.LE_Current.setText(str(self.startI))
-        TT_I = f'{self.TTLimit[self.sprache]} {self.uGP} - {self.oGI} {self.einheit_I_einzel[self.sprache]}'
+        TT_I = f'{self.TTLimit[self.sprache]} {self.uGP} ... {self.oGI} {self.einheit_I_einzel[self.sprache]}'
         self.LE_Current.setToolTip(TT_I)
 
         ### Checkbox:
@@ -657,7 +657,7 @@ class NemoGeneratortWidget(QWidget):
         if not self.PID_Aktiv:
             self.PID_cb.setEnabled(False)
         
-        TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} - {self.oGx} {self.einheit_x_einzel[self.sprache]}'
+        TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} ... {self.oGx} {self.einheit_x_einzel[self.sprache]}'
         self.PID_cb.setToolTip(TT_PID)
         
         ### Radiobutton:
@@ -1534,16 +1534,16 @@ class NemoGeneratortWidget(QWidget):
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # ToolTip Update:
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            TT_P = f'{self.TTLimit[self.sprache]} {self.uGP} - {self.oGP} {self.einheit_P_einzel[self.sprache]}'
+            TT_P = f'{self.TTLimit[self.sprache]} {self.uGP} ... {self.oGP} {self.einheit_P_einzel[self.sprache]}'
             self.LE_Pow.setToolTip(TT_P)
 
-            TT_I = f'{self.TTLimit[self.sprache]} {self.uGI} - {self.oGI} {self.einheit_I_einzel[self.sprache]}'
+            TT_I = f'{self.TTLimit[self.sprache]} {self.uGI} ... {self.oGI} {self.einheit_I_einzel[self.sprache]}'
             self.LE_Current.setToolTip(TT_I)
 
-            TT_U = f'{self.TTLimit[self.sprache]} {self.uGU} - {self.oGU} {self.einheit_U_einzel[self.sprache]}'
+            TT_U = f'{self.TTLimit[self.sprache]} {self.uGU} ... {self.oGU} {self.einheit_U_einzel[self.sprache]}'
             self.LE_Voltage.setToolTip(TT_U)
 
-            TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} - {self.oGx} {self.einheit_x_einzel[self.sprache]}'
+            TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} ... {self.oGx} {self.einheit_x_einzel[self.sprache]}'
             self.PID_cb.setToolTip(TT_PID)
 
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~

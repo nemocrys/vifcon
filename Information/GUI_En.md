@@ -130,6 +130,27 @@ The widget shows the Nemo generator module. The structure is the same as [TruHea
 
 The configurations can be used to make the widget frames visible so that placement can be improved. The colors of the labels can also be turned off. The colors of the labels reflect the corresponding curves in the plot.
 
+<img src="../Bilder/Widget_ToolTip_En.png" alt="Limit-Tool-Tip" title='Widget Limit-Tool-Tip' width=700/>
+
+All input fields and the PID checkbox show the corresponding limits.
+
+## Pop-up window
+
+In VIFCON there are various pop-up windows. These windows can be called up under various circumstances. At the end of the application, when it is to be closed using Windows-X, the following window is displayed. *Yes* confirms the closing and triggers the VIFCON exit function.
+
+<img src="../Bilder/PU_Ende_En.png" alt="Application_End" title='Pop-up window, end application' width=300/>
+
+In addition to this pop-up window, there are six more:
+
+Device | Trigger | Text
+--- | --- | ---
+Eurotherm           | security = 1 & update limit triggered | The maximum output power (HO) is not adjusted to the limit! The Security setting has been set to True. This means that the value can only be changed directly on the Eurotherm!kann!      
+Eurotherm           | security = 1 & program start or init to True | Please note that with the config setting "security" True, the OPmax valuedoes not have to match that in the device. To adjust, please press "Read Eurotherm HO" in the menu or switch to manual mode so that the OPmax value is updated in VIFCON!
+Eurotherm           | selecting a recipe | Note the configuration on the device:<br>1. Check whether the correct setting for the ramp gradient has been entered (On Eurotherm: Press 2xSheet, 3xArrow CCW -> Ramp Units -> arrow keys to select)(Attention: Select the correct program after one sheet)!<br>2. Note configuration setting (Eurotherm) "Servo" (Eurotherm ramp: start setpoint or actual value)!!
+Nemo-Achse-Rotation | Uncheck continuous rotation | Continuous rotation has ended. Please note that a limit may already have been exceeded at this point. If this limit is exceeded, set the angle to zero, switch continuous rotation back on or move in the other direction. If, for example, the CCW limit has been reached, the drive can still move up to the CW limit.
+Nemo-Generator      | launch of VIFCON | Note the settings of the selected generator! These are displayed as a tooltip next to the name and can be set in the system GUI!<br><br>If changes are made, a restart is recommended!
+TruHeat             | Set measurement time to zero seconds! Also at Init! | The watchdog should be set to zero (disabled) since the read commands have been issued.
+
 ## Last change
 
 The last change to this description was: December 17, 2024

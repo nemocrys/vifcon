@@ -64,8 +64,11 @@ The time `timeout_exit` is a time specified in seconds. In the exit function of 
 Function_Skip:                                                
   Multilog_Link: 0        
   Generell_GamePad: 0
+  writereadTime: 0
 ```
 If the value is set to True (1), the functions for the multilog link and the gamepad are enabled. If False, this is skipped in the code and has no effect on VIFCON.
+
+With `writereadTime` a time period is logged as a debug. For this function to work, the `level` must be set to 10 for `logging`! The time period measured here is for the `write` and `read` functions of the individual devices. This determines how long these functions take. Both functions are important for device communication!
 
 ### Save files and images
 
@@ -119,7 +122,7 @@ This config part is used to create the logging file and determine the logging le
 - 30 - Warning
 - 40 - Error
 
-On some systems the encoding must be commented out, as this will cause Linux, for example, to issue an error.
+On some systems the `encoding` must be commented out, as this will cause Linux, for example, to issue an error.
 
 ### Console logging
 ```
@@ -187,6 +190,7 @@ skalFak:
   Voltage:  0
   Pow:      0  
   Freq:     0
+  Freq_2:   0
   PIDA:     0
   PIDG:     0
 ```
@@ -207,14 +211,15 @@ devices:
 
 All existing devices can now be found under the key ***devices***. Each device must have a specific part of its name:
 
-Device                         | String part
--------------------------------|----------------------
-Eurotherm                      | Eurotherm
-TruHeat                        | TruHeat
-PI axis                        | PI-Achse
-Nemo-1 facility lifting drive  | Nemo-Achse-Linear
-Nemo-1 facility rotation drive | Nemo-Achse-Rotation
-Nemo-1 facility sensors        | Nemo-Gase
+Device                             | String part
+-----------------------------------|----------------------
+Eurotherm                          | Eurotherm
+TruHeat                            | TruHeat
+PI axis                            | PI-Achse
+Nemo facility 1 & 2 lifting drive  | Nemo-Achse-Linear
+Nemo facility 1 & 2 rotation drive | Nemo-Achse-Rotation
+Nemo facility 1 & 2 sensors        | Nemo-Gase
+Nemo facility 2 generator          | Nemo-Generator
 
 An example of the PI axis and the Eurotherm controller can be found at the beginning. The individual devices have some differences and some similarities.
 
@@ -237,7 +242,7 @@ An example of the PI axis and the Eurotherm controller can be found at the begin
       - Eurotherm, TruHeat, PI-Achse
     - Modbus
       - host (Server IP address), port, debug
-      - Nemo-1 facility
+      - Nemo facility 1 & 2
 5. Multilog-Link 
     ```
       multilog:
@@ -250,17 +255,17 @@ An example of the PI axis and the Eurotherm controller can be found at the begin
     ```
     - Trigger word depends on Multilog configuration
     - Port depends on Multilog configuration
-    - Using this key, VIFCON sends its data to Multilog.
-    - Write: VIFCON sends values ​​to Multilog
-    - Read: VIFCON gets values ​​from Multilog for the PID mode
-      - read_trigger and read_Port are not available in Nemo-Gase!
-      - once for setpoint and once for actual value
+    - Through these keys, VIFCON communicates with Multilog:
+      - Write: VIFCON sends values ​​to Multilog
+      - Read: VIFCON gets values ​​from Multilog for the PID mode
+        - read_trigger and read_Port are not available in Nemo-Gase!
+        - once for setpoint and once for actual value
 6. Limits
     - Every device has certain limits.
     - These limits are software limits, which means that sending values ​​only works up to these values.
     - Example Eurotherm:
       ```
-        limits:
+      limits:
         maxTemp: 1000
         minTemp: 0
         opMax: 35 
@@ -337,6 +342,7 @@ An example of the PI axis and the Eurotherm controller can be found at the begin
       readTime: 2 
       init: 1
       ramp_start_value: ist 
+      ramp_m_unit: K/s
 ```
 
 *sicherheit*:
@@ -371,6 +377,10 @@ An example of the PI axis and the Eurotherm controller can be found at the begin
 *ramp_start_value*:
   - Possible: IST, SOLL
   - Depending on the selection, the first ramp starts at the target value or the actual value
+
+*ramp_m_unit*:
+  - Possible: K/s, K/h, K/min
+  - This setting adapts the Eurotherm ramp to an internal device setting. This must be changed in the Eurotherm controller itself. The setting can be used to tell VIFCON which gradient unit the ramp should have.
 
 ```
   PID-Device:
@@ -464,11 +474,18 @@ The configuration controls a while loop. With TruHeat and the PI axis there is a
 
     - The configuration controls a while loop. For TruHeat and the PI axis, there is a while loop that repeats a read attempt. The value indicates the frequency of these repetitions.
 
-7. Display of the button status:
-    - Under GUI: `button_display: 1`
-    - If True, the direction is displayed by a green button!
-      - Movement button e.g. ↑ then turns green (background)
-      - When stopped, the color returns to normal!
+7. GUI configuration:
+      ```
+      GUI:
+        movement: z
+        piSymbol: Un
+        button_display: 1
+      ```
+      - *movement* - Direction of movement (y, x, z)
+      - *piSymbol* - Alignment of the axis with the PI symbol (y -> Li, Re | x -> Vo, Hi | z -> Ob, Un)
+      - *button_display* - If True, the direction is displayed by a green button!
+        - Movement button e.g. ↑ then turns green (background)
+        - Returns to normal color when stopped!
 
 **Nemo-Achse-Linear and Nemo-Achse-Rotation:**
 
@@ -478,14 +495,27 @@ The configuration controls a while loop. With TruHeat and the PI axis there is a
     - This key unlocks certain buttons for certain axis movement directions.
 
 2. Start:
-    - For the PI axis there are only *init*, *readTime*, *invert* and *start_weg* or *start_winkel*.
-    - The first two are the same as for the others (see Eurotherm).
+    - *readTime* and *init* are the same as the others (see Eurotherm).
     - *invert*
         - True: Inversion of the speed value
         - For the spindle, the recipe and the real speed would be different!
+    - *invert_Pos* (only Nemo-Achse-Linear)
+      - With the Nemo-2 system, the real positions can also be used! However, these are in the wrong direction!
+      - If True, the position is multiplied by -1.
     - *start_weg* or *start_winkel*
         - For the Nemo-1 system, the path and the speed are calculated automatically.
         - For this reason, you can specify a start value here.
+    - *pos_controll* (only Nemo-Achse-Linear)
+      - Possible: REAL, SIM
+      - REAL: the real position values ​​are used for limit control
+      - SIM: the simulated position values ​​are used for limit control
+    - *sicherheit* (only Nemo-Achse-Linear)
+      - Is used for the real position values, as a value can also arrive incorrectly!!
+      - 0: error message, ignore error
+      - 1: error message, axis stops
+    - *kont_rot* (only Nemo-Achse-Rotation)
+      - sets the checkbox in the GUI to True
+      - The angle has no limits when the checkbox is True!
   
   3. Modbus-Register
       ```
@@ -494,12 +524,16 @@ The configuration controls a while loop. With TruHeat and the PI axis there is a
           runter: 18  
           stopp: 16   
           lese_st_Reg: 38  
-          write_v_Reg: 4  
+          write_v_Reg: 4
+          posAktuel: 42  
           posLimReg: 46
+          InfoReg: 143
           statusReg: 50
+          statusRegEil: 155
       ```
       - Certain registers are set in the Nemo system.
       - This addresses coils, input registers and holding registers.
+      - *InfoReg* and *statusRegEil* only available in Nemo-2!
   
   4. Parameter:
       - These have *nKS_Aus*, *Vorfaktor_Ist* and *Vorfaktor_Soll*.
@@ -520,7 +554,17 @@ The configuration controls a while loop. With TruHeat and the PI axis there is a
 
 - Has fewer parts because only reading is done.
 - Values ​​are only displayed in GUI and can be passed to Multilog.
-- Similar to the rest of Nemo-1.
+- Similar to the rest of Nemo-facility.
+
+**Nemo generator:**
+
+The Nemo generator is made up of the TruHeat and the Nemo axes when configured. The following point is new:
+
+1. under start - `Auswahl`
+  - Options: PUI, I
+  - Among the generators in the Nemo system, there is one that only allows electricity.
+  - *I* tells VIFCON that the radio buttons cannot be changed. Only the one for electricity can be selected or is already set.
+  - With *PUI*, all three sizes can be used.
 
 ## Reading secure:
 
@@ -564,4 +608,4 @@ if not type(self.init) == bool and not self.init in [0,1]:
 
 ## Last change
 
-The last change to the [template](#explanation-of-the-individual-points) and this description was: October 15, 2024
+The last change to the [template](#explanation-of-the-individual-points) and this description was: December 17, 2024

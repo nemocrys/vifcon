@@ -64,8 +64,11 @@ Bei der Zeit `timeout_exit` handelt es sich um eine Zeit die in Sekunden angegeb
 Function_Skip:                                                
   Multilog_Link: 0        
   Generell_GamePad: 0
+  writereadTime: 0
 ```
 Wenn der Wert auf True (1) steht, so werden die Funktionen für den Multilog-Link und dem Gamepad freigeschaltet. Bei False wird dies im Code übersprungen und wirkt sich nicht auf VIFCON aus. 
+
+Bei `writereadTime` wird eine Zeitspanne als Debug gelogged. Damit diese Funktion funktioniert, muss beim `logging` das `level` auf 10 gesetzt werden! Die Zeitspanne die hier gemessen wird ist für die Funktionen `write` und `read` der einzelnen Geräte. Somit wird ermittelt, wie lange diese Funktionen dauern. Beide Funktionen sind für die Geräte-Kommunikation wichtig!
 
 ### Speicher Dateien und Bilder
 
@@ -119,7 +122,7 @@ logging:
 - 30 - Warning
 - 40 - Error
 
-Bei einigen Systemen muss das encoding auskommentiert werden, da z.B. Linux dadurch einen Fehler ausgibt. 
+Bei einigen Systemen muss das `encoding` auskommentiert werden, da z.B. Linux dadurch einen Fehler ausgibt. 
 
 ### Konsolen-Logging
 ```
@@ -187,6 +190,7 @@ skalFak:
   Voltage:  0
   Pow:      0  
   Freq:     0
+  Freq_2:   0
   PIDA:     0
   PIDG:     0
 ```
@@ -207,14 +211,15 @@ devices:
 
 Unter dem Schlüssel ***devices*** finden sich nun alle vorhandenen Geräte wieder. Jedes Gerät muss dabei einen bestimmten Namens-Teil haben:
 
-Gerät                          | String-Teil
--------------------------------|----------------------
-Eurotherm                      | Eurotherm
-TruHeat                        | TruHeat
-PI-Achse                       | PI-Achse
-Nemo-1-Anlage Hub-Antrieb      | Nemo-Achse-Linear
-Nemo-1-Anlage Rotation Antrieb | Nemo-Achse-Rotation
-Nemo-1-Anlage Sensoren         | Nemo-Gase
+Gerät                              | String-Teil
+-----------------------------------|----------------------
+Eurotherm                          | Eurotherm
+TruHeat                            | TruHeat
+PI-Achse                           | PI-Achse
+Nemo-Anlage 1 & 2 Hub-Antrieb      | Nemo-Achse-Linear
+Nemo-Anlage 1 & 2 Rotation Antrieb | Nemo-Achse-Rotation
+Nemo-Anlage 1 & 2 Sensoren         | Nemo-Gase
+Nemo-2-Anlage Generator            | Nemo-Generator
 
 Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. Die einzelnenen Geräte haben nun teilweise Unterschiede und teilweise Gemeinsamkeiten.
 
@@ -224,7 +229,7 @@ Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. 
     - Um ein Gerät nicht in die GUI zu übertragen, muss bei diesem Schlüssel der Wert True (1) ausgewählt werden. In dem Fall wird die Definition des Gerätes im Programm übersprungen.
 2. ```typ:  Generator```
     - Auswahlmöglichkeiten: Generator, Antrieb, Monitoring
-    - Generator: Eurotherm, TruHeat
+    - Generator: Eurotherm, TruHeat, Nemo-Generator
     - Antrieb: PI-Achse, Nemo-Achse-Linear, Nemo-Achse-Rotation
     - Monitoring: Nemo-Gase
     - Durch diesen Schlüssel wird die Seite und Tab des Widgets bestimmt. 
@@ -237,7 +242,7 @@ Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. 
       - Eurotherm, TruHeat, PI-Achse
     - Modbus
       - host (Server-IP-Adresse), port, debug
-      - Nemo-1-Anlage
+      - Nemo-Anlage 1 & 2
 5. Multilog-Link 
     ```
       multilog:
@@ -250,17 +255,17 @@ Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. 
     ```
     - Trigger-Wort hängt von Multilog Konfiguration ab
     - Port hängt von Multilog Konfiguration ab
-    - Durch diesen Schlüssel, sendet VIFCON seine Daten an Multilog.
-    - Write: VIFCON sendet Werte an Multilog
-    - Read: VIFCON holt sich Werte von Multilog für den PID-Modus
-      - read_trigger und read_Port sind bei Nemo-Gase nicht vorhanden!
-      - einmal für Sollwert und einmal für Istwert
+    - Durch diese Schlüssel, kommuniziert VIFCON mit Multilog:
+      - Write: VIFCON sendet Werte an Multilog
+      - Read: VIFCON holt sich Werte von Multilog für den PID-Modus
+        - read_trigger und read_Port sind bei Nemo-Gase nicht vorhanden!
+        - einmal für Sollwert und einmal für Istwert
 6. Limits
     - Jedes Gerät hat bestimmte Limits.
     - Diese Limits sind Software-Limits, wodurch das Senden von Werten nur bis zu diesen Werten funktioniert.
     - Beispiel Eurotherm:
       ```
-        limits:
+      limits:
         maxTemp: 1000
         minTemp: 0
         opMax: 35 
@@ -337,6 +342,7 @@ Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. 
       readTime: 2 
       init: 1
       ramp_start_value: ist 
+      ramp_m_unit: K/s
 ```
 
 *sicherheit*:
@@ -371,6 +377,10 @@ Bei der PI-Achse und dem Eurotherm-Regler ist ein Beispiel am Anfang zu finden. 
 *ramp_start_value*:
   - Möglich: IST, SOLL
   - Jenach Auswahl fängt die erste Rampe beim Sollwert oder dem Istwert an
+
+*ramp_m_unit*:
+  - Möglich: K/s, K/h, K/min
+  - Durch diese Einstellung wird die Eurotherm-Rampe an eine interne Geräte Einstellung angepasst. Im Eurotherm-Regler muss dies selbst geändert werden. Mit der Einstellung kann man VIFCON mitteilen, welche Steigungseinheit die Rampe haben soll. 
 
 ```
     PID-Device:
@@ -464,9 +474,16 @@ Mit der Konfiguration wird eine while-Schleife gesteuert. Bei TruHeat und der PI
 
     - Mit der Konfiguration wird eine while-Schleife gesteuert. Bei TruHeat und der PI-Achse gibt es eine while-Schleife die einen Lese-Versuch wiederholt. Der Wert gibt die Häufigkeit dieser Wiederholungen wieder. 
 
-7. Anzeige des Knopf-Status:
-    - Unter GUI: `knopf_anzeige: 1`
-    - Wenn True wird die Richtung durch einen grünen Knopf angezeigt!
+7. GUI-Konfiguration:
+    ```
+      GUI:
+        bewegung: z
+        piSymbol: Un
+        knopf_anzeige: 1
+    ```
+    - *bewegung* - Bewegungsrichtung (y, x, z)
+    - *piSymbol* - Ausrichtung der Achse am PI-Symbol (y -> Li, Re | x -> Vo, Hi | z -> Ob, Un)
+    - *knopf_anzeige* - Wenn True wird die Richtung durch einen grünen Knopf angezeigt!
       - Bewegungsknopf z.B. ↑ wird dann grün (Hintergrund)
       - Bei Stopp wieder normal farbend!
 
@@ -478,14 +495,27 @@ Mit der Konfiguration wird eine while-Schleife gesteuert. Bei TruHeat und der PI
     - Durch diesen Schlüssel, werden bestimmte Knöpfe für bestimmte Achsen-Bewegungs-Richtungen freigeschaltet.
 
 2. Start:
-    - Bei der PI-Achse gibt es nur *init*, *readTime*, *invert* und *start_weg* oder *start_winkel*.
-    - Die ersten beiden sind wie bei den anderen (siehe Eurotherm).
+    - *readTime* und *init* sind wie bei den anderen (siehe Eurotherm).
     - *invert*
       - True: Invertierung des Geschwindigkeitswertes
         - Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
+    - *invert_Pos* (nur Nemo-Achse-Linear)
+      - Bei der Nemo-2-Anlage können auch die realen Positionen genutzt werden! Diese sind aber verkehrt gerichtet!
+      - Bei True wird die Position mal -1 genommen.
     - *start_weg* oder *start_winkel*
       - Bei der Nemo-1-Anlage wird der Weg und die Geschwindigkeit selbst berechnet. 
       - Aus dem Grund kann man hier einen Start Wert angeben.
+    - *pos_controll* (nur Nemo-Achse-Linear)
+      - Möglich: REAL, SIM
+      - REAL: die realen Positionswerte werden für die Limit-Kontrolle genutzt
+      - SIM: die simulierten Positionswerte werden für die Limit-Kontrolle genutzt
+    - *sicherheit* (nur Nemo-Achse-Linear)
+      - Wird bei den realen Positionswerten genutzt, da ein Wert auch falsch ankommen kan!!
+      - 0: Fehlermeldung, Fehler ignorieren
+      - 1: Fehlermeldung, Achse stoppt
+    - *kont_rot* (nur Nemo-Achse-Rotation)
+      - setzt die Checkbox in der GUI auf True
+      - Der Winkel hat bei Checkbox True keine Limits!
   
   3. Modbus-Register
       ```
@@ -494,12 +524,16 @@ Mit der Konfiguration wird eine while-Schleife gesteuert. Bei TruHeat und der PI
           runter: 18  
           stopp: 16   
           lese_st_Reg: 38  
-          write_v_Reg: 4  
+          write_v_Reg: 4
+          posAktuel: 42  
           posLimReg: 46
+          InfoReg: 143
           statusReg: 50
+          statusRegEil: 155
       ```
       - Bei der Nemo-Anlage werden bestimmte Register gesetzt.
       - Hierbei werden Coils, Input-Register und Holding-Register angesprochen.
+      - *InfoReg* und *statusRegEil* nur bei Nemo-2 vorhanden!
   
   4. Parameter:
       - Diese haben *nKS_Aus*, *Vorfaktor_Ist* und *Vorfaktor_Soll*.
@@ -520,7 +554,18 @@ Mit der Konfiguration wird eine while-Schleife gesteuert. Bei TruHeat und der PI
 
 - Besitzt weniger Teile, da nur ausgelesen wird.
 - Werte werden nur in GUI angezeigt und können an Multilog übergeben werden.
-- Ähnlich wie der Rest von Nemo-1.
+- Ähnlich wie der Rest von Nemo-Anlage.
+
+**Nemo-Generator:**
+
+Der Nemo-Generator setzt sich bei der Konfiguration aus dem TruHeat und den Nemo-Achsen zusammen. Neu ist folgender Punkt:
+
+1. unter start - `Auswahl`
+  - Möglichkeiten: PUI, I
+  - Bei dem Generatoren der Nemo-Anlage gibt es einen der nur Strom zulässt.
+  - Mit *I* wird VIFCON gesagt, dass die Radio-Buttons nicht umgestellt werden können. Nur der für den Strom ist auswählbar bzw. bereits gesetzt.
+  - Bei *PUI* sind alle drei Größen nutzbar.
+
 
 ## Auslese sicher:
 
@@ -564,4 +609,4 @@ if not type(self.init) == bool and not self.init in [0,1]:
 
 ## Letzte Änderung
 
-Die Letzte Änderung des [Templates](#erklärung-der-einzelnen-punkte) und dieser Beschreibung war: 15.10.2024
+Die Letzte Änderung des [Templates](#erklärung-der-einzelnen-punkte) und dieser Beschreibung war: 17.12.2024

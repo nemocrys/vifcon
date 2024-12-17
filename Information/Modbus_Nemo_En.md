@@ -118,4 +118,4 @@ gen_U_Ein           | Coil    | 134 | 141 | 148
 
 ## Last change
 
-The last change to this description was: December 03, 2024
+The last change to this description was: December 17, 2024

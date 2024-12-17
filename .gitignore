@@ -168,6 +168,9 @@ measdata*
 
 # Ausnahmen:
 !/vifcon/Template/config_temp.yml
+!/vifcon/Template/config_temp_Nemo-1.yml
+!/vifcon/Template/config_temp_Nemo-2.yml
+!/vifcon/Template/config_temp_DemoFZ.yml
 !/vifcon/rezepte/rec_example.yml
 !/vifcon/Template/vifcon_temp.log
 !/vifcon/Template/Ablauf_temp.txt
