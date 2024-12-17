@@ -602,6 +602,15 @@ class PIAchse(QObject):
         if write_Okay['Start'] and not self.neustart:
             self.Start_Werte()
             write_Okay['Start'] = False
+
+        #++++++++++++++++++++++++++++++++++++++++++
+        # PID-Reset:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if write_Okay['PID-Reset']:
+            self.PID.Reset()
+            write_Okay['PID-Reset'] = False
+            self.Ist  = 0
+            self.Soll = 0
         
         #++++++++++++++++++++++++++++++++++++++++++
         # Update Limit:

@@ -583,6 +583,15 @@ class Eurotherm(QObject):
             write_Okay['Operating point']   = True 
             write_value['Rez_OPTemp']       = 0 
             self.done_ones                  = True
+        
+        #++++++++++++++++++++++++++++++++++++++++++
+        # PID-Reset:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if write_Okay['PID-Reset']:
+            self.PID.Reset()
+            write_Okay['PID-Reset'] = False
+            self.Ist  = 0
+            self.Soll = 0
 
         #++++++++++++++++++++++++++++++++++++++++++
         # Update Limit:

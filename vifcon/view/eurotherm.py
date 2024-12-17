@@ -477,7 +477,11 @@ class EurothermWidget(QWidget):
         self.Text_91_str            = ['Rezept Beenden - Sicherer Endzustand',                                                                                                                                                                  'Recipe Ends - Safe End State']
         self.Text_PID_1             = ['Wechsel in PID-Modus.',                                                                                                                                                                                 'Switch to PID mode.']
         self.Text_PID_2             = ['Wechsel in Eurotherm-Regel-Modus.',                                                                                                                                                                     'Switch to Eurotherm control mode.']
-        self.Text_Update            = ['Update Fehlgeschlagen!',                                                                                    'Update Failed!']
+        self.Text_Update            = ['Update Fehlgeschlagen!',                                                                                                                                                                                'Update Failed!']
+        self.Text_PIDReset_str      = ['PID Reset ausgelöst',                                                                                                                                                                                   'PID reset triggered']
+        self.Text_LimitUpdate       = ['Limit Update ausgelöst',                                                                                                                                                                                'limit update triggered']
+        self.Text_Extra_1           = ['Menü-Knopf betätigt - ',                                                                                                                                                                                'Menu button pressed - ']
+        self.Text_PIDResetError = ['Der PID ist aktiv in Nutzung und kann nicht resettet werden!',                                                                                                                                              'The PID is actively in use and cannot be reset!']
         ## Pop-Up-Fenster: #########################################################################################################################################################################################################################################################################
         self.puF_HO_str             = ['Die maximale Ausgangsleistung (HO) wird nicht an das Limit angepasst! Die Einstellung Sicherheit wurde auf True gesetzt. Das bedeutet das der Wert nur direkt am Eurotherm geändert werden kann!',      'The maximum output power (HO) is not adjusted to the limit! The Security setting has been set to True. This means that the value can only be changed directly on the Eurotherm!']
         self.puF_HO_str_2           = ['Bitte beachten Sie, dass bei der Config-Einstellung "sicherheit" True der OPmax Wert nicht mit dem in dem Gerät übereinstimmen muss. Bitte Betätigen Sie zur Anpassung im Menü "Eurotherm HO lesen" oder Wechseln Sie in den Manuellen Modus, damit der OPmax-Wert in VIFCON aktualisiert wird!',
@@ -489,7 +493,7 @@ class EurothermWidget(QWidget):
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = True
-        self.write_task  = {'Soll-Temperatur': False, 'Operating point':False, 'Auto_Mod': False, 'Manuel_Mod': False, 'Init':False, 'Start': False, 'EuRa': False, 'EuRa_Reset': False, 'Read_HO': False, 'Write_HO': False, 'PID': False, 'PID_Rezept_Mode_OP': False, 'PID-Update': False, 'Read_PID': False, 'Update Limit': False}
+        self.write_task  = {'Soll-Temperatur': False, 'Operating point':False, 'Auto_Mod': False, 'Manuel_Mod': False, 'Init':False, 'Start': False, 'EuRa': False, 'EuRa_Reset': False, 'Read_HO': False, 'Write_HO': False, 'PID': False, 'PID_Rezept_Mode_OP': False, 'PID-Update': False, 'Read_PID': False, 'Update Limit': False, 'PID-Reset': False}
         self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID-Sollwert': 0, 'PID_Rez': -1, 'PID-Update': [0, 0, 0], 'Limits': [0, 0, 0, 0]} # Limits: oGOp, uGOp, oGPID, uGPID
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
@@ -1097,6 +1101,7 @@ class EurothermWidget(QWidget):
 
     def update_Limit(self):
         '''Lese die Config und Update die Limits'''
+        self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Extra_1[self.sprache]}{self.Text_LimitUpdate[self.sprache]}')
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Yaml erneut laden:
@@ -1286,6 +1291,21 @@ class EurothermWidget(QWidget):
                 self.Fehler_Output(1, self.Log_Yaml_Error[self.sprache], self.Text_Update[self.sprache])   
         else:
             self.Fehler_Output(1, self.err_4_str[self.sprache])
+
+    def PID_Reset(self):
+        ''' Löse den Reset des PID-Reglers aus!'''
+        self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Extra_1[self.sprache]}{self.Text_PIDReset_str[self.sprache]}')
+        
+        if not self.PID_cb.isChecked():
+            ## Aufagben setzen:
+            self.write_task['Update Limit'] = True
+            self.write_value['Limits']      = [self.oGOp, self.uGOp, self.oGPID, self.uGPID, True]
+            self.write_task['PID-Reset']    = True
+
+            ## Meldung:
+            self.Fehler_Output(0)
+        else:
+            self.Fehler_Output(1, self.Text_PIDResetError[self.sprache], self.Text_PIDResetError[self.sprache])
 
     ##########################################
     # Betrachtung der Labels und Plots:

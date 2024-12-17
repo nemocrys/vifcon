@@ -565,6 +565,10 @@ class NemoGeneratortWidget(QWidget):
         self.Text_Update        = ['Update Fehlgeschlagen!',                                                                                    'Update Failed!']
         self.Text_Neu_1         = ['Knopf betätigt - Generator Ein!',                                                                           'Button pressed - generator on!']
         self.Text_Neu_2         = ['Knopf betätigt - Generator Aus!',                                                                           'Button pressed - generator off!']
+        self.Text_PIDReset_str  = ['PID Reset ausgelöst',                                                                                       'PID reset triggered']
+        self.Text_LimitUpdate   = ['Limit Update ausgelöst',                                                                                    'limit update triggered']
+        self.Text_Extra_1       = ['Menü-Knopf betätigt - ',                                                                                    'Menu button pressed - ']
+        self.Text_PIDResetError = ['Der PID ist aktiv in Nutzung und kann nicht resettet werden!',                                              'The PID is actively in use and cannot be reset!']
         ## Message-Box: ###########################################################################################################################################################################################################################################################################
         self.Message_1          = ['Beachten Sie die Einstellungen des gewählten Generators! Diese werden als Tooltip beim Namen angezeigt und können in der Anlagen-GUI eingestellt werden!\n\nBei Änderung wird ein Neustart empfohlen!',   
                                    'Note the settings of the selected generator! These are displayed as a tooltip next to the name and can be set in the system GUI!\n\nIf changes are made, a restart is recommended!']
@@ -572,7 +576,7 @@ class NemoGeneratortWidget(QWidget):
         #---------------------------------------
         # Konfigurationen für das Senden:
         #---------------------------------------
-        self.write_task  = {'Soll-Leistung': False, 'Soll-Strom': False, 'Soll-Spannung': False, 'Init':False, 'Start': False, 'Ein': False, 'Aus': False, 'Update Limit': False, 'PID': False, 'Wahl_P': False, 'Wahl_I': False, 'Wahl_U': False}
+        self.write_task  = {'Soll-Leistung': False, 'Soll-Strom': False, 'Soll-Spannung': False, 'Init':False, 'Start': False, 'Ein': False, 'Aus': False, 'Update Limit': False, 'PID': False, 'Wahl_P': False, 'Wahl_I': False, 'Wahl_U': False, 'PID-Reset': False}
         self.write_value = {'Sollwert': 0, 'Limits': [0, 0, 0, 0, False], 'PID-Sollwert': 0, 'Limit Unit': self.einheit_I_einzel[self.sprache], 'PID Output-Size': 'I', 'Ak_Size': 'I'} # Limits: oGWahl, uGWahl, oGx, uGx, Input Update True?
 
         if self.init and not self.neustart:
@@ -1411,6 +1415,7 @@ class NemoGeneratortWidget(QWidget):
     
     def update_Limit(self):
         '''Lese die Config und Update die Limits'''
+        self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Extra_1[self.sprache]}{self.Text_LimitUpdate[self.sprache]}')
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Yaml erneut laden:
@@ -1572,6 +1577,31 @@ class NemoGeneratortWidget(QWidget):
             self.Fehler_Output(0)
         else:
             self.Fehler_Output(1, self.Log_Yaml_Error[self.sprache], self.Text_Update[self.sprache])
+    
+    def PID_Reset(self, wahl = 0):
+        ''' Löse den Reset des PID-Reglers aus!
+        
+        Args:
+            wahl (int): Ablauf-Datei Zusatz
+        '''
+        if wahl == 0:   extra = self.Text_Extra_1[self.sprache]
+        elif wahl == 1: extra = ''
+        self.add_Text_To_Ablauf_Datei(f'{self.device_name} - ' + extra + f'{self.Text_PIDReset_str[self.sprache]}')
+        
+        if not self.PID_cb.isChecked():
+            ## Aktuelle Limits:
+            if self.RB_choise_Pow.isChecked():              oGPID, uGPID = self.oGP, self.uGP
+            elif self.RB_choise_Current.isChecked():        oGPID, uGPID = self.oGI, self.uGI
+            elif self.RB_choise_Voltage.isChecked():        oGPID, uGPID = self.oGU, self.uGU
+
+            ## Aufagben setzen:
+            self.write_task['Update Limit'] = True
+            self.write_value['Limits']      = [oGPID, uGPID, self.oGx, self.uGx, True]
+            self.write_task['PID-Reset']    = True
+            ## Meldung:
+            self.Fehler_Output(0)
+        else:
+            self.Fehler_Output(1, self.Text_PIDResetError[self.sprache], self.Text_PIDResetError[self.sprache])
 
     ##########################################
     # Betrachtung der Labels und Plots:

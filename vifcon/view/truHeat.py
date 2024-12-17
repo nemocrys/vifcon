@@ -514,6 +514,10 @@ class TruHeatWidget(QWidget):
         self.Text_Update        = ['Update Fehlgeschlagen!',                                                                                    'Update Failed!']
         self.Text_Neu_1         = ['Knopf betätigt - Generator Ein!',                                                                           'Button pressed - generator on!']
         self.Text_Neu_2         = ['Knopf betätigt - Generator Aus!',                                                                           'Button pressed - generator off!']
+        self.Text_PIDReset_str  = ['PID Reset ausgelöst',                                                                                       'PID reset triggered']
+        self.Text_LimitUpdate   = ['Limit Update ausgelöst',                                                                                    'limit update triggered']
+        self.Text_Extra_1       = ['Menü-Knopf betätigt - ',                                                                                    'Menu button pressed - ']
+        self.Text_PIDResetError = ['Der PID ist aktiv in Nutzung und kann nicht resettet werden!',                                              'The PID is actively in use and cannot be reset!']
         ## Print: #################################################################################################################################################################################################################################################################################  
         self.ExPrint_str        = ['ACHTUNG: Keine regelmäßigen Lese-Befehle - RS232-User watchdog deaktivieren (auf Null stellen)!',           'ATTENTION: No regular read commands - deactivate RS232 user watchdog (set to zero)!']
         ## Message-Box: ###########################################################################################################################################################################################################################################################################
@@ -523,7 +527,7 @@ class TruHeatWidget(QWidget):
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = True
-        self.write_task  = {'Soll-Leistung': False, 'Soll-Strom': False, 'Soll-Spannung': False, 'Init':False, 'Ein': False, 'Aus': False, 'Start': False, 'Update Limit': False, 'PID': False}
+        self.write_task  = {'Soll-Leistung': False, 'Soll-Strom': False, 'Soll-Spannung': False, 'Init':False, 'Ein': False, 'Aus': False, 'Start': False, 'Update Limit': False, 'PID': False, 'PID-Reset': False}
         self.write_value = {'Sollwert': 0, 'Limits': [0, 0, 0, 0, False], 'PID-Sollwert': 0, 'Limit Unit':self.einheit_P_einzel[self.sprache], 'PID Output-Size': 'P'} # Limits: oGWahl, uGWahl, oGx, uGx, Input Update True?
 
         if self.init and not self.neustart:
@@ -1061,6 +1065,7 @@ class TruHeatWidget(QWidget):
             self.LE_Pow.setEnabled(True)
             self.LE_Current.setEnabled(False)
             self.LE_Voltage.setEnabled(False)
+            self.PID_Reset(1)
 
     def BlassOutPI(self, selected):
         ''' Spannungs Eingabefeld ist Verfügbar '''
@@ -1069,6 +1074,7 @@ class TruHeatWidget(QWidget):
             self.LE_Pow.setEnabled(False)
             self.LE_Current.setEnabled(False)
             self.LE_Voltage.setEnabled(True)
+            self.PID_Reset(1)
 
     def BlassOutPU(self, selected):
         ''' Strom Eingabefeld ist Verfügbar '''
@@ -1077,6 +1083,7 @@ class TruHeatWidget(QWidget):
             self.LE_Pow.setEnabled(False)
             self.LE_Current.setEnabled(True)
             self.LE_Voltage.setEnabled(False)
+            self.PID_Reset(1)
 
     ##########################################
     # Reaktion auf Butttons:
@@ -1337,6 +1344,7 @@ class TruHeatWidget(QWidget):
     
     def update_Limit(self):
         '''Lese die Config und Update die Limits'''
+        self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Extra_1[self.sprache]}{self.Text_LimitUpdate[self.sprache]}')
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Yaml erneut laden:
@@ -1499,6 +1507,32 @@ class TruHeatWidget(QWidget):
         else:
             self.Fehler_Output(1, self.Log_Yaml_Error[self.sprache], self.Text_Update[self.sprache])
 
+    def PID_Reset(self, wahl = 0):
+        ''' Löse den Reset des PID-Reglers aus!
+        
+        Args:
+            wahl (int): Ablauf-Datei Zusatz
+        '''
+        if wahl == 0:   extra = self.Text_Extra_1[self.sprache]
+        elif wahl == 1: extra = ''
+        self.add_Text_To_Ablauf_Datei(f'{self.device_name} - ' + extra + f'{self.Text_PIDReset_str[self.sprache]}')
+        
+        if not self.PID_cb.isChecked():
+            ## Aktuelle Limits:
+            if self.RB_choise_Pow.isChecked():              oGPID, uGPID = self.oGP, self.uGP
+            elif self.RB_choise_Current.isChecked():        oGPID, uGPID = self.oGI, self.uGI
+            elif self.RB_choise_Voltage.isChecked():        oGPID, uGPID = self.oGU, self.uGU
+
+            ## Aufagben setzen:
+            self.write_task['Update Limit'] = True
+            self.write_value['Limits']      = [oGPID, uGPID, self.oGx, self.uGx, True]
+            self.write_task['PID-Reset']    = True
+            
+            ## Meldung:
+            self.Fehler_Output(0)
+        else:
+            self.Fehler_Output(1, self.Text_PIDResetError[self.sprache], self.Text_PIDResetError[self.sprache])
+            
     ##########################################
     # Betrachtung der Labels und Plots:
     ##########################################

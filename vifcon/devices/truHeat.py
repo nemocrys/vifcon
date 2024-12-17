@@ -658,10 +658,19 @@ class TruHeat(QObject):
         '''
         ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
         #++++++++++++++++++++++++++++++++++++++++++
+        # PID-Reset:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if write_Okay['PID-Reset']:
+            self.PID.Reset()
+            write_Okay['PID-Reset'] = False
+            self.Ist  = 0
+            self.Soll = 0
+
+        #++++++++++++++++++++++++++++++++++++++++++
         # Update Limit:
         #++++++++++++++++++++++++++++++++++++++++++
         if write_Okay['Update Limit']:
-            ## Geschwindigkeit/PID-Output:
+            ## PID-Output:
             self.PID.OutMax = write_value['Limits'][0]
             self.PID.OutMin = write_value['Limits'][1]
             logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {write_value["Limit Unit"]}')

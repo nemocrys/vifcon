@@ -156,4 +156,4 @@ Im Ordner **[Information](../Information)** befinden sich weitere Dokumente, die
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 15.10.2024
+Die Letzte Änderung dieser Beschreibung war: 17.12.2024

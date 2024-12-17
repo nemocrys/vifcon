@@ -155,4 +155,4 @@ The **[Information](Information)** folder contains further documents that descri
 
 ## Last change
 
-The last change of this description was: October 15, 2024
+The last change of this description was: December 17, 2024

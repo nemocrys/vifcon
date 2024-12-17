@@ -70,6 +70,7 @@ class MainWindow(QMainWindow):
         init_str            = ["&Initialisiere",                         "&Initialize"]
         limits_str          = ["&Lese Limits erneut",                    "Read &Limits again"]
         PID_Para_str        = ['Lese &VIFCON-PID-Parameter erneut',      'Reread &VIFCON-PID parameters']
+        PID_Reset_str       = ['VI&FCON-PID Reset',                      'VI&FCON-PID Reset']
         syn_rez_sta_str     = ["&Starte Synchron Modus",                 "&Start synchronously mode"]
         syn_rez_end_str     = ["&Beende Synchron Modus",                 "&Finish synchronous mode"]
         new_rez_aus_str     = ["&Alle Geräte neu Einlesen",              "Re-read &all devices"]
@@ -123,6 +124,7 @@ class MainWindow(QMainWindow):
         self.init_menu          = self.G_menu.addMenu(init_str[self.sprache])             
         self.limits_menu        = self.G_menu.addMenu(limits_str[self.sprache]) 
         self.PID_Para_menu      = self.G_menu.addMenu(PID_Para_str[self.sprache])
+        self.PID_Reset_menu     = self.G_menu.addMenu(PID_Reset_str[self.sprache])
         #### Rezepte:
         ##### Action Synchro Rezept Start:
         button_action = QAction(syn_rez_sta_str[self.sprache], self)
@@ -137,7 +139,7 @@ class MainWindow(QMainWindow):
         button_action_RE.triggered.connect(RE_function)
         self.R_menu.addAction(button_action_RE)
 
-        self.menu_dict = {'Grid': self.grid_menu, 'Init': self.init_menu, 'Limit': self.limits_menu, 'VIFCON-PID': self.PID_Para_menu}      
+        self.menu_dict = {'Grid': self.grid_menu, 'Init': self.init_menu, 'Limit': self.limits_menu, 'VIFCON-PID': self.PID_Para_menu, 'Reset-PID': self.PID_Reset_menu}      
 
     ##########################################
     # Funktionen:
@@ -183,7 +185,7 @@ class MainWindow(QMainWindow):
                 icon = QIcon("./vifcon/icons/p_Init_nicht_Okay.png")
             
             button_action = QAction(icon, f"{name} {self.init_str[self.sprache]}", self)
-        elif menu_str == 'Limit' or menu_str == 'VIFCON-PID':
+        elif menu_str == 'Limit' or menu_str == 'VIFCON-PID' or menu_str == 'Reset-PID':
             button_action = QAction(f"{self.limit_str[self.sprache]} {name}", self)
         button_action.triggered.connect(function)
         self.menu_dict[menu_str].addAction(button_action)

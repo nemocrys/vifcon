@@ -854,6 +854,7 @@ class Controller(QObject):
                                 self.main_window.add_menu('VIFCON-PID', device_name, device.PID.update_VPID_Para, widget.init)
                                 device.PID.config_dat = config
                                 device.PID.widget = widget
+                            self.main_window.add_menu('Reset-PID', device_name, widget.PID_Reset, widget.init)
                         except Exception as e:
                             logger.exception(f'{device_name} - {self.Log_Text_204_str[self.sprache]}')
                     

@@ -73,14 +73,14 @@ class PID(QObject):
         # Variablen:
         #---------------------------------------
         ## Init:
-        self.sprache = sprache
-        self.device = device_name
-        self.config = PID_config
-        self.OutMax = Max
-        self.OutMin = Min
+        self.sprache    = sprache
+        self.device     = device_name
+        self.config     = PID_config
+        self.OutMax     = Max
+        self.OutMin     = Min
         ## Startzeit:
-        self.last_time          = datetime.datetime.now(datetime.timezone.utc).astimezone()
-        self.log_time           = datetime.datetime.now(datetime.timezone.utc).astimezone()
+        self.last_time  = datetime.datetime.now(datetime.timezone.utc).astimezone()
+        self.log_time   = datetime.datetime.now(datetime.timezone.utc).astimezone()
         ## Start-Werte:
         self.ITerm      = 0
         self.last_Input = 0
@@ -88,7 +88,7 @@ class PID(QObject):
         self.PID_speere = False
         ## Yaml-Datei:
         self.config_dat = None
-        self.widget = None
+        self.widget     = None
 
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
@@ -349,3 +349,9 @@ class PID(QObject):
             return True, self.kp, self.ki, self.kd
         # Neue PID-Parameter übergeben:
         return False, kp, ki, kd
+
+    def Reset(self):
+        # Resete den PID
+        self.ITerm      = 0
+        self.last_Input = 0
+        self.Output     = 0

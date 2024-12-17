@@ -708,6 +708,15 @@ class NemoAchseRot(QObject):
             self.CCW_End = False
 
         #++++++++++++++++++++++++++++++++++++++++++
+        # PID-Reset:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if write_Okay['PID-Reset']:
+            self.PID.Reset()
+            write_Okay['PID-Reset'] = False
+            self.Ist  = 0
+            self.Soll = 0
+
+        #++++++++++++++++++++++++++++++++++++++++++
         # Update Limit:
         #++++++++++++++++++++++++++++++++++++++++++
         if write_Okay['Update Limit']:

@@ -529,12 +529,16 @@ class NemoAchseLinWidget(QWidget):
         self.Text_PS_1          = ['Priorisierter Stopp aktiviert!',                                                                            'Prioritized stop activated!']
         self.Text_extra         = ['Antrieb wurde angehalten!',                                                                                 'Drive has been stopped!']
         self.Text_Update        = ['Update Fehlgeschlagen!',                                                                                    'Update Failed!']
+        self.Text_PIDReset_str  = ['PID Reset ausgelöst',                                                                                       'PID reset triggered']
+        self.Text_LimitUpdate   = ['Limit Update ausgelöst',                                                                                    'limit update triggered']
+        self.Text_Extra_1       = ['Menü-Knopf betätigt - ',                                                                                    'Menu button pressed - ']
+        self.Text_PIDResetError = ['Der PID ist aktiv in Nutzung und kann nicht resettet werden!',                                              'The PID is actively in use and cannot be reset!']
         
         #---------------------------------------
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = False
-        self.write_task  = {'Stopp': False, 'Hoch': False, 'Runter': False, 'Init':False, 'Define Home': False, 'Send': False, 'Start':False, 'Update Limit': False, 'PID': False, 'Prio-Stopp': False}
+        self.write_task  = {'Stopp': False, 'Hoch': False, 'Runter': False, 'Init':False, 'Define Home': False, 'Send': False, 'Start':False, 'Update Limit': False, 'PID': False, 'Prio-Stopp': False, 'PID-Reset': False}
         self.write_value = {'Speed': 0, 'Limits': [0, 0, 0, 0, 0, 0], 'PID-Sollwert': 0} # Limits: oGs, uGs, oGv, uGv, oGx, uGx
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
@@ -1071,7 +1075,7 @@ class NemoAchseLinWidget(QWidget):
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_39_str[self.sprache]}')
             logger.info(f"{self.device_name} - {self.Log_Text_56_str[self.sprache]}")
-            self.update_Limit()
+            self.update_Limit(1)
             self.write_task['Define Home'] = True
         else:
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
@@ -1347,9 +1351,16 @@ class NemoAchseLinWidget(QWidget):
     ##########################################
     # Reaktion auf übergeordnete Butttons:
     ##########################################
-    def update_Limit(self):
-        '''Lese die Config und Update die Limits'''
+    def update_Limit(self, wahl = 0):
+        '''Lese die Config und Update die Limits
 
+        Args:
+            wahl (int): Ablauf-Datei Zusatz
+        '''
+        if wahl == 0:   extra = self.Text_Extra_1[self.sprache]
+        elif wahl == 1: extra = ''
+        self.add_Text_To_Ablauf_Datei(f'{self.device_name} - ' + extra + f'{self.Text_LimitUpdate[self.sprache]}')
+        
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Yaml erneut laden:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1467,6 +1478,21 @@ class NemoAchseLinWidget(QWidget):
             self.Fehler_Output(0, self.La_error_1)
         else:
             self.Fehler_Output(1, self.La_error_1, self.Log_Yaml_Error[self.sprache], self.Text_Update[self.sprache])
+    
+    def PID_Reset(self):
+        ''' Löse den Reset des PID-Reglers aus!'''
+        self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Extra_1[self.sprache]}{self.Text_PIDReset_str[self.sprache]}')
+        
+        if not self.PID_cb.isChecked():
+            ## Aufagben setzen:
+            self.write_task['Update Limit'] = True
+            self.write_value['Limits']      = [self.oGs, self.uGs, self.oGv, self.uGv, self.oGx, self.uGx]
+            self.write_task['PID-Reset']    = True
+            
+            ## Meldung:
+            self.Fehler_Output(0, self.La_error_1)
+        else:
+            self.Fehler_Output(1, self.La_error_1, self.Text_PIDResetError[self.sprache], self.Text_PIDResetError[self.sprache])
 
     ##########################################
     # Reaktion auf Rezepte:
