@@ -730,7 +730,7 @@ class NemoAchseLin(QObject):
         ## PID-Regler:
         if self.uGv < 0:     controll_under_Null = 0
         else:                controll_under_Null = self.uGv
-        self.PID = PID(self.sprache, self.device_name, self.PID_Config, self.oGv, controll_under_Null)
+        self.PID = PID(self.sprache, self.device_name, self.PID_Config, self.oGv, controll_under_Null, self.add_Text_To_Ablauf_Datei)
         ## Info und Warnungen: --> Überarbeiten da VIFCON Istwert noch nicht vorhanden!
         if not self.multilog_OnOff and self.PID_Option in ['MV', 'MM', 'VM']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N21[sprache]}')

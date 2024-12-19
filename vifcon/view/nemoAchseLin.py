@@ -558,6 +558,7 @@ class NemoAchseLinWidget(QWidget):
         self.Text_PS_1          = ['Priorisierter Stopp aktiviert!',                                                                            'Prioritized stop activated!']
         self.Text_extra         = ['Antrieb wurde angehalten!',                                                                                 'Drive has been stopped!']
         self.Text_Update        = ['Update Fehlgeschlagen!',                                                                                    'Update Failed!']
+        self.Text_Update_2      = ['Rezept neu einlesen Fehlgeschlagen!',                                                                       'Reload recipe failed!']
         self.Text_PIDReset_str  = ['PID Reset ausgelöst',                                                                                       'PID reset triggered']
         self.Text_LimitUpdate   = ['Limit Update ausgelöst',                                                                                    'limit update triggered']
         self.Text_Extra_1       = ['Menü-Knopf betätigt - ',                                                                                    'Menu button pressed - ']
@@ -1917,6 +1918,7 @@ class NemoAchseLinWidget(QWidget):
                 self.rezept_config = config['devices'][self.device_name]['rezepte']
             except Exception as e: 
                 self.rezept_config = {'rezept_Default':  {'n1': '10 ; 0 ; s'}}
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Update_2[self.sprache]}')
                 self.Fehler_Output(1, self.La_error_1, self.err_RezDef_str[self.sprache])
                 error = True
                 if yaml_error == 1:

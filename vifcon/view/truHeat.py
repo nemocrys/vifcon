@@ -513,6 +513,7 @@ class TruHeatWidget(QWidget):
         self.Text_PID_3         = ['Moduswechsel! Auslösung des Stopp-Knopfes aus Sicherheitsgründen!',                                         'Mode change! Stop button triggered for safety reasons!']
         self.Text_PID_4         = ['Rezept Beenden! Wechsel des Modus!',                                                                        'End recipe! Change mode!']
         self.Text_Update        = ['Update Fehlgeschlagen!',                                                                                    'Update Failed!']
+        self.Text_Update_2      = ['Rezept neu einlesen Fehlgeschlagen!',                                                                       'Reload recipe failed!']
         self.Text_Neu_1         = ['Knopf betätigt - Generator Ein!',                                                                           'Button pressed - generator on!']
         self.Text_Neu_2         = ['Knopf betätigt - Generator Aus!',                                                                           'Button pressed - generator off!']
         self.Text_PIDReset_str  = ['PID Reset ausgelöst',                                                                                       'PID reset triggered']
@@ -1967,6 +1968,7 @@ class TruHeatWidget(QWidget):
                 self.rezept_config = config['devices'][self.device_name]['rezepte']
             except Exception as e: 
                 self.rezept_config = {'rezept_Default':  {'n1': '10 ; 0 ; s'}}
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Update_2[self.sprache]}')
                 self.Fehler_Output(1, self.err_RezDef_str[self.sprache])
                 error = True
                 if yaml_error == 1:

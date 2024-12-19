@@ -29,21 +29,22 @@ logger = logging.getLogger(__name__)
 
 
 class PID(QObject):
-    def __init__(self, sprache, device_name, PID_config, Max, Min):
+    def __init__(self, sprache, device_name, PID_config, Max, Min, add_Ablauf_function):
         ''' Erzeuge einen PID-Regler.
         
         Args:
-            sprache (int):              Sprache des Programms (GUI, Files)
-            device_name (str):          Name des Gerätes, zu dem der PID-Regler gehört
-            PID_config (dict):          Config-Datei-Teil für den PID 
-            Max (float):                Maximaler Output
-            Min (float):                Minimaler Output
+            sprache (int):                      Sprache des Programms (GUI, Files)
+            device_name (str):                  Name des Gerätes, zu dem der PID-Regler gehört
+            PID_config (dict):                  Config-Datei-Teil für den PID 
+            Max (float):                        Maximaler Output
+            Min (float):                        Minimaler Output
+            add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
         '''
         super().__init__()
         #--------------------------------------- 
         # Sprach-Einstellung:
         #---------------------------------------
-        ## Logging:
+        ## Logging: ##########################################################################################################################################################################################################################################################
         self.Log_PID_0      = ['PID-Regler',                                                                                                            'PID controller']
         self.Log_PID_1      = ['P-Anteil (kp) = ',                                                                                                      'P-share (kp) =']
         self.Log_PID_2      = ['I-Anteil (ki) = ',                                                                                                      'I-share (ki) =']
@@ -68,16 +69,20 @@ class PID(QObject):
         self.Log_value_1    = ['Eingang - Sollwert: ',                                                                                                  'Input - Set-Point']
         self.Log_value_2    = ['und Istwert: ',                                                                                                         'and Actual Value']
         self.Log_value_3    = ['/ Ausgang: ',                                                                                                           '/ Output:']
+        ## Ablaufdatei: ######################################################################################################################################################################################################################################################
+        self.Text_PID_2_str = ['Menü-Knopf betätigt - PID Parameter neu einlesen ausgelöst',                                                            'Menu button pressed - PID parameter reread triggered']
+        self.Text_PID_3_str = ['PID-Parameter neu einlesen fehlgeschlagen!',                                                                            'Rereading PID parameters failed!']
 
         #---------------------------------------
         # Variablen:
         #---------------------------------------
         ## Init:
-        self.sprache    = sprache
-        self.device     = device_name
-        self.config     = PID_config
-        self.OutMax     = Max
-        self.OutMin     = Min
+        self.sprache                    = sprache
+        self.device                     = device_name
+        self.config                     = PID_config
+        self.OutMax                     = Max
+        self.OutMin                     = Min
+        self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
         ## Startzeit:
         self.last_time  = datetime.datetime.now(datetime.timezone.utc).astimezone()
         self.log_time   = datetime.datetime.now(datetime.timezone.utc).astimezone()
@@ -268,12 +273,14 @@ class PID(QObject):
     def update_VPID_Para(self):
         '''Config neu einlesen und Parameter des PID-Neusetzen'''
         # Yaml erneut laden:
+        self.add_Text_To_Ablauf_Datei(f'{self.device} - {self.Text_PID_2_str[self.sprache]}') 
         try:
             with open(self.config_dat, encoding="utf-8") as f:  
                 config = yaml.safe_load(f)
                 logger.info(f"{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_15[self.sprache]} {config}")
                 skippen = 0
         except Exception as e:
+            self.add_Text_To_Ablauf_Datei(f'{self.device} - {self.Text_PID_3_str[self.sprache]}') 
             logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_4_1[self.sprache]}')         
             logger.warning(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_7[self.sprache]}')
             logger.exception(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_Pfad_conf_6[self.sprache]}')
@@ -355,3 +362,5 @@ class PID(QObject):
         self.ITerm      = 0
         self.last_Input = 0
         self.Output     = 0
+
+        

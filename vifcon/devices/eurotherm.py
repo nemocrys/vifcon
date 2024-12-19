@@ -492,7 +492,7 @@ class Eurotherm(QObject):
         # PID-Regler:
         #---------------------------------------
         ## PID-Regler:
-        self.PID = PID(self.sprache, self.device_name, self.PID_Config, self.oGOp, self.uGOp)
+        self.PID = PID(self.sprache, self.device_name, self.PID_Config, self.oGOp, self.uGOp, self.add_Text_To_Ablauf_Datei)
         ## Info und Warnungen:
         if not self.multilog_OnOff and self.PID_Option in ['MV', 'MM', 'VM']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N21[sprache]}')

@@ -479,6 +479,7 @@ class EurothermWidget(QWidget):
         self.Text_PID_1             = ['Wechsel in PID-Modus.',                                                                                                                                                                                 'Switch to PID mode.']
         self.Text_PID_2             = ['Wechsel in Eurotherm-Regel-Modus.',                                                                                                                                                                     'Switch to Eurotherm control mode.']
         self.Text_Update            = ['Update Fehlgeschlagen!',                                                                                                                                                                                'Update Failed!']
+        self.Text_Update_2          = ['Rezept neu einlesen Fehlgeschlagen!',                                                                                                                                                                   'Reload recipe failed!']
         self.Text_PIDReset_str      = ['PID Reset ausgelöst',                                                                                                                                                                                   'PID reset triggered']
         self.Text_LimitUpdate       = ['Limit Update ausgelöst',                                                                                                                                                                                'limit update triggered']
         self.Text_Extra_1           = ['Menü-Knopf betätigt - ',                                                                                                                                                                                'Menu button pressed - ']
@@ -738,8 +739,8 @@ class EurothermWidget(QWidget):
             'uGOp':   ['a2', pg.mkPen(color=self.color[2], style=Qt.DashDotDotLine),     f'{eurotherm} - {P_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
             'RezT':   ['a1', pg.mkPen(color=self.color[3], width=3, style=Qt.DotLine),   f'{eurotherm} - {rezept_Label_str[self.sprache]}<sub>{T_einzel_str[self.sprache]}</sub>'],
             'RezOp':  ['a2', pg.mkPen(color=self.color[4], width=3, style=Qt.DotLine),   f'{eurotherm} - {rezept_Label_str[self.sprache]}<sub>{P_einzel_str[self.sprache]}</sub>'],
-            'SWTPID': ['a1', pg.mkPen(self.color[5], width=2, style=Qt.DashDotLine),     f'{PID_Label_Soll} - {T_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
-            'IWTPID': ['a1', pg.mkPen(self.color[6], width=2, style=Qt.DashDotLine),     f'{PID_Label_Ist} - {T_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
+            'SWTPID': ['a1', pg.mkPen(self.color[5], width=2, style=Qt.DashDotLine),     f'{PID_Label_Soll} - {T_einzel_str[self.sprache]}_{cb_PID[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
+            'IWTPID': ['a1', pg.mkPen(self.color[6], width=2, style=Qt.DashDotLine),     f'{PID_Label_Ist} - {T_einzel_str[self.sprache]}_{cb_PID[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
             'oGPID':  ['a1', pg.mkPen(color=self.color[6], style=Qt.DashLine),           f'{eurotherm} - {self.PID_G_Kurve[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
             'uGPID':  ['a1', pg.mkPen(color=self.color[6], style=Qt.DashDotDotLine),     f'{eurotherm} - {self.PID_G_Kurve[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
             }
@@ -1935,6 +1936,7 @@ class EurothermWidget(QWidget):
                 self.rezept_config = config['devices'][self.device_name]['rezepte']
             except Exception as e: 
                 self.rezept_config = {'rezept_Default':  {'n1': '10 ; 0 ; s'}}
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Update_2[self.sprache]}')
                 self.Fehler_Output(1, self.err_RezDef_str[self.sprache])
                 error = True
                 if yaml_error == 1:

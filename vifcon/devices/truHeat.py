@@ -599,7 +599,7 @@ class TruHeat(QObject):
         elif self.startMod == 'I':    oG, uG, unit = self.oGI, self.uGI, self.Log_Text_127_str[self.sprache]
         elif self.startMod == 'U':    oG, uG, unit = self.oGU, self.uGU, self.Log_Text_125_str[self.sprache]
 
-        self.PID = PID(self.sprache, self.device_name, self.PID_Config, oG, uG)
+        self.PID = PID(self.sprache, self.device_name, self.PID_Config, oG, uG, self.add_Text_To_Ablauf_Datei)
         ## Info und Warnungen: --> Überarbeiten da VIFCON Istwert noch nicht vorhanden!
         if not self.multilog_OnOff and self.PID_Option in ['MV', 'MM', 'VM']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N21[sprache]}')
