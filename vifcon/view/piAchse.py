@@ -446,6 +446,7 @@ class PIAchseWidget(QWidget):
         self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
         self.Log_Yaml_Error     = ['Mit der Config-Datei (Yaml) gibt es ein Problem.',                                                          'There is a problem with the config file (YAML).']
         self.err_RezDef_str     = ['Yaml-Config Fehler\nDefault-Rezept eingefügt!',                                                             'Yaml config error\nDefault recipe inserted!']
+        self.err_Rezept_2       = ['Rezept-Schritt:',                                                                                                                                                                                       'Recipe step:']
         ## Plot-Legende: ########################################################################################################################################################################################################################################################################                                                    
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
@@ -1723,8 +1724,9 @@ class PIAchseWidget(QWidget):
         self.value_list = []
         
         ## Geschwindigkeitlimits:
-        uG = self.oGv * (-1)
+        uG = self.uGv #* (-1)
         oG = self.oGv
+        string_einheit = self.einheit_v_einzel[self.sprache]
 
         ## Positionlimits:
         uGPos = self.uGPos
@@ -1773,7 +1775,7 @@ class PIAchseWidget(QWidget):
                 ## Kontrolle Geschwindigkeit:
                 if value < uG or value > oG:
                     error = True
-                    self.Fehler_Output(1, self.La_error_1, f'{self.err_6_str[self.sprache]} {value} {self.err_7_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG}!')
+                    self.Fehler_Output(1, self.La_error_1, f'{self.err_6_str[self.sprache]} {value} {string_einheit} {self.err_7_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG} {string_einheit}! ({self.err_Rezept_2[self.sprache]} {n})')
                     break
                 else:
                     self.Fehler_Output(0, self.La_error_1)
@@ -1816,7 +1818,7 @@ class PIAchseWidget(QWidget):
                 start_pos = pos
                 if pos < uGPos or pos > oGPos:
                     error = True
-                    self.Fehler_Output(1, self.La_error_2, f'{self.err_9_str[self.sprache]} {rezept_schritt} {self.err_7_str[self.sprache]} {uGPos} {self.err_3_str[self.sprache]} {oGPos}!')    
+                    self.Fehler_Output(1, self.La_error_2, f'{self.err_9_str[self.sprache]} {rezept_schritt} {self.err_7_str[self.sprache]} {uGPos} {self.err_3_str[self.sprache]} {oGPos} {self.einheit_s_einzel[self.sprache]}!')    
                     break
                 else:
                     self.Fehler_Output(0, self.La_error_2)  

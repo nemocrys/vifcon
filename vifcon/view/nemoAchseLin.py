@@ -407,6 +407,7 @@ class NemoAchseLinWidget(QWidget):
         self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
         self.Log_Yaml_Error     = ['Mit der Config-Datei (Yaml) gibt es ein Problem.',                                                          'There is a problem with the config file (YAML).']
         self.err_RezDef_str     = ['Yaml-Config Fehler\nDefault-Rezept eingefügt!',                                                             'Yaml config error\nDefault recipe inserted!']
+        self.err_Rezept_2       = ['Rezept-Schritt:',                                                                                                                                                                                       'Recipe step:']
         ## Status-N1: ##############################################################################################################################################################################################################################################################################          
         status_1_str            = ['Status: Inaktiv',                                                                                           'Status: Inactive']
         self.status_2_str       = ['Kein Status',                                                                                               'No Status']
@@ -1098,9 +1099,11 @@ class NemoAchseLinWidget(QWidget):
         if self.PID_cb.isChecked():
             oGv = self.oGx
             uGv = self.uGx 
+            unit = self.einheit_x_einzel[self.sprache]
         else:
             oGv = self.oGv
             uGv = self.uGv
+            unit = self.einheit_v_einzel[self.sprache]
 
         # Wenn eins der beiden Eingabefelder leer ist, dann sende nicht:
         if speed_value == '':
@@ -1112,7 +1115,7 @@ class NemoAchseLinWidget(QWidget):
                 speed_value = float(speed_value)
                 # Kontrolliere die Grenzen/Limits:
                 if speed_value < uGv or speed_value > oGv:
-                    self.Fehler_Output(1, self.La_error_1, f'{self.err_2_str[self.sprache]} {uGv} {self.err_3_str[self.sprache]} {oGv}', self.Text_42_str[self.sprache])     
+                    self.Fehler_Output(1, self.La_error_1, f'{self.err_2_str[self.sprache]} {uGv} {self.err_3_str[self.sprache]} {oGv} {unit}', self.Text_42_str[self.sprache])     
                 # Alles in Ordnung mit der Eingabe:
                 else:
                     self.Fehler_Output(0, self.La_error_1)
@@ -1676,6 +1679,7 @@ class NemoAchseLinWidget(QWidget):
         ## Geschwindigkeitlimits:
         uG = self.uGv
         oG = self.oGv
+        string_einheit = self.einheit_v_einzel[self.sprache]
 
         ## Positionslimits:
         uGs = self.uGs
@@ -1685,6 +1689,7 @@ class NemoAchseLinWidget(QWidget):
         if self.PID_cb.isChecked():
             oG = self.oGx
             uG = self.uGx 
+            string_einheit = self.einheit_x_einzel[self.sprache]
 
         ## Aktueller Wert Geschwindigkeit:
         ak_value = self.ak_value['IWv'] if not self.ak_value == {} else 0
@@ -1744,7 +1749,7 @@ class NemoAchseLinWidget(QWidget):
                 ## Kontrolle Geschwindigkeit:
                 if value < uG or value > oG:
                     error = True
-                    self.Fehler_Output(1, self.La_error_1, f'{self.err_6_str[self.sprache]} {value} {self.err_7_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG}!')
+                    self.Fehler_Output(1, self.La_error_1, f'{self.err_6_str[self.sprache]} {value} {string_einheit} {self.err_7_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG} {string_einheit}! ({self.err_Rezept_2[self.sprache]} {n})')
                     break
                 else:
                     self.Fehler_Output(0, self.La_error_1)
@@ -1789,7 +1794,7 @@ class NemoAchseLinWidget(QWidget):
                     start_pos = pos
                     if pos < uGs or pos > oGs:
                         error = True
-                        self.Fehler_Output(1, self.La_error_1, f'{self.err_9_str[self.sprache]} {rezept_schritt} {self.err_7_str[self.sprache]} {uGs} {self.err_3_str[self.sprache]} {oGs}!')
+                        self.Fehler_Output(1, self.La_error_1, f'{self.err_9_str[self.sprache]} {rezept_schritt} {self.err_7_str[self.sprache]} {uGs} {self.err_3_str[self.sprache]} {oGs} {self.einheit_s_einzel[self.sprache]}!')
                         break
                     else:
                         self.Fehler_Output(0, self.La_error_1)

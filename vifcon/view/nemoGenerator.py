@@ -483,6 +483,7 @@ class NemoGeneratortWidget(QWidget):
         self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
         self.Log_Yaml_Error     = ['Mit der Config-Datei (Yaml) gibt es ein Problem.',                                                          'There is a problem with the config file (YAML).']
         self.err_RezDef_str     = ['Yaml-Config Fehler\nDefault-Rezept eingefügt!',                                                             'Yaml config error\nDefault recipe inserted!']
+        self.err_Rezept_2       = ['Rezept-Schritt:',                                                                                                                                                                                       'Recipe step:']
         ## Status-N2: ##############################################################################################################################################################################################################################################################################          
         status_1_str            = ['Status: Inaktiv',                                                                                           'Status: Inactive']
         self.status_2_str       = ['Kein Status',                                                                                               'No Status']
@@ -1161,7 +1162,7 @@ class NemoGeneratortWidget(QWidget):
                     self.write_task['Soll-Leistung'] = True
                 self.write_task['Soll-Spannung'] = False 
                 self.write_task['Soll-Strom'] = False
-                oG, uG = self.oGP, self.uGP
+                oG, uG, einheit = self.oGP, self.uGP, self.einheit_P_einzel[self.sprache]
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_16_str[self.sprache]}')
             ## Wenn der Radio-Button der Sollspannung gewählt ist:
             elif self.RB_choise_Voltage.isChecked():
@@ -1170,7 +1171,7 @@ class NemoGeneratortWidget(QWidget):
                 if not self.PID_cb.isChecked():
                     self.write_task['Soll-Spannung'] = True
                 self.write_task['Soll-Strom'] = False
-                oG, uG = self.oGU, self.uGU
+                oG, uG, einheit = self.oGU, self.uGU, self.einheit_U_einzel[self.sprache]
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_17_str[self.sprache]}')
             ## Wenn der Radio-Button des Sollstroms gewählt ist:
             else:
@@ -1179,16 +1180,16 @@ class NemoGeneratortWidget(QWidget):
                 self.write_task['Soll-Spannung'] = False
                 if not self.PID_cb.isChecked():
                     self.write_task['Soll-Strom'] = True
-                oG, uG = self.oGI, self.uGI
+                oG, uG, einheit = self.oGI, self.uGI, self.einheit_I_einzel[self.sprache]
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_18_str[self.sprache]}')
             # PID-Modus:
             if self.PID_cb.isChecked():
                 self.write_task['Soll-Leistung'] = False
                 self.write_task['Soll-Spannung'] = False
                 self.write_task['Soll-Strom'] = False
-                oG, uG = self.oGx, self.uGx
+                oG, uG, einheit = self.oGx, self.uGx, self.einheit_x_einzel[self.sprache]
             # Kontrolliere die Eingabe im Eingabefeld:
-            sollwert = self.controll_value(sollwert, oG, uG)
+            sollwert = self.controll_value(sollwert, oG, uG, einheit)
             # Ist alles in Ordnung, dann Gebe dem Programm Bescheid, das es den Wert schreiben kann:
             if sollwert != -1:
                 if not self.PID_cb.isChecked(): self.write_value['Sollwert']     = sollwert
@@ -1230,13 +1231,14 @@ class NemoGeneratortWidget(QWidget):
     ##########################################
     # Eingabefeld Kontrolle:
     ##########################################
-    def controll_value(self, value, oG, uG):
+    def controll_value(self, value, oG, uG, unit):
         ''' Kontrolliere die Eingabe eines Eingabefeldes.
 
         Args:
             value (str):    zu untersuchende Eingabe
             oG (int):       Ober Grenze
             uG (int):       Unter Grenze
+            unit (str):     Einheiten String für Log/Fehlermeldung GUI
         Return:
             -1 (int):       Fehlerfall
             value (float):  Ausgelesener Wert
@@ -1248,7 +1250,7 @@ class NemoGeneratortWidget(QWidget):
             try:
                 value = float(value)
                 if value < uG or value > oG:
-                    self.Fehler_Output(1, f'{self.err_2_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG}', self.Text_20_str[self.sprache])     
+                    self.Fehler_Output(1, f'{self.err_2_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG} {unit}', self.Text_20_str[self.sprache])     
                 else:
                     self.Fehler_Output(0, error_Message_Ablauf=f'{self.Text_21_str[self.sprache]} {value}.')                                      
                     return value
@@ -1918,19 +1920,23 @@ class NemoGeneratortWidget(QWidget):
             uG = self.uGP
             oG = self.oGP
             ak_value = self.ak_value['IWP'] if not self.ak_value == {} else 0
+            string_einheit = self.einheit_P_einzel[self.sprache]
         elif self.RB_choise_Voltage.isChecked():
             uG = self.uGU
             oG = self.oGU
             ak_value = self.ak_value['IWU'] if not self.ak_value == {} else 0
+            string_einheit = self.einheit_U_einzel[self.sprache]
         else:
             uG = self.uGI
             oG = self.oGI
             ak_value = self.ak_value['IWI'] if not self.ak_value == {} else 0
+            string_einheit = self.einheit_I_einzel[self.sprache]
 
         ## PID-Limits:
         if self.PID_cb.isChecked():
             oG = self.oGx
             uG = self.uGx 
+            string_einheit = self.einheit_x_einzel[self.sprache]
 
         # Rezept lesen:
         rezept = self.cb_Rezept.currentText()  
@@ -1968,7 +1974,7 @@ class NemoGeneratortWidget(QWidget):
                 ## Grenzwert-Kontrolle:
                 if value < uG or value > oG:
                     error = True
-                    self.Fehler_Output(1, f'{self.err_6_str[self.sprache]} {value} {self.err_7_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG}!')
+                    self.Fehler_Output(1, f'{self.err_6_str[self.sprache]} {value} {string_einheit} {self.err_7_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG} {string_einheit}! ({self.err_Rezept_2[self.sprache]} {n})')
                     break
                 else:
                     self.Fehler_Output(0)

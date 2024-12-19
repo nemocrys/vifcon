@@ -395,6 +395,7 @@ class EurothermWidget(QWidget):
         self.err_Rezept             = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                                                                                                                           'Recipe reading error!\nUnknown segment:']
         self.Log_Yaml_Error         = ['Mit der Config-Datei (Yaml) gibt es ein Problem.',                                                                                                                                                      'There is a problem with the config file (YAML).']
         self.err_RezDef_str         = ['Yaml-Config Fehler\nDefault-Rezept eingefügt!',                                                                                                                                                         'Yaml config error\nDefault recipe inserted!']       
+        self.err_Rezept_2           = ['Rezept-Schritt:',                                                                                                                                                                                       'Recipe step:']
         ## Plot-Legende: ##########################################################################################################################################################################################################################################################################                                                                                                                                                        
         rezept_Label_str            = ['Rezept',                                                                                                                                                                                                'Recipe']
         ober_Grenze_str             = ['oG',                                                                                                                                                                                                    'uL']                                   # uL - upper Limit
@@ -481,7 +482,7 @@ class EurothermWidget(QWidget):
         self.Text_PIDReset_str      = ['PID Reset ausgelöst',                                                                                                                                                                                   'PID reset triggered']
         self.Text_LimitUpdate       = ['Limit Update ausgelöst',                                                                                                                                                                                'limit update triggered']
         self.Text_Extra_1           = ['Menü-Knopf betätigt - ',                                                                                                                                                                                'Menu button pressed - ']
-        self.Text_PIDResetError = ['Der PID ist aktiv in Nutzung und kann nicht resettet werden!',                                                                                                                                              'The PID is actively in use and cannot be reset!']
+        self.Text_PIDResetError     = ['Der PID ist aktiv in Nutzung und kann nicht resettet werden!',                                                                                                                                          'The PID is actively in use and cannot be reset!']
         ## Pop-Up-Fenster: #########################################################################################################################################################################################################################################################################
         self.puF_HO_str             = ['Die maximale Ausgangsleistung (HO) wird nicht an das Limit angepasst! Die Einstellung Sicherheit wurde auf True gesetzt. Das bedeutet das der Wert nur direkt am Eurotherm geändert werden kann!',      'The maximum output power (HO) is not adjusted to the limit! The Security setting has been set to True. This means that the value can only be changed directly on the Eurotherm!']
         self.puF_HO_str_2           = ['Bitte beachten Sie, dass bei der Config-Einstellung "sicherheit" True der OPmax Wert nicht mit dem in dem Gerät übereinstimmen muss. Bitte Betätigen Sie zur Anpassung im Menü "Eurotherm HO lesen" oder Wechseln Sie in den Manuellen Modus, damit der OPmax-Wert in VIFCON aktualisiert wird!',
@@ -1020,7 +1021,7 @@ class EurothermWidget(QWidget):
                 if not self.PID_cb.isChecked():
                     self.write_task['Soll-Temperatur'] = True
                 self.write_task['Operating point'] = False
-                oG, uG = self.oGST, self.uGST
+                oG, uG, einheit = self.oGST, self.uGST, self.T_unit_einzel[self.sprache]
                 if not self.PID_cb.isChecked():
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_29_str[self.sprache]}')
                 else:
@@ -1030,10 +1031,10 @@ class EurothermWidget(QWidget):
                 sollwert = self.LE_Pow.text().replace(",", ".")
                 self.write_task['Operating point'] = True
                 self.write_task['Soll-Temperatur'] = False
-                oG, uG = self.oGOp, self.uGOp
+                oG, uG, einheit = self.oGOp, self.uGOp, ' ' + self.P_unit_einzel[self.sprache]
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_30_str[self.sprache]}')
             # Kontrolliere die Eingabe im Eingabefeld:
-            sollwert = self.controll_value(sollwert, oG, uG)
+            sollwert = self.controll_value(sollwert, oG, uG, einheit)
             # Ist alles in Ordnung, dann Gebe dem Programm Bescheid, das es den Wert schreiben kann:
             if sollwert != -1:
                 if self.PID_cb.isChecked():
@@ -1049,13 +1050,14 @@ class EurothermWidget(QWidget):
     ##########################################
     # Eingabefeld Kontrolle:
     ##########################################
-    def controll_value(self, value, oG, uG):
+    def controll_value(self, value, oG, uG, unit):
         ''' Kontrolliere die Eingabe eines Eingabefeldes.
 
         Args:
             value (str):    zu untersuchende Eingabe
             oG (int):       Ober Grenze
             uG (int):       Unter Grenze
+            unit (str):     Einheiten String für Log/Fehlermeldung GUI
         Return:
             -1 (int):       Fehlerfall
             value (float):  Ausgelesener Wert
@@ -1067,7 +1069,7 @@ class EurothermWidget(QWidget):
             try:
                 value = float(value)
                 if value < uG or value > oG:
-                    self.Fehler_Output(1, f'{self.err_2_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG}', self.Text_20_str[self.sprache])
+                    self.Fehler_Output(1, f'{self.err_2_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG}{unit}', self.Text_20_str[self.sprache])
                 else:
                     self.Fehler_Output(0, error_Message_Ablauf=f'{self.Text_21_str[self.sprache]} {value}.')
                     return value
@@ -1605,10 +1607,12 @@ class EurothermWidget(QWidget):
             uG = self.uGST  
             oG = self.oGST
             ak_value = self.ak_value['IWT'] if not self.ak_value == {} and self.StartRampe == 'IST' else (self.ak_value['SWT'] if not self.ak_value == {} and self.StartRampe == 'SOLL' else (self.ak_value['IWT'] if not self.StartRampe == 'IST' or self.StartRampe == 'SOLL' and not self.ak_value == {} else 0))
+            string_einheit = self.T_unit_einzel[self.sprache]
         else:
             uG = self.uGOp
             oG = self.oGOp
             ak_value = self.ak_value['IWOp'] if not self.ak_value == {} else 0
+            string_einheit = ' ' + self.P_unit_einzel[self.sprache]
         
         #////////////////////////////////////////////////////////////
         # Rezept lesen:
@@ -1690,7 +1694,7 @@ class EurothermWidget(QWidget):
                 ## Grenzwert-Kontrolle (Aktuell-ausgewählte Größe):
                 if value < uG or value > oG:
                     error = True
-                    self.Fehler_Output(1, f'{self.err_6_str[self.sprache]} {value} {self.err_7_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG}!')
+                    self.Fehler_Output(1, f'{self.err_6_str[self.sprache]} {value}{string_einheit} {self.err_7_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG}{string_einheit}! ({self.err_Rezept_2[self.sprache]} {n})')
                     break
                 else:
                     self.Fehler_Output(0)
@@ -1743,7 +1747,7 @@ class EurothermWidget(QWidget):
                             # Grenzwerrt-Kontrolle:
                             if OPvalue < self.uGOp or OPvalue > self.oGOp:              
                                 error = True
-                                self.Fehler_Output(1, f'{self.err_6_str[self.sprache]} {OPvalue} {self.err_7_str[self.sprache]} {self.uGOp} {self.err_3_str[self.sprache]} {self.oGOp}!')
+                                self.Fehler_Output(1, f'{self.err_6_str[self.sprache]} {OPvalue} {self.P_unit_einzel[self.sprache]} {self.err_7_str[self.sprache]} {self.uGOp} {self.err_3_str[self.sprache]} {self.oGOp} {self.P_unit_einzel[self.sprache]}! ({self.err_Rezept_2[self.sprache]} {n})')
                                 break
                         except Exception as e:
                             self.Fehler_Output(1, self.err_18_str[self.sprache])

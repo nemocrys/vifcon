@@ -414,6 +414,7 @@ class NemoAchseRotWidget(QWidget):
         self.err_Rezept         = ['Rezept Einlesefehler!\nUnbekanntes Segment:',                                                               'Recipe reading error!\nUnknown segment:']
         self.Log_Yaml_Error     = ['Mit der Config-Datei (Yaml) gibt es ein Problem.',                                                          'There is a problem with the config file (YAML).']
         self.err_RezDef_str     = ['Yaml-Config Fehler\nDefault-Rezept eingefügt!',                                                             'Yaml config error\nDefault recipe inserted!']
+        self.err_Rezept_2       = ['Rezept-Schritt:',                                                                                                                                                                                       'Recipe step:']
         ## Status-N1: ##############################################################################################################################################################################################################################################################################                                                              
         status_1_str            = ['Status: Inaktiv',                                                                                           'Status: Inactive']
         self.status_2_str       = ['Kein Status',                                                                                               'No Status']
@@ -1116,9 +1117,11 @@ class NemoAchseRotWidget(QWidget):
         if self.PID_cb.isChecked():
             oGv = self.oGx
             uGv = self.uGx 
+            unit = self.einheit_x_einzel[self.sprache]
         else:
             oGv = self.oGv
             uGv = self.uGv
+            unit = self.einheit_v_einzel[self.sprache]
 
         # Wenn eins der beiden Eingabefelder leer ist, dann sende nicht:
         if speed_value == '':
@@ -1130,7 +1133,7 @@ class NemoAchseRotWidget(QWidget):
                 speed_value = float(speed_value)
                 # Kontrolliere die Grenzen/Limits:
                 if speed_value < uGv or speed_value > oGv: 
-                    self.Fehler_Output(1, self.La_error_1, f'{self.err_2_str[self.sprache]} {uGv} {self.err_3_str[self.sprache]} {oGv}', self.Text_42_str[self.sprache])                                                                 
+                    self.Fehler_Output(1, self.La_error_1, f'{self.err_2_str[self.sprache]} {uGv} {self.err_3_str[self.sprache]} {oGv} {unit}', self.Text_42_str[self.sprache])                                                                 
                 # Alles in Ordnung mit der Eingabe:
                 else:                           
                     self.Fehler_Output(0, self.La_error_1)                                                               
@@ -1617,6 +1620,7 @@ class NemoAchseRotWidget(QWidget):
         ## Geschwindigkeitlimits:
         uG = self.uGv 
         oG = self.oGv
+        string_einheit = self.einheit_v_einzel[self.sprache]
 
         ## Winkellimits:
         uGw = self.uGw
@@ -1626,6 +1630,7 @@ class NemoAchseRotWidget(QWidget):
         if self.PID_cb.isChecked():
             oG = self.oGx
             uG = self.uGx 
+            string_einheit = self.einheit_x_einzel[self.sprache]
 
         ## Aktueller Wert Geschwindigkeit:
         ak_value = self.ak_value['IWv'] if not self.ak_value == {} else 0
@@ -1685,7 +1690,7 @@ class NemoAchseRotWidget(QWidget):
                 ## Kontrolle Geschwindigkeit oder PID-Input:
                 if (value < uG or value > oG):
                     error = True
-                    self.Fehler_Output(1, self.La_error_1, f'{self.err_6_str[self.sprache]} {value} {self.err_7_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG}!') # Grenz-Fehler: {value}\nGrenzen: {uG} bis {oG}
+                    self.Fehler_Output(1, self.La_error_1, f'{self.err_6_str[self.sprache]} {value} {string_einheit} {self.err_7_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG} {string_einheit}! ({self.err_Rezept_2[self.sprache]} {n})') # Grenz-Fehler: {value}\nGrenzen: {uG} bis {oG}
                     break
                 else:
                     self.Fehler_Output(0, self.La_error_1)
@@ -1729,7 +1734,7 @@ class NemoAchseRotWidget(QWidget):
                     start_pos = pos
                     if (pos < uGw or pos > oGw) and not self.EndRot.isChecked():
                         error = True
-                        self.Fehler_Output(1, self.La_error_1, f'{self.err_9_str[self.sprache]} {rezept_schritt} {self.err_7_str[self.sprache]} {uGw} {self.err_3_str[self.sprache]} {oGw}!')
+                        self.Fehler_Output(1, self.La_error_1, f'{self.err_9_str[self.sprache]} {rezept_schritt} {self.err_7_str[self.sprache]} {uGw} {self.err_3_str[self.sprache]} {oGw}{self.einheit_w_einzel[self.sprache]}!')
                         break
                     else:
                         self.Fehler_Output(0, self.La_error_1)

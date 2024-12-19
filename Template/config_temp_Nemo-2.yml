@@ -1211,7 +1211,7 @@ devices:
       start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
       start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
       umstell_wert_P: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (P-Wert) | Default bei Fehler: 0
-      umstell_wert_I: 2,5                                                 # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (I-Wert) | Default bei Fehler: 0
+      umstell_wert_I: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (I-Wert) | Default bei Fehler: 0
       umstell_wert_U: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (U-Wert) | Default bei Fehler: 0
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
@@ -1312,7 +1312,7 @@ devices:
       start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
       start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
       umstell_wert_P: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (P-Wert) | Default bei Fehler: 0
-      umstell_wert_I: 2,5                                                 # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (I-Wert) | Default bei Fehler: 0
+      umstell_wert_I: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (I-Wert) | Default bei Fehler: 0
       umstell_wert_U: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (U-Wert) | Default bei Fehler: 0
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
@@ -1413,7 +1413,7 @@ devices:
       start_ist: 0                                                        # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
       start_soll: 0                                                       # Start-Sollwert [°C] | Default bei Fehler: 0
       umstell_wert_P: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (P-Wert) | Default bei Fehler: 0
-      umstell_wert_I: 2,5                                                 # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (I-Wert) | Default bei Fehler: 0
+      umstell_wert_I: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (I-Wert) | Default bei Fehler: 0
       umstell_wert_U: 0                                                   # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) (wird nicht gesendet, Eingabefeld) (U-Wert) | Default bei Fehler: 0
       Multilog_Sensor_Ist: no sensor                                      # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
                                                                           # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
