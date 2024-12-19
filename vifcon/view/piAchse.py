@@ -1590,9 +1590,10 @@ class PIAchseWidget(QWidget):
         
         if not self.PID_cb.isChecked():
             ## Aufagben setzen:
-            self.write_task['Update Limit'] = True
-            self.write_value['Limits']      = [self.oGv, self.uGv, self.oGPos, self.uGPos, self.oGx, self.uGx]
-            self.write_task['PID-Reset']    = True
+            self.write_task['Update Limit']  = True
+            self.write_value['Limits']       = [self.oGv, self.uGv, self.oGPos, self.uGPos, self.oGx, self.uGx]
+            self.write_task['PID-Reset']     = True
+            self.write_value['PID-Sollwert'] = 0
             
             ## Meldung:
             self.Fehler_Output(0, self.La_error_1)

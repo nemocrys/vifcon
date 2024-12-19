@@ -408,10 +408,13 @@ class NemoAchseLinWidget(QWidget):
         self.Log_Yaml_Error     = ['Mit der Config-Datei (Yaml) gibt es ein Problem.',                                                          'There is a problem with the config file (YAML).']
         self.err_RezDef_str     = ['Yaml-Config Fehler\nDefault-Rezept eingefügt!',                                                             'Yaml config error\nDefault recipe inserted!']
         self.err_Rezept_2       = ['Rezept-Schritt:',                                                                                                                                                                                       'Recipe step:']
-        ## Status-N1: ##############################################################################################################################################################################################################################################################################          
+        ## Status-Algemein: ########################################################################################################################################################################################################################################################################          
         status_1_str            = ['Status: Inaktiv',                                                                                           'Status: Inactive']
         self.status_2_str       = ['Kein Status',                                                                                               'No Status']
         self.status_3_str       = ['Status:',                                                                                                   'Status:']
+        status_Eil_1_str        = ['Status Eilgang: Inaktiv',                                                                                  'Status rapid traverse: Inactive']
+        self.status_3_Eil_str   = ['Status Eilgang:',                                                                                          'Status rapid traverse:']
+        ## Status-N1: ##############################################################################################################################################################################################################################################################################          
         self.sta_Bit0_str       = ['Betriebsbereit',                                                                                            'Ready for operation']
         self.sta_Bit1_str       = ['Achse referiert',                                                                                           'Axis referenced']
         self.sta_Bit2_str       = ['Achse Fehler',                                                                                              'Axis error']
@@ -424,6 +427,8 @@ class NemoAchseLinWidget(QWidget):
         self.sta_Bit9_str       = ['Achse Endlage unten (Hard.-End.)',                                                                          'Axis end position down (Hard.-End.)']
         self.sta_Bit10_str      = ['Software-Endlagen aus',                                                                                     'Software end positions']
         self.sta_Bit11_str      = ['Achse in Stopp',                                                                                            'Axis in stop']
+        self.sta_Bit12_str      = ['', ''] # Reserve
+        self.sta_Bit13_str      = ['', ''] # Reserve
         self.sta_Bit14_str      = ['Schnittstellenfehler',                                                                                      'Interface error']
         self.sta_Bit15_str      = ['Test-Modus Aktiv',                                                                                          'Test Mode Active']
         ## Status-N2: ##############################################################################################################################################################################################################################################################################          
@@ -432,8 +437,12 @@ class NemoAchseLinWidget(QWidget):
         self.Stat_N2_1_Bit2     = self.sta_Bit5_str
         self.Stat_N2_1_Bit3     = self.sta_Bit0_str
         self.Stat_N2_1_Bit4     = self.sta_Bit2_str 
+        self.Stat_N2_1_Bit5     = ['', ''] # Hilfsbit Visu
+        self.Stat_N2_1_Bit6     = ['', ''] # Hilfsbit Visu
+        self.Stat_N2_1_Bit7     = ['', ''] # Reserve
         self.Stat_N2_1_Bit8     = ['Rampe eingeschaltet',                                                                                       'Ramp switched on']
         self.Stat_N2_1_Bit9     = ['Rampe ausgeschaltet',                                                                                       'Ramp switched off']
+        self.Stat_N2_1_Bit10    = ['', ''] # Reserve
         self.Stat_N2_1_Bit11    = ['z-Regelung eingeschaltet',                                                                                  'z-control switched on']
         self.Stat_N2_1_Bit12    = ['Hardware Endlage oben erreicht',                                                                            'Hardware end position reached above']
         self.Stat_N2_1_Bit13    = ['Hardware Endlage unten erreicht',                                                                           'Hardware end position reached below']
@@ -446,29 +455,48 @@ class NemoAchseLinWidget(QWidget):
         self.Stat_N2_2_Bit4     = ['Software Endlage oben aktiv',                                                                               'Software end position at the top active']                                                                              
         self.Stat_N2_2_Bit5     = ['Software Endlage unten aktiv',                                                                              'Software end position at the bottom active']
         self.Stat_N2_2_Bit6     = ['Syncro-Modus aktiv',                                                                                        'Syncro mode active']
+        self.Stat_N2_2_Bit7     = ['Synchronisation Richtung aufwärts',                                                                         'synchronization direction upward']
+        self.Stat_N2_2_Bit8     = ['Synchronisation Richtung abwärts',                                                                          'synchronization direction downward']
+        self.Stat_N2_2_Bit9     = ['', ''] # Reserve
+        self.Stat_N2_2_Bit10    = ['', ''] # Reserve
+        self.Stat_N2_2_Bit11    = ['', ''] # Reserve
+        self.Stat_N2_2_Bit12    = ['', ''] # Reserve
+        self.Stat_N2_2_Bit13    = ['', ''] # Reserve
+        self.Stat_N2_2_Bit14    = self.sta_Bit14_str # Schnittstelle Inaktiv
+        self.Stat_N2_2_Bit15    = self.sta_Bit15_str # Test-Modus
         ## Status-N2 Eil: ##########################################################################################################################################################################################################################################################################          
-        status_Eil_1_str         = ['Status Eilgang: Inaktiv',                                                                                  'Status rapid traverse: Inactive']
-        self.status_3_Eil_str    = ['Status Eilgang:',                                                                                          'Status rapid traverse:']
         self.Stat_Eil_N2_1_Bit0  = self.Stat_N2_1_Bit0
         self.Stat_Eil_N2_1_Bit1  = self.Stat_N2_1_Bit1
         self.Stat_Eil_N2_1_Bit2  = self.Stat_N2_1_Bit2
         self.Stat_Eil_N2_1_Bit3  = self.Stat_N2_1_Bit3
         self.Stat_Eil_N2_1_Bit4  = self.Stat_N2_1_Bit4
+        self.Stat_Eil_N2_1_Bit5  = ['', ''] # Reserve
+        self.Stat_Eil_N2_1_Bit6  = ['', ''] # Reserve
+        self.Stat_Eil_N2_1_Bit7  = ['', ''] # Reserve
         self.Stat_Eil_N2_1_Bit8  = self.Stat_N2_1_Bit8
         self.Stat_Eil_N2_1_Bit9  = self.Stat_N2_1_Bit9
         self.Stat_Eil_N2_1_Bit10 = ['v-Regelung Eingeschaltet',                                                                                 'v-control switched on']
         self.Stat_Eil_N2_1_Bit11 = self.Stat_N2_1_Bit11
         self.Stat_Eil_N2_1_Bit12 = self.Stat_N2_1_Bit12
         self.Stat_Eil_N2_1_Bit13 = self.Stat_N2_1_Bit13
-        self.Stat_Eil_N2_1_Bit14 = self.Stat_N2_1_Bit14
-        self.Stat_Eil_N2_1_Bit15 = self.Stat_N2_1_Bit15
-        self.Stat_Eil_N2_2_Bit0  = self.Stat_N2_2_Bit0
-        self.Stat_Eil_N2_2_Bit1  = self.Stat_N2_2_Bit1
-        self.Stat_Eil_N2_2_Bit2  = ['Elektronische Endlage oben erreicht',                                                                      'Electronic end position reached at the top']
-        self.Stat_Eil_N2_2_Bit3  = ['Elektronische Endlage unten erreicht',                                                                     'Electronic end position reached below']
-        self.Stat_Eil_N2_2_Bit4  = ['Elektronische Endlage oben aktiv',                                                                         'Electronic end position top active']
-        self.Stat_Eil_N2_2_Bit5  = ['Elektronische Endlage unten aktiv',                                                                        'Electronic end position bottom active']
-        self.Stat_Eil_N2_2_Bit6  = self.Stat_N2_2_Bit6
+        self.Stat_Eil_N2_1_Bit14 = self.Stat_N2_2_Bit4
+        self.Stat_Eil_N2_1_Bit15 = self.Stat_N2_2_Bit5
+        self.Stat_Eil_N2_2_Bit0  = self.Stat_N2_1_Bit14
+        self.Stat_Eil_N2_2_Bit1  = self.Stat_N2_1_Bit15
+        self.Stat_Eil_N2_2_Bit2  = self.Stat_N2_2_Bit0
+        self.Stat_Eil_N2_2_Bit3  = self.Stat_N2_2_Bit1
+        self.Stat_Eil_N2_2_Bit4  = ['Elektronische Endlage oben erreicht',                                                                      'Electronic end position reached at the top']
+        self.Stat_Eil_N2_2_Bit5  = ['Elektronische Endlage unten erreicht',                                                                     'Electronic end position reached below']
+        self.Stat_Eil_N2_2_Bit6  = ['Elektronische Endlage oben aktiv',                                                                         'Electronic end position top active']
+        self.Stat_Eil_N2_2_Bit7  = ['Elektronische Endlage unten aktiv',                                                                        'Electronic end position bottom active']
+        self.Stat_Eil_N2_2_Bit8  = self.Stat_N2_2_Bit6
+        self.Stat_Eil_N2_2_Bit9  = ['', ''] # Reserve
+        self.Stat_Eil_N2_2_Bit10 = ['', ''] # Reserve
+        self.Stat_Eil_N2_2_Bit11 = ['', ''] # Reserve
+        self.Stat_Eil_N2_2_Bit12 = ['', ''] # Reserve
+        self.Stat_Eil_N2_2_Bit13 = ['', ''] # Reserve
+        self.Stat_Eil_N2_2_Bit14 = self.sta_Bit14_str # Schnittstelle Inaktiv
+        self.Stat_Eil_N2_2_Bit15 = self.sta_Bit15_str # Test-Modus
         ## Plot-Legende: ##########################################################################################################################################################################################################################################################################                                                            
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
@@ -1219,14 +1247,14 @@ class NemoAchseLinWidget(QWidget):
         status_1 = ['','','','','','','','','','','','','','','','']
         status_2 = ['','','','','','','','','','','','','','','','']
         if self.Anlage == 1:
-            status_1    = [self.sta_Bit0_str[self.sprache],         self.sta_Bit1_str[self.sprache],        self.sta_Bit2_str[self.sprache],        self.sta_Bit3_str[self.sprache],        self.sta_Bit4_str[self.sprache],        self.sta_Bit5_str[self.sprache],        self.sta_Bit6_str[self.sprache],        self.sta_Bit7_str[self.sprache],    self.sta_Bit8_str[self.sprache],        self.sta_Bit9_str[self.sprache],        self.sta_Bit10_str[self.sprache],               self.sta_Bit11_str[self.sprache],       '',                                     '',                                     self.sta_Bit14_str[self.sprache],       self.sta_Bit15_str[self.sprache]]
+            status_1    = [self.sta_Bit0_str[self.sprache],         self.sta_Bit1_str[self.sprache],        self.sta_Bit2_str[self.sprache],        self.sta_Bit3_str[self.sprache],        self.sta_Bit4_str[self.sprache],        self.sta_Bit5_str[self.sprache],        self.sta_Bit6_str[self.sprache],        self.sta_Bit7_str[self.sprache],    self.sta_Bit8_str[self.sprache],        self.sta_Bit9_str[self.sprache],        self.sta_Bit10_str[self.sprache],           self.sta_Bit11_str[self.sprache],       self.sta_Bit12_str[self.sprache],       self.sta_Bit13_str[self.sprache],      self.sta_Bit14_str[self.sprache],       self.sta_Bit15_str[self.sprache]]
             mehr_Teilig = False
         elif self.Anlage == 2:
-            status_1    = [self.Stat_N2_1_Bit0[self.sprache],       self.Stat_N2_1_Bit1[self.sprache],      self.Stat_N2_1_Bit2[self.sprache],      self.Stat_N2_1_Bit3[self.sprache],      self.Stat_N2_1_Bit4[self.sprache],      '',                                     '',                                     '',                                 self.Stat_N2_1_Bit8[self.sprache],      self.Stat_N2_1_Bit9[self.sprache],      '',                                             self.Stat_N2_1_Bit11[self.sprache],     self.Stat_N2_1_Bit12[self.sprache],     self.Stat_N2_1_Bit13[self.sprache],     self.Stat_N2_1_Bit14[self.sprache],     self.Stat_N2_1_Bit15[self.sprache]]
-            status_2    = [self.Stat_N2_2_Bit0[self.sprache],       self.Stat_N2_2_Bit1[self.sprache],      self.Stat_N2_2_Bit2[self.sprache],      self.Stat_N2_2_Bit3[self.sprache],      self.Stat_N2_2_Bit4[self.sprache],      self.Stat_N2_2_Bit5[self.sprache],      self.Stat_N2_2_Bit6[self.sprache],      '',                                 '',                                     '',                                     '',                                             '',                                     '',                                     '',                                     self.sta_Bit14_str[self.sprache],       self.sta_Bit15_str[self.sprache]]
+            status_1    = [self.Stat_N2_1_Bit0[self.sprache],       self.Stat_N2_1_Bit1[self.sprache],      self.Stat_N2_1_Bit2[self.sprache],      self.Stat_N2_1_Bit3[self.sprache],      self.Stat_N2_1_Bit4[self.sprache],      self.Stat_N2_1_Bit5[self.sprache],      self.Stat_N2_1_Bit6[self.sprache],      self.Stat_N2_1_Bit7[self.sprache],      self.Stat_N2_1_Bit8[self.sprache],      self.Stat_N2_1_Bit9[self.sprache],      self.Stat_N2_1_Bit10[self.sprache],     self.Stat_N2_1_Bit11[self.sprache],     self.Stat_N2_1_Bit12[self.sprache],     self.Stat_N2_1_Bit13[self.sprache],     self.Stat_N2_1_Bit14[self.sprache],     self.Stat_N2_1_Bit15[self.sprache]]
+            status_2    = [self.Stat_N2_2_Bit0[self.sprache],       self.Stat_N2_2_Bit1[self.sprache],      self.Stat_N2_2_Bit2[self.sprache],      self.Stat_N2_2_Bit3[self.sprache],      self.Stat_N2_2_Bit4[self.sprache],      self.Stat_N2_2_Bit5[self.sprache],      self.Stat_N2_2_Bit6[self.sprache],      self.Stat_N2_2_Bit7[self.sprache],      self.Stat_N2_2_Bit8[self.sprache],      self.Stat_N2_2_Bit9[self.sprache],      self.Stat_N2_2_Bit10[self.sprache],     self.Stat_N2_2_Bit11[self.sprache],     self.Stat_N2_2_Bit12[self.sprache],     self.Stat_N2_2_Bit13[self.sprache],     self.Stat_N2_2_Bit14[self.sprache],     self.Stat_N2_2_Bit15[self.sprache]]
             mehr_Teilig = True
-        status_Eil_1    = [self.Stat_Eil_N2_1_Bit0[self.sprache],   self.Stat_Eil_N2_1_Bit1[self.sprache],  self.Stat_Eil_N2_1_Bit2[self.sprache],  self.Stat_Eil_N2_1_Bit3[self.sprache],  self.Stat_Eil_N2_1_Bit4[self.sprache],  '',                                     '',                                     '',                                 self.Stat_Eil_N2_1_Bit8[self.sprache],  self.Stat_Eil_N2_1_Bit9[self.sprache],  '',                                             self.Stat_Eil_N2_1_Bit11[self.sprache], self.Stat_Eil_N2_1_Bit12[self.sprache], self.Stat_Eil_N2_1_Bit13[self.sprache], self.Stat_Eil_N2_1_Bit14[self.sprache], self.Stat_Eil_N2_1_Bit15[self.sprache]]
-        status_Eil_2    = [self.Stat_Eil_N2_2_Bit0[self.sprache],   self.Stat_Eil_N2_2_Bit0[self.sprache],  self.Stat_Eil_N2_2_Bit0[self.sprache],  self.Stat_Eil_N2_2_Bit0[self.sprache],  self.Stat_Eil_N2_2_Bit0[self.sprache],  self.Stat_Eil_N2_2_Bit0[self.sprache],  self.Stat_Eil_N2_2_Bit0[self.sprache],  '',                                 '',                                     '',                                     '',                                             '',                                     '',                                     '',                                     self.sta_Bit14_str[self.sprache],       self.sta_Bit15_str[self.sprache]]
+        status_Eil_1    = [self.Stat_Eil_N2_1_Bit0[self.sprache],   self.Stat_Eil_N2_1_Bit1[self.sprache],  self.Stat_Eil_N2_1_Bit2[self.sprache],  self.Stat_Eil_N2_1_Bit3[self.sprache],  self.Stat_Eil_N2_1_Bit4[self.sprache],  self.Stat_Eil_N2_1_Bit5[self.sprache],  self.Stat_Eil_N2_1_Bit6[self.sprache],  self.Stat_Eil_N2_1_Bit7[self.sprache],  self.Stat_Eil_N2_1_Bit8[self.sprache],  self.Stat_Eil_N2_1_Bit9[self.sprache],  self.Stat_Eil_N2_1_Bit10[self.sprache], self.Stat_Eil_N2_1_Bit11[self.sprache], self.Stat_Eil_N2_1_Bit12[self.sprache], self.Stat_Eil_N2_1_Bit13[self.sprache], self.Stat_Eil_N2_1_Bit14[self.sprache], self.Stat_Eil_N2_1_Bit15[self.sprache]]
+        status_Eil_2    = [self.Stat_Eil_N2_2_Bit0[self.sprache],   self.Stat_Eil_N2_2_Bit1[self.sprache],  self.Stat_Eil_N2_2_Bit2[self.sprache],  self.Stat_Eil_N2_2_Bit3[self.sprache],  self.Stat_Eil_N2_2_Bit4[self.sprache],  self.Stat_Eil_N2_2_Bit5[self.sprache],  self.Stat_Eil_N2_2_Bit6[self.sprache],  self.Stat_Eil_N2_2_Bit7[self.sprache],  self.Stat_Eil_N2_2_Bit8[self.sprache],  self.Stat_Eil_N2_2_Bit9[self.sprache],  self.Stat_Eil_N2_2_Bit10[self.sprache], self.Stat_Eil_N2_2_Bit11[self.sprache], self.Stat_Eil_N2_2_Bit12[self.sprache], self.Stat_Eil_N2_2_Bit13[self.sprache], self.Stat_Eil_N2_2_Bit14[self.sprache], self.Stat_Eil_N2_2_Bit15[self.sprache]]
 
         # Status-Meldung 1:
         status_1_Wert = value_dict['Status']
@@ -1488,9 +1516,10 @@ class NemoAchseLinWidget(QWidget):
         
         if not self.PID_cb.isChecked():
             ## Aufagben setzen:
-            self.write_task['Update Limit'] = True
-            self.write_value['Limits']      = [self.oGs, self.uGs, self.oGv, self.uGv, self.oGx, self.uGx]
-            self.write_task['PID-Reset']    = True
+            self.write_task['Update Limit']  = True
+            self.write_value['Limits']       = [self.oGs, self.uGs, self.oGv, self.uGv, self.oGx, self.uGx]
+            self.write_task['PID-Reset']     = True
+            self.write_value['PID-Sollwert'] = 0
             
             ## Meldung:
             self.Fehler_Output(0, self.La_error_1)

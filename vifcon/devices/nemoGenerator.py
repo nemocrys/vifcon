@@ -78,6 +78,9 @@ class NemoGenerator(QObject):
         self.device_name                = name
         self.typ                        = typ
 
+        ## Weitere:
+        self.angezeigt = False
+
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
         #---------------------------------------------------------
@@ -585,6 +588,7 @@ class NemoGenerator(QObject):
         self.Log_ST_NG_16       = ['Der gewählte Generator hat den Typ:',                                                                                                                                                   'The selected generator has the typ:']
         self.Log_ST_NG_17       = ['Generator-Anlagen-GUI Kombination',                                                                                                                                                     'Generator-Plant-GUI Combination']
         self.Log_ST_NG_18       = ['Bei der Umwandlung des Typs gab es einen Fehler!',                                                                                                                                      'There was an error while converting the typ!']
+        self.Log_Text_PIDVV     = ['Noch nicht vollkommen implementiert, Vifcon als PID-Input Sollwert! Hier wird Istwert auf Sollwert gesetzt!',                                                                           'Not yet fully implemented, Vifcon as PID input setpoint!! Here the actual value is set to the target value!']
         ## Ablaufdatei: ###############################################################################################################################################################################################################################################################################
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -765,6 +769,7 @@ class NemoGenerator(QObject):
             ## Sollwert Lesen:
             sollwert = write_value['Sollwert']      # in eine Zahl umgewandelter Wert (Float)
             PID_write_wert = False
+            self.angezeigt = False
         #++++++++++++++++++++++++++++++++++++++++++    
         # PID-Regler:
         #++++++++++++++++++++++++++++++++++++++++++
@@ -796,7 +801,9 @@ class NemoGenerator(QObject):
             #---------------------------------------------
             ### VIFCON:
             if self.PID_Option[0] == 'V':
-                print(['Noch nicht vollkommen implementiert! Hier wird Istwert auf Sollwert gesetzt!', 'Not yet fully implemented! Here the actual value is set to the target value!'][self.sprache])
+                if not self.angezeigt:
+                    logger.warning(self.Log_Text_PIDVV[self.sprache])
+                self.angezeigt = True
                 self.Ist = self.Soll
             ### Multilog:
             elif self.PID_Option[0] == 'M':
@@ -924,11 +931,11 @@ class NemoGenerator(QObject):
                 error_Input = True
             #### Input-Wert überschreitet Maximum:
             elif Input > self.PID_Input_Limit_Max:
-                logger.debug(f"{self.device_name} - {self.Log_Text_PID_N15[self.sprache]} {self.PID_Input_Limit_Max} {self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Test_PID_N22[self.sprache]} ({Input_String[self.sprache]})")
+                logger.warning(f"{self.device_name} - {self.Log_Text_PID_N15[self.sprache]} {self.PID_Input_Limit_Max} {self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Test_PID_N22[self.sprache]} ({Input_String[self.sprache]})")
                 Input = self.PID_Input_Limit_Max
             #### Input-Wert unterschreitet Minimum:
             elif Input < self.PID_Input_Limit_Min:
-                logger.debug(f"{self.device_name} - {self.Log_Text_PID_N16[self.sprache]} {self.PID_Input_Limit_Min} {self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Test_PID_N22[self.sprache]} ({Input_String[self.sprache]})")
+                logger.warning(f"{self.device_name} - {self.Log_Text_PID_N16[self.sprache]} {self.PID_Input_Limit_Min} {self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Test_PID_N22[self.sprache]} ({Input_String[self.sprache]})")
                 Input = self.PID_Input_Limit_Min
         except Exception as e:
             error_Input = True

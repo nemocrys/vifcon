@@ -109,45 +109,159 @@ class NemoGaseWidget:
         B22_str                 = ['Differenz',                                                 'Difference']
         ## Status: ##################################################################################################################################################################################################################################################################################                                                 
         self.no_sta_str         = ['Kein Status!',                                              'No Status!']
-        ### Pumpe Nemo-1: ###########################################################################################################################################################################################################################################################################
-        self.Stat_1_str         = ['Hand',                                                      'Manual']                           # Hand
-        self.Stat_2_str         = ['Auto',                                                      'Auto']                             # Auto
-        self.Stat_3_str         = ['Läuft',                                                     'Run']                              # Run
-        self.Stat_4_str         = ['Norm',                                                      'Norm']                             # Norm
-        self.Stat_5_str         = ['Warm',                                                      'Warm']                             # Warm
-        self.Stat_6_str         = ['Fehler',                                                    'Error']                            # Err
-        self.Stat_14_str        = ['Schnittstellenfehler',                                      'Interface error']
-        self.Stat_15_str        = ['Test-Modus Aktiv',                                          'Test Mode Active']
-        ### MFC/MV: ################################################################################################################################################################################################################################################################################
-        self.Stat_MFC_1_str     = ['Auto',                                                      'Auto']
-        self.Stat_MFC_2_str     = ['Rampe',                                                     'Ramp']
+        ### Pumpe Nemo-1 (P1): #######################################################################################################################################################################################################################################################################
+        self.Stat_Bit0_str      = ['Hand',                                                      'Manual']                           # Hand
+        self.Stat_Bit1_str      = ['Auto',                                                      'Auto']                             # Auto
+        self.Stat_Bit2_str      = ['', ''] # Reserve
+        self.Stat_Bit3_str      = ['', ''] # Reserve
+        self.Stat_Bit4_str      = ['', ''] # Reserve
+        self.Stat_Bit5_str      = ['', ''] # Reserve
+        self.Stat_Bit6_str      = ['', ''] # Reserve
+        self.Stat_Bit7_str      = ['', ''] # Reserve
+        self.Stat_Bit8_str      = ['Läuft',                                                     'Run']                              # Run
+        self.Stat_Bit9_str      = ['', ''] # Reserve
+        self.Stat_Bit10_str     = ['', ''] # Reserve
+        self.Stat_Bit11_str     = ['', ''] # Reserve
+        self.Stat_Bit12_str     = ['', ''] # Reserve
+        self.Stat_Bit13_str     = ['', ''] # Reserve
+        self.Stat_Bit14_str     = ['Schnittstellenfehler',                                      'Interface error']
+        self.Stat_Bit15_str     = ['Test-Modus Aktiv',                                          'Test Mode Active']
+        ### Pumpe Nemo-1 (P2): #######################################################################################################################################################################################################################################################################
+        self.Stat_Bit0_str_P2   = ['Hand',                                                      'Manual']                           # Hand
+        self.Stat_Bit1_str_P2   = ['Auto',                                                      'Auto']                             # Auto
+        self.Stat_Bit2_str_P2   = ['', ''] # Reserve
+        self.Stat_Bit3_str_P2   = ['', ''] # Reserve
+        self.Stat_Bit4_str_P2   = ['', ''] # Reserve
+        self.Stat_Bit5_str_P2   = ['', ''] # Reserve
+        self.Stat_Bit6_str_P2   = ['', ''] # Reserve
+        self.Stat_Bit7_str_P2   = ['', ''] # Reserve
+        self.Stat_Bit8_str_P2   = ['Läuft',                                                     'Run']                              # Run
+        self.Stat_Bit9_str_P2   = ['Steht',                                                     'Stands']                           # Steht
+        self.Stat_Bit10_str_P2  = ['Norm',                                                      'Norm']                             # Norm
+        self.Stat_Bit11_str_P2  = ['Warnung',                                                   'Warning']                          # Warn
+        self.Stat_Bit12_str_P2  = ['Fehler',                                                    'Error']                            # Err
+        self.Stat_Bit13_str_P2  = ['', ''] # Reserve
+        self.Stat_Bit14_str_P2  = self.Stat_Bit14_str
+        self.Stat_Bit15_str_P2  = self.Stat_Bit15_str 
+        ### MFC: ###################################################################################################################################################################################################################################################################################
+        self.Stat_MFC_Bit0_str  = ['Auto',                                                      'Auto']
+        self.Stat_MFC_Bit1_str  = ['Rampe',                                                     'Ramp']
+        self.Stat_MFC_Bit2_str  = ['', ''] # Reserve
+        self.Stat_MFC_Bit3_str  = ['', ''] # Reserve
+        self.Stat_MFC_Bit4_str  = ['', ''] # Reserve
+        self.Stat_MFC_Bit5_str  = ['', ''] # Reserve
+        self.Stat_MFC_Bit6_str  = ['', ''] # Reserve
+        self.Stat_MFC_Bit7_str  = ['', ''] # Reserve
+        self.Stat_MFC_Bit8_str  = ['', ''] # Reserve
+        self.Stat_MFC_Bit9_str  = ['', ''] # Reserve
+        self.Stat_MFC_Bit10_str = ['', ''] # Reserve
+        self.Stat_MFC_Bit11_str = ['', ''] # Reserve
+        self.Stat_MFC_Bit12_str = ['', ''] # Reserve
+        self.Stat_MFC_Bit13_str = ['', ''] # Reserve
+        self.Stat_MFC_Bit14_str = self.Stat_Bit14_str
+        self.Stat_MFC_Bit15_str = self.Stat_Bit15_str
+        ### MV1: ###################################################################################################################################################################################################################################################################################
+        self.Stat_MV_Bit0_str   = ['Modus öffnen',                                              'Open mode']
+        self.Stat_MV_Bit1_str   = ['Modus schließen',                                           'Close mode']
+        self.Stat_MV_Bit2_str   = ['Modus Automatik',                                           'automatic mode'] 
+        self.Stat_MV_Bit3_str   = ['Anwahl Rampe',                                              'ramp selection'] 
+        self.Stat_MV_Bit4_str   = ['', ''] # Reserve
+        self.Stat_MV_Bit5_str   = ['', ''] # Reserve
+        self.Stat_MV_Bit6_str   = ['', ''] # Reserve
+        self.Stat_MV_Bit7_str   = ['', ''] # Reserve
+        self.Stat_MV_Bit8_str   = ['', ''] # Reserve
+        self.Stat_MV_Bit9_str   = ['', ''] # Reserve
+        self.Stat_MV_Bit10_str  = ['', ''] # Reserve
+        self.Stat_MV_Bit11_str  = ['', ''] # Reserve
+        self.Stat_MV_Bit12_str  = ['', ''] # Reserve
+        self.Stat_MV_Bit13_str  = ['', ''] # Reserve
+        self.Stat_MV_Bit14_str  = self.Stat_Bit14_str
+        self.Stat_MV_Bit15_str  = self.Stat_Bit15_str
         ### Pumpe Nemo-2: ##########################################################################################################################################################################################################################################################################
-        self.Stat_P1_1_str      = self.Stat_1_str 
-        self.Stat_P1_2_str      = self.Stat_2_str
-        self.Stat_P1_9_str      = self.Stat_3_str
-        self.Stat_P2_1_str      = ['Sperre Ein',                                                'Lock On']
-        self.Stat_P2_2_str      = ['Bereit',                                                    'Ready']
-        self.Stat_P2_3_str      = self.Stat_3_str
-        self.Stat_P2_10_str     = ['Warnung',                                                   'Warning']
-        self.Stat_P2_11_str     = self.Stat_6_str
+        self.Stat_P1_Bit0_str   = self.Stat_Bit0_str 
+        self.Stat_P1_Bit1_str   = self.Stat_Bit1_str
+        self.Stat_P1_Bit2_str   = ['', ''] # Reserve
+        self.Stat_P1_Bit3_str   = ['', ''] # Reserve
+        self.Stat_P1_Bit4_str   = ['', ''] # Reserve
+        self.Stat_P1_Bit5_str   = ['', ''] # Reserve
+        self.Stat_P1_Bit6_str   = ['', ''] # Reserve
+        self.Stat_P1_Bit7_str   = ['', ''] # Reserve
+        self.Stat_P1_Bit8_str   = self.Stat_Bit8_str
+        self.Stat_P1_Bit9_str   = ['', ''] # Reserve
+        self.Stat_P1_Bit10_str  = ['', ''] # Reserve
+        self.Stat_P1_Bit11_str  = ['', ''] # Reserve
+        self.Stat_P1_Bit12_str  = ['', ''] # Reserve
+        self.Stat_P1_Bit13_str  = ['', ''] # Reserve
+        self.Stat_P1_Bit14_str  = self.Stat_Bit14_str
+        self.Stat_P1_Bit15_str  = self.Stat_Bit15_str
+        #####################################################################
+        self.Stat_P2_Bit0_str   = ['Sperre Ein',                                                'Lock On']
+        self.Stat_P2_Bit1_str   = ['Bereit',                                                    'Ready']
+        self.Stat_P2_Bit2_str   = self.Stat_Bit8_str
+        self.Stat_P2_Bit3_str   = ['', ''] # Reserve
+        self.Stat_P2_Bit4_str   = ['', ''] # Reserve
+        self.Stat_P2_Bit5_str   = ['', ''] # Reserve
+        self.Stat_P2_Bit6_str   = ['', ''] # Reserve
+        self.Stat_P2_Bit7_str   = ['', ''] # Reserve
+        self.Stat_P2_Bit8_str   = ['', ''] # Reserve
+        self.Stat_P2_Bit9_str   = ['Warnung',                                                   'Warning']
+        self.Stat_P2_Bit10_str  = self.Stat_Bit12_str_P2
+        self.Stat_P2_Bit11_str  = ['', ''] # Reserve
+        self.Stat_P2_Bit12_str  = ['', ''] # Reserve
+        self.Stat_P2_Bit13_str  = ['', ''] # Reserve
+        self.Stat_P2_Bit14_str  = self.Stat_Bit14_str
+        self.Stat_P2_Bit15_str  = self.Stat_Bit15_str
         ### Ventil: ################################################################################################################################################################################################################################################################################
-        self.Stat_V_1_str       = self.Stat_1_str
-        self.Stat_V_2_str       = self.Stat_2_str
-        self.Stat_V_9_str       = ['Ventil öffnet',                                             'Valve opens']
-        self.Stat_V_10_str      = ['Ventil schließt',                                           'Valve closes']
-        self.Stat_V_11_str      = ['Ventil Offen',                                              'Valve open']
-        self.Stat_V_12_str      = ['Ventil Geschlossen',                                        'Valve closed']
-        self.Stat_V_13_str      = self.Stat_6_str
-        self.Stat_V_14_str      = ['Fehler Endlage Offen',                                      'Error End Position Open']
-        self.Stat_V_15_str      = ['Fehler Endlage Zu',                                         'Error end position closed']
+        self.Stat_V_Bit0_str    = self.Stat_Bit0_str
+        self.Stat_V_Bit1_str    = self.Stat_Bit1_str
+        self.Stat_V_Bit2_str    = self.Stat_Bit14_str
+        self.Stat_V_Bit3_str    = ['', ''] # Reserve
+        self.Stat_V_Bit4_str    = ['', ''] # Reserve
+        self.Stat_V_Bit5_str    = ['', ''] # Reserve
+        self.Stat_V_Bit6_str    = ['', ''] # Reserve
+        self.Stat_V_Bit7_str    = ['', ''] # Reserve
+        self.Stat_V_Bit8_str    = ['Ventil öffnet',                                             'Valve opens']
+        self.Stat_V_Bit9_str    = ['Ventil schließt',                                           'Valve closes']
+        self.Stat_V_Bit10_str   = ['Ventil Offen',                                              'Valve open']
+        self.Stat_V_Bit11_str   = ['Ventil Geschlossen',                                        'Valve closed']
+        self.Stat_V_Bit12_str   = self.Stat_Bit12_str_P2
+        self.Stat_V_Bit13_str   = ['Fehler Endlage Offen',                                      'Error End Position Open']
+        self.Stat_V_Bit14_str   = ['Fehler Endlage Zu',                                         'Error end position closed']
+        self.Stat_V_Bit15_str   = self.Stat_Bit15_str
         ### Anlagensicherheit: #####################################################################################################################################################################################################################################################################
-        self.Stat_AS_1          = ['Not Halt',                                                  'Emergency Stop']
-        self.Stat_AS_2          = ['Rezipient Tür 1 offen',                                     'Recipient Door 1 open']
-        self.Stat_AS_3          = ['Rezipient Tür 2 offen',                                     'Recipient Door 2 open']
+        self.Stat_AS_Bit0       = ['Not Halt',                                                  'Emergency Stop']
+        self.Stat_AS_Bit1       = ['Rezipient Tür 1 offen',                                     'Recipient Door 1 open']
+        self.Stat_AS_Bit2       = ['Rezipient Tür 2 offen',                                     'Recipient Door 2 open']
+        self.Stat_AS_Bit3       = ['', ''] # Reserve
+        self.Stat_AS_Bit4       = ['', ''] # Reserve
+        self.Stat_AS_Bit5       = ['', ''] # Reserve
+        self.Stat_AS_Bit6       = ['', ''] # Reserve
+        self.Stat_AS_Bit7       = ['', ''] # Reserve
+        self.Stat_AS_Bit8       = ['', ''] # Reserve
+        self.Stat_AS_Bit9       = ['', ''] # Reserve
+        self.Stat_AS_Bit10      = ['', ''] # Reserve
+        self.Stat_AS_Bit11      = ['', ''] # Reserve
+        self.Stat_AS_Bit12      = ['', ''] # Reserve
+        self.Stat_AS_Bit13      = ['', ''] # Reserve
+        self.Stat_AS_Bit14      = self.Stat_Bit14_str
+        self.Stat_AS_Bit15      = self.Stat_Bit15_str
         ### Betriebsmodus: #########################################################################################################################################################################################################################################################################
-        self.Stat_BM_1          = self.Stat_1_str
-        self.Stat_BM_2          = self.Stat_2_str
-        self.Stat_BM_3          = ['Unterdruckregelung',                                        'Vacuum control']
+        self.Stat_BM_Bit0       = self.Stat_Bit0_str
+        self.Stat_BM_Bit1       = self.Stat_Bit1_str
+        self.Stat_BM_Bit2       = ['Unterdruckregelung',                                        'Vacuum control']
+        self.Stat_BM_Bit3       = ['', ''] # Reserve
+        self.Stat_BM_Bit4       = ['', ''] # Reserve
+        self.Stat_BM_Bit5       = ['', ''] # Reserve
+        self.Stat_BM_Bit6       = ['', ''] # Reserve
+        self.Stat_BM_Bit7       = ['', ''] # Reserve
+        self.Stat_BM_Bit8       = ['', ''] # Reserve
+        self.Stat_BM_Bit9       = ['', ''] # Reserve
+        self.Stat_BM_Bit10      = ['', ''] # Reserve
+        self.Stat_BM_Bit11      = ['', ''] # Reserve
+        self.Stat_BM_Bit12      = ['', ''] # Reserve
+        self.Stat_BM_Bit13      = ['', ''] # Reserve
+        self.Stat_BM_Bit14      = self.Stat_Bit14_str
+        self.Stat_BM_Bit15      = self.Stat_Bit15_str
         ## Geräte-Bezeichnung: #####################################################################################################################################################################################################################################################################                                         
         ### Nemo-1 -> _1 | Nemo-2 -> _2
         G1_F_str_1              = ['MFC24',                                                     'MFC24']
@@ -770,17 +884,15 @@ class NemoGaseWidget:
 
         # Status:
         ## Listen:
-        status_P21_N1 = [self.Stat_1_str[self.sprache],     self.Stat_2_str[self.sprache],      '',                               '', '', '', '', '', self.Stat_3_str[self.sprache],     '',                                 '',                                 '',                                '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
-        status_P21_N2 = [self.Stat_P1_1_str[self.sprache],  self.Stat_P1_2_str[self.sprache],   '',                               '', '', '', '', '', self.Stat_P1_9_str[self.sprache],  '',                                 '',                                 '',                                '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
-        status_P22_N1 = [self.Stat_1_str[self.sprache],     self.Stat_2_str[self.sprache],      '',                               '', '', '', '', '', self.Stat_3_str[self.sprache],     self.Stat_4_str[self.sprache],      self.Stat_5_str[self.sprache],      self.Stat_6_str[self.sprache],     '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]     # Lowest Bit zu Highest Bit
-        status_P22_N2 = [self.Stat_P2_1_str[self.sprache],  self.Stat_P2_2_str[self.sprache],   self.Stat_P2_3_str[self.sprache], '', '', '', '', '', '',                                self.Stat_P2_10_str[self.sprache],  self.Stat_P2_11_str[self.sprache],  '',                                '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
-        status_MFC    = [self.Stat_MFC_1_str[self.sprache], self.Stat_MFC_2_str[self.sprache],  '',                               '', '', '', '', '', '',                                '',                                 '',                                 '',                                '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
-        status_Ventil = [self.Stat_V_1_str[self.sprache],   self.Stat_V_2_str[self.sprache],    self.Stat_14_str[self.sprache],   '', '', '', '', '', self.Stat_V_9_str[self.sprache],   self.Stat_V_10_str[self.sprache],   self.Stat_V_11_str[self.sprache],   self.Stat_V_12_str[self.sprache],  self.Stat_V_13_str[self.sprache],   self.Stat_V_14_str[self.sprache],   self.Stat_V_15_str[self.sprache],   self.Stat_15_str[self.sprache]]
-        status_BM     = [self.Stat_BM_1[self.sprache],      self.Stat_BM_2[self.sprache],       self.Stat_BM_3[self.sprache],     '', '', '', '', '', '',                                '',                                 '',                                 '',                                '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
-        status_AS     = [self.Stat_AS_1[self.sprache],      self.Stat_AS_2[self.sprache],       self.Stat_AS_3[self.sprache],     '', '', '', '', '', '',                                '',                                 '',                                 '',                                '',                                 '',                                 self.Stat_14_str[self.sprache],     self.Stat_15_str[self.sprache]]
-
-        # self.Stat_14_str[self.sprache] -> Schnittstellen-Problem
-        # self.Stat_15_str[self.sprache] -> Test-Modus
+        status_P21_N1 = [self.Stat_Bit0_str[self.sprache],      self.Stat_Bit1_str[self.sprache],       self.Stat_Bit2_str[self.sprache],       self.Stat_Bit3_str[self.sprache],       self.Stat_Bit4_str[self.sprache],       self.Stat_Bit5_str[self.sprache],       self.Stat_Bit6_str[self.sprache],       self.Stat_Bit7_str[self.sprache],       self.Stat_Bit8_str[self.sprache],       self.Stat_Bit9_str[self.sprache],       self.Stat_Bit10_str[self.sprache],      self.Stat_Bit11_str[self.sprache],      self.Stat_Bit12_str[self.sprache],      self.Stat_Bit13_str[self.sprache],      self.Stat_Bit14_str[self.sprache],     self.Stat_Bit15_str[self.sprache]]
+        status_P21_N2 = [self.Stat_P1_Bit0_str[self.sprache],   self.Stat_P1_Bit1_str[self.sprache],    self.Stat_P1_Bit2_str[self.sprache],    self.Stat_P1_Bit3_str[self.sprache],    self.Stat_P1_Bit4_str[self.sprache],    self.Stat_P1_Bit5_str[self.sprache],    self.Stat_P1_Bit6_str[self.sprache],    self.Stat_P1_Bit7_str[self.sprache],    self.Stat_P1_Bit8_str[self.sprache],    self.Stat_P1_Bit9_str[self.sprache],    self.Stat_P1_Bit10_str[self.sprache],   self.Stat_P1_Bit11_str[self.sprache],   self.Stat_P1_Bit12_str[self.sprache],   self.Stat_P1_Bit13_str[self.sprache],   self.Stat_P1_Bit14_str[self.sprache],  self.Stat_P1_Bit15_str[self.sprache]]
+        status_P22_N1 = [self.Stat_Bit0_str_P2[self.sprache],   self.Stat_Bit1_str_P2[self.sprache],    self.Stat_Bit2_str_P2[self.sprache],    self.Stat_Bit3_str_P2[self.sprache],    self.Stat_Bit4_str_P2[self.sprache],    self.Stat_Bit5_str_P2[self.sprache],    self.Stat_Bit6_str_P2[self.sprache],    self.Stat_Bit7_str_P2[self.sprache],    self.Stat_Bit8_str_P2[self.sprache],    self.Stat_Bit9_str_P2[self.sprache],    self.Stat_Bit10_str_P2[self.sprache],   self.Stat_Bit11_str_P2[self.sprache],   self.Stat_Bit12_str_P2[self.sprache],   self.Stat_Bit13_str_P2[self.sprache],   self.Stat_Bit14_str_P2[self.sprache],  self.Stat_Bit15_str_P2[self.sprache]]     # Lowest Bit zu Highest Bit
+        status_P22_N2 = [self.Stat_P2_Bit0_str[self.sprache],   self.Stat_P2_Bit1_str[self.sprache],    self.Stat_P2_Bit2_str[self.sprache],    self.Stat_P2_Bit3_str[self.sprache],    self.Stat_P2_Bit4_str[self.sprache],    self.Stat_P2_Bit5_str[self.sprache],    self.Stat_P2_Bit6_str[self.sprache],    self.Stat_P2_Bit7_str[self.sprache],    self.Stat_P2_Bit8_str[self.sprache],    self.Stat_P2_Bit9_str[self.sprache],    self.Stat_P2_Bit10_str[self.sprache],   self.Stat_P2_Bit11_str[self.sprache],   self.Stat_P2_Bit12_str[self.sprache],   self.Stat_P2_Bit13_str[self.sprache],   self.Stat_P2_Bit14_str[self.sprache],  self.Stat_P2_Bit15_str[self.sprache]]
+        status_MFC    = [self.Stat_MFC_Bit0_str[self.sprache],  self.Stat_MFC_Bit1_str[self.sprache],   self.Stat_MFC_Bit2_str[self.sprache],   self.Stat_MFC_Bit3_str[self.sprache],   self.Stat_MFC_Bit4_str[self.sprache],   self.Stat_MFC_Bit5_str[self.sprache],   self.Stat_MFC_Bit6_str[self.sprache],   self.Stat_MFC_Bit7_str[self.sprache],   self.Stat_MFC_Bit8_str[self.sprache],   self.Stat_MFC_Bit9_str[self.sprache],   self.Stat_MFC_Bit10_str[self.sprache],  self.Stat_MFC_Bit11_str[self.sprache],  self.Stat_MFC_Bit12_str[self.sprache],  self.Stat_MFC_Bit13_str[self.sprache],  self.Stat_MFC_Bit14_str[self.sprache], self.Stat_MFC_Bit15_str[self.sprache]]
+        status_MV     = [self.Stat_MV_Bit0_str[self.sprache],   self.Stat_MV_Bit1_str[self.sprache],    self.Stat_MV_Bit2_str[self.sprache],    self.Stat_MV_Bit3_str[self.sprache],    self.Stat_MV_Bit4_str[self.sprache],    self.Stat_MV_Bit5_str[self.sprache],    self.Stat_MV_Bit6_str[self.sprache],    self.Stat_MV_Bit7_str[self.sprache],    self.Stat_MV_Bit8_str[self.sprache],    self.Stat_MV_Bit9_str[self.sprache],    self.Stat_MV_Bit10_str[self.sprache],   self.Stat_MV_Bit11_str[self.sprache],   self.Stat_MV_Bit12_str[self.sprache],   self.Stat_MV_Bit13_str[self.sprache],   self.Stat_MV_Bit14_str[self.sprache],  self.Stat_MFC_Bit15_str[self.sprache]]
+        status_Ventil = [self.Stat_V_Bit0_str[self.sprache],    self.Stat_V_Bit1_str[self.sprache],     self.Stat_V_Bit2_str[self.sprache],     self.Stat_V_Bit3_str[self.sprache],     self.Stat_V_Bit4_str[self.sprache],     self.Stat_V_Bit5_str[self.sprache],     self.Stat_V_Bit6_str[self.sprache],     self.Stat_V_Bit7_str[self.sprache],     self.Stat_V_Bit8_str[self.sprache],     self.Stat_V_Bit9_str[self.sprache],     self.Stat_V_Bit10_str[self.sprache],    self.Stat_V_Bit11_str[self.sprache],    self.Stat_V_Bit12_str[self.sprache],    self.Stat_V_Bit13_str[self.sprache],    self.Stat_V_Bit14_str[self.sprache],   self.Stat_V_Bit15_str[self.sprache]]
+        status_BM     = [self.Stat_BM_Bit0[self.sprache],       self.Stat_BM_Bit1[self.sprache],        self.Stat_BM_Bit2[self.sprache],        self.Stat_BM_Bit3[self.sprache],        self.Stat_BM_Bit4[self.sprache],        self.Stat_BM_Bit5[self.sprache],        self.Stat_BM_Bit6[self.sprache],        self.Stat_BM_Bit7[self.sprache],        self.Stat_BM_Bit8[self.sprache],        self.Stat_BM_Bit9[self.sprache],        self.Stat_BM_Bit10[self.sprache],       self.Stat_BM_Bit11[self.sprache],       self.Stat_BM_Bit12[self.sprache],       self.Stat_BM_Bit13[self.sprache],       self.Stat_BM_Bit14[self.sprache],      self.Stat_BM_Bit15[self.sprache]]
+        status_AS     = [self.Stat_AS_Bit0[self.sprache],       self.Stat_AS_Bit1[self.sprache],        self.Stat_AS_Bit2[self.sprache],        self.Stat_AS_Bit3[self.sprache],        self.Stat_AS_Bit4[self.sprache],        self.Stat_AS_Bit5[self.sprache],        self.Stat_AS_Bit6[self.sprache],        self.Stat_AS_Bit7[self.sprache],        self.Stat_AS_Bit8[self.sprache],        self.Stat_AS_Bit9[self.sprache],        self.Stat_AS_Bit10[self.sprache],       self.Stat_AS_Bit11[self.sprache],       self.Stat_AS_Bit12[self.sprache],       self.Stat_AS_Bit13[self.sprache],       self.Stat_AS_Bit14[self.sprache],      self.Stat_AS_Bit15[self.sprache]]
 
         if self.Anlage == 1: 
             status_P21 = status_P21_N1
@@ -808,7 +920,7 @@ class NemoGaseWidget:
             status_wert_MFC27 = value_dict['MFC27Status']
             self.Status_Bund('MFC27Status', status_MFC, status_wert_MFC27)
             status_wert_MV1 = value_dict['MV1Status']
-            self.Status_Bund('MV1Status', status_MFC, status_wert_MV1)
+            self.Status_Bund('MV1Status', status_MV, status_wert_MV1)
             ## Ventile:
             status_wert_V1 = value_dict['V1Status']
             self.Status_Bund('V1Status', status_Ventil, status_wert_V1)

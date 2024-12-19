@@ -1300,9 +1300,10 @@ class EurothermWidget(QWidget):
         
         if not self.PID_cb.isChecked():
             ## Aufagben setzen:
-            self.write_task['Update Limit'] = True
-            self.write_value['Limits']      = [self.oGOp, self.uGOp, self.oGPID, self.uGPID, True]
-            self.write_task['PID-Reset']    = True
+            self.write_task['Update Limit']  = True
+            self.write_value['Limits']       = [self.oGOp, self.uGOp, self.oGPID, self.uGPID, True]
+            self.write_task['PID-Reset']     = True
+            self.write_value['PID-Sollwert'] = 0
 
             ## Meldung:
             self.Fehler_Output(0)

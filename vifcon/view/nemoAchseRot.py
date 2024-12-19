@@ -415,8 +415,9 @@ class NemoAchseRotWidget(QWidget):
         self.Log_Yaml_Error     = ['Mit der Config-Datei (Yaml) gibt es ein Problem.',                                                          'There is a problem with the config file (YAML).']
         self.err_RezDef_str     = ['Yaml-Config Fehler\nDefault-Rezept eingefügt!',                                                             'Yaml config error\nDefault recipe inserted!']
         self.err_Rezept_2       = ['Rezept-Schritt:',                                                                                                                                                                                       'Recipe step:']
-        ## Status-N1: ##############################################################################################################################################################################################################################################################################                                                              
+        ## Status-Algemein: ########################################################################################################################################################################################################################################################################          
         status_1_str            = ['Status: Inaktiv',                                                                                           'Status: Inactive']
+        ## Status-N1: ##############################################################################################################################################################################################################################################################################                                                              
         self.status_2_str       = ['Kein Status',                                                                                               'No Status']
         self.status_3_str       = ['Status:',                                                                                                   'Status:']
         self.sta_Bit0_str       = ['Betriebsbereit',                                                                                            'Ready for operation']
@@ -431,6 +432,8 @@ class NemoAchseRotWidget(QWidget):
         self.sta_Bit9_str       = ['Achse Endlage unten (Hard.-End.)',                                                                          'Axis end position down (Hard.-End.)']
         self.sta_Bit10_str      = ['Software-Endlagen aus',                                                                                     'Software end positions']
         self.sta_Bit11_str      = ['Achse in Stopp',                                                                                            'Axis in stop']
+        self.sta_Bit12_str      = ['', ''] # Reserve
+        self.sta_Bit13_str      = ['', ''] # Reserve
         self.sta_Bit14_str      = ['Schnittstellenfehler',                                                                                      'Interface error']
         self.sta_Bit15_str      = ['Test-Modus Aktiv',                                                                                          'Test Mode Active']
         ## Status-N2: ##############################################################################################################################################################################################################################################################################                                                              
@@ -439,10 +442,17 @@ class NemoAchseRotWidget(QWidget):
         self.Stat_N2_Bit2       = self.sta_Bit4_str
         self.Stat_N2_Bit3       = self.sta_Bit0_str
         self.Stat_N2_Bit4       = self.sta_Bit2_str 
+        self.Stat_N2_Bit5       = ['', ''] # Reserve
+        self.Stat_N2_Bit6       = ['', ''] # Reserve
+        self.Stat_N2_Bit7       = ['', ''] # Reserve
         self.Stat_N2_Bit8       = ['Rampe eingeschaltet',                                                                                       'Ramp switched on']
         self.Stat_N2_Bit9       = ['Rampe ausgeschaltet',                                                                                       'Ramp switched off']
         self.Stat_N2_Bit10      = ['Auf Winkel fahren ein',                                                                                     'Drive to angle on']
         self.Stat_N2_Bit11      = ['Auf Winkel fahren aus',                                                                                     'Drive to angle off']
+        self.Stat_N2_Bit12      = ['', ''] # Reserve
+        self.Stat_N2_Bit13      = ['', ''] # Reserve
+        self.Stat_N2_Bit14      = self.sta_Bit14_str # Schnittstellen Fehler
+        self.Stat_N2_Bit15      = self.sta_Bit15_str # Test-Modus
         ## Plot-Legende: ############################################################################################################################################################################################################################################################################                                                           
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                    # uL - upper Limit
@@ -1199,9 +1209,9 @@ class NemoAchseRotWidget(QWidget):
         label_s1 = ''
         status = ['','','','','','','','','','','','','','','','']
         if self.Anlage == 1:
-            status = [self.sta_Bit0_str[self.sprache], self.sta_Bit1_str[self.sprache], self.sta_Bit2_str[self.sprache], self.sta_Bit3_str[self.sprache], self.sta_Bit4_str[self.sprache], self.sta_Bit5_str[self.sprache], self.sta_Bit6_str[self.sprache], self.sta_Bit7_str[self.sprache], self.sta_Bit8_str[self.sprache], self.sta_Bit9_str[self.sprache], self.sta_Bit10_str[self.sprache], self.sta_Bit11_str[self.sprache], '', '', self.sta_Bit14_str[self.sprache], self.sta_Bit15_str[self.sprache]]
+            status = [self.sta_Bit0_str[self.sprache], self.sta_Bit1_str[self.sprache], self.sta_Bit2_str[self.sprache], self.sta_Bit3_str[self.sprache], self.sta_Bit4_str[self.sprache], self.sta_Bit5_str[self.sprache], self.sta_Bit6_str[self.sprache], self.sta_Bit7_str[self.sprache], self.sta_Bit8_str[self.sprache], self.sta_Bit9_str[self.sprache], self.sta_Bit10_str[self.sprache], self.sta_Bit11_str[self.sprache], self.sta_Bit12_str[self.sprache], self.sta_Bit13_str[self.sprache], self.sta_Bit14_str[self.sprache], self.sta_Bit15_str[self.sprache]]
         elif self.Anlage == 2:
-            status = [self.Stat_N2_Bit0[self.sprache], self.Stat_N2_Bit1[self.sprache], self.Stat_N2_Bit2[self.sprache], self.Stat_N2_Bit3[self.sprache], self.Stat_N2_Bit4[self.sprache], '',                              '',                              '',                              self.Stat_N2_Bit8[self.sprache], self.Stat_N2_Bit9[self.sprache], self.Stat_N2_Bit10[self.sprache], self.Stat_N2_Bit11[self.sprache], '', '', self.sta_Bit14_str[self.sprache], self.sta_Bit15_str[self.sprache]]
+            status = [self.Stat_N2_Bit0[self.sprache], self.Stat_N2_Bit1[self.sprache], self.Stat_N2_Bit2[self.sprache], self.Stat_N2_Bit3[self.sprache], self.Stat_N2_Bit4[self.sprache], self.Stat_N2_Bit5[self.sprache], self.Stat_N2_Bit6[self.sprache], self.Stat_N2_Bit7[self.sprache], self.Stat_N2_Bit8[self.sprache], self.Stat_N2_Bit9[self.sprache], self.Stat_N2_Bit10[self.sprache], self.Stat_N2_Bit11[self.sprache], self.Stat_N2_Bit12[self.sprache], self.Stat_N2_Bit13[self.sprache], self.Stat_N2_Bit14[self.sprache], self.Stat_N2_Bit15[self.sprache]]
 
         l = len(status_1)
         for n in range(0,l):
@@ -1426,9 +1436,10 @@ class NemoAchseRotWidget(QWidget):
         
         if not self.PID_cb.isChecked():
             ## Aufagben setzen:
-            self.write_task['Update Limit'] = True
-            self.write_value['Limits']      = [self.oGw, self.uGw, self.oGv, self.uGv, self.oGx, self.uGx]
-            self.write_task['PID-Reset']    = True
+            self.write_task['Update Limit']  = True
+            self.write_value['Limits']       = [self.oGw, self.uGw, self.oGv, self.uGv, self.oGx, self.uGx]
+            self.write_task['PID-Reset']     = True
+            self.write_value['PID-Sollwert'] = 0
 
             ## Meldung:
             self.Fehler_Output(0, self.La_error_1)

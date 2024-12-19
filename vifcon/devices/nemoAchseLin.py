@@ -83,6 +83,9 @@ class NemoAchseLin(QObject):
         self.device_name                = name
         self.typ                        = typ
 
+        ## Weitere:
+        self.angezeigt = False
+
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
         #---------------------------------------------------------
@@ -635,6 +638,7 @@ class NemoAchseLin(QObject):
         self.Log_Text_N2_4_str  = ['Software Endlage unten       (SEU)',                                                                                                                                                    'Software end position down (SEU)']
         self.Log_Text_N2_5_str  = ['Aktuelle Position Lineal',                                                                                                                                                              'Current Position Ruler']
         self.Log_Text_N2_6_str  = ['Positions Offset',                                                                                                                                                                      'Position Offset']
+        self.Log_Text_PIDVV     = ['Noch nicht vollkommen implementiert, Vifcon als PID-Input Sollwert! Hier wird Istwert auf Sollwert gesetzt!',                                                                           'Not yet fully implemented, Vifcon as PID input setpoint!! Here the actual value is set to the target value!']
         ## Ablaufdatei: ###############################################################################################################################################################################################################################################################################
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -911,6 +915,7 @@ class NemoAchseLin(QObject):
             ## Sollwert Lesen (v):
             speed_vorgabe = write_value['Speed']
             PID_write_V = False
+            self.angezeigt = False
         #++++++++++++++++++++++++++++++++++++++++++    
         # PID-Regler:
         #++++++++++++++++++++++++++++++++++++++++++
@@ -942,7 +947,9 @@ class NemoAchseLin(QObject):
             #---------------------------------------------
             ### VIFCON:
             if self.PID_Option[0] == 'V':
-                print(['Noch nicht vollkommen implementiert! Hier wird Istwert auf Sollwert gesetzt!', 'Not yet fully implemented! Here the actual value is set to the target value!'][self.sprache])
+                if not self.angezeigt:
+                    logger.warning(self.Log_Text_PIDVV[self.sprache])
+                self.angezeigt = True
                 self.Ist = self.Soll
             ### Multilog:
             elif self.PID_Option[0] == 'M':
@@ -1083,11 +1090,11 @@ class NemoAchseLin(QObject):
                 error_Input = True
             #### Input-Wert überschreitet Maximum:
             elif Input > self.PID_Input_Limit_Max:
-                logger.debug(f"{self.device_name} - {self.Log_Text_PID_N15[self.sprache]} {self.PID_Input_Limit_Max} {self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Test_PID_N22[self.sprache]} ({Input_String[self.sprache]})")
+                logger.warning(f"{self.device_name} - {self.Log_Text_PID_N15[self.sprache]} {self.PID_Input_Limit_Max} {self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Test_PID_N22[self.sprache]} ({Input_String[self.sprache]})")
                 Input = self.PID_Input_Limit_Max
             #### Input-Wert unterschreitet Minimum:
             elif Input < self.PID_Input_Limit_Min:
-                logger.debug(f"{self.device_name} - {self.Log_Text_PID_N16[self.sprache]} {self.PID_Input_Limit_Min} {self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Test_PID_N22[self.sprache]} ({Input_String[self.sprache]})")
+                logger.warning(f"{self.device_name} - {self.Log_Text_PID_N16[self.sprache]} {self.PID_Input_Limit_Min} {self.Log_Text_PID_N20[self.sprache]} {self.Ist}{self.Log_Test_PID_N22[self.sprache]} ({Input_String[self.sprache]})")
                 Input = self.PID_Input_Limit_Min
         except Exception as e:
             error_Input = True
@@ -1200,7 +1207,7 @@ class NemoAchseLin(QObject):
             else:        
                 self.value_name['Status']   = 0                               
                 self.value_name['Status_2'] = 64
-            
+        
         # Lese: Status-Eilgang
         if self.Anlage == 2:
             error_Stat = False

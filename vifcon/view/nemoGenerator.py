@@ -499,7 +499,7 @@ class NemoGeneratortWidget(QWidget):
         self.Stat_N2_Bit8       = ['P-Regelung gewählt',                                                                                        'P-control selected'] 
         self.Stat_N2_Bit9       = ['I-Regelung gewählt',                                                                                        'I-control selected'] 
         self.Stat_N2_Bit10      = ['U-Regelung gewählt',                                                                                        'U-control selected'] 
-        self.Stat_N2_Bit11      = ['',                                                                                                          '']  
+        self.Stat_N2_Bit11      = ['Anwahl Rampe',                                                                                              'ramp selection']  
         self.Stat_N2_Bit12      = ['',                                                                                                          '']  
         self.Stat_N2_Bit13      = ['',                                                                                                          '']  
         self.Stat_N2_Bit14      = ['Schnittstellenfehler',                                                                                      'Interface error']  
