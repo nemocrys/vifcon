@@ -248,8 +248,8 @@ class NemoGaseWidget:
         ### Betriebsmodus: #########################################################################################################################################################################################################################################################################
         self.Stat_BM_Bit0       = self.Stat_Bit0_str
         self.Stat_BM_Bit1       = self.Stat_Bit1_str
-        self.Stat_BM_Bit2       = ['Unterdruckregelung',                                        'Vacuum control']
-        self.Stat_BM_Bit3       = ['', ''] # Reserve
+        self.Stat_BM_Bit2       = ['Evakuieren',                                                'Evacuate']
+        self.Stat_BM_Bit3       = ['Belüften',                                                  'Ventilate'] 
         self.Stat_BM_Bit4       = ['', ''] # Reserve
         self.Stat_BM_Bit5       = ['', ''] # Reserve
         self.Stat_BM_Bit6       = ['', ''] # Reserve

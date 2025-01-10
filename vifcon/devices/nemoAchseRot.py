@@ -907,6 +907,7 @@ class NemoAchseRot(QObject):
                     write_Okay['Send'] = False
                     ## Bewegung nur wenn Senden der Geschwindigkeit erfolgreich:
                     if ans_v:  
+                        ### Bewegung Clockwise:
                         if write_Okay['CW'] and not self.CW_End:
                             ans = self.serial.write_single_coil(self.reg_cw, True)
                             if not ans:
@@ -914,7 +915,7 @@ class NemoAchseRot(QObject):
                                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_71_str[self.sprache]}') 
                             else:
                                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_72_str[self.sprache]}')  
-                                ## Positionsbestimmung:
+                                #### Positionsbestimmung:
                                 self.start_Time = datetime.datetime.now(datetime.timezone.utc).astimezone()
                                 self.rechne     = 'Add'
                                 self.fahre      = True
@@ -923,7 +924,8 @@ class NemoAchseRot(QObject):
                             logger.warning(f'{self.device_name} - {self.Log_Text_219_str[self.sprache]} ({self.Log_Text_249_str[self.sprache]})')
                             self.Limit_Stop_Text    = 2
                             self.Limit_stop         = True
-                            write_Okay['CW']        = False     
+                            write_Okay['CW']        = False   
+                        ### Bewegung Counter Clockwise:  
                         if write_Okay['CCW'] and not self.CCW_End:
                             ans = self.serial.write_single_coil(self.reg_ccw, True)
                             if not ans:
@@ -931,7 +933,7 @@ class NemoAchseRot(QObject):
                                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_73_str[self.sprache]}') 
                             else:
                                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_74_str[self.sprache]}') 
-                                ## Positionsbestimmung:
+                                #### Positionsbestimmung:
                                 self.start_Time = datetime.datetime.now(datetime.timezone.utc).astimezone()
                                 self.rechne     = 'Sub'
                                 self.fahre      = True 

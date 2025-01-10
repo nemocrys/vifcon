@@ -883,7 +883,6 @@ class NemoAchseLin(QObject):
             if self.control_pos_choise == 'REAL':   checkPos = posAkt
             elif self.control_pos_choise == 'SIM':  checkPos = self.akIWs
             ## Kontrolliere die Grenzen:
-            
             if m.isnan(checkPos) and self.save_mode == 1:
                 write_Okay['Stopp']     = True
                 self.Limit_stop         = True
@@ -1012,8 +1011,9 @@ class NemoAchseLin(QObject):
                 elif write_Okay['Send']:
                     ans_v = self.write_v(write_value['Speed'])      
                     write_Okay['Send'] = False
-                    # Bewegung nur wenn Senden der Geschwindigkeit erfolgreich:
-                    if ans_v:                              
+                    ## Bewegung nur wenn Senden der Geschwindigkeit erfolgreich:
+                    if ans_v:      
+                        ### Bewegung Hoch:                        
                         if write_Okay['Hoch'] and not self.Auf_End:
                             ans = self.serial.write_single_coil(self.reg_h, True)
                             if not ans:
@@ -1021,7 +1021,7 @@ class NemoAchseLin(QObject):
                                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_63_str[self.sprache]}') 
                             else:
                                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_64_str[self.sprache]}')  
-                                # Positionsbestimmung:
+                                #### Positionsbestimmung:
                                 self.start_Time = datetime.datetime.now(datetime.timezone.utc).astimezone()
                                 self.rechne     = 'Add'
                                 self.fahre      = True
@@ -1031,6 +1031,7 @@ class NemoAchseLin(QObject):
                             self.Limit_Stop_Text    = 2
                             self.Limit_stop         = True
                             write_Okay['Hoch']      = False     
+                        ### Bewegung Runter:
                         if write_Okay['Runter'] and not self.Ab_End:
                             ans = self.serial.write_single_coil(self.reg_r, True)
                             if not ans:
@@ -1038,7 +1039,7 @@ class NemoAchseLin(QObject):
                                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_65_str[self.sprache]}') 
                             else:
                                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_66_str[self.sprache]}') 
-                                # Positionsbestimmung:
+                                #### Positionsbestimmung:
                                 self.start_Time = datetime.datetime.now(datetime.timezone.utc).astimezone()
                                 self.rechne     = 'Sub'
                                 self.fahre      = True 

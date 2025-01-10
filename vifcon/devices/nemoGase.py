@@ -317,6 +317,7 @@ class NemoGase:
                 logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans} ({self.Bezeichnung_1[self.sprache]} 2)')
                 if not ans == None:     value_3 = self.umwandeln_Float(ans[0:46])   
                 else:
+                    value_3 = []
                     for n in range(0,23,1):
                         value_3.append(m.nan)
                 stat_list = ['MFC24Status', 'MFC25Status', 'MFC26Status', 'MFC27Status', 'MV1Status', 'V1Status', 'V2Status', 'V3Status', 'V4Status', 'V5Status', 'V6Status', 'V7Status', 'V17Status']
@@ -335,6 +336,7 @@ class NemoGase:
                 logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans} ({self.Bezeichnung_2[self.sprache]})')
                 if not ans == None:     value_4 = self.umwandeln_Float(ans)   
                 else:
+                    value_4 = []
                     for n in range(0,24,1):
                         value_4.append(m.nan)   
 
