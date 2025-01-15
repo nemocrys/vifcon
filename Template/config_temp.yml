@@ -342,8 +342,8 @@ devices:
       mvtime: 25                                                          # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV) | Default bei Fehler: 25
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3  
     limits:
-      maxPos: 50                                                           # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
-      minPos: -50                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
+      maxPos: 20                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
+      minPos: -20                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
       maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s] | Default bei Fehler: 1
       minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s] | Default bei Fehler: -1
     GUI:
@@ -355,12 +355,18 @@ devices:
       legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    
                                                                           # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
-                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID, Rezx
                                                                           # Default: IWv, IWs
     defaults:
       startSpeed: 2                                                       # Startgeschwindigkeit [mm/s] | Default bei Fehler: 0
       startPos: 0                                                         # Startposition/Startfahrweg [mm] | Default bei Fehler: 0
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/s), Art der Rampe, Schritte/Steigung ((mm/s)/s)
+                                                                          # Wenn der PID genutzt wird muss als letztes noch ein N (Negativ) oder P (Positiv) für die Richtung angehangen werden!
+                                                                          #   --> Das Positiv und Negativ ergibt sich aus der Angabe bei "GUI" und "piSymbol"!
+                                                                          #   --> Positiv: Vom Symbol wegfahren!
+                                                                          #   --> Negativ: Zum Symbol fahren!
+                                                                          #   --> Rechts, Hinten, Unten: linker-Knopf = Positiv, rechter-Knopf = Negativ
+                                                                          #   --> Links,  Vorne,  Oben:  linker-Knopf = Negativ, rechter-Knopf = Positiv
                                                                           # Art der Rampe: s - Sprung, r - Rampe
                                                                           # Schritte/Steigung wird bei Sprung nicht benötigt!
                                                                           # Steigung: r - z.B. 2    --> 2 mm/s Sollwertsteigung je Sekunde (Sprünge)
@@ -376,6 +382,15 @@ devices:
         n3: 1 ; -0.5 ; s
         n4: 1 ; 1 ; s
         n5: 5 ; 2 ; s
+      PID-Test_AufAb:
+        n1: 20 ; 24 ; s ; P
+        n2: 10 ; 25 ; s ; N
+        n3: 20 ; 26 ; s ; P
+        n4: 20 ; 27 ; s ; N
+        n5: 20 ; 27 ; s ; N
+        n6: 10 ; 26 ; s ; P
+        n7: 20 ; 25 ; s ; N
+        n8: 20 ; 24 ; s ; P
   # --------------------------------------------------------------------------------------------------------------------------------------------------------
   PI-Achse_y:                                                             # Muss "PI-Achse" enthalten!
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
@@ -446,7 +461,7 @@ devices:
       mvtime: 100                                                         # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV) | Default bei Fehler: 25
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3  
     limits:
-      maxPos: 50                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
+      maxPos: 20                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
       minPos: -20                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
       maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s] | Default bei Fehler: 1
       minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s] | Default bei Fehler: -1
@@ -459,12 +474,18 @@ devices:
       legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    
                                                                           # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
-                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID, Rezx
                                                                           # Default: IWv, IWs
     defaults:
       startSpeed: 2                                                       # Startgeschwindigkeit [mm/s] | Default bei Fehler: 0
       startPos: 0                                                         # Startposition/Startfahrweg [mm] | Default bei Fehler: 0
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/s), Art der Rampe, Schritte/Steigung ((mm/s)/s)
+                                                                          # Wenn der PID genutzt wird muss als letztes noch ein N (Negativ) oder P (Positiv) für die Richtung angehangen werden!
+                                                                          #   --> Das Positiv und Negativ ergibt sich aus der Angabe bei "GUI" und "piSymbol"!
+                                                                          #   --> Positiv: Vom Symbol wegfahren!
+                                                                          #   --> Negativ: Zum Symbol fahren!
+                                                                          #   --> Rechts, Hinten, Unten: linker-Knopf = Positiv, rechter-Knopf = Negativ
+                                                                          #   --> Links,  Vorne,  Oben:  linker-Knopf = Negativ, rechter-Knopf = Positiv
                                                                           # Art der Rampe: s - Sprung, r - Rampe
                                                                           # Schritte/Steigung wird bei Sprung nicht benötigt!
                                                                           # Steigung: r - z.B. 2    --> 2 mm/s Sollwertsteigung je Sekunde (Sprünge)
@@ -479,6 +500,15 @@ devices:
         n2: 20 ; 1 ; s
         n3: 20 ; -1 ; s
         n4: 10 ; -0,5 ; s 
+      PID-Test_AufAb:
+        n1: 20 ; 24 ; s ; P
+        n2: 10 ; 25 ; s ; N
+        n3: 20 ; 26 ; s ; P
+        n4: 20 ; 27 ; s ; N
+        n5: 20 ; 27 ; s ; N
+        n6: 10 ; 26 ; s ; P
+        n7: 20 ; 25 ; s ; N
+        n8: 20 ; 24 ; s ; P
   # --------------------------------------------------------------------------------------------------------------------------------------------------------
   PI-Achse_x:                                                             # Muss "PI-Achse" enthalten! 
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
@@ -549,8 +579,8 @@ devices:
       mvtime: 100                                                         # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV) | Default bei Fehler: 25
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3  
     limits:
-      maxPos: 10                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
-      minPos: -10                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
+      maxPos: 20                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
+      minPos: -20                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
       maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s] | Default bei Fehler: 1
       minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s] | Default bei Fehler: -1
     GUI:
@@ -562,12 +592,18 @@ devices:
       legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    
                                                                           # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
-                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID, Rezx
                                                                           # Default: IWv, IWs
     defaults:
       startSpeed: 2                                                       # Startgeschwindigkeit [mm/s] | Default bei Fehler: 0
       startPos: 0                                                         # Startposition/Startfahrweg [mm] | Default bei Fehler: 0
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/s), Art der Rampe, Schritte/Steigung ((mm/s)/s)
+                                                                          # Wenn der PID genutzt wird muss als letztes noch ein N (Negativ) oder P (Positiv) für die Richtung angehangen werden!
+                                                                          #   --> Das Positiv und Negativ ergibt sich aus der Angabe bei "GUI" und "piSymbol"!
+                                                                          #   --> Positiv: Vom Symbol wegfahren!
+                                                                          #   --> Negativ: Zum Symbol fahren!
+                                                                          #   --> Rechts, Hinten, Unten: linker-Knopf = Positiv, rechter-Knopf = Negativ
+                                                                          #   --> Links,  Vorne,  Oben:  linker-Knopf = Negativ, rechter-Knopf = Positiv
                                                                           # Art der Rampe: s - Sprung, r - Rampe
                                                                           # Schritte/Steigung wird bei Sprung nicht benötigt!
                                                                           # Steigung: r - z.B. 2    --> 2 mm/s Sollwertsteigung je Sekunde (Sprünge)
@@ -652,8 +688,8 @@ devices:
       mvtime: 25                                                          # Auslese-Delay für die Achsengeschwindigkeits Bestimmung [ms] (benötigt bei MV) | Default bei Fehler: 25
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3  
     limits:
-      maxPos: 10                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
-      minPos: -50                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
+      maxPos: 20                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
+      minPos: -20                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
       maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s] | Default bei Fehler: 1
       minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s] | Default bei Fehler: -1
     GUI:
@@ -665,12 +701,18 @@ devices:
       legend: Rezv ; IWs ; IWv ; SWv ; IWxPID ; SWxPID                    
                                                                           # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, x - PID-Input-Größe, PID - PID-Kurven
-                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID
+                                                                          # Eingebaut: Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID, Rezx
                                                                           # Default bei Fehler: IWv, IWs
     defaults:
       startSpeed: 2                                                       # Startgeschwindigkeit [mm/s] | Default bei Fehler: 0
       startPos: 0                                                         # Startposition/Startfahrweg [mm] | Default bei Fehler: 0
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (mm/s), Art der Rampe, Schritte/Steigung ((mm/s)/s)
+                                                                          # Wenn der PID genutzt wird muss als letztes noch ein N (Negativ) oder P (Positiv) für die Richtung angehangen werden!
+                                                                          #   --> Das Positiv und Negativ ergibt sich aus der Angabe bei "GUI" und "piSymbol"!
+                                                                          #   --> Positiv: Vom Symbol wegfahren!
+                                                                          #   --> Negativ: Zum Symbol fahren!
+                                                                          #   --> Rechts, Hinten, Unten: linker-Knopf = Positiv, rechter-Knopf = Negativ
+                                                                          #   --> Links,  Vorne,  Oben:  linker-Knopf = Negativ, rechter-Knopf = Positiv
                                                                           # Art der Rampe: s - Sprung, r - Rampe
                                                                           # Schritte/Steigung wird bei Sprung nicht benötigt!
                                                                           # Steigung: r - z.B. 2    --> 2 mm/s Sollwertsteigung je Sekunde (Sprünge)

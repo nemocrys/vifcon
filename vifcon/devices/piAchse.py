@@ -80,7 +80,7 @@ class PIAchse(QObject):
         self.typ                        = typ
 
         ## Weitere:
-        self.angezeigt = False
+        self.angezeigt        = False
 
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
@@ -424,6 +424,7 @@ class PIAchse(QObject):
         ## Andere:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         self.akPos              = 0
+        self.akPos_StoppLimit   = 0
         self.last_Pos           = 0
         self.Min_End            = False
         self.Max_End            = False
@@ -717,18 +718,24 @@ class PIAchse(QObject):
         #++++++++++++++++++++++++++++++++++++++++++
         # Limit Kontrolle:
         #++++++++++++++++++++++++++++++++++++++++++
+        if self.akPos_StoppLimit != self.akPos and PID_write_V and write_Okay['Rezept Aktiv'] and not write_Okay['Rezept_PID_RW']:  
+            # Wenn ein Rezept im PID-Modus läuft und kein Richtungswechsel anliegt, so wird dies ausgeführt, damit der Stop nicht permanent bleibt!
+            self.Max_End = False
+            self.Min_End = False
         if self.akPos > self.oGPos and not self.Max_End:
             self.Max_End = True
             logger.warning(f'{self.device_name} - {self.Log_Text_217_str[self.sprache]}')
             self.Limit_Stop_Text    = 0
             self.Limit_stop         = True
             write_Okay['Stopp']     = True
+            self.akPos_StoppLimit = self.akPos
         if self.akPos < self.uGPos and not self.Min_End:
             self.Min_End = True
             logger.warning(f'{self.device_name} - {self.Log_Text_218_str[self.sprache]}') 
             self.Limit_Stop_Text    = 1
             self.Limit_stop         = True
             write_Okay['Stopp']     = True
+            self.akPos_StoppLimit = self.akPos
         if self.akPos > self.uGPos and self.akPos < self.oGPos:
             self.Max_End = False
             self.Min_End = False

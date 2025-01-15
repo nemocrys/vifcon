@@ -1806,7 +1806,7 @@ class TruHeatWidget(QWidget):
                 except:
                     self.Fehler_Output(1, self.err_10_str[self.sprache])
                     logger.exception(self.Log_Text_Ex1_str[self.sprache])
-                    return False
+                    return True
             else:
                 rez_dat = ak_rezept
                 self.rezept_datei = '(Config-Datei)'
@@ -1819,7 +1819,7 @@ class TruHeatWidget(QWidget):
                 self.time_list.append(0) 
             elif first_line.strip() == 'r' and self.ak_value == {}:
                 self.Fehler_Output(1, self.err_12_str[self.sprache])
-                return False
+                return True
             ## Rezept Kurven-Listen erstellen:
             for n in rez_dat:
                 werte = rez_dat[n].split(';')
@@ -1856,7 +1856,7 @@ class TruHeatWidget(QWidget):
                 ### Falsches Segment:
                 else:
                     self.Fehler_Output(1, f'{self.err_Rezept[self.sprache]} {werte[2].strip()} ({n})')
-                    return False
+                    return True
         else:
             self.Fehler_Output(0)
         return error

@@ -72,7 +72,16 @@ For the Nemo drives, a special string is required in PID mode. In these recipes,
 - With the Eurotherm ramp, the gradient (calculation: m = delta y / delta x) is calculated in the program. Apart from the start value of the ramp, everything else is set in the configuration: m = (start value - target value)/segment time
 - With the ramps, the user can select either start with actual value or start with setpoint in the configuration. This configuration is only necessary for the first ramp in a recipe.
 - With the Eurotherm ramp, it must be known that this is an internal program of the Eurotherm controller. The ramps always start from the current actual value!!
-- A different limit value is used in the PID Modbus. The Nemo drives also require a direction specification so that the program knows which direction the recipe steps should take. In normal operation, the direction is specified by the sign of the speed. However, since a different value is determined by the recipe in the PID Modbus and the speed is the PID output value, the direction must now be specified differently!
+
+## PID mode
+
+In PID mode, certain device sizes are determined. For example, the output power is generated with the temperature in the Eurotherm, or the speed of the drives (Nemo, Pi axis) is generated with a separate size. The recipe function should also work with PID mode. In the Eurotherm, the input size is the temperature. In all other devices, this size can be something else, e.g. the crystal length. There are various multilog connections for this. The recipe mode thus regulates the setpoint of size x (in the Eurotherm T). There is something to be observed with the drives. This is the direction of movement that the device needs to move.
+
+Other limit values ​​are also used in PID mode. In the Nemo drives, a direction specification is required so that the program knows which direction the recipe steps should move in. In normal operation, the direction is indicated by the sign of the speed. However, since a different size is determined by the recipe in PID-Modbus and the speed is the PID output size, the direction must now be specified differently! The same applies to the PI axis.
+
+In the case of the axes, the recipe must now be extended by a direction string! Some of these can be found in the [examples](#examples). For `Nemo-Achse-Linear` these are **UP** and **Down**, for `Nemo-Achse-Rotation` these are **CW** and **CCW** and for the `PI-Achse` these are **N** and **P**. There are three different directions of movement for the PI axis. However, the positive and negative movement (related to the position value) is always the same. The position becomes negative towards the PI symbol (on the device) or decreases towards the negative and away from this it becomes positive or increases towards the positive. This is why these names were chosen.
+
+In the configuration of the PI axis there is the configuration `piSymbol` under `GUI`. Here you can specify `Re`, `Li`, `Ob`, ​​`Un`, `Vo` and `Hi`. The x, y or z direction is addressed (see configuration). The buttons are also assigned by the GUI configuration. For `Re`, `Un` and `Hi` the left button is assigned positively and the right one negatively. This means that if you press the right button it goes to the PI symbol. For `Li`, `Ob` and `Vo` this is reversed.
 
 ## Outsourcing of recipes
 
@@ -212,6 +221,24 @@ Plot:
 
 These recipes can be found in the template of the config file for the Nemo systems [1](../Template/config_temp_Nemo-1.yml) and [2](../Template/config_temp_Nemo-2.yml) for the spindle drives. The upper one shows the lifting drive and the lower one shows the rotation drive.
 
+---
+
+Recipe:
+```
+n1: 20 ; 24 ; s ; P
+n2: 10 ; 25 ; s ; N
+n3: 20 ; 26 ; s ; P
+n4: 20 ; 27 ; s ; N
+n5: 20 ; 27 ; s ; N
+n6: 10 ; 26 ; s ; P
+n7: 20 ; 25 ; s ; N
+n8: 20 ; 24 ; s ; P
+```
+Plot:
+<img src="../Bilder/Beispiel_Rezept_8.png" alt="Recipe Example 8" title='Recipe Example PI-Axis-PID' width=700/>
+
+This recipe is in the template of the config file for the [Demo-FZ](../Template/config_temp_DemoFZ.yml). Unlike the other recipe examples, the position value of the axis is also shown here. In the example, the PI axis with y-direction was used , with the PI symbol on the right side. If it was positive, it was moved to the left and if it was negative, it was moved to the right. In the plot you can also see that when the limit is reached (20 mm and -20 mm) the axis does not significantly exceeds the limit and that the change of direction works!
+
 ## Last change
 
-The last change of this description was: December 17, 2024
+The last change of this description was: January 01, 2025

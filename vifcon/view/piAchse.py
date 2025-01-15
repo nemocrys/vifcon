@@ -529,7 +529,7 @@ class PIAchseWidget(QWidget):
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = False
-        self.write_task  = {'Stopp': False, 'Sende Position': False, 'Sende Speed': False, 'Init':False, 'Define Home': False, 'Start':False, 'Update Limit': False, 'PID': False, 'PID-Reset': False}
+        self.write_task  = {'Stopp': False, 'Sende Position': False, 'Sende Speed': False, 'Init':False, 'Define Home': False, 'Start':False, 'Update Limit': False, 'PID': False, 'PID-Reset': False, 'Rezept Aktiv': False, 'Rezept_PID_RW': False}
         self.write_value = {'Position': 0, 'Speed': 0, 'Limits': [0, 0, 0, 0, 0, 0], 'PID-Sollwert': 0} # Limits: oGv, uGv, oGPos, uGPos, oGx, uGx
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
@@ -868,6 +868,7 @@ class PIAchseWidget(QWidget):
             'uGv':      ['a2', pg.mkPen(color=self.color[1], style=Qt.DashDotDotLine),   f'{piAchse} - {v_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
             'Rezv':     ['a2', pg.mkPen(color=self.color[2], width=3, style=Qt.DotLine), f'{piAchse} - {rezept_Label_str[self.sprache]}<sub>{v_einzel_str[self.sprache]}</sub>'],
             'SWv':      ['a2', pg.mkPen(self.color[3], width=2),                         f'{piAchse} - {v_einzel_str[self.sprache]}<sub>{sollwert_str[self.sprache]}</sub>'],
+            'Rezx':     ['a1', pg.mkPen(color=self.color[6], width=3, style=Qt.DotLine), f'{piAchse} - {rezept_Label_str[self.sprache]}<sub>{x_einzel_str[self.sprache]}</sub>'],
             'SWxPID':   ['a1', pg.mkPen(self.color[4], width=2, style=Qt.DashDotLine),   f'{PID_Label_Soll} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
             'IWxPID':   ['a1', pg.mkPen(self.color[5], width=2, style=Qt.DashDotLine),   f'{PID_Label_Ist} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
             'oGPID':    ['a1', pg.mkPen(color=self.color[5], style=Qt.DashLine),         f'{piAchse} - {self.PID_G_Kurve[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
@@ -1311,8 +1312,8 @@ class PIAchseWidget(QWidget):
             self.write_task['Sende Speed'] = False
             self.Stopp(6)
             # Ändere GUI:
-            self.btn_rezept_start.setEnabled(False)
-            self.btn_rezept_ende.setEnabled(False)
+            #self.btn_rezept_start.setEnabled(False)
+            #self.btn_rezept_ende.setEnabled(False)
 
             self.La_SollSpeed.setText(f'{self.x_str[self.sprache]}')
             if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[4]}")
@@ -1627,12 +1628,37 @@ class PIAchseWidget(QWidget):
                     logger.info(f'{self.device_name} - {self.Log_Text_40_str[self.sprache]} {self.rezept_daten}')
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_24_str[self.sprache]} {self.cb_Rezept.currentText()} {self.rezept_datei}') 
 
-                    # Erste Elemente senden :
-                    self.write_value['Speed'] = abs(self.value_list[self.step]) * self.cpm
-                    self.write_value['Position'] = self.value_list[self.step] * self.time_list[self.step]
+                    # Erste Elemente senden:
+                    ## PID-Modus oder Normaler-Modus:
+                    if self.PID_cb.isChecked():
+                        self.write_value['PID-Sollwert'] = self.value_list[self.step]
+                        if self.move_list[self.step] == 'P':    self.write_value['Position'] = 200
+                        elif self.move_list[self.step] == 'N':  self.write_value['Position'] = -200
+                        self.move_old = self.move_list[self.step]
+                        self.write_task['Sende Position'] = True
+                    else:
+                        self.write_value['Speed'] = abs(self.value_list[self.step]) * self.cpm
+                        self.write_value['Position'] = self.value_list[self.step] * self.time_list[self.step]
 
-                    self.write_task['Sende Position'] = True
-                    self.write_task['Sende Speed'] = True
+                        self.write_task['Sende Position'] = True
+                        self.write_task['Sende Speed'] = True
+                    
+                    self.write_task['Rezept Aktiv'] = True
+                    
+                    ## Icon einfärben:
+                    if not self.RB_choise_absPos.isChecked() and self.BTN_BW_grün:
+                        if self.write_value['Position'] < 0 and self.links == 'Minus':    
+                            self.btn_left.setIcon(QIcon(self.icon_1.replace('.png', '_Ein.png')))
+                            self.btn_right.setIcon(QIcon(self.icon_2))
+                        elif self.write_value['Position'] >= 0 and self.rechts == 'Plus': 
+                            self.btn_right.setIcon(QIcon(self.icon_2.replace('.png', '_Ein.png')))
+                            self.btn_left.setIcon(QIcon(self.icon_1))
+                        elif self.write_value['Position'] >= 0 and self.links == 'Plus':    
+                            self.btn_left.setIcon(QIcon(self.icon_1.replace('.png', '_Ein.png')))
+                            self.btn_right.setIcon(QIcon(self.icon_2))
+                        elif self.write_value['Position'] < 0 and self.rechts == 'Minus': 
+                            self.btn_right.setIcon(QIcon(self.icon_2.replace('.png', '_Ein.png')))
+                            self.btn_left.setIcon(QIcon(self.icon_1))
 
                     # Elemente GUI sperren:
                     self.cb_Rezept.setEnabled(False)
@@ -1681,9 +1707,10 @@ class PIAchseWidget(QWidget):
                 self.RB_choise_absPos.setEnabled(True)
                 self.Auswahl.setEnabled(True)
                 if self.PID_Aktiv:  self.PID_cb.setEnabled(True)
-
+                
                 # Variablen:
                 self.Rezept_Aktiv = False
+                self.write_task['Rezept Aktiv'] = False
 
                 # Auto Range
                 self.typ_widget.plot.AutoRange()
@@ -1706,14 +1733,43 @@ class PIAchseWidget(QWidget):
             self.Stopp(2)
         else:
             self.RezTimer.setInterval(int(abs(self.time_list[self.step]*1000)))
-
             # Nächstes Element senden:
-            self.write_value['Speed']       = abs(self.value_list[self.step]) * self.cpm
-            self.write_value['Position']    = self.value_list[self.step] * self.time_list[self.step]
+            if not self.PID_cb.isChecked():
+                self.write_value['Speed']         = abs(self.value_list[self.step]) * self.cpm
+                self.write_value['Position']      = self.value_list[self.step] * self.time_list[self.step]
+                self.write_task['Sende Speed']    = True
+                self.write_task['Sende Position'] = True 
+            else:
+                self.write_value['PID-Sollwert'] = self.value_list[self.step]
+                if self.move_list[self.step] == 'P':    
+                    if not self.move_old == 'P':
+                        self.write_value['Position']    = 400
+                        self.write_task['Sende Position'] = True 
+                        self.write_task['Rezept_PID_RW'] = True # Richtungswechsel
+                    else: self.write_task['Rezept_PID_RW'] = False
+                elif self.move_list[self.step] == 'N':  
+                    if not self.move_old == 'N':
+                        self.write_value['Position']    = -400
+                        self.write_task['Sende Position'] = True 
+                        self.write_task['Rezept_PID_RW'] = True # Richtungswechsel
+                    else: self.write_task['Rezept_PID_RW'] = False
+                self.move_old = self.move_list[self.step]
 
-            self.write_task['Sende Position'] = True
-            self.write_task['Sende Speed'] = True
-    
+            ## Icon einfärben:
+            if not self.RB_choise_absPos.isChecked() and self.BTN_BW_grün:
+                if self.write_value['Position'] < 0 and self.links == 'Minus':    
+                    self.btn_left.setIcon(QIcon(self.icon_1.replace('.png', '_Ein.png')))
+                    self.btn_right.setIcon(QIcon(self.icon_2))
+                elif self.write_value['Position'] >= 0 and self.rechts == 'Plus': 
+                    self.btn_right.setIcon(QIcon(self.icon_2.replace('.png', '_Ein.png')))
+                    self.btn_left.setIcon(QIcon(self.icon_1))
+                elif self.write_value['Position'] >= 0 and self.links == 'Plus':    
+                    self.btn_left.setIcon(QIcon(self.icon_1.replace('.png', '_Ein.png')))
+                    self.btn_right.setIcon(QIcon(self.icon_2))
+                elif self.write_value['Position'] < 0 and self.rechts == 'Minus': 
+                    self.btn_right.setIcon(QIcon(self.icon_2.replace('.png', '_Ein.png')))
+                    self.btn_left.setIcon(QIcon(self.icon_1))
+
     def Rezept_lesen_controll(self):
         ''' Rezept wird ausgelesen und kontrolliert. Bei Fehler werden die Fehlermeldungen beschrieben auf der GUI. 
         
@@ -1724,6 +1780,7 @@ class PIAchseWidget(QWidget):
         error = False 
         self.time_list  = []
         self.value_list = []
+        self.move_list  = []
         
         ## Geschwindigkeitlimits:
         uG = self.uGv #* (-1)
@@ -1734,8 +1791,15 @@ class PIAchseWidget(QWidget):
         uGPos = self.uGPos
         oGPos = self.oGPos
 
+        ## PID-Limits:
+        if self.PID_cb.isChecked():
+            oG = self.oGx
+            uG = self.uGx 
+            string_einheit = self.einheit_x_einzel[self.sprache]
+
         ## Aktuelle Wert Geschwindigkeit:
         ak_value = self.ak_value['IWv'] if not self.ak_value == {} else 0
+        if self.PID_cb.isChecked(): ak_value = self.ak_value['IWxPID'] if not self.ak_value == {} else 0
 
         # Rezept lesen:
         rezept = self.cb_Rezept.currentText() 
@@ -1753,7 +1817,7 @@ class PIAchseWidget(QWidget):
                 except:
                     self.Fehler_Output(1, self.La_error_1, self.err_10_str[self.sprache])
                     logger.exception(self.Log_Text_Ex1_str[self.sprache])
-                    return False
+                    return True
             else:
                 rez_dat = ak_rezept
                 self.rezept_datei = '(Config-Datei)'
@@ -1764,9 +1828,24 @@ class PIAchseWidget(QWidget):
             if first_line.strip() == 'r' and not self.ak_value == {}:
                 self.value_list.append(ak_value) 
                 self.time_list.append(0) 
+                self.move_list.append('Beginn')
             elif first_line.strip() == 'r' and self.ak_value == {}:
                 self.Fehler_Output(1, self.La_error_1, self.err_12_str[self.sprache])
-                return False
+                return True
+
+            ## Bewegungsrichtung für PID-Modus prüfen:
+            if self.PID_cb.isChecked():
+                for n in rez_dat:
+                    try:
+                        werte = rez_dat[n].split(';')
+                        if werte[2].strip() == 'r': sNum = 4
+                        elif werte[2].strip() == 's': sNum = 3
+                        if not werte[sNum].upper().strip() in ['P', 'N']:  
+                            self.Fehler_Output(1, self.La_error_1, f'{self.err_PID_1_str[self.sprache]} {werte[sNum].upper()} {self.err_PID_2_str[self.sprache]}')
+                            return True
+                    except:
+                        self.Fehler_Output(1, self.La_error_1, self.err_PID_3_str[self.sprache])
+                        return True
                 
             ## Rezept Kurven-Listen erstellen:
             for n in rez_dat:
@@ -1797,34 +1876,37 @@ class PIAchseWidget(QWidget):
                         else: # Letzter Wert!
                             self.value_list.append(value)
                             self.time_list.append(rampen_config_step)   # 0 
+                        if self.PID_cb.isChecked(): self.move_list.append(werte[4].upper().strip())
                 ### Sprung:
                 elif werte[2].strip() == 's':                                               
                     self.value_list.append(value)
                     self.time_list.append(time)
+                    if self.PID_cb.isChecked(): self.move_list.append(werte[3].upper().strip())
                 ### Falsches Segment:
                 else:
                     self.Fehler_Output(1, self.La_error_1, f'{self.err_Rezept[self.sprache]} {werte[2].strip()} ({n})')
-                    return False
+                    return True
             
-            ## Positionen bestimmen:
-            value_step = 0
-            for n_PosP in self.value_list:
-                pos_list.append(n_PosP * self.time_list[value_step])
-                value_step += 1
-            
-            ## Kontrolle Position/Weg:
-            logger.debug(f"{self.device_name} - {self.Log_Text_55_str[self.sprache]} {pos_list}")
-            rezept_schritt = 1 
-            for n in pos_list:
-                pos = start_pos + n
-                start_pos = pos
-                if pos < uGPos or pos > oGPos:
-                    error = True
-                    self.Fehler_Output(1, self.La_error_2, f'{self.err_9_str[self.sprache]} {rezept_schritt} {self.err_7_str[self.sprache]} {uGPos} {self.err_3_str[self.sprache]} {oGPos} {self.einheit_s_einzel[self.sprache]}!')    
-                    break
-                else:
-                    self.Fehler_Output(0, self.La_error_2)  
-                rezept_schritt += 1 
+            if not self.PID_cb.isChecked():
+                ## Positionen bestimmen:
+                value_step = 0
+                for n_PosP in self.value_list:
+                    pos_list.append(n_PosP * self.time_list[value_step])
+                    value_step += 1
+                
+                ## Kontrolle Position/Weg:
+                logger.debug(f"{self.device_name} - {self.Log_Text_55_str[self.sprache]} {pos_list}")
+                rezept_schritt = 1 
+                for n in pos_list:
+                    pos = start_pos + n
+                    start_pos = pos
+                    if pos < uGPos or pos > oGPos:
+                        error = True
+                        self.Fehler_Output(1, self.La_error_2, f'{self.err_9_str[self.sprache]} {rezept_schritt} {self.err_7_str[self.sprache]} {uGPos} {self.err_3_str[self.sprache]} {oGPos} {self.einheit_s_einzel[self.sprache]}!')    
+                        break
+                    else:
+                        self.Fehler_Output(0, self.La_error_2)  
+                    rezept_schritt += 1 
         else:
             self.Fehler_Output(0, self.La_error_1)
             self.Fehler_Output(0, self.La_error_2)
@@ -1843,9 +1925,13 @@ class PIAchseWidget(QWidget):
         self.RezTimeList = []
         self.RezValueList = []  
 
-        anzeigev = True                        
-        try: self.curveDict['Rezv'].setData(self.RezTimeList, self.RezValueList)
-        except: anzeigev  = False                    
+        anzeigev = True 
+        if not self.PID_cb.isChecked():                        
+            try: self.curveDict['Rezv'].setData(self.RezTimeList, self.RezValueList)
+            except: anzeigev  = False        
+        else:
+            try: self.curveDict['Rezx'].setData(self.RezTimeList, self.RezValueList)
+            except: anzeigev  = False                   
     
         # Startzeit bestimmen:
         ak_time_1 = datetime.datetime.now(datetime.timezone.utc).astimezone()                # Aktuelle Zeit Absolut
@@ -1873,15 +1959,21 @@ class PIAchseWidget(QWidget):
                 i += 1
 
             # Kurve erstellen mit Skalierungsfaktor:
-            faktor = self.skalFak['Speed_1']
+            if not self.PID_cb.isChecked(): faktor = self.skalFak['Speed_1']
+            else:                           faktor = self.skalFak['PIDA']
+
             y = [a * faktor for a in self.RezValueList]
             
             # Kurve Anzeigen:
             if anzeigev:
-                self.curveDict['Rezv'].setData(self.RezTimeList, y)
-                self.typ_widget.plot.achse_2.autoRange()                            # Rezept Achse 2 wird nicht fertig angezeigt, aus dem Grund wird dies durchgeführt! Beim Enden wird die AutoRange Funktion von base_classes.py durchgeführt. Bewegung des Plots sind mit der Lösung nicht machbar!!
-                                                                                    # Plot wird nur an Achse 1 (links) angepasst!
-
+                if not self.PID_cb.isChecked(): 
+                    self.curveDict['Rezv'].setData(self.RezTimeList, y)
+                    self.typ_widget.plot.achse_2.autoRange()                            # Rezept Achse 2 wird nicht fertig angezeigt, aus dem Grund wird dies durchgeführt! Beim Enden wird die AutoRange Funktion von base_classes.py durchgeführt. Bewegung des Plots sind mit der Lösung nicht machbar!!
+                                                                                        # Plot wird nur an Achse 1 (links) angepasst!
+                else:
+                    self.curveDict['Rezx'].setData(self.RezTimeList, y)
+                    self.typ_widget.plot.achse_1.autoRange()
+        
         return error
 
     def update_rezept(self):

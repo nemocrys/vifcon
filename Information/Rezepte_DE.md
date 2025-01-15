@@ -74,7 +74,16 @@ Bei den Nemo-Antrieben wird im PID-Modus noch ein spezieller String benötigt. I
 - Bei der Eurotherm-Rampe wird die Steigung (Berechnung: m = delta y / delta x) im Programm berechnet. Bis auf den Startwert der Rampe, wird alles andere in der Konfiguration gesetzt: m = (Startwert - Zielwert)/Segmentzeit
 - Bei den Rampen kann der Nutzer in der Konfiguration entweder Start mit Istwert oder Start mit Sollwert auswählen. Diese konfiguration ist nur für die erste Rampe in einem Rezept notwendig.
 - Bei der Eurotherm-Rampe muss gewusst werden, das dies ein internes Programm des Eurotherm-Reglers ist. Die Rampen starten immer vom aktuellen Istwert!!
-- Im PID-Modbus wird ein anderer Limit-Wert genutzt. Bei den Nemo-Antrieben benötigt es hierbei noch eine Richtungsangabe, sodas das Programm weiß, welche Richtung bei den Rezept-Schritten gefahren werden soll. Im Normal-Betrieb wird die Richtung durch das Vorzeichen der Geschwindigkeit angegeben. Da im PID-Modbus aber eine andere Größe durch das Rezept bestimmt wird und die Geschwindigkeit die PID-Output Größe ist, muss die Richtung nun anders angebene werden!
+
+## PID-Modus
+
+Im PID-Modus werden bestimmte Größen der Geräte ermittelt. So wird z.B. mit der Temperatur die Ausgangsleistung beim Eurotherm oder mit einer seperaten Größe die Geschwindigkeit der Antriebe (Nemo, Pi-Achse) erzeugt. Auch die Rezept-Funktion soll mit dem PID-Modus fiunktionieren. Beim Eurotherm ist die Input-Größe die Temperatur. Bei allen anderen Geräten kann diese Größe etwas anderes sein z.B. die Kristalllänge. Hierfür gibt es dann die verschiedenen Multilog-Verbindungen. Der Rezeptmodus regelt hier somit den Sollwert der Größe x (bei Eurotherm T). Bei den Antrieben muss nun etwas beachtet werden. Dies ist die Bewegungsrichtung, die das Gerät zum Verfahren benötigt. 
+
+Weiterhin werden andere Limit-Werte im PID-Modus verwendet. Bei den Nemo-Antrieben benötigt es hierbei noch eine Richtungsangabe, sodas das Programm weiß, welche Richtung bei den Rezept-Schritten gefahren werden soll. Im Normal-Betrieb wird die Richtung durch das Vorzeichen der Geschwindigkeit angegeben. Da im PID-Modbus aber eine andere Größe durch das Rezept bestimmt wird und die Geschwindigkeit die PID-Output Größe ist, muss die Richtung nun anders angebene werden! Das selbe gilt für die PI-Achse. 
+
+Im Falle der Achsen muss nun das Rezept um einen Richtungsstring erweitert werden! In den [Beispielen](#Beispiele) finden sich dazu einige wieder. Bei `Nemo-Achse-Linear` sind dies **UP** und **Down**, bei `Nemo-Achse-Rotation` sind es **CW** und **CCW** und bei der `PI-Achse` sind es **N** und **P**. Bei der PI-Achse gibt es drei verschiedene Bewegungsrichtungen. Jedoch ist die Positive und Negative Bewegung (bezogen auf Positionswert) immer gleich. Die Position wird zum PI-Symbol (am Gerät) negativ bzw. sinkt zum negativen und von diesem weg positiv bzw. steigt zum positiven. Aus dem Grund wurden diese Bezeichnungen gewählt.
+
+In der Konfiguration der PI-Achse gibt es unter `GUI` die Konfiguration `piSymbol`. Bei diesem können `Re`, `Li`, `Ob`, `Un`, `Vo` und `Hi` angegeben werden. Dabei werden die x-, y- oder z-Richtung angesprochen (siehe Konfiguration). Durch die GUI-Konfiguration werden auch die Knöpfe belegt. Bei `Re`, `Un` und `Hi` wird der linke Knopf positiv und der rechte negativ belegt. Das heißt das wenn man auf den rechten Knopf drückt zum PI-Symbol gefahren wird. Bei `Li`, `Ob` und `Vo` dreht sich dies um.
 
 ## Auslagern von Rezepten
 
@@ -213,6 +222,24 @@ Plot:
 
 Diese Rezepte sind im Template der Configdatei für die Nemo-Anlagen [1](../Template/config_temp_Nemo-1.yml) und [2](../Template/config_temp_Nemo-2.yml) bei dem Spindel-Antrieben zu finden. Das obere zeigt den Hub-Antrieb und das untere den Rotations-Antrieb.
 
+---
+
+Rezept:
+```
+n1: 20 ; 24 ; s ; P
+n2: 10 ; 25 ; s ; N
+n3: 20 ; 26 ; s ; P
+n4: 20 ; 27 ; s ; N
+n5: 20 ; 27 ; s ; N
+n6: 10 ; 26 ; s ; P
+n7: 20 ; 25 ; s ; N
+n8: 20 ; 24 ; s ; P
+```    
+Plot:    
+<img src="../Bilder/Beispiel_Rezept_8.png" alt="Rezept Beispiel 8" title='Rezept Beispiel PI-Achse-PID' width=700/>
+
+Dieses Rezept ist im Template der Configdatei für die [Demo-FZ](../Template/config_temp_DemoFZ.yml) zu finden. Anders als bei den anderen Rezept-Beispielen wird hier der Positionswert der Achse mit gezeigt. In dem Beispiel wurde die PI-Achse mit y-Richtung genutzt, wobei das PI-Symbol auf der rechten Seite war. Bei Positiv wurde somit nach links gefahren und bei Negativ nach rechts. In dem Plot kann auch gesehen werden, das bei Limit-Ereichung (20 mm und -20 mm) die Achse diese nicht maßgeblich überschreitet und das der Richtungswechsel funktioniert!
+
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 17.12.2024
+Die Letzte Änderung dieser Beschreibung war: 15.01.2025

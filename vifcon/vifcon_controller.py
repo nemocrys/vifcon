@@ -806,7 +806,7 @@ class Controller(QObject):
                             start_werte = {'IWv': '?', 'IWs': '?'}
                         widget = PIAchseWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, start_werte, self.neustart, multilog_Link, self.add_Ablauf, device_name, gamepad_Link)
                         #### Farben-Option:
-                        color_Ant_n = color_Ant_n + 6
+                        color_Ant_n = color_Ant_n + 7
                     elif 'Nemo-Achse-Linear' in device_name:
                         #### Objekte erstellen:
                         device = NemoAchseLin(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, multilog_Link, WriteReadTime, self.add_Ablauf,  device_name) 
@@ -850,10 +850,9 @@ class Controller(QObject):
                     if not 'Nemo-Gase' in device_name:
                         try:
                             self.main_window.add_menu('Limit', device_name, widget.update_Limit, widget.init)
-                            if not 'PI-Achse' in device_name: 
-                                self.main_window.add_menu('VIFCON-PID', device_name, device.PID.update_VPID_Para, widget.init)
-                                device.PID.config_dat = config
-                                device.PID.widget = widget
+                            self.main_window.add_menu('VIFCON-PID', device_name, device.PID.update_VPID_Para, widget.init)
+                            device.PID.config_dat = config
+                            device.PID.widget = widget
                             self.main_window.add_menu('Reset-PID', device_name, widget.PID_Reset, widget.init)
                         except Exception as e:
                             logger.exception(f'{device_name} - {self.Log_Text_204_str[self.sprache]}')

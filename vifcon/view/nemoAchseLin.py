@@ -1743,7 +1743,7 @@ class NemoAchseLinWidget(QWidget):
                 except:
                     self.Fehler_Output(1, self.La_error_1, self.err_10_str[self.sprache])
                     logger.exception(self.Log_Text_Ex1_str[self.sprache])
-                    return False
+                    return True
             else:
                 rez_dat = ak_rezept
                 self.rezept_datei = '(Config-Datei)'
@@ -1756,7 +1756,7 @@ class NemoAchseLinWidget(QWidget):
                 self.time_list.append(0) 
             elif first_line.strip() == 'r' and self.ak_value == {}:
                 self.Fehler_Output(1, self.La_error_1, self.err_12_str[self.sprache])
-                return False
+                return True
             ## Bewegungsrichtung für PID-Modus prüfen:
             if self.PID_cb.isChecked():
                 for n in rez_dat:
@@ -1766,10 +1766,10 @@ class NemoAchseLinWidget(QWidget):
                         elif werte[2].strip() == 's': sNum = 3
                         if not werte[sNum].upper().strip() in ['UP', 'DOWN']:  
                             self.Fehler_Output(1, self.La_error_1, f'{self.err_PID_1_str[self.sprache]} {werte[sNum].upper()} {self.err_PID_2_str[self.sprache]}')
-                            return False
+                            return True
                     except:
                         self.Fehler_Output(1, self.La_error_1, self.err_PID_3_str[self.sprache])
-                        return False
+                        return True
             ## Rezept Kurven-Listen erstellen:
             for n in rez_dat:
                 werte = rez_dat[n].split(';')

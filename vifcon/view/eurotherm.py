@@ -1633,7 +1633,7 @@ class EurothermWidget(QWidget):
                 except Exception as e:
                     self.Fehler_Output(1, self.err_10_str[self.sprache])
                     logger.exception(f'{self.device_name} - {self.Log_Text_Ex1_str[self.sprache]}')
-                    return False
+                    return True
             else:
                 rez_dat = ak_rezept
                 self.rezept_datei = '(Config-Datei)'
@@ -1649,18 +1649,18 @@ class EurothermWidget(QWidget):
                     if 'er' in rez_dat[n]:  
                         logger.warning(f'{self.device_name} - {self.Log_Text_182_str[self.sprache]}')
                         self.Fehler_Output(1, self.err_16_str[self.sprache])
-                        return False
+                        return True
                     if 'op' in rez_dat[n]:
                         logger.warning(f'{self.device_name} - {self.Log_Text_184_str[self.sprache]}')
                         self.Fehler_Output(1, self.err_17_str[self.sprache])
-                        return False
+                        return True
             if self.PID_cb.isChecked():
                 for segment in ['er']:
                     for n in rez_dat:
                         if segment in rez_dat[n]: 
                             logger.warning(f'{self.device_name} - {self.Log_Text_248_str[self.sprache]}')
                             self.Fehler_Output(1, self.err_20_str[self.sprache])
-                            return False
+                            return True
             #////////////////////////////////////////////////////////////
             ## Ersten Eintrag prüfen (besondere Startrampe):
             #////////////////////////////////////////////////////////////
@@ -1675,7 +1675,7 @@ class EurothermWidget(QWidget):
             ### Fehlermeldung, wenn keine Messdaten-vorliegen:
             elif first_line.strip() == 'r' and self.ak_value == {}:
                 self.Fehler_Output(1, self.err_12_str[self.sprache])
-                return False
+                return True
             ### Bei der Eurotherm-Rampe wird bei keinen Messdaten von 20°C ausgegangen:
             elif first_line.strip() == 'er' and self.ak_value == {}:
                 logger.warning(f'{self.device_name} - {self.Log_Text_181_str[self.sprache]}')
@@ -1797,7 +1797,7 @@ class EurothermWidget(QWidget):
                 ### Falsches Segment:
                 else:
                     self.Fehler_Output(1, f'{self.err_Rezept[self.sprache]} {werte[2].strip()} ({n})')
-                    return False
+                    return True
         else:
             self.Fehler_Output(0)
         return error
