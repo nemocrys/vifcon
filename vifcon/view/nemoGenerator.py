@@ -306,6 +306,27 @@ class NemoGeneratortWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|umstell_wert_U {self.Log_Pfad_conf_5[self.sprache]} 0')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.PID_Mode_Switch_Value_U = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: kp_conf                 = float(str(self.config['PID']['kp']).replace(',', '.'))
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|kp {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            kp_conf = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: ki_conf                 = float(str(self.config['PID']['ki']).replace(',', '.'))
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|ki {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            ki_conf = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: kd_conf                 = float(str(self.config['PID']['kd']).replace(',', '.'))
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|kd {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            kd_conf = 0  
         
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Config-Fehler und Defaults:
@@ -426,7 +447,17 @@ class NemoGeneratortWidget(QWidget):
         cb_sync_str             = ['Sync',                                                                                                      'Sync']
         cb_PID                  = ['PID',                                                                                                       'PID']
         ## ToolTip: ###############################################################################################################################################################################################################################################################################                                                                                                   
-        self.TTLimit            = ['Limit:',                                                                                                    'Limit:']
+        self.TTLimit            = ['Limit-',                                                                                                    'Limit-']
+        self.TTSize_1           = ['Input-',                                                                                                    'Input-']
+        self.TTSize_2           = ['Output-',                                                                                                   'Output-']
+        self.TTSize_3           = ['Parameter:',                                                                                                'Parameter:']
+        self.TTSize_x           = ['x:',                                                                                                        'x:']
+        self.TTSize_I           = ['I:',                                                                                                        'I:']
+        self.TTSize_U           = ['U:',                                                                                                        'U:']
+        self.TTSize_P           = ['P:',                                                                                                        'P:']
+        self.TTSize_kp          = ['kp =',                                                                                                      'kp =']
+        self.TTSize_ki          = ['ki =',                                                                                                      'ki =']
+        self.TTSize_kd          = ['kd =',                                                                                                      'kd =']
         self.TTName             = ['Typ:',                                                                                                      'Typ:']
         self.TTSKombi           = ['Schnittstellen Kombination:',                                                                               'Interface Combination:']
         self.TTTM               = ['TM',                                                                                                        'TM']
@@ -642,17 +673,17 @@ class NemoGeneratortWidget(QWidget):
         ### Eingabefelder:
         self.LE_Pow = QLineEdit()
         self.LE_Pow.setText(str(self.startP))
-        TT_P = f'{self.TTLimit[self.sprache]} {self.uGP} ... {self.oGP} {self.einheit_P_einzel[self.sprache]}'
+        TT_P = f'{self.TTLimit[self.sprache]}{self.TTSize_P[self.sprache]}  {self.uGP} ... {self.oGP} {self.einheit_P_einzel[self.sprache]}'
         self.LE_Pow.setToolTip(TT_P)
 
         self.LE_Voltage = QLineEdit()
         self.LE_Voltage.setText(str(self.startU))
-        TT_U = f'{self.TTLimit[self.sprache]} {self.uGU} ... {self.oGU} {self.einheit_U_einzel[self.sprache]}'
+        TT_U = f'{self.TTLimit[self.sprache]}{self.TTSize_U[self.sprache]}  {self.uGU} ... {self.oGU} {self.einheit_U_einzel[self.sprache]}'
         self.LE_Voltage.setToolTip(TT_U)
 
         self.LE_Current = QLineEdit()
         self.LE_Current.setText(str(self.startI))
-        TT_I = f'{self.TTLimit[self.sprache]} {self.uGP} ... {self.oGI} {self.einheit_I_einzel[self.sprache]}'
+        TT_I = f'{self.TTLimit[self.sprache]}{self.TTSize_I[self.sprache]}  {self.uGP} ... {self.oGI} {self.einheit_I_einzel[self.sprache]}'
         self.LE_Current.setToolTip(TT_I)
 
         ### Checkbox:
@@ -663,8 +694,12 @@ class NemoGeneratortWidget(QWidget):
         if not self.PID_Aktiv:
             self.PID_cb.setEnabled(False)
         
-        TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} ... {self.oGx} {self.einheit_x_einzel[self.sprache]}'
-        self.PID_cb.setToolTip(TT_PID)
+        self.TT_PID_In   = f'{self.TTSize_1[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_x[self.sprache]} {self.uGx} ... {self.oGx} {self.einheit_x_einzel[self.sprache]}'
+        if self.stMode == 'P':    self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_P[self.sprache]} {self.uGP} ... {self.oGP} {self.einheit_P_einzel[self.sprache]}'
+        elif self.stMode == 'I':  self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_I[self.sprache]} {self.uGI} ... {self.oGI} {self.einheit_I_einzel[self.sprache]}'
+        elif self.stMode == 'U':  self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_U[self.sprache]} {self.uGU} ... {self.oGU} {self.einheit_U_einzel[self.sprache]}'
+        self.TT_PID_Para = f'{self.TTSize_3[self.sprache]} {self.TTSize_kp[self.sprache]} {kp_conf}; {self.TTSize_ki[self.sprache]} {ki_conf}; {self.TTSize_kd[self.sprache]} {kd_conf}'
+        self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
         
         ### Radiobutton:
         self.RB_choise_Pow = QRadioButton(f'{self.sollwert_str[self.sprache]}-{self.P_str[self.sprache]} ')
@@ -1125,6 +1160,8 @@ class NemoGeneratortWidget(QWidget):
             self.LE_Voltage.setEnabled(False)
             self.write_value['Ak_Size'] = 'P'
             self.write_task['Wahl_P'] = True
+            self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_P[self.sprache]} {self.uGP} ... {self.oGP} {self.einheit_P_einzel[self.sprache]}'
+            self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
 
     def BlassOutPI(self, selected):
         ''' Spannungs Eingabefeld ist Verfügbar '''
@@ -1135,6 +1172,8 @@ class NemoGeneratortWidget(QWidget):
             self.LE_Voltage.setEnabled(True)
             self.write_value['Ak_Size'] = 'U'
             self.write_task['Wahl_U'] = True
+            self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_U[self.sprache]} {self.uGU} ... {self.oGU} {self.einheit_U_einzel[self.sprache]}'
+            self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
 
     def BlassOutPU(self, selected):
         ''' Strom Eingabefeld ist Verfügbar '''
@@ -1145,6 +1184,8 @@ class NemoGeneratortWidget(QWidget):
             self.LE_Voltage.setEnabled(False)
             self.write_value['Ak_Size'] = 'I'
             self.write_task['Wahl_I'] = True
+            self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_I[self.sprache]} {self.uGI} ... {self.oGI} {self.einheit_I_einzel[self.sprache]}'
+            self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
     
     ##########################################
     # Reaktion auf Butttons:
@@ -1275,8 +1316,10 @@ class NemoGeneratortWidget(QWidget):
             self.write_task['Soll-Strom']    = False
 
             # Zugriff freigeben, Speeren, GUI-ändern:
+            ## Strom:
             if self.RB_choise_Current.isChecked(): 
                 self.LE_Current.setEnabled(True)
+                self.LE_Current.setToolTip('')
                 self.LE_Pow.setEnabled(False)
                 self.LE_Voltage.setEnabled(False)
                 label = self.RB_choise_Current
@@ -1286,9 +1329,11 @@ class NemoGeneratortWidget(QWidget):
                 if self.color_Aktiv: self.La_SollI_wert.setStyleSheet(f"color: {self.color[10]}")
                 self.La_SollPID_text.setText(f'{self.PID_Out[self.sprache]} {self.PID_Out_I[self.sprache]}')
                 color_Size = 2
+            ## Leistung:
             elif self.RB_choise_Pow.isChecked():  
                 self.LE_Current.setEnabled(False)
                 self.LE_Pow.setEnabled(True)
+                self.LE_Pow.setToolTip('')
                 self.LE_Voltage.setEnabled(False)
                 label = self.RB_choise_Pow
                 self.write_value['Limit Unit']      = self.einheit_P_einzel[self.sprache]
@@ -1297,10 +1342,12 @@ class NemoGeneratortWidget(QWidget):
                 if self.color_Aktiv: self.La_SollP_wert.setStyleSheet(f"color: {self.color[10]}")
                 self.La_SollPID_text.setText(f'{self.PID_Out[self.sprache]} {self.PID_Out_P[self.sprache]}')
                 color_Size = 0
+            ## Spannung:
             elif self.RB_choise_Voltage.isChecked():   
                 self.LE_Current.setEnabled(False)
                 self.LE_Pow.setEnabled(False)
                 self.LE_Voltage.setEnabled(True)
+                self.LE_Voltage.setToolTip('')
                 label = self.RB_choise_Voltage
                 self.write_value['Limit Unit']      = self.einheit_U_einzel[self.sprache]
                 self.write_value['PID Output-Size'] = 'U'
@@ -1338,8 +1385,11 @@ class NemoGeneratortWidget(QWidget):
             valueP = self.PID_Mode_Switch_Value_P
             valueI = self.PID_Mode_Switch_Value_I
             valueU = self.PID_Mode_Switch_Value_U
+            ## Strom:
             if self.RB_choise_Current.isChecked():
                 self.LE_Current.setText(str(valueI))
+                TT_I = f'{self.TTLimit[self.sprache]}{self.TTSize_I[self.sprache]}  {self.uGP} ... {self.oGI} {self.einheit_I_einzel[self.sprache]}'
+                self.LE_Current.setToolTip(TT_I)
                 if self.color_Aktiv: self.La_SollI_wert.setStyleSheet(f"color: {self.color[2]}")
                 oG    = self.oGI
                 uG    = self.uGI
@@ -1348,8 +1398,11 @@ class NemoGeneratortWidget(QWidget):
                 text  = self.I_str
                 cn    = 2
                 value = valueI
+            ## Leistung:
             elif self.RB_choise_Pow.isChecked():
                 self.LE_Pow.setText(str(valueP))
+                self.LE_Pow.setText(str(valueP))
+                TT_P = f'{self.TTLimit[self.sprache]}{self.TTSize_P[self.sprache]}  {self.uGP} ... {self.oGP} {self.einheit_P_einzel[self.sprache]}'
                 if self.color_Aktiv: self.La_SollP_wert.setStyleSheet(f"color: {self.color[0]}") 
                 oG    = self.oGP
                 uG    = self.uGP
@@ -1358,8 +1411,11 @@ class NemoGeneratortWidget(QWidget):
                 text  = self.P_str
                 cn    = 0
                 value = valueP
+            # Spannung:
             elif self.RB_choise_Voltage.isChecked():
                 self.LE_Voltage.setText(str(valueU))
+                TT_U = f'{self.TTLimit[self.sprache]}{self.TTSize_U[self.sprache]}  {self.uGU} ... {self.oGU} {self.einheit_U_einzel[self.sprache]}'
+                self.LE_Voltage.setToolTip(TT_U)
                 if self.color_Aktiv: self.La_SollU_wert.setStyleSheet(f"color: {self.color[1]}")
                 oG    = self.oGU
                 uG    = self.uGU
@@ -1542,17 +1598,26 @@ class NemoGeneratortWidget(QWidget):
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # ToolTip Update:
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            TT_P = f'{self.TTLimit[self.sprache]} {self.uGP} ... {self.oGP} {self.einheit_P_einzel[self.sprache]}'
-            self.LE_Pow.setToolTip(TT_P)
+            if self.PID_cb.isChecked() and self.RB_choise_Pow.isChecked():  self.LE_Pow.setToolTip('')
+            else:
+                TT_P = f'{self.TTLimit[self.sprache]}{self.TTSize_P[self.sprache]} {self.uGP} ... {self.oGP} {self.einheit_P_einzel[self.sprache]}'
+                self.LE_Pow.setToolTip(TT_P)
 
-            TT_I = f'{self.TTLimit[self.sprache]} {self.uGI} ... {self.oGI} {self.einheit_I_einzel[self.sprache]}'
-            self.LE_Current.setToolTip(TT_I)
+            if self.PID_cb.isChecked() and self.RB_choise_Current.isChecked():  self.LE_Current.setToolTip('')
+            else:
+                TT_I = f'{self.TTLimit[self.sprache]}{self.TTSize_I[self.sprache]} {self.uGI} ... {self.oGI} {self.einheit_I_einzel[self.sprache]}'
+                self.LE_Current.setToolTip(TT_I)
 
-            TT_U = f'{self.TTLimit[self.sprache]} {self.uGU} ... {self.oGU} {self.einheit_U_einzel[self.sprache]}'
-            self.LE_Voltage.setToolTip(TT_U)
+            if self.PID_cb.isChecked() and self.RB_choise_Voltage.isChecked():  self.LE_Voltage.setToolTip('')
+            else:
+                TT_U = f'{self.TTLimit[self.sprache]}{self.TTSize_U[self.sprache]} {self.uGU} ... {self.oGU} {self.einheit_U_einzel[self.sprache]}'
+                self.LE_Voltage.setToolTip(TT_U)
 
-            TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} ... {self.oGx} {self.einheit_x_einzel[self.sprache]}'
-            self.PID_cb.setToolTip(TT_PID)
+            self.TT_PID_In   = f'{self.TTSize_1[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_x[self.sprache]} {self.uGx} ... {self.oGx} {self.einheit_x_einzel[self.sprache]}'
+            if self.RB_choise_Pow.isChecked():          self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_P[self.sprache]} {self.uGP} ... {self.oGP} {self.einheit_P_einzel[self.sprache]}'
+            elif self.RB_choise_Current.isChecked():    self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_I[self.sprache]} {self.uGI} ... {self.oGI} {self.einheit_I_einzel[self.sprache]}'
+            elif self.RB_choise_Voltage.isChecked():    self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_U[self.sprache]} {self.uGU} ... {self.oGU} {self.einheit_U_einzel[self.sprache]}'
+            self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
 
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # Weiterleiten:
@@ -1605,6 +1670,17 @@ class NemoGeneratortWidget(QWidget):
             self.Fehler_Output(0)
         else:
             self.Fehler_Output(1, self.Text_PIDResetError[self.sprache], self.Text_PIDResetError[self.sprache])
+            
+    def PID_ToolTip_Update(self, kp, ki, kd):
+        '''Update des Tooltips der PID-Checkbox um die Parameter!
+        
+        Args: 
+            kp (float):     Parameter kp - Proportionalglied
+            ki (float):     Parameter ki - Integralteil
+            kd (floar):     Parameter kd - Differenzialteil
+        '''
+        self.TT_PID_Para = f'{self.TTSize_3[self.sprache]} {self.TTSize_kp[self.sprache]} {kp}; {self.TTSize_ki[self.sprache]} {ki}; {self.TTSize_kd[self.sprache]} {kd}'
+        self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
 
     ##########################################
     # Betrachtung der Labels und Plots:

@@ -258,6 +258,27 @@ class NemoAchseLinWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|umstell_wert {self.Log_Pfad_conf_5[self.sprache]} 0')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.PID_Mode_Switch_Value = 0 
+        #//////////////////////////////////////////////////////////////////////
+        try: kp_conf                 = float(str(self.config['PID']['kp']).replace(',', '.'))
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|kp {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            kp_conf = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: ki_conf                 = float(str(self.config['PID']['ki']).replace(',', '.'))
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|ki {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            ki_conf = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: kd_conf                 = float(str(self.config['PID']['kd']).replace(',', '.'))
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|kd {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            kd_conf = 0
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Config-Fehler und Defaults:
@@ -358,7 +379,15 @@ class NemoAchseLinWidget(QWidget):
         cb_gPad_str             = ['GPad',                                                                                                      'GPad']
         cb_PID                  = ['PID',                                                                                                       'PID']
         ## ToolTip: ###############################################################################################################################################################################################################################################################################                                                                                                   
-        self.TTLimit            = ['Limit:',                                                                                                    'Limit:']
+        self.TTLimit            = ['Limit-',                                                                                                    'Limit-']
+        self.TTSize_1           = ['Input-',                                                                                                    'Input-']
+        self.TTSize_2           = ['Output-',                                                                                                   'Output-']
+        self.TTSize_3           = ['Parameter:',                                                                                                'Parameter:']
+        self.TTSize_v           = ['v:',                                                                                                        'v:']
+        self.TTSize_x           = ['x:',                                                                                                        'x:']
+        self.TTSize_kp          = ['kp =',                                                                                                      'kp =']
+        self.TTSize_ki          = ['ki =',                                                                                                      'ki =']
+        self.TTSize_kd          = ['kd =',                                                                                                      'kd =']
         ## Einheiten mit Größe: ##################################################################################################################################################################################################################################################################### 
         self.v_str              = ['v in mm/min:',                                                                                              'v in mm/min:']
         self.x_str              = [f'x in {self.unit_PIDIn}:',                                                                                  f'x in {self.unit_PIDIn}:']
@@ -630,7 +659,7 @@ class NemoAchseLinWidget(QWidget):
         ### Eingabefelder:
         self.LE_Speed = QLineEdit()
         self.LE_Speed.setText(str(self.startSpeed))
-        TT_v = f'{self.TTLimit[self.sprache]} {self.uGv} ... {self.oGv} {self.einheit_v_einzel[self.sprache]}'
+        TT_v = f'{self.TTLimit[self.sprache]}{self.TTSize_v[self.sprache]} {self.uGv} ... {self.oGv} {self.einheit_v_einzel[self.sprache]}'
         self.LE_Speed.setToolTip(TT_v)
 
         ### Checkbox:
@@ -645,8 +674,10 @@ class NemoAchseLinWidget(QWidget):
         if not self.PID_Aktiv:
             self.PID_cb.setEnabled(False)
         
-        TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} ... {self.oGx} {self.einheit_x_einzel[self.sprache]}'
-        self.PID_cb.setToolTip(TT_PID)
+        self.TT_PID_In   = f'{self.TTSize_1[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_x[self.sprache]} {self.uGx} ... {self.oGx} {self.einheit_x_einzel[self.sprache]}'
+        self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_v[self.sprache]} {self.uGv} ... {self.oGv} {self.einheit_v_einzel[self.sprache]}'
+        self.TT_PID_Para = f'{self.TTSize_3[self.sprache]} {self.TTSize_kp[self.sprache]} {kp_conf}; {self.TTSize_ki[self.sprache]} {ki_conf}; {self.TTSize_kd[self.sprache]} {kd_conf}'
+        self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
 
         ### Label:
         #### Titel-Gerät:
@@ -1173,6 +1204,7 @@ class NemoAchseLinWidget(QWidget):
             # GUI ändern:
             self.La_SollSpeed.setText(self.x_str[self.sprache])
             if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[6]}")
+            self.LE_Speed.setToolTip('')
             # Bei Multilog-Sollwert:
             if self.origin[1] == 'M':
                 self.btn_rezept_start.setEnabled(False)
@@ -1195,6 +1227,8 @@ class NemoAchseLinWidget(QWidget):
             # GUI ändern:
             self.La_SollSpeed.setText(self.v_str[self.sprache])
             if self.color_Aktiv: self.La_SollSpeed.setStyleSheet(f"color: {self.color[2]}")
+            TT_v = f'{self.TTLimit[self.sprache]}{self.TTSize_v[self.sprache]} {self.uGv} ... {self.oGv} {self.einheit_v_einzel[self.sprache]}'
+            self.LE_Speed.setToolTip(TT_v)
             # Bei Multilog-Sollwert:
             if self.origin[1] == 'M':
                 self.btn_rezept_start.setEnabled(True)
@@ -1492,11 +1526,13 @@ class NemoAchseLinWidget(QWidget):
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # ToolTip Update:
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            TT_v = f'{self.TTLimit[self.sprache]} {self.uGv} ... {self.oGv} {self.einheit_v_einzel[self.sprache]}'
-            self.LE_Speed.setToolTip(TT_v)
+            if not self.PID_cb.isChecked():
+                TT_v = f'{self.TTLimit[self.sprache]}{self.TTSize_v[self.sprache]} {self.uGv} ... {self.oGv} {self.einheit_v_einzel[self.sprache]}'
+                self.LE_Speed.setToolTip(TT_v)
 
-            TT_PID = f'{self.TTLimit[self.sprache]} {self.uGx} ... {self.oGx} {self.einheit_x_einzel[self.sprache]}'
-            self.PID_cb.setToolTip(TT_PID)
+            self.TT_PID_In   = f'{self.TTSize_1[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_x[self.sprache]} {self.uGx} ... {self.oGx} {self.einheit_x_einzel[self.sprache]}'
+            self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_v[self.sprache]} {self.uGv} ... {self.oGv} {self.einheit_v_einzel[self.sprache]}'
+            self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
 
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # Weiterleiten:
@@ -1526,6 +1562,17 @@ class NemoAchseLinWidget(QWidget):
             self.Fehler_Output(0, self.La_error_1)
         else:
             self.Fehler_Output(1, self.La_error_1, self.Text_PIDResetError[self.sprache], self.Text_PIDResetError[self.sprache])
+
+    def PID_ToolTip_Update(self, kp, ki, kd):
+        '''Update des Tooltips der PID-Checkbox um die Parameter!
+        
+        Args: 
+            kp (float):     Parameter kp - Proportionalglied
+            ki (float):     Parameter ki - Integralteil
+            kd (floar):     Parameter kd - Differenzialteil
+        '''
+        self.TT_PID_Para = f'{self.TTSize_3[self.sprache]} {self.TTSize_kp[self.sprache]} {kp}; {self.TTSize_ki[self.sprache]} {ki}; {self.TTSize_kd[self.sprache]} {kd}'
+        self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
 
     ##########################################
     # Reaktion auf Rezepte:

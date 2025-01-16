@@ -262,7 +262,28 @@ class EurothermWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGPID = 0 
+            self.uGPID = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: kp_conf                 = float(str(self.config['PID']['kp']).replace(',', '.'))
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|kp {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            kp_conf = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: ki_conf                 = float(str(self.config['PID']['ki']).replace(',', '.'))
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|ki {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            ki_conf = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: kd_conf                 = float(str(self.config['PID']['kd']).replace(',', '.'))
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|kd {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            kd_conf = 0  
         
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Config-Fehler und Defaults:
@@ -370,7 +391,15 @@ class EurothermWidget(QWidget):
         self.P_unit_einzel          = ['%',                                                                                                                                                                                                     '%']
         self.PID_G_Kurve            = ['PID-T',                                                                                                                                                                                                 'PID-T']
         ## ToolTip: ###############################################################################################################################################################################################################################################################################                                                                                                   
-        self.TTLimit                = ['Limit:',                                                                                                                                                                                                'Limit:']
+        self.TTLimit                = ['Limit-',                                                                                                                                                                                                'Limit-']
+        self.TTSize_1               = ['Input-',                                                                                                                                                                                                'Input-']
+        self.TTSize_2               = ['Output-',                                                                                                                                                                                               'Output-']
+        self.TTSize_3               = ['Parameter:',                                                                                                                                                                                            'Parameter:']
+        self.TTSize_T               = ['T:',                                                                                                                                                                                                    'T:']
+        self.TTSize_OP              = ['Op:',                                                                                                                                                                                                   'Op:']
+        self.TTSize_kp              = ['kp =',                                                                                                                                                                                                  'kp =']
+        self.TTSize_ki              = ['ki =',                                                                                                                                                                                                  'ki =']
+        self.TTSize_kd              = ['kd =',                                                                                                                                                                                                  'kd =']
         ## Fehlermeldungen: ########################################################################################################################################################################################################################################################################                                                                                                                                                                                    
         self.err_0_str              = ['Fehler!',                                                                                                                                                                                               'Error!']                   
         self.err_1_str              = ['Keine Eingabe!',                                                                                                                                                                                        'No input!']
@@ -566,12 +595,12 @@ class EurothermWidget(QWidget):
         ### Eingabefelder:
         self.LE_Temp = QLineEdit()
         self.LE_Temp.setText(str(self.startTemp))
-        TT_Temp = f'{self.TTLimit[self.sprache]} {self.uGST} ... {self.oGST}{self.T_unit_einzel[self.sprache]}'
+        TT_Temp = f'{self.TTLimit[self.sprache]}{self.TTSize_T[self.sprache]} {self.uGST} ... {self.oGST}{self.T_unit_einzel[self.sprache]}'
         self.LE_Temp.setToolTip(TT_Temp)
 
         self.LE_Pow = QLineEdit()
         self.LE_Pow.setText(str(self.startPow))
-        TT_Pow = f'{self.TTLimit[self.sprache]} {self.uGOp} ... {self.oGOp} {self.P_unit_einzel[self.sprache]}'
+        TT_Pow = f'{self.TTLimit[self.sprache]}{self.TTSize_OP[self.sprache]} {self.uGOp} ... {self.oGOp} {self.P_unit_einzel[self.sprache]}'
         self.LE_Pow.setToolTip(TT_Pow)
 
         ### Checkbox:
@@ -581,8 +610,10 @@ class EurothermWidget(QWidget):
         if not self.PID_Aktiv:
             self.PID_cb.setEnabled(False)
         
-        TT_PID = f'{self.TTLimit[self.sprache]} {self.uGPID} ... {self.oGPID}{self.T_unit_einzel[self.sprache]}'
-        self.PID_cb.setToolTip(TT_PID)
+        self.TT_PID_In   = f'{self.TTSize_1[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_T[self.sprache]} {self.uGPID} ... {self.oGPID}{self.T_unit_einzel[self.sprache]}'
+        self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_OP[self.sprache]} {self.uGOp} ... {self.oGOp} {self.P_unit_einzel[self.sprache]}'
+        self.TT_PID_Para = f'{self.TTSize_3[self.sprache]} {self.TTSize_kp[self.sprache]} {kp_conf}; {self.TTSize_ki[self.sprache]} {ki_conf}; {self.TTSize_kd[self.sprache]} {kd_conf}'
+        self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
 
         ### Radiobutton:
         self.RB_choise_Temp = QRadioButton(f'{sollwert_str[self.sprache]}-{T_str[self.sprache]} ')
@@ -958,6 +989,7 @@ class EurothermWidget(QWidget):
                 self.La_IstTemp_text.setStyleSheet(f"color: {self.color[6]}")
                 self.labelDict['SWT'].setStyleSheet(f"color: {self.color[5]}")  # Sollwert PID
                 self.RB_choise_Temp.setStyleSheet(f"color: {self.color[5]}")
+            self.LE_Temp.setToolTip('')
 
             # Zugriff freigeben:
             self.LE_Temp.setEnabled(True)
@@ -1004,7 +1036,10 @@ class EurothermWidget(QWidget):
                 self.labelDict['IWT'].setStyleSheet(f"color: {self.color[0]}")  # Istwert PID
                 self.La_IstTemp_text.setStyleSheet(f"color: {self.color[0]}")  
                 self.labelDict['SWT'].setStyleSheet(f"color: {self.color[1]}")  # Sollwert PID
-                self.RB_choise_Temp.setStyleSheet(f"color: {self.color[1]}")            
+                self.RB_choise_Temp.setStyleSheet(f"color: {self.color[1]}")   
+            TT_Temp = f'{self.TTLimit[self.sprache]}{self.TTSize_T[self.sprache]} {self.uGST} ... {self.oGST} {self.T_unit_einzel[self.sprache]}'
+            self.LE_Temp.setToolTip(TT_Temp)
+                     
 
     ##########################################
     # Reaktion auf Butttons:
@@ -1205,14 +1240,16 @@ class EurothermWidget(QWidget):
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # ToolTip Update:
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            TT_Temp = f'{self.TTLimit[self.sprache]} {self.uGST} ... {self.oGST}{self.T_unit_einzel[self.sprache]}'
-            self.LE_Temp.setToolTip(TT_Temp)
+            if not self.PID_cb.isChecked():
+                TT_Temp = f'{self.TTLimit[self.sprache]}{self.TTSize_T[self.sprache]} {self.uGST} ... {self.oGST}{self.T_unit_einzel[self.sprache]}'
+                self.LE_Temp.setToolTip(TT_Temp)
 
-            TT_Pow = f'{self.TTLimit[self.sprache]} {self.uGOp} ... {self.oGOp} {self.P_unit_einzel[self.sprache]}'
+            TT_Pow = f'{self.TTLimit[self.sprache]}{self.TTSize_OP[self.sprache]} {self.uGOp} ... {self.oGOp} {self.P_unit_einzel[self.sprache]}'
             self.LE_Pow.setToolTip(TT_Pow)
 
-            TT_PID = f'{self.TTLimit[self.sprache]} {self.uGPID} ... {self.oGPID}{self.T_unit_einzel[self.sprache]}'
-            self.PID_cb.setToolTip(TT_PID)
+            self.TT_PID_In   = f'{self.TTSize_1[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_T[self.sprache]} {self.uGPID} ... {self.oGPID} {self.T_unit_einzel[self.sprache]}'
+            self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_OP[self.sprache]} {self.uGOp} ... {self.oGOp} {self.P_unit_einzel[self.sprache]}'
+            self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
 
             #~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # Weiterleiten:
@@ -1310,6 +1347,17 @@ class EurothermWidget(QWidget):
             self.Fehler_Output(0)
         else:
             self.Fehler_Output(1, self.Text_PIDResetError[self.sprache], self.Text_PIDResetError[self.sprache])
+
+    def PID_ToolTip_Update(self, kp, ki, kd):
+        '''Update des Tooltips der PID-Checkbox um die Parameter!
+        
+        Args: 
+            kp (float):     Parameter kp - Proportionalglied
+            ki (float):     Parameter ki - Integralteil
+            kd (floar):     Parameter kd - Differenzialteil
+        '''
+        self.TT_PID_Para = f'{self.TTSize_3[self.sprache]} {self.TTSize_kp[self.sprache]} {kp}; {self.TTSize_ki[self.sprache]} {ki}; {self.TTSize_kd[self.sprache]} {kd}'
+        self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
 
     ##########################################
     # Betrachtung der Labels und Plots:

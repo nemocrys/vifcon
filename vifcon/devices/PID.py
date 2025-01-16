@@ -310,6 +310,7 @@ class PID(QObject):
                 kd_conf = 0
             ## Prüfung der Parameter auf Float:
             error, kp, ki, kd = self.check_PID_Parameter(kp_conf, ki_conf, kd_conf)
+            if not error: self.widget.PID_ToolTip_Update(kp, ki, kd) 
 
             if self.PID_speere and error:
                 if 'Achse' in self.device:   self.widget.Fehler_Output(1, self.widget.La_error_1, self.Log_PID_16[self.sprache], device = f'{self.Log_PID_0[self.sprache]} ({self.device})')
@@ -331,7 +332,7 @@ class PID(QObject):
                 if 'Achse' in self.device:   self.widget.Fehler_Output(0, self.widget.La_error_1)
                 else:                        self.widget.Fehler_Output(0)
                 logger.info(f'{self.Log_PID_0[self.sprache]} ({self.device}) - {self.Log_PID_18[self.sprache]}{self.Log_PID_1[self.sprache]} {self.kp}; {self.Log_PID_2[self.sprache]}{self.ki}; {self.Log_PID_3[self.sprache]}{self.kd}')
-                            
+    
     def check_PID_Parameter(self, kp, ki, kd):
         ''' Prüfe die PID-Parameter aus der Config!
 
