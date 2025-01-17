@@ -1628,7 +1628,6 @@ class NemoAchseRotWidget(QWidget):
             ## PID-Modus oder Normaler-Modus:
             if self.PID_cb.isChecked():
                 self.write_value['PID-Sollwert'] = self.value_list[self.step]
-
                 if self.move_list[self.step] == 'CW':
                     self.write_task['CW'] = True
                     self.write_task['CCW'] = False
@@ -1693,6 +1692,7 @@ class NemoAchseRotWidget(QWidget):
 
         ## Aktueller Wert Geschwindigkeit:
         ak_value = self.ak_value['IWv'] if not self.ak_value == {} else 0
+        if self.PID_cb.isChecked(): ak_value = self.ak_value['IWxPID'] if not self.ak_value == {} else 0
 
         # Rezept lesen:
         rezept = self.cb_Rezept.currentText() 
@@ -1724,6 +1724,7 @@ class NemoAchseRotWidget(QWidget):
             if first_line.strip() == 'r' and not self.ak_value == {}:
                 self.value_list.append(ak_value) 
                 self.time_list.append(0) 
+                self.move_list.append('Beginn')
             elif first_line.strip() == 'r' and self.ak_value == {}:
                 self.Fehler_Output(1, self.La_error_1, self.err_12_str[self.sprache])
                 return True
@@ -1796,7 +1797,7 @@ class NemoAchseRotWidget(QWidget):
                         self.Fehler_Output(1, self.La_error_1, f'{self.err_9_str[self.sprache]} {rezept_schritt} {self.err_7_str[self.sprache]} {uGw} {self.err_3_str[self.sprache]} {oGw}{self.einheit_w_einzel[self.sprache]}!')
                         break
                     else:
-                        self.Fehler_Output(0, self.La_error_1)
+                        if not error:   self.Fehler_Output(0, self.La_error_1)
                     rezept_schritt += 1 
         else:
             self.Fehler_Output(0, self.La_error_1)
