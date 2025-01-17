@@ -218,8 +218,8 @@ class NemoGase:
         self.Bezeichnung_1      = ['Vakuum/Gas und Pumpen',                                                     'Vacuum/Gas and Pumps']
         self.Bezeichnung_2      = ['Kühlung',                                                                   'Cooling']
         self.Bezeichnung_3      = ['Anlagensicherheit',                                                         'System safety']
-        self.Log_Time_wr        = ['s gedauert!',                                                                                                                                                                           's lasted!']   
-        self.Log_Time_r         = ['Die read-Funktion hat',                                                                                                                                                                 'The read function has']  
+        self.Log_Time_wr        = ['s gedauert!',                                                               's lasted!']   
+        self.Log_Time_r         = ['Die read-Funktion hat',                                                     'The read function has']  
         ## Ablaufdatei: ##############################################################################################################################################################################################################################################################################
         self.Text_51_str        = ['Initialisierung!',                                                          'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                           'Initialization Failed!']

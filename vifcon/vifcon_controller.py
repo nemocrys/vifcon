@@ -168,14 +168,14 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                 #---------------------------------------
                 # Schreibe Werte:
                 #---------------------------------------
-                if not 'Nemo-Gase' in self.device_name:
+                if not 'Nemo-Gase' in self.device_name and not 'Educrys-Monitoring' in self.device_name:
                     if self.device.PID.PID_speere and self.device_widget.write_task['PID']:
                         self.device_widget.PID_cb.setChecked(False)
                         self.device_widget.PID_ON_OFF()
                         if 'Achse' in self.device_name:  self.device_widget.Fehler_Output(1, self.device_widget.La_error_1, self.Log_Text_1_PID[self.sprache])
                         else:                            self.device_widget.Fehler_Output(1, self.Log_Text_1_PID[self.sprache])
                 #if self.device_widget.send_betätigt:                                               # Ruft nun immer die write Funktion auf!
-                if not self.test and not 'Nemo-Gase' in self.device_name:
+                if not self.test and not 'Nemo-Gase' in self.device_name and not 'Educrys-Monitoring' in self.device_name:
                     self.device.write(self.device_widget.write_task, self.device_widget.write_value)    
                 #    self.device_widget.send_betätigt = False
                 
@@ -493,6 +493,7 @@ class Controller(QObject):
         from .devices.nemoAchseRot import NemoAchseRot
         from .devices.nemoGase import NemoGase
         from .devices.nemoGenerator import NemoGenerator
+        from .devices.educrysMonitoring import EducrysMon
         from .devices.multilog import Multilog
         from .devices.gamepad import Gamepad_1
 
@@ -510,6 +511,7 @@ class Controller(QObject):
         from .view.nemoAchseRot import NemoAchseRotWidget
         from .view.nemoGase import NemoGaseWidget
         from .view.nemoGenerator import NemoGeneratortWidget
+        from .view.educrysMonitoring import EducrysMonWidget
 
         #---------------------------------------------------------------------------
         # Vorbereitung:
@@ -828,6 +830,10 @@ class Controller(QObject):
                         #### Objekte erstellen:
                         device = NemoGase(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, WriteReadTime, self.add_Ablauf, device_name)
                         widget = NemoGaseWidget(self.sprache, Frame_Anzeige, device_typ_widget, self.config['devices'][device_name], config, self.add_Ablauf, device_name)
+                    elif 'Educrys-Monitoring' in device_name:
+                        #### Objekte erstellen:
+                        device = EducrysMon(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, WriteReadTime, self.add_Ablauf, device_name)
+                        widget = EducrysMonWidget(self.sprache, Frame_Anzeige, device_typ_widget, self.config['devices'][device_name], config, self.add_Ablauf, device_name)
                     else:
                         logger.warning(f'{self.Log_Device_1[self.sprache]} {device_name} {self.Log_Device_4[self.sprache]}')
                         jump = True
@@ -847,7 +853,7 @@ class Controller(QObject):
                         self.main_window.add_menu('Init', device_name, widget.init_device, widget.init)
                     except Exception as e:
                         logger.exception(f'{device_name} - {self.Log_Text_11_str[self.sprache]}')
-                    if not 'Nemo-Gase' in device_name:
+                    if not 'Nemo-Gase' in device_name and not 'Educrys-Monitoring' in device_name:
                         try:
                             self.main_window.add_menu('Limit', device_name, widget.update_Limit, widget.init)
                             self.main_window.add_menu('VIFCON-PID', device_name, device.PID.update_VPID_Para, widget.init)
@@ -876,7 +882,7 @@ class Controller(QObject):
                         logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} multilog|write_trigger ({device_name}) {self.Log_Pfad_conf_5_2[self.sprache]}')
                         logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
                         write_port = 0
-                    if not 'Nemo-Gase' in device_name:
+                    if not 'Nemo-Gase' in device_name and not 'Educrys-Monitoring' in device_name:
                         #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
                         try: read_port_ist = self.config["devices"][device_name]['multilog']['read_port_ist']
                         except Exception as e:
@@ -912,7 +918,7 @@ class Controller(QObject):
                     if not write_port == 0:
                         self.port_List_send.append(write_port)
                         self.trigger_send.update({device_name: write_trigger})
-                    if not 'Nemo-Gase' in device_name:    
+                    if not 'Nemo-Gase' in device_name and not 'Educrys-Monitoring' in device_name:    
                         if not read_port_ist == 0:
                             self.port_List_read.append(read_port_ist)
                             self.trigger_read.update({read_port_ist: [read_trigger_ist, device_name]})
@@ -1054,7 +1060,7 @@ class Controller(QObject):
         self.main_window.show()
         logger.info(f'{self.Log_Text_251_str[self.sprache]} - {self.main_window.geometry()}')
         for widget in self.widgets:
-            if not 'Nemo-Gase' in widget:
+            if not 'Nemo-Gase' in widget and not 'Educrys-Monitoring' in widget:
                 logger.info(f'{self.Log_Text_252_str[self.sprache]}: {widget} - {self.widgets[widget].geometry()}')
         sys.exit(app.exec())
 
@@ -1109,7 +1115,7 @@ class Controller(QObject):
         # Beennde PID:
         #////////////////////////////////////////////////////////////
         for device in self.widgets:
-            if not 'Nemo-Gase' in device:
+            if not 'Nemo-Gase' in device and not 'Educrys-Monitoring' in device:
                 self.widgets[device].write_task['PID'] = False 
                 if self.devices[device].PID_Aktiv:
                     self.devices[device].PIDThread.quit()
@@ -1121,7 +1127,7 @@ class Controller(QObject):
         ### Stopp - Beendigung von Teilen im Programm
         ### End-Variable - Sicheres Auslösen bzw. Setzen der nötigen Aufgaben
         for device in self.widgets:
-            if not 'Nemo-Gase' in device:
+            if not 'Nemo-Gase' in device and not 'Educrys-Monitoring' in device:
                 #### Konfigurationscheck:
                 try: save_ende = self.config['devices'][device]['ende']
                 except Exception as e:
@@ -1286,7 +1292,7 @@ class Controller(QObject):
         logger.debug(self.Log_Text_26_str[self.sprache])
         self.add_Ablauf(self.Text_8_str[self.sprache])
         for worker in self.samplers:
-            if not 'Nemo-Gase' in worker.device_widget.device_name:
+            if not 'Nemo-Gase' in worker.device_widget.device_name and not 'Educrys-Monitoring' in worker.device_widget.device_name:
                 if worker.device_widget.Auswahl.isChecked() and worker.device_widget.init:
                     error.append(worker.device_widget.Rezept_lesen_controll())
                     devices.append(worker)
@@ -1306,7 +1312,7 @@ class Controller(QObject):
         logger.debug(self.Log_Text_203_str[self.sprache])
         self.add_Ablauf(self.Text_79_str[self.sprache])
         for worker in self.samplers:
-            if not 'Nemo-Gase' in worker.device_widget.device_name:
+            if not 'Nemo-Gase' in worker.device_widget.device_name and not 'Educrys-Monitoring' in worker.device_widget.device_name:
                 if worker.device_widget.Auswahl.isChecked():
                     devices.append(worker)
         for worker in devices:
@@ -1319,7 +1325,7 @@ class Controller(QObject):
         '''Liest die Config-datei wegen der Rezepte neu aus'''
         self.add_Ablauf(self.Text_9_str[self.sprache])
         for worker in self.samplers:
-            if not 'Nemo-Gase' in worker.device_widget.device_name:
+            if not 'Nemo-Gase' in worker.device_widget.device_name and not 'Educrys-Monitoring' in worker.device_widget.device_name:
                 worker.device_widget.update_rezept()        
 
         # Aktuelle Config-Datei notieren:
