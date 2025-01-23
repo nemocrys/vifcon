@@ -193,11 +193,11 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                     self.device_widget.oGOp = self.device.oGOp
                     TT_Pow = f'{self.device_widget.TTLimit[self.device_widget.sprache]} {self.device_widget.uGOp} ... {self.device_widget.oGOp} {self.device_widget.P_unit_einzel[self.device_widget.sprache]}'
                     self.device_widget.LE_Pow.setToolTip(TT_Pow)
-                if ('Nemo-Achse' in self.device_name or 'PI-Achse' in self.device_name) and self.device.Limit_stop:
+                if ('Nemo-Achse' in self.device_name or 'PI-Achse' in self.device_name or 'Educrys-Achse' in self.device_name) and self.device.Limit_stop:
                     self.device_widget.BTN_Back(self.device.Limit_Stop_Text)
                     self.device.Limit_stop      = False
                     self.device.Limit_Stop_Text = -1
-                elif 'Nemo-Achse' in self.device_name and self.device.Limit_Stop_Text == 5:
+                elif ('Nemo-Achse' in self.device_name or 'Educrys-Achse' in self.device_name) and self.device.Limit_Stop_Text == 5:
                     self.device_widget.BTN_Back(self.device.Limit_Stop_Text)
                     self.device.Limit_Stop_Text = -1
                 if ('TruHeat' in self.device_name or 'Eurotherm' in self.device_name or 'Nemo-Generator' in self.device_name) and self.device_widget.start_later:
@@ -494,6 +494,7 @@ class Controller(QObject):
         from .devices.nemoGase import NemoGase
         from .devices.nemoGenerator import NemoGenerator
         from .devices.educrysMonitoring import EducrysMon
+        from .devices.educrysAntriebe import EducrysAntrieb
         from .devices.multilog import Multilog
         from .devices.gamepad import Gamepad_1
 
@@ -512,6 +513,7 @@ class Controller(QObject):
         from .view.nemoGase import NemoGaseWidget
         from .view.nemoGenerator import NemoGeneratortWidget
         from .view.educrysMonitoring import EducrysMonWidget
+        from .view.educrysAntriebe import EducrysAntriebWidget
 
         #---------------------------------------------------------------------------
         # Vorbereitung:
@@ -821,6 +823,12 @@ class Controller(QObject):
                         widget = NemoAchseRotWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name, gamepad_Link)
                         #### Farben-Option:
                         color_Ant_n = color_Ant_n + 7
+                    elif 'Educrys-Antrieb' in device_name:
+                        #### Objekte erstellen:
+                        device = EducrysAntrieb(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, multilog_Link, WriteReadTime, self.add_Ablauf,  device_name) 
+                        widget = EducrysAntriebWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name, gamepad_Link)
+                        #### Farben-Option:
+                        color_Ant_n = color_Ant_n + 6
                     else:
                         logger.warning(f'{self.Log_Device_1[self.sprache]} {device_name} {self.Log_Device_3[self.sprache]}')
                         jump = True

@@ -92,10 +92,10 @@ class EducrysMonWidget:
         B14_str                 = ['Durchmesser',                                               'Diameter']
         ## Einheit: ################################################################################################################################################################################################################################################################################                                                 
         E1_G_str                = ['g',                                                         'g']
-        E2_PIDO_str             = ['ms',                                                        'ms']
+        E2_PIDO_str             = ['%',                                                         '%']
         E3_D_str                = ['mm',                                                        'mm']
         E4_T_str                = ['°C',                                                        '°C']
-        E5_PIDP_str             = ['ms',                                                        'ms']
+        E5_PIDA_str             = E2_PIDO_str
         ## Ablaufdatei: ############################################################################################################################################################################################################################################################################
         self.Text_1_str         = ['Initialisierungsknopf betätigt.',                           'Initialization button pressed.']
         ## Logging: ################################################################################################################################################################################################################################################################################                     
@@ -186,15 +186,15 @@ class EducrysMonWidget:
 
         self.PlabelSize_PGl = QLabel(f'{B7_str[self.sprache]}')
         self.PlabelValu_PGl = QLabel()
-        self.PlabelUnit_PGl = QLabel(E5_PIDP_str[self.sprache])
+        self.PlabelUnit_PGl = QLabel(E5_PIDA_str[self.sprache])
 
         self.PlabelSize_IGl = QLabel(f'{B8_str[self.sprache]}')
         self.PlabelValu_IGl = QLabel()
-        self.PlabelUnit_IGl = QLabel(E5_PIDP_str[self.sprache])
+        self.PlabelUnit_IGl = QLabel(E5_PIDA_str[self.sprache])
 
         self.PlabelSize_DGl = QLabel(f'{B9_str[self.sprache]}')
         self.PlabelValu_DGl = QLabel()
-        self.PlabelUnit_DGl = QLabel(E5_PIDP_str[self.sprache])
+        self.PlabelUnit_DGl = QLabel(E5_PIDA_str[self.sprache])
 
         self.PlabelSize_Inp = QLabel(f'{B10_str[self.sprache]}')
         self.PlabelValu_Inp = QLabel()

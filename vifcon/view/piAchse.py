@@ -525,7 +525,7 @@ class PIAchseWidget(QWidget):
         self.Text_38_str        = ['mm!',                                                                                                       'mm!']
         self.Text_39_str        = ['Knopf betätigt - Nullpunkt setzen!',                                                                        'Button pressed - Define Home!']
         self.Text_40_str        = ['Eingabefeld Fehlermeldung: Keine oder Fehlende Eingabe!',                                                   'Input field error message: No or missing input!']
-        self.Text_41_str        = ['Eingabefeld Fehlermeldung: Senden fehlgeschlagen bei, da relative Positionen positiv sein müssen!',         'Input field error message: Sending failed because relative positions must be positive!']
+        self.Text_41_str        = ['Eingabefeld Fehlermeldung: Senden fehlgeschlagen, da relative Positionen positiv sein müssen!',             'Input field error message: Sending failed because relative positions must be positive!']
         self.Text_42_str        = ['Eingabefeld Fehlermeldung: Senden fehlgeschlagen, da Grenzen überschritten werden!',                        'Input field error message: Sending failed because limits were exceeded!']
         self.Text_43_str        = ['Eingabefeld Fehlermeldung: Senden fehlgeschlagen, da fehlerhafte Eingabe!',                                 'Input field error message: Sending failed due to incorrect input!']
         self.Text_44_str        = ['Achse steht wieder!',                                                                                       'Axis is standing again!']
