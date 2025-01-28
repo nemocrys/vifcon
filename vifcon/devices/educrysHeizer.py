@@ -2,7 +2,7 @@
 # Beschreibung:
 # ++++++++++++++++++++++++++++
 '''
-Educrys-Achse Gerät:
+Educrys Gerät:
 - Schnittstelle erstellen
 - Werte Lesen und schreiben
 - Messdatei updaten
@@ -13,6 +13,7 @@ Educrys-Achse Gerät:
 # ++++++++++++++++++++++++++++
 ## GUI:
 from PyQt5.QtCore import (
+    QCoreApplication,
     pyqtSignal,
     QThread,
     QTimer,
@@ -37,43 +38,40 @@ logger = logging.getLogger(__name__)
 
 
 class SerialMock:
-    """ This class is used to mock a serial interface for debugging purposes."""
+    """ This class is used to mock a serial interface for debugging purposes. """
 
     def write(self, _):
         pass
 
     def readline(self):
         return "".encode()
+    
 
-
-class EducrysAntrieb(QObject):
+class EducrysHeizer(QObject):
     signal_PID  = pyqtSignal(float, float, bool, float)
 
-    def __init__(self, sprache, config, config_dat, com_dict, test, neustart, multilog_aktiv, Log_WriteReadTime, add_Ablauf_function, name="Educrys-Achse", typ = 'Antrieb'):
-        """ Erstelle Nemo-Achse Lin Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
+    def __init__(self, sprache, config, com_dict, test, neustart, multilog_aktiv, Log_WriteReadTime, add_Ablauf_function, name="Educrys-Heizer", typ = 'Generator'):
+        """ Erstelle Educrys Schnittstelle. Bereite Messwertaufnahme und Daten senden vor.
 
         Args:
             sprache (int):                      Sprache des Programms (GUI, Files)
-            config (dict):                      device configuration (as defined in config.yml in the devices-section).
-            config_dat (string):                Datei-Name der Config-Datei
+            config (dict):                      Geräte Konfigurationen (definiert in config.yml in der devices-Sektion).
             com_dict (dict):                    Dictionary mit den anderen Ports der PI-Achsen
             test (bool):                        Test Modus
             neustart (bool):                    Neustart Modus, Startkonfigurationen werden übersprungen
             multilog_aktiv (bool):              Multilog-Read/Send Aktiviert
             Log_WriteReadTime (bool):           Logge die Zeit wie lange die Write und Read Funktion dauern
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
-            name (str, optional):               device name.
-            typ (str, optional):                device typ.
+            name (str, optional):               Geräte Namen.
+            typ (str, optional):                Geräte Typ.
         """
         super().__init__()
-
         #---------------------------------------
         # Variablen:
         #---------------------------------------
         ## Funktionsübergabe einlesen:
         self.sprache                    = sprache
         self.config                     = config
-        self.config_dat                 = config_dat
         self.neustart                   = neustart
         self.multilog_OnOff             = multilog_aktiv
         self.Log_WriteReadTime          = Log_WriteReadTime
@@ -82,7 +80,11 @@ class EducrysAntrieb(QObject):
         self.typ                        = typ
 
         ## Weitere:
-        self.angezeigt = False
+        self.op             = 0
+        self.Save_End_State = False
+        self.done_ones      = False
+        self.mode_aktiv     = False 
+        self.Rez_OP         = -1
 
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
@@ -100,10 +102,9 @@ class EducrysAntrieb(QObject):
         self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                                                                                              'Default is used:']
         self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                                                                                                    'Error reading config during configuration:']
         self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                                                                                                  '; Set to default:']
-        self.Log_Pfad_conf_5_1  = ['; Adressauswahlcode-Fehler -> Programm zu Ende!!!',                                                                                                                                     '; Address selection code error -> program ends!!!']
+        self.Log_Pfad_conf_5_1  = ['; Register-Fehler -> Programm zu Ende!!!',                                                                                                                                              '; Register error -> program ends!!!']
         self.Log_Pfad_conf_5_2  = ['; PID-Modus Aus!!',                                                                                                                                                                     '; PID mode off!!']
         self.Log_Pfad_conf_5_3  = ['; Multilog-Link Aus!!',                                                                                                                                                                 '; Multilog-Link off!!']
-        self.Log_Pfad_conf_5_4  = ['; Mercury-Model Fehler -> Programm zu Ende!!!',                                                                                                                                         '; Mercury model error -> program ended!!!']
         self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                                                                                          'Reason for error:']
         self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                                                                                                'Please correct and re-read config before use!']
         self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                                                                                                  'Incorrect input:']
@@ -117,14 +118,6 @@ class EducrysAntrieb(QObject):
         Log_Text_PID_N18        = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        ## Übergeordnet:
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        try: self.Antriebs_wahl = self.config['Antriebs_Art']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} Antriebs_Art {self.Log_Pfad_conf_5[self.sprache]} F')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.Antriebs_wahl = 'F'
-         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Zum Start:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         try: self.init           = self.config['start']['init']                            # Initialisierung
@@ -139,79 +132,45 @@ class EducrysAntrieb(QObject):
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.messZeit = 2
         #//////////////////////////////////////////////////////////////////////
-        try: self.Ist                    = self.config['PID']["start_ist"] 
+        try: self.Ist            = self.config['PID']["start_ist"] 
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|start_ist {self.Log_Pfad_conf_5[self.sprache]} 0')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.Ist = 0
         #//////////////////////////////////////////////////////////////////////
-        try: self.Soll              = self.config['PID']["start_soll"]
+        try: self.Soll           = self.config['PID']["start_soll"]
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|start_soll {self.Log_Pfad_conf_5[self.sprache]} 0')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.Soll = 0
+            self.Soll = 0 
         #//////////////////////////////////////////////////////////////////////
-        try: self.Start_Weg_write          = self.config['start']["write_SW"]
+        try: self.PID_Write      = self.config['start']['PID_Write']
         except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|write_SW {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|PID_Write {self.Log_Pfad_conf_5[self.sprache]} False')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.Start_Weg_write = 0
+            self.PID_Write = False 
         #//////////////////////////////////////////////////////////////////////
-        try: self.Start_WegLimit_write     = self.config['start']["write_SLP"]
+        try: self.startMode = self.config['start']["start_modus"]
         except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|write_SLP {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|start_modus {self.Log_Pfad_conf_5[self.sprache]} Manuel')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.Start_WegLimit_write = 0
-        #//////////////////////////////////////////////////////////////////////
-        try: self.Start_Weg   = self.config['start']['start_weg']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|start_weg {self.Log_Pfad_conf_5[self.sprache]} 0')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.Start_Weg = 0
-        #//////////////////////////////////////////////////////////////////////
-        try: self.save_mode = self.config['start']['sicherheit']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|sicherheit {self.Log_Pfad_conf_5[self.sprache]} 0')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.save_mode = 0
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        ### Parameter:
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        try: self.nKS        = self.config['parameter']['nKS_Aus']                     # Nachkommerstellen
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} parameter|nKS_Aus {self.Log_Pfad_conf_5[self.sprache]} 3')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.nKS = 3
+            self.startMode = 'Manuel'
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Limits:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        try: self.oGv = self.config["limits"]['maxSpeed']
+        try: self.oGOp = self.config["limits"]['opMax']
         except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxSpeed {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|opMax {self.Log_Pfad_conf_5[self.sprache]} 1')
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.oGv = 1
+            self.oGOp = 1
         #//////////////////////////////////////////////////////////////////////
-        try: self.uGv = self.config["limits"]['minSpeed']
+        try: self.uGOp = self.config["limits"]['opMin']
         except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minSpeed {self.Log_Pfad_conf_5[self.sprache]} -1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|opMin {self.Log_Pfad_conf_5[self.sprache]} 0')
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGv = -1
-        #//////////////////////////////////////////////////////////////////////
-        try: self.oGs = self.config["limits"]['maxPos']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|maxPos {self.Log_Pfad_conf_5[self.sprache]} 1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.oGs = 1
-        #//////////////////////////////////////////////////////////////////////
-        try: self.uGs = self.config["limits"]['minPos']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minPos {self.Log_Pfad_conf_5[self.sprache]} 0')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGs = 0
+            self.uGOp = 0
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### PID:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -231,23 +190,31 @@ class EducrysAntrieb(QObject):
                 logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
                 self.PID_Aktiv = 0 
         #//////////////////////////////////////////////////////////////////////
-        try: self.unit_PIDIn             = self.config['PID']['Input_Size_unit']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Size_unit {self.Log_Pfad_conf_5[self.sprache]} mm')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.unit_PIDIn = 'mm'
-        #//////////////////////////////////////////////////////////////////////
         try: self.PID_Option             = self.config['PID']['Value_Origin'].upper()
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Value_Origin {self.Log_Pfad_conf_5[self.sprache]} VV')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.PID_Option = 'VV' 
         #//////////////////////////////////////////////////////////////////////
-        try: self.PID_Sample_Time        = self.config['PID']['sample']
+        try: self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max']
         except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|sample {self.Log_Pfad_conf_5[self.sprache]} 500')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_max {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.PID_Sample_Time = 500 
+            self.PID_Input_Limit_Max  = 1 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Input_Limit_Min = 0 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Error_option {self.Log_Pfad_conf_5[self.sprache]} error')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.PID_Input_Error_Option = 'error' 
         #//////////////////////////////////////////////////////////////////////
         try: self.M_device_ist           = self.config['multilog']['read_trigger_ist'] 
         except Exception as e: 
@@ -277,25 +244,15 @@ class EducrysAntrieb(QObject):
             self.sensor_soll = ''
             self.multilog_OnOff = False
         #//////////////////////////////////////////////////////////////////////
-        try: self.PID_Input_Limit_Max    = self.config['PID']['Input_Limit_max']
+        try: self.PID_Sample_Time        = self.config['PID']['sample']
         except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_max {self.Log_Pfad_conf_5[self.sprache]} 1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|sample {self.Log_Pfad_conf_5[self.sprache]} 500')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.PID_Input_Limit_Max  = 1 
-        #//////////////////////////////////////////////////////////////////////
-        try: self.PID_Input_Limit_Min    = self.config['PID']['Input_Limit_min'] 
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Limit_min {self.Log_Pfad_conf_5[self.sprache]} 0')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.PID_Input_Limit_Min = 0
-        #//////////////////////////////////////////////////////////////////////
-        try: self.PID_Input_Error_Option = self.config['PID']['Input_Error_option']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} PID|Input_Error_option {self.Log_Pfad_conf_5[self.sprache]} error')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.PID_Input_Error_Option = 'error' 
+            self.PID_Sample_Time = 500 
+        ### Start-Modus:
+        if not self.startMode in ['Auto', 'Manuel']:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_modus - {self.Log_Pfad_conf_2[self.sprache]} [Auto, Manuel] - {self.Log_Pfad_conf_3[self.sprache]} Manuel - {self.Log_Pfad_conf_8[self.sprache]} {self.startMode}')
+            self.startMode = 'Manuel'
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Schnittstelle:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -316,62 +273,77 @@ class EducrysAntrieb(QObject):
         if not type(self.init) == bool and not self.init in [0,1]: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} init - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.init}')
             self.init = 0
-        ### Geschwindigkeits-Limit:
-        if not type(self.oGv) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGv)}')
-            self.oGv = 1
-        if not type(self.uGv) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} -1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGv)}')
-            self.uGv = -1
-        if self.oGv <= self.uGv:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} -1 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
-            self.uGv = -1
-            self.oGv = 1
-        ### Winkel-Limit:
-        if not type(self.oGs) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxPos - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 180 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGs)}')
-            self.oGs = 1
-        if not type(self.uGs) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minPos - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGs)}')
-            self.uGs = 0
-        if self.oGs <= self.uGs:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_13[self.sprache]})')
-            self.uGs = 0
-            self.oGs = 1
         ### Messzeit:
         if not type(self.messZeit) in [int, float] or not self.messZeit >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} readTime - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 2 - {self.Log_Pfad_conf_8[self.sprache]} {self.messZeit}')
             self.messZeit = 2
-        ### Wahl der Antriebsart:
-        if not self.Antriebs_wahl in ['L', 'R', 'F']:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Antriebs_Art - {self.Log_Pfad_conf_2[self.sprache]} [L, R, F] - {self.Log_Pfad_conf_3[self.sprache]} F')
-            self.Antriebs_wahl = 'F'
+        ### PID-Start-Soll:
+        if not type(self.Soll) in [float, int] or not self.Soll >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_soll - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {self.Soll}')
+            self.Soll = 0
+        ### PID-Start-Ist:
+        if not type(self.Ist) in [float, int] or not self.Ist >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_ist - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8[self.sprache]} {self.Ist}')
+            self.Ist = 0
+        ### Ausgangsleistungs-Limit:
+        if not type(self.oGOp) in [float, int] or not self.oGOp >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} opMax - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGOp)}')
+            self.oGOp = 1
+        if not type(self.uGOp) in [float, int] or not self.uGOp >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} opMin - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGOp)}')
+            self.uGOp = 0
+        if self.oGOp <= self.uGOp:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
+            self.uGOp = 0
+            self.oGOp = 1
+        ### PID-Fehlerbehandlung:
+        if self.PID_Input_Error_Option not in ['min', 'max', 'error']:
+            logger.warning(f'{self.device_name} - {Log_Text_PID_N18[sprache]}')
+            self.PID_Input_Error_Option = 'error'
+        ### PID-Limit:
+        if not type(self.PID_Input_Limit_Max) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_max - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Input_Limit_Max)}')
+            self.PID_Input_Limit_Max = 1
+        if not type(self.PID_Input_Limit_Min) in [float, int]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Input_limit_min - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Input_Limit_Min)}')
+            self.PID_Input_Limit_Min = 0
+        if self.PID_Input_Limit_Max <= self.PID_Input_Limit_Min:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
+            self.PID_Input_Limit_Min = 0
+            self.PID_Input_Limit_Max = 1 
+        ### Multilog_Sensor Ist:
+        if not type(self.sensor_ist) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Multilog_Sensor_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.sensor_ist)}')
+            self.multilog_OnOff = False
+        ### Multilog_Sensor Soll:
+        if not type(self.sensor_soll) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Multilog_Sensor_Soll - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.sensor_soll)}')
+            self.multilog_OnOff = False
+        ### read-Trigger Multilog Ist:
+        if not type(self.M_device_ist) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} read_trigger_ist - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.M_device_ist)}')
+            self.multilog_OnOff = False
+        ### read-Trigger Multilog Soll:
+        if not type(self.M_device_soll) == str:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} read_trigger_soll - {self.Log_Pfad_conf_2_1[self.sprache]} [str] - {self.Log_Pfad_conf_5_3[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.M_device_soll)}')
+            self.multilog_OnOff = False
+        ### PID Sample Zeit:
+        if not type(self.PID_Sample_Time) in [int] or not self.PID_Sample_Time >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} sample - {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 500 - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Sample_Time}')
+            self.PID_Sample_Time = 500
+        ### Sende Educrys PID-Parameter zum Start:
+        if not type(self.PID_Write) == bool and not self.PID_Write in [0, 1]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} PID_Write - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.PID_Write}')
+            self.PID_Write = 0 
         ### While-Loop:
         if not type(self.Loop) == int or not self.Loop >= 1:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} serial-loop-read - {self.Log_Pfad_conf_2[self.sprache]} Integer (>=1) - {self.Log_Pfad_conf_3[self.sprache]} 10 - {self.Log_Pfad_conf_8[self.sprache]} {self.Loop}')
             self.Loop = 10
-        ### Start Weg:
-        if not type(self.Start_Weg) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_weg - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.Start_Weg)}')
-            self.Start_Weg = 0
-        ### Start-Wert schreiben:
-        if not type(self.Start_WegLimit_write) == bool and not self.Start_WegLimit_write in [0,1]: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} write_SLP - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.Start_WegLimit_write}')
-            self.Start_WegLimit_write = 0 
-        ### Anlagen-Sciherheit bei Realer-Positions-Limitregelung:
-        if not self.save_mode in [0, 1]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} sicherheit - {self.Log_Pfad_conf_2[self.sprache]} [0, 1] - {self.Log_Pfad_conf_3[self.sprache]} 0')
-            self.save_mode = 0
 
-        ## Andere:
-        self.Limit_stop         = False
-        self.Limit_Stop_Text    = -1
-        self.value_name         = {'IWs': 0, 'IWv': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist}
-        self.akPos              = 0
-        self.akPos_StoppLimit   = 0
-        self.last_Pos           = 0
-        self.Min_End            = False
-        self.Max_End            = False
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Werte Dictionary:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        self.value_name = {'SWT': 0, 'IWT': 0, 'IWOp': 0, 'SWTPID': self.Soll, 'IWTPID': self.Ist}
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -389,12 +361,40 @@ class EducrysAntrieb(QObject):
         self.Log_Text_72_str    = ['Keine Messdatenerfassung aktiv!',                                                                                                                                                       'No measurement data recording active!']
         self.Log_Text_76_str    = ['Das Senden an das Gerät ist fehlgeschlagen.',                                                                                                                                           'Sending to the device failed.']
         self.Log_Text_77_str    = ['Fehler Grund (Senden):',                                                                                                                                                                'Error reason (send):']
+        self.Log_Text_103_str   = ['Wiederhole senden nach NAK oder keiner Antwort!',                                                                                                                                       'Repeat send after NAK or no response!']
+        self.Log_Text_132_str   = ['BCC (DEC)',                                                                                                                                                                             'BCC (DEC)']
+        self.Log_Text_133_str   = ['Keine Antwort oder Falsche Antwort, kein NAK oder ACK!',                                                                                                                                'No answer or wrong answer, no NAK or ACK!']
+        self.Log_Text_134_str   = ['Antwort konnte nicht ausgelesen werden!',                                                                                                                                               'Answer could not be read!']
+        self.Log_Text_135_str   = ['Fehler Grund (Sende Antwort):',                                                                                                                                                         'Error reason (send response):']
         self.Log_Text_136_str   = ['Fehler Grund (Auslesen):',                                                                                                                                                              'Error reason (reading):']
+        self.Log_Text_137_str   = ['Instrumenten Identität:',                                                                                                                                                               'Instrument identity:']
+        self.Log_Text_138_str   = ['Software Version:',                                                                                                                                                                     'Software version:']
+        self.Log_Text_139_str   = ['Instrumenten Modus:',                                                                                                                                                                   'Instrument mode:']
+        self.Log_Text_140_str   = ['Normaler Betriebsmodus',                                                                                                                                                                'Normal Operation Mode']
+        self.Log_Text_141_str   = ['Kein Effekt',                                                                                                                                                                           'No effect']
+        self.Log_Text_142_str   = ['Konfigurationsmodus',                                                                                                                                                                   'Configuration Mode']
+        self.Log_Text_143_str   = ['Ausgabe auf Display:',                                                                                                                                                                  'Output on display:']
+        self.Log_Text_144_str   = ['bis',                                                                                                                                                                                   'to']
+        self.Log_Text_145_str   = ['°C',                                                                                                                                                                                    '°C']
+        self.Log_Text_146_str   = ['Sollwertbereich:',                                                                                                                                                                      'Setpoint range:']
+        self.Log_Text_147_str   = ['PID-Regler Parameter:',                                                                                                                                                                 'PID controller parameters:']
+        self.Log_Text_148_str   = ['P:',                                                                                                                                                                                    'P:']
+        self.Log_Text_149_str   = ['I:',                                                                                                                                                                                    'I:']
+        self.Log_Text_150_str   = ['D:',                                                                                                                                                                                    'D:']
+        self.Log_Text_151_str   = ['Statuswort:',                                                                                                                                                                           'Status word:']
+        self.Log_Text_152_str   = ['Automatischer Modus wird eingeschaltet!',                                                                                                                                               'Automatic mode is turned on!']
+        self.Log_Text_153_str   = ['Manueller Modus wird eingeschaltet!',                                                                                                                                                   'Manual mode is switched on!']
+        self.Log_Text_154_str   = ['Statuswort ist nicht 0000 oder 8000! Startmodus wird nicht geändert!',                                                                                                                  'Status word is not 0000 or 8000! Start mode is not changed!']
+        self.Log_Text_155_str   = ['Ändere Maximale Ausgangsleistungslimit von',                                                                                                                                            'Change Maximum Output Power Limit from']
+        self.Log_Text_155_str_1 = ['auf',                                                                                                                                                                                   'to']
+        self.Log_Text_156_str   = ['%',                                                                                                                                                                                     '%']
+        self.Log_Text_157_str   = ['Maximale Ausgangsleistung wird durch die Eingabe am Gerät bestimmt!',                                                                                                                   'Maximum output power is determined by the input on the device!']
+        self.Log_Text_157_str_1 = ['Maximale Ausgangsleistung (am Gerät eingestellt):',                                                                                                                                     'Maximum output power (set on the device):']
         self.Log_Text_159_str   = ['Wiederholungs-Versuch',                                                                                                                                                                 'Repeat attempt']
         self.Log_Text_160_str   = ['funktionierte nicht!',                                                                                                                                                                  "did not work!"]
-        self.Log_Text_164_str   = ['Startposition:',                                                                                                                                                                        'Starting position:']
-        self.Log_Text_165_str   = ['mm',                                                                                                                                                                                    'mm']
-        self.Log_Text_180_str   = ['Das Gerät hat keine Startwerte zum Auslesen!',                                                                                                                                          'The device has no start values to read out!']
+        self.Log_Text_183_str   = ['Das Senden der Werte ist fehlgeschlagen! (Rampe)',                                                                                                                                      'Sending the values failed! (Ramp)']
+        self.Log_Text_243_str   = ['Beim Startwert senden an Educrys gab es einen Fehler! Programm wird beendet! Wurde das Gerät eingeschaltet bzw. wurde die Init-Einstellung richtig gesetzt?',                           'There was an error when sending the start value to Educrys! Program will end! Was the device switched on or was the init setting set correctly?']
+        self.Log_Text_244_str   = ['Fehler Grund: ',                                                                                                                                                                        'Error reason:']
         self.Log_Text_PID_str   = ['Start des PID-Threads!',                                                                                                                                                                'Start of the PID thread!']
         Log_Text_PID_N1         = ['Die Konfiguration',                                                                                                                                                                     'The configuration']
         Log_Text_PID_N2         = ['existiert nicht! Möglich sind nur VV, VM, MM oder MV. Nutzung von Default VV!',                                                                                                         'does not exist! Only VV, VM, MM or MV are possible. Use default VV!']
@@ -415,25 +415,26 @@ class EducrysAntrieb(QObject):
         self.Log_Text_PID_N16   = ['Input Werte unterschreiten das Minimum von',                                                                                                                                            'Input values ​​fall below the minimum of']
         self.Log_Text_PID_N17   = ['Input Fehler: Input-Wert ist nicht von Typ Int oder Float! Variablen Typ:',                                                                                                             'Input error: Input value is not of type Int or Float! Variable type:']
         self.Log_Text_PID_N19   = ['Auslesefehler bei Multilog-Dictionary!',                                                                                                                                                'Reading error in multilog dictionary!']
-        self.Log_Text_PID_N20   = [f'{self.unit_PIDIn} - tatsächlicher Wert war',                                                                                                                                           f'{self.unit_PIDIn} - tatsächlicher Wert war']
+        self.Log_Text_PID_N20   = ['°C - tatsächlicher Wert war',                                                                                                                                                           '°C - tatsächlicher Wert war']
         Log_Text_PID_N21        = ['Multilog Verbindung wurde in Config als Abgestellt gewählt! Eine Nutzung der Werte-Herkunft mit VM, MV oder MM ist so nicht möglich! Nutzung von Default VV!',                          'Multilog connection was selected as disabled in config! Using the value origin with VM, MV or MM is not possible! Use of default VV!']
-        self.Log_Test_PID_N22   = [f'{self.unit_PIDIn}',                                                                                                                                                                    f'{self.unit_PIDIn}']
-        self.Log_Text_PID_N23   = ['PID-Modus wird nicht aktiviert!',                                                                                                                                                       'PID mode is not activated!']
+        self.Log_Text_PID_N22   = ['Wert',                                                                                                                                                                                  'Value']
+        self.Log_Text_PID_N23   = ['ist außerhalb gültigen Bereich von 0 bis 99999!',                                                                                                                                       'is outside the valid range from 0 to 99999!']
+        self.Log_Text_PID_N24   = ['Fehlergrund (PID-Parameter senden):',                                                                                                                                                   'Reason for error (send PID parameters):']
+        self.Log_Text_PID_N25   = ['Senden der PID-Parameter am Start ist Fehlgeschlagen. Um es erneut zu versuchen überprüfe die Config-Datei und nutze das Menü!',                                                        'Sending PID parameters at startup failed. To try again check the config file and use the menu!']   
+        self.Log_Extra          = ['Vor Änderung',                                                                                                                                                                          'Before change']
+        self.Log_Extra_2        = ['Nach Änderung',                                                                                                                                                                         'After change']
         self.Log_Text_LB_1      = ['Limitbereich',                                                                                                                                                                          'Limit range']
         self.Log_Text_LB_4      = ['bis',                                                                                                                                                                                   'to']
         self.Log_Text_LB_5      = ['nach Update',                                                                                                                                                                           'after update']
         self.Log_Text_LB_6      = ['PID',                                                                                                                                                                                   'PID']
         self.Log_Text_LB_7      = ['Output',                                                                                                                                                                                'Outout']
         self.Log_Text_LB_8      = ['Input',                                                                                                                                                                                 'Input']
-        self.Log_Text_LB_unit   = ['mm/min',                                                                                                                                                                                'mm/min']
-        self.Log_Text_217_str   = ['Maximum Limit erreicht!',                                                                                                                                                               'Maximum limit reached!']
-        self.Log_Text_218_str   = ['Minimum Limit erreicht!',                                                                                                                                                               'Minimum limit reached!']
+        self.Log_Text_HO        = ['Die aktuelle maximale Ausgangsleistung (HO) ist folgendermaßen:',                                                                                                                       'The current maximum output power (HO) is as follows:']
         self.Log_Filter_PID_S   = ['Sollwert',                                                                                                                                                                              'Setpoint'] 
         self.Log_Filter_PID_I   = ['Istwert',                                                                                                                                                                               'Actual value'] 
         self.Log_Time_w         = ['Die write-Funktion hat',                                                                                                                                                                'The write function has']     
         self.Log_Time_wr        = ['s gedauert!',                                                                                                                                                                           's lasted!']   
-        self.Log_Time_r         = ['Die read-Funktion hat',                                                                                                                                                                 'The read function has']  
-        self.Log_Text_PIDVV     = ['Noch nicht vollkommen implementiert, Vifcon als PID-Input Sollwert! Hier wird Istwert auf Sollwert gesetzt!',                                                                           'Not yet fully implemented, Vifcon as PID input setpoint!! Here the actual value is set to the target value!']
+        self.Log_Time_r         = ['Die read-Funktion hat',                                                                                                                                                                 'The read function has']        
         self.Log_Edu_1_str      = ['Gesendeter-Befehl:',                                                                                                                                                                    'Sent command:']
         self.Log_Edu_2_str      = ['Antwort-Gerät:',                                                                                                                                                                        'Answering device:']
         self.Log_Edu_3_str      = ['Antwort Falsch!',                                                                                                                                                                       'Answer False!']
@@ -447,10 +448,12 @@ class EducrysAntrieb(QObject):
         ## Ablaufdatei: ###############################################################################################################################################################################################################################################################################
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
+        self.Text_53_str        = ['Wert wurde angenommen (ACK)!',                                                                                                                                                          'Value was accepted (ACK)!']
+        self.Text_54_str        = ['Wert wurde nicht angenommen (NAK)!',                                                                                                                                                    'Value was not accepted (NAK)!']
+        self.Text_55_str        = ['Senden fehlgeschlagen (Keine Antwort)!',                                                                                                                                                'Sending failed (no response)!']
+        self.Text_56_str        = ['Befehl gesendet!',                                                                                                                                                                      'command sent!']
+        self.Text_57_str        = ['Antwort nicht auslesbar!',                                                                                                                                                              'Answer cannot be read!']
         self.Text_61_str        = ['Das Senden ist fehlgeschlagen!',                                                                                                                                                        'Sending failed!']
-        self.Text_62_str        = ['Achse wurde erfolgreich angehalten!',                                                                                                                                                   'Axis was stopped successfully!']
-        self.Text_69_str        = ['Geschwindigkeit erfolgreich gesendet!',                                                                                                                                                 'Speed sent successfully!']
-        self.Text_70_str        = ['Befehl sende Geschwindigkeit fehlgeschlagen!',                                                                                                                                          'Command send speed failed!']
         self.Text_Edu_1_str     = ['Befehl',                                                                                                                                                                                'Command']
         self.Text_Edu_2_str     = ['erfolgreich gesendet!',                                                                                                                                                                 'sent successfully!']
 
@@ -478,28 +481,36 @@ class EducrysAntrieb(QObject):
         #---------------------------------------
         # Befehle:
         #---------------------------------------
-        self.haupt_befehl = f'2{self.Antriebs_wahl}'
+        ## Senden:
+        self.Befehl_M = '1M'
+        self.Befehl_S = '1S'
+        self.Befehl_O = '1O'
+        self.Befehl_P = '1P'
+        self.Befehl_I = '1I'
+        self.Befehl_D = '1D'
         self.abschluss = '\r'
 
-        if self.Antriebs_wahl == 'L':   self.Antworts_String = 'l:='
-        elif self.Antriebs_wahl == 'R': self.Antworts_String = 'r:='
-        elif self.Antriebs_wahl == 'F': self.Antworts_String = 'f:='
+        ## Antwort:
+        self.Antworts_String_M = 'm:='
+        self.Antworts_String_S = 's:='
+        self.Antworts_String_O = 'o:='
+        self.Antworts_String_P = 'p:='
+        self.Antworts_String_I = 'i:='
+        self.Antworts_String_D = 'd:='
 
         #---------------------------------------
         # PID-Regler:
         #---------------------------------------
         ## PID-Regler:
-        if self.uGv < 0:     controll_under_Null = 0
-        else:                controll_under_Null = self.uGv
-        self.PID = PID(self.sprache, self.device_name, self.PID_Config, self.oGv, controll_under_Null, self.add_Text_To_Ablauf_Datei)
-        ## Info und Warnungen: --> Überarbeiten da VIFCON Istwert noch nicht vorhanden!
+        self.PID = PID(self.sprache, self.device_name, self.PID_Config, self.oGOp, self.uGOp, self.add_Text_To_Ablauf_Datei)
+        ## Info und Warnungen:
         if not self.multilog_OnOff and self.PID_Option in ['MV', 'MM', 'VM']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N21[sprache]}')
             self.PID_Option = 'VV'
         # elif self.PID_Option in ['MM', 'VM']:
         #     logger.warning(f'{self.device_name} - {Log_Text_PID_N1[sprache]} {self.PID_Option} {Log_Text_PID_N2_1[self.sprache]}')
         #     self.PID_Option = 'VV'
-        elif self.PID_Option not in ['MV', 'VV', 'MM', 'VM']:
+        elif self.PID_Option not in ['VV', 'MV', 'MM', 'VM']:
             logger.warning(f'{self.device_name} - {Log_Text_PID_N1[sprache]} {self.PID_Option} {Log_Text_PID_N2[self.sprache]}')
             self.PID_Option = 'VV'
         ### Herkunft Istwert:
@@ -533,8 +544,8 @@ class EducrysAntrieb(QObject):
             logger.info(f'{self.device_name} - {self.Log_Text_PID_N23[self.sprache]}')
         ## Multilog-Lese-Variable für die Daten:
         self.mult_data              = {}
-        logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]}: {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_LB_unit[self.sprache]}')
-        logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]}: {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')   
+        logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]}: {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_156_str[self.sprache]}')
+        logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]}: {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max}{self.Log_Text_145_str[self.sprache]}')    
         if self.PID_Option[0] == 'M':
             logger.info(f'{Log_Text_PID_N8[self.sprache]} {self.sensor_ist} {Log_Text_PID_N13[self.sprache]} {self.M_device_ist} {Log_Text_PID_N10[self.sprache]}')
         if self.PID_Option[1] == 'M':
@@ -546,20 +557,23 @@ class EducrysAntrieb(QObject):
     # Schnittstelle (Schreiben):
     ##########################################
     def write(self, write_Okay, write_value):
-        ''' Sende Befehle an die Achse um Werte zu verändern.
+        ''' Schreiben der übergebenden Werte, wenn der richtige Knopf betätigt wurde!
 
         Args:
             write_Okay (dict):  beinhaltet Boolsche Werte für das was beschrieben werden soll!
             write_value (dict): beinhaltet die Werte die geschrieben werden sollen
         '''
         ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
-        #++++++++++++++++++++++++++++++++++++++++++
-        # Start:
-        #++++++++++++++++++++++++++++++++++++++++++
-        if write_Okay['Start'] and not self.neustart:
-            self.Start_Werte()
-            write_Okay['Start'] = False
-
+        #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        # Erwinge das Setzen der Variablen um den Endzustand sicher herzustellen:
+        #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        if self.Save_End_State and not self.done_ones:
+            write_Okay['Manuel_Mod']        = True   
+            write_Okay['Auto_Mod']          = False
+            write_Okay['Operating point']   = True 
+            write_value['Rez_OPTemp']       = 0 
+            self.done_ones                  = True
+        
         #++++++++++++++++++++++++++++++++++++++++++
         # PID-Reset:
         #++++++++++++++++++++++++++++++++++++++++++
@@ -573,32 +587,29 @@ class EducrysAntrieb(QObject):
         # Update Limit:
         #++++++++++++++++++++++++++++++++++++++++++
         if write_Okay['Update Limit']:
-            ## Geschwindigkeit/PID-Output:
-            self.PID.OutMax = write_value['Limits'][2]
-            if write_value['Limits'][1] < 0:    self.PID.OutMin = 0
-            else:                               self.PID.OutMin = write_value['Limits'][3]
-            logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_LB_unit[self.sprache]}')
+            ## PID-Output:
+            self.PID.OutMax = write_value['Limits'][0]
+            self.PID.OutMin = write_value['Limits'][1]
+            logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_7[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID.OutMin} {self.Log_Text_LB_4[self.sprache]} {self.PID.OutMax} {self.Log_Text_156_str[self.sprache]}')
             ## PID-Input:
-            self.PID_Input_Limit_Max = write_value['Limits'][4]
-            self.PID_Input_Limit_Min = write_value['Limits'][5]
-            logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max} {self.unit_PIDIn}')
-            ## Position:
-            self.oGs = write_value['Limits'][0]
-            self.uGs = write_value['Limits'][1]
-            ## Sende Werte an Anlage:
-            self.send_write('2T'+'{:.2f}'.format(round(self.oGs,2)), 't:='+'{:.2f}'.format(round(self.oGs,2))) # Rundet perfekt auf zwei Nachkommerstellen, auch wenn eine Null ist!
-            self.send_write('2B'+'{:.2f}'.format(round(self.uGs,2)), 'b:='+'{:.2f}'.format(round(self.uGs,2)))
+            self.PID_Input_Limit_Max = write_value['Limits'][2]
+            self.PID_Input_Limit_Min = write_value['Limits'][3]
+            logger.info(f'{self.PID.Log_PID_0[self.sprache]} ({self.PID.device}) - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_6[self.sprache]}-{self.Log_Text_LB_8[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.PID_Input_Limit_Min} {self.Log_Text_LB_4[self.sprache]} {self.PID_Input_Limit_Max}{self.Log_Text_145_str[self.sprache]}')
+
+            ## OP:
+            self.oGOp = write_value['Limits'][0]
+            self.uGOp = write_value['Limits'][1]
+
             write_Okay['Update Limit'] = False
 
-        #++++++++++++++++++++++++++++++++++++++++++
+        #++++++++++++++++++++++++++++++++++++++++++    
         # Normaler Betrieb:
         #++++++++++++++++++++++++++++++++++++++++++
         if not write_Okay['PID']:  
-            ## Sollwert Lesen (v):
-            speed_vorgabe = write_value['Speed']
-            PID_write_V = False
-            self.angezeigt = False
-        #++++++++++++++++++++++++++++++++++++++++++    
+            # Sollwertn Lesen (OP oder Temp):
+            sollwert = write_value['Sollwert']
+            PID_write_OP = False
+        #++++++++++++++++++++++++++++++++++++++++++
         # PID-Regler:
         #++++++++++++++++++++++++++++++++++++++++++
         elif write_Okay['PID']:
@@ -614,7 +625,7 @@ class EducrysAntrieb(QObject):
                     if self.sensor_soll.lower() == 'no sensor':     self.Soll = self.mult_data[self.M_device_soll]
                     else:                                           self.Soll = self.mult_data[self.M_device_soll][self.sensor_soll] 
                 except Exception as e:
-                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N19[self.sprache]} ({self.M_device_soll})")  
+                    logger.warning(f"{self.device_name} - {self.Log_Text_PID_N19[self.sprache]} ({self.M_device_soll})") 
                     logger.exception(f"{self.device_name} - {self.Log_Text_PID_N12[self.sprache]}")
             ### Sollwert Filter:
             self.Soll, error_Input_S = self.Input_Filter(self.Soll, 'Soll')
@@ -629,10 +640,8 @@ class EducrysAntrieb(QObject):
             #---------------------------------------------
             ### VIFCON:
             if self.PID_Option[0] == 'V':
-                if not self.angezeigt:
-                    logger.warning(self.Log_Text_PIDVV[self.sprache])
-                self.angezeigt = True
-                self.Ist = self.Soll
+                ans = self.read()
+                self.Ist = ans['IWT']
             ### Multilog:
             elif self.PID_Option[0] == 'M':
                 try:
@@ -656,161 +665,66 @@ class EducrysAntrieb(QObject):
                     self.Ist = self.PID_Ist_Last
             else:
                 self.PID_Ist_Last = self.Ist
-            #---------------------------------------------    
+            #---------------------------------------------
             ## Schreibe Werte:
             #---------------------------------------------
-            speed_vorgabe = self.PID_Out * self.cpm
-            PID_write_V = True
- 
-        if self.Antriebs_wahl == 'L':
-            #+++++++++++++++++++++++++++++++++++++++++++++++++++++
-            # Sende Position (Define Home - beliebiger Wert):
-            #+++++++++++++++++++++++++++++++++++++++++++++++++++++
-            if write_Okay['Sende Position']:
-                self.send_write('2Z'+'{:.2f}'.format(round(write_value["Position"],2)), 'z:='+'{:.2f}'.format(round(write_value["Position"],2)))
-                write_Okay['Sende Position'] = False 
-                if self.oGs == 0:        self.Max_End = True
-                else:                    self.Max_End = False                       
-                if self.uGs == 0:        self.Min_End = True                    
-                else:                    self.Min_End = False
-
-            #++++++++++++++++++++++++++++++++++++++++++
-            # Lese Aktuelle Position aus:
-            #++++++++++++++++++++++++++++++++++++++++++
-            if self.init:
-                read_ans = self.read()
-                self.akPos = read_ans['IWs']
-                ## Abfangen von Nan-Werten:
-                if m.isnan(self.akPos) and self.save_mode == 1:
-                    write_Okay['Stopp']     = True
-                    self.Limit_stop         = True
-                    self.Limit_Stop_Text    = 4
-                elif m.isnan(self.akPos) and self.save_mode == 0:
-                    self.Limit_Stop_Text    = 5
-                ## Bei Nan - Alten Wert nutzen:
-                if m.isnan(self.akPos): self.akPos = self.last_Pos
-                else:                   self.last_Pos = self.akPos
-
-            #++++++++++++++++++++++++++++++++++++++++++
-            # Limit Kontrolle:
-            #++++++++++++++++++++++++++++++++++++++++++
-            ## Abfangen von Nan-Werten:
-            if m.isnan(self.akPos) and self.save_mode == 1:
-                write_Okay['Stopp']     = True
-                self.Limit_stop         = True
-                self.Limit_Stop_Text    = 4
-            elif m.isnan(self.akPos) and self.save_mode == 0:
-                self.Limit_Stop_Text    = 5
-            if self.akPos > self.oGs and not self.Max_End:
-                self.Max_End = True
-                logger.warning(f'{self.device_name} - {self.Log_Text_217_str[self.sprache]}')
-                self.Limit_Stop_Text    = 0
-                self.Limit_stop         = True
-                write_Okay['Stopp']     = True
-                self.akPos_StoppLimit = self.akPos
-            if self.akPos < self.uGs and not self.Min_End:
-                self.Min_End = True
-                logger.warning(f'{self.device_name} - {self.Log_Text_218_str[self.sprache]}') 
-                self.Limit_Stop_Text    = 1
-                self.Limit_stop         = True
-                write_Okay['Stopp']     = True
-                self.akPos_StoppLimit = self.akPos
-            if self.akPos > self.uGs and self.akPos < self.oGs:
-                self.Max_End = False
-                self.Min_End = False
+            PID_write_OP = True
+            PowOutPID = self.op
+            #---------------------------------------------
+            ## Rezept-Modus:
+            #---------------------------------------------
+            self.mode_aktiv = write_Okay['PID_Rezept_Mode_OP']
+            if self.mode_aktiv:
+                self.Rez_OP = write_value['PID_Rez']
 
         #++++++++++++++++++++++++++++++++++++++++++
-        # Sende Stopp:
+        # Schreiben:
         #++++++++++++++++++++++++++++++++++++++++++
-        if write_Okay['Stopp']:
-            try:
-                self.send_write(f'2{self.Antriebs_wahl}'+'{:.2f}'.format(round(0,2)), self.Antworts_String+'{:.2f}'.format(round(0,2)))       
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_62_str[self.sprache]}') 
-            except Exception as e:
-                logger.warning(f"{self.device_name} - {self.Log_Text_64_1_str[self.sprache]} ({f'2{self.Antriebs_wahl}'+'{:.2f}'.format(round(0,2))})")
-                logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")
-            # Rücksetzen aller Bewegungen:
-            write_Okay['Stopp'] = False
-            write_Okay['Sende Position'] = False
-            write_Okay['Sende Speed'] = False  
-        #++++++++++++++++++++++++++++++++++++++++++                                  
-        # Schreiben, wenn nicht Stopp:
-        #++++++++++++++++++++++++++++++++++++++++++
-        else:
-            try:     
-                ## Sende Geschwindigkeit:
-                if write_Okay['Sende Speed']:
-                    self.send_write(f'2{self.Antriebs_wahl}'+'{:.2f}'.format(round(write_value["Speed"],2)), self.Antworts_String+'{:.2f}'.format(round(write_value["Speed"],2)))
-                    write_Okay['Sende Speed'] = False     
-                ## PID-Modus:
-                elif PID_write_V:
-                    self.send_write(f'2{self.Antriebs_wahl}'+'{:.2f}'.format(round(speed_vorgabe,2)), self.Antworts_String+'{:.2f}'.format(round(speed_vorgabe,2)))
-                    PID_write_V = False                    
-            except Exception as e:
-                logger.warning(f"{self.device_name} - {self.Log_Text_76_str[self.sprache]}")
-                logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]}')
+        ## Ändere Modus:
+        if write_Okay['Auto_Mod'] and not write_Okay['PID']:
+            self.send_write(f'{self.Befehl_M}1', f'{self.Antworts_String_M}1')            
+            write_Okay['Auto_Mod'] = False
+        elif write_Okay['Manuel_Mod'] or write_Okay['PID']:
+            self.send_write(f'{self.Befehl_M}2', f'{self.Antworts_String_M}2')    
+            write_Okay['Manuel_Mod'] = False
+
+        for auswahl in write_Okay:
+            ## Temperatur-Sollwert:
+            if write_Okay[auswahl] and auswahl == 'Soll-Temperatur':
+                self.send_write(f'{self.Befehl_S}'+'{:.2f}'.format(round(sollwert,2)), self.Antworts_String_S+'{:.2f}'.format(round(sollwert,2)))
+                write_Okay[auswahl] = False
+            ## Ausgangsleistung OP:
+            elif write_Okay[auswahl] and auswahl == 'Operating point':
+                if write_value['Rez_OPTemp'] > -1:
+                    sollwert = write_value['Rez_OPTemp']
+                    write_value['Rez_OPTemp'] = -1
+                self.send_write(f'{self.Befehl_O}'+'{:.2f}'.format(round(sollwert,2)), self.Antworts_String_O+'{:.2f}'.format(round(sollwert,2)))
+                write_Okay[auswahl] = False
+            ## Ausgangsleistung während des PID-Modus:
+            elif PID_write_OP:
+                self.send_write(f'{self.Befehl_O}'+'{:.2f}'.format(round(PowOutPID,2)), self.Antworts_String_O+'{:.2f}'.format(round(PowOutPID,2)))
+                PID_write_OP = False
+            ## Startwerte:
+            elif write_Okay[auswahl] and auswahl == 'Start' and not self.neustart:
+                self.Start_Werte()
+                write_Okay[auswahl] = False
+            ## Schreibe die PID-Parameter:
+            elif write_Okay[auswahl] and auswahl == 'PID-Update':
+                self.send_write(f'{self.Befehl_P}'+'{:.2f}'.format(round(write_value['PID-Update'][0],2)), self.Antworts_String_P+'{:.2f}'.format(round(write_value['PID-Update'][0],2)))
+                self.send_write(f'{self.Befehl_I}'+'{:.2f}'.format(round(write_value['PID-Update'][1],2)), self.Antworts_String_I+'{:.2f}'.format(round(write_value['PID-Update'][1],2)))
+                self.send_write(f'{self.Befehl_D}'+'{:.2f}'.format(round(write_value['PID-Update'][2],2)), self.Antworts_String_D+'{:.2f}'.format(round(write_value['PID-Update'][2],2)))
+                write_Okay[auswahl] = False
+            ## Lese die PID-Parameter:
+            elif write_Okay[auswahl] and auswahl == 'Read_PID':
+                self.check_PID()
+                write_Okay[auswahl] = False
         
         #++++++++++++++++++++++++++++++++++++++++++
         # Funktions-Dauer aufnehmen:
         #++++++++++++++++++++++++++++++++++++++++++
         timediff = (datetime.datetime.now(datetime.timezone.utc).astimezone() - ak_time).total_seconds()  
         if self.Log_WriteReadTime:
-            logger.info(f"{self.device_name} - {self.Log_Time_w[self.sprache]} {timediff} {self.Log_Time_wr[self.sprache]}")   
-
-    def send_write(self, Befehl, Antworts_String):
-        ''' Schreibe Befehle an die Educrys Anlage!
-
-        Args:
-            Befehl (str):           Volkommender Befehl - Zeichen z.B. 2L und Wert (zwei Nachkommerstellen)
-            Antworts_String (str):  Aussehen des Antwortsstring - z.B. l:=Wert
-        ''' 
-        n = 0
-        try:
-            # Reset Buffer:
-            self.serial.reset_input_buffer()
-            
-            # Sende den Befehl:
-            self.serial.write((Befehl+self.abschluss).encode())
-            logger.debug(f'{self.device_name} - {self.Log_Edu_1_str[self.sprache]} {(Befehl+self.abschluss).encode()}')
-            # Warte kurz:
-            time.sleep(0.1)
-            # Lese die Antwort und Vergleiche sie:
-            ans = self.read_out(10)
-            ans = ans.strip().replace('\r\n','')
-
-            if ans == Antworts_String:  logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}')
-            else:                    
-                logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_4_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl})')       
-
-                ans = self.read_out(10)
-                ans = ans.strip().replace('\r\n','')
-                if ans == Antworts_String:  logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}')
-                else:                    
-                    logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_5_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl})') 
-
-                    # Antwort stimmt nicht:
-                    while n != self.Loop:
-                        self.serial.write((Befehl+self.abschluss).encode())
-                        logger.debug(f'{self.device_name} - {self.Log_Edu_1_str[self.sprache]} {(Befehl+self.abschluss).encode()}')
-                        time.sleep(0.1)
-                        ans = self.read_out(10)
-                        ans = ans.strip().replace('\r\n','')
-                        if ans == Antworts_String:  
-                            logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}') 
-                            break
-                        else:                       
-                            logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Text_159_str[self.sprache]} {n} {self.Log_Text_160_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl})') 
-                            n += 1 
-
-            if n == self.Loop:
-                logger.warning(f"{self.device_name} - {self.Log_Edu_6_str[self.sprache]}")
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]} ({Befehl})')
-            else:
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Edu_1_str[self.sprache]} {Befehl} {self.Text_Edu_2_str[self.sprache]}') 
-        except:
-            logger.warning(f"{self.device_name} - {self.Log_Text_64_1_str[self.sprache]} ({Befehl})")
-            logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")
+            logger.info(f"{self.device_name} - {self.Log_Time_w[self.sprache]} {timediff} {self.Log_Time_wr[self.sprache]}")
 
     def Input_Filter(self, Input, Art = 'Ist'):
         ''' Input-Filter für den Multilog-VIFCON Link und die PID-Nutzung
@@ -849,11 +763,64 @@ class EducrysAntrieb(QObject):
 
         return Input, error_Input
 
+    def send_write(self, Befehl, Antworts_String):
+        ''' Schreibe Befehle an die Educrys Anlage!
+
+        Args:
+            Befehl (str):           Volkommender Befehl - Zeichen z.B. 2L und Wert (zwei Nachkommerstellen)
+            Antworts_String (str):  Aussehen des Antwortsstring - z.B. l:=Wert
+        ''' 
+        n = 0
+        try:
+            # Reset Buffer:
+            self.serial.reset_input_buffer()
+            
+            # Sende den Befehl:
+            self.serial.write((Befehl+self.abschluss).encode())
+            logger.debug(f'{self.device_name} - {self.Log_Edu_1_str[self.sprache]} {(Befehl+self.abschluss).encode()} ({Befehl})')
+            # Warte kurz:
+            time.sleep(0.1)
+            # Lese die Antwort und Verhleiche sie:
+            ans = self.read_out(10)
+            ans = ans.strip().replace('\r\n','')
+            if ans == Antworts_String:  logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}')
+            else:                    
+                logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_4_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl})')       
+
+                ans = self.read_out(10)
+                ans = ans.strip().replace('\r\n','')
+                if ans == Antworts_String:  logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}')
+                else:                    
+                    logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_5_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl})') 
+
+                    # Antwort stimmt nicht:
+                    while n != self.Loop:
+                        self.serial.write((Befehl+self.abschluss).encode())
+                        logger.debug(f'{self.device_name} - {self.Log_Edu_1_str[self.sprache]} {(Befehl+self.abschluss).encode()}')
+                        time.sleep(0.1)
+                        ans = self.read_out(10)
+                        ans = ans.strip().replace('\r\n','')
+                        if ans == Antworts_String:  
+                            logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}') 
+                            break
+                        else:                       
+                            logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Text_159_str[self.sprache]} {n} {self.Log_Text_160_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl})') 
+                            n += 1 
+
+            if n == self.Loop:
+                logger.warning(f"{self.device_name} - {self.Log_Edu_6_str[self.sprache]}")
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]} ({Befehl})')
+            else:
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Edu_1_str[self.sprache]} {Befehl} {self.Text_Edu_2_str[self.sprache]}') 
+        except:
+            logger.warning(f"{self.device_name} - {self.Log_Text_64_1_str[self.sprache]} ({Befehl})")
+            logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")    
+
     ##########################################
     # Schnittstelle (lesen):
     ##########################################
     def read(self):
-        ''' Sende Befehle an die Achse um Werte auszulesen.
+        ''' Sende Befehle an den Educrys Heizer um Werte auszulesen.
 
         Return: 
             Aktuelle Werte (dict)   - self.value_name
@@ -874,10 +841,10 @@ class EducrysAntrieb(QObject):
             ans = ans.strip().replace('*', '').replace('#','').replace('\r','').replace('\n','')
             ''' Relevante Werte:
                                                     Liste (0 - Ende)            Stelle (1 - Ende)
-                         Linear:    Koordinate      23                          24
-                                    Ist-v           24                          25
-                         Rotation:  Ist-v           25                          26
-                         Lüfter:    Ist-v           26                          27
+                         Heizer:    T-Ist           17                          18
+                                    T-Soll          19                          20
+                                    OP-Ist          15                          16
+
             '''     
             logger.debug(f'{self.device_name} - {self.Log_Edu_7_str[self.sprache]} {ans}')   
             if ans == '':  
@@ -911,28 +878,25 @@ class EducrysAntrieb(QObject):
                     listen_Error = True
                 
                 if len(liste) != 29 or listen_Error:
-                    logger.warning(f"{self.device_name} - {self.Log_Edu_6_str[self.sprache]}")
+                    logger.warning(f"{self.device_name} - {self.Log_Edu_6_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans}")
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]} (!)')
                     liste = []
                     for i in range(0,29,1):
                         liste.append(m.nan)
 
                 ## Werte eintragen:
-                if self.Antriebs_wahl == 'L':
-                    self.value_name['IWs'] = float(liste[23])
-                    self.value_name['IWv'] = float(liste[24])
-                elif self.Antriebs_wahl == 'R':
-                    self.value_name['IWv'] = float(liste[25])
-                elif self.Antriebs_wahl == 'F':
-                    self.value_name['IWv'] = float(liste[26])
+                self.value_name['IWT']  = float(liste[17])
+                self.value_name['SWT']  = float(liste[19])
+                self.value_name['IWOp'] = float(liste[15])
             else:
                 ## Bei Fehler Nan einfügen:
-                self.value_name['IWs'] = m.nan
-                self.value_name['IWv'] = m.nan
+                self.value_name['IWT']  = m.nan
+                self.value_name['SWT']  = m.nan
+                self.value_name['IWOp'] = m.nan
 
             # PID-Modus:
-            self.value_name['SWxPID'] = self.Soll
-            self.value_name['IWxPID'] = self.Ist
+            self.value_name['SWTPID'] = self.Soll
+            self.value_name['IWTPID'] = self.Ist
 
         except Exception as e:
             logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
@@ -971,17 +935,17 @@ class EducrysAntrieb(QObject):
             ans_join = ''
 
         return ans_join
-
+    
     ##########################################
     # Reaktion auf Initialisierung:
     ##########################################
     def init_device(self):
-        ''' Initialisierung des Gerätes PI_Achse. Solange die Variable init auf False steht, kann das Gerät initialisiert werden! '''
+        ''' Initialisierung des Gerätes Educrys. Solange die Variable init auf False steht, kann das Gerät initialisiert werden! '''
         if not self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_51_str[self.sprache]}')
             logger.info(f"{self.device_name} - {self.Text_51_str[self.sprache]}")
             # Schnittstelle prüfen:
-            try: 
+            try:
                 ## Start Werte abfragen:
                 self.Start_Werte()
                 ## Setze Init auf True:
@@ -999,46 +963,34 @@ class EducrysAntrieb(QObject):
     def Start_Werte(self):
         '''Lese und Schreibe bestimmte Werte bei Start des Gerätes!'''
         try:
-            if self.Antriebs_wahl == 'L':
-                ## Start-Position auslesen:
-                read_ans = self.read()
-                self.akPos = read_ans['IWs']
-                if self.akPos == m.nan:
-                    self.akPos = self.last_Pos
-                    zusatz = '(Error Nan)'
-                else: 
-                    zusatz = ''
-                    self.last_Pos = self.akPos
-                if self.Start_Weg_write:    zusatz_2 = f'- {self.Log_Edu_8_str[self.sprache]}'
-                else:                       zusatz_2 = ''
-                logger.info(f"{self.device_name} - {self.Log_Text_164_str[self.sprache]} {self.akPos} {self.Log_Text_165_str[self.sprache]} {zusatz} {zusatz_2}")
-            
-                ## Start-Wert Überschreiben:
-                if self.Start_Weg_write:
-                    self.send_write('2Z'+'{:.2f}'.format(round(self.Start_Weg,2)), 'z:='+'{:.2f}'.format(round(self.Start_Weg,2)))
-                
-                    ## Start-Position auslesen:
-                    read_ans = self.read()
-                    self.akPos = read_ans['IWs']
-                    if self.akPos == m.nan:
-                        self.akPos = self.last_Pos
-                        zusatz = '(Error Nan)'
-                    else: 
-                        zusatz = ''
-                        self.last_Pos = self.akPos
-                    zusatz_2 = f'- {self.Log_Edu_9_str[self.sprache]}'
-                    logger.info(f"{self.device_name} - {self.Log_Text_164_str[self.sprache]} {self.akPos} {self.Log_Text_165_str[self.sprache]} {zusatz} {zusatz_2}")
-            
-                if self.Start_WegLimit_write:
-                    logger.info(f"{self.device_name} - {self.Log_Edu_10_str[self.sprache]}")
-                    self.send_write('2T'+'{:.2f}'.format(round(self.oGs,2)), 't:='+'{:.2f}'.format(round(self.oGs,2))) # Rundet perfekt auf zwei Nachkommerstellen, auch wenn eine Null ist!
-                    self.send_write('2B'+'{:.2f}'.format(round(self.uGs,2)), 'b:='+'{:.2f}'.format(round(self.uGs,2)))
-            else:
-                logger.info(f"{self.device_name} - {self.Log_Text_180_str[self.sprache]}")
+            ## PID-Regler Parameter:
+            ### Schreiben der PID-Parameter wenn gewollt:
+            if self.PID_Write:
+                try:
+                    P = round(float(str(self.config['PID-Device']['PB']).replace(',','.')),1)
+                    I = round(float(str(self.config['PID-Device']['TI']).replace(',','.')),0)
+                    D = round(float(str(self.config['PID-Device']['TD']).replace(',','.')),0)
+                    self.send_write(f'{self.Befehl_P}'+'{:.2f}'.format(round(P,2)), self.Antworts_String_P+'{:.2f}'.format(round(P,2)))
+                    self.send_write(f'{self.Befehl_I}'+'{:.2f}'.format(round(I,2)), self.Antworts_String_I+'{:.2f}'.format(round(I,2)))
+                    self.send_write(f'{self.Befehl_D}'+'{:.2f}'.format(round(D,2)), self.Antworts_String_D+'{:.2f}'.format(round(D,2)))
+                except Exception as e:
+                    logger.warning(f'{self.device_name} - {self.Log_Text_PID_N25[self.sprache]}')
+                    logger.exception(f'{self.device_name} - {self.Log_Text_PID_N24[self.sprache]}')
+            ## Start-Modus setzen:
+            if self.startMode == 'Auto':
+                self.send_write(f'{self.Befehl_M}1', f'{self.Antworts_String_M}1')   
+                logger.info(f"{self.device_name} - {self.Log_Text_152_str[self.sprache]}")
+            elif self.startMode == 'Manuel':
+                self.send_write(f'{self.Befehl_M}2', f'{self.Antworts_String_M}2') 
+                logger.info(f"{self.device_name} - {self.Log_Text_153_str[self.sprache]}")
         except Exception as e:
-            logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
-            logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
-    
+            if self.init:
+                logger.warning(f"{self.device_name} - {self.Log_Text_243_str[self.sprache]}")
+                logger.exception(f"{self.device_name} - {self.Log_Text_244_str[self.sprache]}")
+                QCoreApplication.quit()
+            else:
+                raise Exception(self.Log_Text_243_str[self.sprache]) 
+   
     ###################################################
     # Messdatendatei erstellen und beschrieben:
     ###################################################
@@ -1048,14 +1000,10 @@ class EducrysAntrieb(QObject):
         Args:
             pfad (str, optional): Speicherort. Default ist "./".
         """
-        PID_x_unit = self.unit_PIDIn
         self.filename = f"{pfad}/{self.device_name}.csv"
-        if self.Antriebs_wahl == 'L':
-            units = f"# datetime,s,mm,mm/min,{PID_x_unit},{PID_x_unit},\n"
-            header = "time_abs,time_rel,Ist-Position,Ist-Geschwindigkeit,Soll-x_PID-Modus_A,Ist-x_PID-Modus_A,\n"
-        else:
-            units = f"# datetime,mm,1/min,{PID_x_unit},{PID_x_unit},\n"
-            header = "time_abs,time_rel,Ist-Winkelgeschwindigkeit,Soll-x_PID-Modus_A,Ist-x_PID-Modus_A,\n"
+        units = "# datetime,s,DEG C,DEG C,%,DEG C,DEG C,\n"
+        #scaling = f"# -,-,{self.}"
+        header = "time_abs,time_rel,Soll-Temperatur,Ist-Temperatur,Operating-point,Soll-Temperatur_PID-Modus,Ist-Temperatur_PID-Modus,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
             with open(self.filename, "w", encoding="utf-8") as f:
@@ -1068,7 +1016,7 @@ class EducrysAntrieb(QObject):
         '''Schreibe die Daten in die Datei.
 
         Args:
-            daten (Dict):               Dictionary mit den Daten in der Reihenfolge: 'IWs', 'IWv'
+            daten (Dict):               Dictionary mit den Daten in der Reihenfolge: 'SWT', 'IWT', 'IWOp'
             absolut_Time (datetime):    Absolute Zeit der Messung (Zeitstempel)
             relativ_Time (float):       Zeitpunkt der Messung zum Startzeiptpunkt.
         '''
@@ -1077,7 +1025,7 @@ class EducrysAntrieb(QObject):
             line = line + f'{daten[size]},'
         with open(self.filename, "a", encoding="utf-8") as f:
             f.write(f'{line}\n')
-    
+
     ##########################################
     # PID-Regler:
     ##########################################
@@ -1085,9 +1033,9 @@ class EducrysAntrieb(QObject):
         '''PID-Regler-Thread-Aufruf'''
         if self.PID_Aktiv:
             if not self.PID.PID_speere:
-                self.signal_PID.emit(self.Ist, self.Soll, False, 0)
-                self.PID_Out = self.PID.Output
-    
+                self.signal_PID.emit(self.Ist, self.Soll, self.mode_aktiv, self.Rez_OP)
+                self.op = self.PID.Output
+
 ##########################################
 # Verworfen:
 ##########################################

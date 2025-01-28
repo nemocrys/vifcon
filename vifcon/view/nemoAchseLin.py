@@ -1116,7 +1116,7 @@ class NemoAchseLinWidget(QWidget):
             elif n == 5: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
             elif n == 6: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_3[self.sprache]}') # PID wird eingeschaltet!!
             # Beende PID-Modus:
-            if n != 6:
+            if n != 6 and self.PID_cb.isChecked():
                 self.PID_cb.setChecked(False)
                 self.PID_ON_OFF()
             # Beende Rezept:

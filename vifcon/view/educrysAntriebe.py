@@ -1103,7 +1103,7 @@ class EducrysAntriebWidget(QWidget):
             elif n == 5: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
             elif n == 6: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_3[self.sprache]}') # PID wird eingeschaltet!!
             # Beende PID-Modus:
-            if n != 6:
+            if n != 6 and self.PID_cb.isChecked():
                 self.PID_cb.setChecked(False)
                 self.PID_ON_OFF()
             # Beende Rezept:
@@ -1510,15 +1510,10 @@ class EducrysAntriebWidget(QWidget):
                     ## PID-Modus oder Normaler-Modus:
                     if self.PID_cb.isChecked():
                         self.write_value['PID-Sollwert'] = self.value_list[self.step]
-
-                        if self.move_list[self.step] == 'UP':
-                            self.write_task['Hoch'] = True
-                            self.write_task['Runter'] = False
-                            self.richtung_Rez = 'Hoch'
-                        elif self.move_list[self.step] == 'DOWN':
-                            self.write_task['Runter'] = True
-                            self.write_task['Hoch'] = False
-                            self.richtung_Rez = 'Runter'
+                        # if self.move_list[self.step] == 'rK':
+                        #     self.richtung_Rez = 'Hoch'
+                        # elif self.move_list[self.step] == 'lK':
+                        #     self.richtung_Rez = 'Runter'
                     else:
                         self.write_value['Speed'] = self.value_list[self.step]
                         self.write_task['Sende Speed'] = True
@@ -1611,14 +1606,10 @@ class EducrysAntriebWidget(QWidget):
             ## PID-Modus oder Normaler-Modus:
             if self.PID_cb.isChecked():
                 self.write_value['PID-Sollwert'] = self.value_list[self.step]
-                if self.move_list[self.step] == 'UP':
-                    self.write_task['Hoch'] = True
-                    self.write_task['Runter'] = False
-                    richtung = 'Hoch'
-                elif self.move_list[self.step] == 'DOWN':
-                    self.write_task['Runter'] = True
-                    self.write_task['Hoch'] = False
-                    richtung = 'Runter'
+                # if self.move_list[self.step] == 'rK':
+                #     self.richtung_Rez = 'Hoch'
+                # elif self.move_list[self.step] == 'lK':
+                #     self.richtung_Rez = 'Runter'
             else:
                 self.write_value['Speed'] = self.value_list[self.step]
                 self.write_task['Sende Speed'] = True
@@ -1646,7 +1637,7 @@ class EducrysAntriebWidget(QWidget):
         error = False
         self.time_list  = []
         self.value_list = []
-        self.move_list  = []
+        #self.move_list  = []
 
         ## Geschwindigkeitlimits:
         uG = self.uGv
@@ -1698,23 +1689,23 @@ class EducrysAntriebWidget(QWidget):
             if first_line.strip() == 'r' and not self.ak_value == {}:
                 self.value_list.append(ak_value) 
                 self.time_list.append(0) 
-                self.move_list.append('Beginn')
+                #self.move_list.append('Beginn')
             elif first_line.strip() == 'r' and self.ak_value == {}:
                 self.Fehler_Output(1, self.La_error_1, self.err_12_str[self.sprache])
                 return True
             ## Bewegungsrichtung für PID-Modus prüfen:
-            if self.PID_cb.isChecked():
-                for n in rez_dat:
-                    try:
-                        werte = rez_dat[n].split(';')
-                        if werte[2].strip() == 'r': sNum = 4
-                        elif werte[2].strip() == 's': sNum = 3
-                        if not werte[sNum].upper().strip() in ['UP', 'DOWN']:  
-                            self.Fehler_Output(1, self.La_error_1, f'{self.err_PID_1_str[self.sprache]} {werte[sNum].upper()} {self.err_PID_2_str[self.sprache]}')
-                            return True
-                    except:
-                        self.Fehler_Output(1, self.La_error_1, self.err_PID_3_str[self.sprache])
-                        return True
+            # if self.PID_cb.isChecked():
+            #     for n in rez_dat:
+            #         try:
+            #             werte = rez_dat[n].split(';')
+            #             if werte[2].strip() == 'r': sNum = 4
+            #             elif werte[2].strip() == 's': sNum = 3
+            #             if not werte[sNum].upper().strip() in ['UP', 'DOWN']:  
+            #                 self.Fehler_Output(1, self.La_error_1, f'{self.err_PID_1_str[self.sprache]} {werte[sNum].upper()} {self.err_PID_2_str[self.sprache]}')
+            #                 return True
+            #         except:
+            #             self.Fehler_Output(1, self.La_error_1, self.err_PID_3_str[self.sprache])
+            #             return True
             ## Rezept Kurven-Listen erstellen:
             for n in rez_dat:
                 werte = rez_dat[n].split(';')
@@ -1744,12 +1735,12 @@ class EducrysAntriebWidget(QWidget):
                         else: # Letzter Wert!
                             self.value_list.append(value)
                             self.time_list.append(rampen_config_step)   # 0 
-                        if self.PID_cb.isChecked(): self.move_list.append(werte[4].upper().strip())
+                        #if self.PID_cb.isChecked(): self.move_list.append(werte[4].upper().strip())
                 ### Sprung:
                 elif werte[2].strip() == 's':                                               
                     self.value_list.append(value)
                     self.time_list.append(time)
-                    if self.PID_cb.isChecked(): self.move_list.append(werte[3].upper().strip())
+                    #if self.PID_cb.isChecked(): self.move_list.append(werte[3].upper().strip())
                 ### Falsches Segment:
                 else:
                     self.Fehler_Output(1, self.La_error_1, f'{self.err_Rezept[self.sprache]} {werte[2].strip()} ({n})')
@@ -1759,13 +1750,13 @@ class EducrysAntriebWidget(QWidget):
                 ### Listen-Vorbereiten bzw. merken:
                 value_List_Loop = [] + self.value_list
                 time_List_Loop  = [] + self.time_list
-                if self.PID_cb.isChecked(): move_list_Loop = [] + self.move_list
+                #if self.PID_cb.isChecked(): move_list_Loop = [] + self.move_list
                 ### Listen erweitern:
                 if self.rezept_Loop > 0:
                     for Loop in range(0,self.rezept_Loop,1):
                         self.value_list += value_List_Loop
                         self.time_list  += time_List_Loop
-                        if self.PID_cb.isChecked(): self.move_list += move_list_Loop
+                        #if self.PID_cb.isChecked(): self.move_list += move_list_Loop
             ## Positionen bestimmen:
             if not self.PID_cb.isChecked() and self.Antriebs_wahl == 'L':
                 value_step = 0

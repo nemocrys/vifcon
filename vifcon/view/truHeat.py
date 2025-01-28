@@ -1387,8 +1387,9 @@ class TruHeatWidget(QWidget):
         if self.init:
             if n == 5:  self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
             # Beende PID-Modus:
-            self.PID_cb.setChecked(False)
-            self.PID_ON_OFF()
+            if self.PID_cb.isChecked():
+                self.PID_cb.setChecked(False)
+                self.PID_ON_OFF()
             # Beende Rezept:
             self.RezEnde(n)
             # Schalte Generator aus:

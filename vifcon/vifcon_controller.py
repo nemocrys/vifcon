@@ -495,6 +495,7 @@ class Controller(QObject):
         from .devices.nemoGenerator import NemoGenerator
         from .devices.educrysMonitoring import EducrysMon
         from .devices.educrysAntriebe import EducrysAntrieb
+        from .devices.educrysHeizer import EducrysHeizer
         from .devices.multilog import Multilog
         from .devices.gamepad import Gamepad_1
 
@@ -514,6 +515,7 @@ class Controller(QObject):
         from .view.nemoGenerator import NemoGeneratortWidget
         from .view.educrysMonitoring import EducrysMonWidget
         from .view.educrysAntriebe import EducrysAntriebWidget
+        from .view.educrysHeizer import EducrysHeizerWidget
 
         #---------------------------------------------------------------------------
         # Vorbereitung:
@@ -797,6 +799,16 @@ class Controller(QObject):
                         widget = NemoGeneratortWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name)
                         #### Farben-Option:
                         color_Gen_n = color_Gen_n + 13
+                    elif 'Educrys-Heizer' in device_name:
+                        #### Objekte erstellen:
+                        device = EducrysHeizer(self.sprache, self.config['devices'][device_name], self.com_sammlung, self.test_mode, self.neustart, multilog_Link, WriteReadTime, self.add_Ablauf, device_name) 
+                        widget = EducrysHeizerWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name)
+                        ##### Schreibe PID:
+                        menu_PIDS_Button = QAction(f'{device_name} - {EuPIDS_Menu_str[self.sprache]}', self)
+                        menu_PIDS_Button.triggered.connect(widget.Write_PID)
+                        self.main_window.G_menu.addAction(menu_PIDS_Button)
+                        #### Farben-Option:
+                        color_Gen_n = color_Gen_n + 7
                     else:
                         logger.warning(f'{self.Log_Device_1[self.sprache]} {device_name} {self.Log_Device_2[self.sprache]}')
                         jump = True

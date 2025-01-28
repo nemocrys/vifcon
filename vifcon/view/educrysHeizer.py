@@ -2,7 +2,7 @@
 # Beschreibung:
 # ++++++++++++++++++++++++++++
 '''
-Eurotherm Geräte Widget:
+Educrys-Heizer Geräte Widget:
 - Anheften von weiteren Widgets (Knöpfe, Eingabefelder, Label, etc.)
 - Messwert Angabe und Eingabe
 - Kurven und Legende
@@ -50,11 +50,9 @@ import yaml
 logger = logging.getLogger(__name__)
 
 
-class EurothermWidget(QWidget):
-    signal_Pop_up       = pyqtSignal()
-
-    def __init__(self, sprache, Frame_Anzeige, widget, line_color, config, config_dat, neustart, multilog_aktiv, add_Ablauf_function, eurotherm = 'Eurotherm', typ = 'Generator', parent=None):
-        """GUI widget of Eurotherm controller.
+class EducrysHeizerWidget(QWidget):
+    def __init__(self, sprache, Frame_Anzeige, widget, line_color, config, config_dat, neustart, multilog_aktiv, add_Ablauf_function, eduHeizer = 'Educrys-Heizer', typ = 'Generator', parent=None):
+        """GUI widget of Educrys controller.
 
         Args:
             sprache (int):                      Sprache der GUI (Listenplatz)
@@ -66,7 +64,7 @@ class EurothermWidget(QWidget):
             multilog_aktiv (bool):              Multilog-Read/Send Aktiviert
             neustart (bool):                    Neustart Modus, Startkonfigurationen werden übersprungen
             add_Ablauf_function (Funktion):     Funktion zum updaten der Ablauf-Datei.
-            eurotherm (str):                    Name des Gerätes
+            eduHeizer (str):                    Name des Gerätes
             typ (str):                          Typ des Gerätes
         """
         super().__init__()
@@ -83,7 +81,7 @@ class EurothermWidget(QWidget):
         self.neustart                   = neustart
         self.multilog_OnOff             = multilog_aktiv
         self.add_Text_To_Ablauf_Datei   = add_Ablauf_function
-        self.device_name                = eurotherm
+        self.device_name                = eduHeizer
         self.typ                        = typ
 
         ## Faktoren Skalierung:
@@ -91,9 +89,6 @@ class EurothermWidget(QWidget):
 
         ## Aktuelle Messwerte:
         self.ak_value = {}
-
-        ## Signal:
-        self.signal_Pop_up.connect(self.Pop_Up_Start_Later)
 
         ## GUI:
         self.color_Aktiv = self.typ_widget.color_On
@@ -141,12 +136,6 @@ class EurothermWidget(QWidget):
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.init = False
         #//////////////////////////////////////////////////////////////////////
-        try: self.Safety = self.config['start']['sicherheit']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|sicherheit {self.Log_Pfad_conf_5[self.sprache]} True')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.Safety = True
-        #//////////////////////////////////////////////////////////////////////
         try: self.startMode = self.config['start']["start_modus"]
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|start_modus {self.Log_Pfad_conf_5[self.sprache]} Manuel')
@@ -159,12 +148,6 @@ class EurothermWidget(QWidget):
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.StartRampe = 'IST'
         # Wert Kontrolle: unter `Nachrichten im Log-File:` zu finden!
-        #//////////////////////////////////////////////////////////////////////
-        try: self.RampeUnit_m = self.config['start']["ramp_m_unit"]
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|ramp_m_unit {self.Log_Pfad_conf_5[self.sprache]} K/s')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.RampeUnit_m = 'K/s'
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Defaults:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -329,10 +312,6 @@ class EurothermWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} 0 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_12[self.sprache]})')
             self.uGPID = 0
             self.oGPID = 1 
-        ### HO-Start-Sicherheit:
-        if not type(self.Safety) == bool and not self.Safety in [0, 1]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} sicherheit - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} True - {self.Log_Pfad_conf_8[self.sprache]} {self.Safety}')
-            self.Safety = 1
         ### Start-Modus:
         if not self.startMode in ['Auto', 'Manuel']:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_modus - {self.Log_Pfad_conf_2[self.sprache]} [Auto, Manuel] - {self.Log_Pfad_conf_3[self.sprache]} Manuel - {self.Log_Pfad_conf_8[self.sprache]} {self.startMode}')
@@ -356,10 +335,6 @@ class EurothermWidget(QWidget):
         if not type(self.PID_Mode_Switch_Value) in [float, int] or not self.PID_Mode_Switch_Value >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} umstell_wert - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Mode_Switch_Value)}')
             self.PID_Mode_Switch_Value = 0
-        ### Rampen Steigungs Unit (Eurotherm-Rampe):
-        if not type(self.RampeUnit_m) == str or not self.RampeUnit_m in ['K/s', 'K/h', 'K/min']:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} ramp_m_unit - {self.Log_Pfad_conf_2[self.sprache]} [K/s, K/h, K/min] - {self.Log_Pfad_conf_3[self.sprache]} K/s - {self.Log_Pfad_conf_8[self.sprache]} {self.RampeUnit_m}')
-            self.RampeUnit_m = 'K/s'
         
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -444,8 +419,6 @@ class EurothermWidget(QWidget):
         self.Log_Text_42_str        = ['Setzen des Maximalen Ausgangsleistung (HO) mit dem Maximalen Config-Limit für den Leistungsausgang.',                                                                                                   'Setting the maximum output power (HO) with the maximum config limit for the power output.']
         self.Log_Text_43_str        = ['Startmodus Leistungseingabe (Manueller Modus)!',                                                                                                                                                        'Start mode power input (manual mode)!']
         self.Log_Text_44_str        = ['Startmodus Temperatureingabe (Automatischer Modus)!',                                                                                                                                                   'Start mode temperature input (automatic mode)!']
-        self.Log_Text_181_str       = ['Eurotherm Rampe geht vom Istwert aus. Eurotherm Rampe zu Beginn benötigt für den Plot den Istwert! Annahme auf 20°C!',                                                                                  'Eurotherm ramp is based on the actual value. Eurotherm ramp at the beginning requires the actual value for the plot! Assumption at 20°C!']
-        self.Log_Text_182_str       = ['Eine Eurotherm-Rampe wird nur bei Temperatur durchführbar sein!',                                                                                                                                       'A Eurotherm ramp will only be possible at temperature!']
         self.Log_Text_184_str       = ['Die Rampen Art op kann nur bei einem Temperatur-Rezept angewendet werden!',                                                                                                                             'The ramp type op can only be used with a temperature recipe!']
         self.Log_Text_185_str       = ['Rezept Fehler: ',                                                                                                                                                                                       'Recipe error: ']
         self.Log_Text_205_str       = ['Update Konfiguration (Update Limits):',                                                                                                                                                                 'Update configuration (update limits):']
@@ -457,11 +430,11 @@ class EurothermWidget(QWidget):
         self.Log_Text_PID_Ex        = ['Der Wert in der Konfig liegt außerhalb des Limit-Bereiches! Umschaltwert wird auf Minimum-Limit gesetzt!',                                                                                              'The value in the config is outside the limit range! Switching value is set to minimum limit!']
         self.Log_Text_Ex1_str       = ['Fehler Grund (Rezept einlesen):',                                                                                                                                                                       'Error reason (reading recipe):']
         self.Log_Text_Ex2_str       = ['Fehler Grund (Problem mit Rezept-Konfiguration):',                                                                                                                                                      'Error reason (Problem with recipe configuration)']
-        self.Log_Text_EPID_1        = ['Update Konfiguration (Update PID-Parameter Eurotherm):',                                                                                                                                                'Update configuration (update PID parameters Eurotherm):']
+        self.Log_Text_EPID_1        = ['Update Konfiguration (Update PID-Parameter Educrys):',                                                                                                                                                  'Update configuration (update PID parameters Educrys):']
         self.Log_Text_EPID_2        = ['Der Wert',                                                                                                                                                                                              'The value']
         self.Log_Text_EPID_3        = ['liegt außerhalb des Bereiches 0 bis 99999! Senden verhindert!',                                                                                                                                         'is outside the range 0 to 99999! Sending prevented!']
         self.Log_Text_EPID_4        = ['Beim Vorbereiten des Sendens der neuen PID-Parameter gab es einen Fehler!',                                                                                                                             'There was an error while preparing to send the new PID parameters!']
-        self.Log_Text_EPID_5        = ['Einlese-Fehler der\nneuen Eurotherm PID-Parameter!',                                                                                                                                                    'Error reading the\nnew Eurotherm PID parameters!']
+        self.Log_Text_EPID_5        = ['Einlese-Fehler der\nneuen Educrys PID-Parameter!',                                                                                                                                                      'Error reading the\nnew Educrys PID parameters!']
         self.Log_Text_EPID_6        = ['Fehlergrund (PID-Parameter):',                                                                                                                                                                          'Reason for error (PID parameter):']
         self.Log_Text_LB_1          = ['Limitbereich',                                                                                                                                                                                          'Limit range']
         self.Log_Text_LB_2          = ['Temperatur',                                                                                                                                                                                            'Temperatur']
@@ -469,14 +442,6 @@ class EurothermWidget(QWidget):
         self.Log_Text_LB_4          = ['bis',                                                                                                                                                                                                   'to']
         self.Log_Text_LB_5          = ['nach Update',                                                                                                                                                                                           'after update']
         self.Log_Text_Kurve         = ['Kurvenbezeichnung existiert nicht:',                                                                                                                                                                    'Curve name does not exist:']
-        self.Log_EuRa_Werte_1       = ['Eurotherm-Rampen Zielsollwert',                                                                                                                                                                         'Eurotherm ramps target setpoint']
-        self.Log_EuRa_Werte_2       = ['Eurotherm-Rampen Steigung',                                                                                                                                                                             'Eurotherm ramp gradient']
-        self.Log_Text_EuRa_UnitKS   = ['ein Kelvin die Sekunde',                                                                                                                                                                                'one Kelvin per second']
-        self.Log_Text_EuRa_UnitKH   = ['ein Kelvin die Stunde',                                                                                                                                                                                 'one Kelvin per hour']
-        self.Log_Text_EuRa_UnitKM   = ['ein Kelvin die Minute',                                                                                                                                                                                 'one Kelvin per minute']
-        self.Log_Text_EuRa_Unit     = ['Die gewählte Einheit für die Eurotherm-Rampe ist',                                                                                                                                                      'The selected unit for the Eurotherm ramp is']
-        self.Log_EuRa_Text_m1       = ['Die Steigung von',                                                                                                                                                                                      'The gradient of']
-        self.Log_EuRa_Text_m2       = ['überschreit das Maximum von 9999.9! Steigung wird auf Maximum gesetzt für das Segment',                                                                                                                 'exceeds the maximum of 9999.9! Slope is set to maximum for the segment']    
         ## Ablaufdatei: ###########################################################################################################################################################################################################################################################################                                                                             
         self.Text_19_str            = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da keine Eingabe.',                                                                                                                                   'Input field error message: Sending failed because there was no input.']
         self.Text_20_str            = ['Eingabefeld Fehlermeldung: Senden Fehlgeschlagen, da Eingabe die Grenzen überschreitet.',                                                                                                               'Input field error message: Send failed because input exceeds limits.']
@@ -506,26 +471,20 @@ class EurothermWidget(QWidget):
         self.Text_90_str            = ['Sicherer Endzustand wird hergestellt! Auslösung des Stopp-Knopfes!',                                                                                                                                    'Safe final state is established! Stop button is activated!']
         self.Text_91_str            = ['Rezept Beenden - Sicherer Endzustand',                                                                                                                                                                  'Recipe Ends - Safe End State']
         self.Text_PID_1             = ['Wechsel in PID-Modus.',                                                                                                                                                                                 'Switch to PID mode.']
-        self.Text_PID_2             = ['Wechsel in Eurotherm-Regel-Modus.',                                                                                                                                                                     'Switch to Eurotherm control mode.']
+        self.Text_PID_2             = ['Wechsel in Educrys-Regel-Modus.',                                                                                                                                                                       'Switch to Educrys control mode.']
         self.Text_Update            = ['Update Fehlgeschlagen!',                                                                                                                                                                                'Update Failed!']
         self.Text_Update_2          = ['Rezept neu einlesen Fehlgeschlagen!',                                                                                                                                                                   'Reload recipe failed!']
         self.Text_PIDReset_str      = ['PID Reset ausgelöst',                                                                                                                                                                                   'PID reset triggered']
         self.Text_LimitUpdate       = ['Limit Update ausgelöst',                                                                                                                                                                                'limit update triggered']
         self.Text_Extra_1           = ['Menü-Knopf betätigt - ',                                                                                                                                                                                'Menu button pressed - ']
         self.Text_PIDResetError     = ['Der PID ist aktiv in Nutzung und kann nicht resettet werden!',                                                                                                                                          'The PID is actively in use and cannot be reset!']
-        ## Pop-Up-Fenster: #########################################################################################################################################################################################################################################################################
-        self.puF_HO_str             = ['Die maximale Ausgangsleistung (HO) wird nicht an das Limit angepasst! Die Einstellung Sicherheit wurde auf True gesetzt. Das bedeutet das der Wert nur direkt am Eurotherm geändert werden kann!',      'The maximum output power (HO) is not adjusted to the limit! The Security setting has been set to True. This means that the value can only be changed directly on the Eurotherm!']
-        self.puF_HO_str_2           = ['Bitte beachten Sie, dass bei der Config-Einstellung "sicherheit" True der OPmax Wert nicht mit dem in dem Gerät übereinstimmen muss. Bitte Betätigen Sie zur Anpassung im Menü "Eurotherm HO lesen" oder Wechseln Sie in den Manuellen Modus, damit der OPmax-Wert in VIFCON aktualisiert wird!',
-                                       'Please note that with the config setting "security" True, the OPmax valuedoes not have to match that in the device. To adjust, please press "Read Eurotherm HO" in the menu or switch to manual mode so that the OPmax value is updated in VIFCON!']
-        self.puF_RezeptAnz_str      = ['Beachte Konfikuration am Gerät:\n1. Sehe nach ob die richtige Einstellung für die Rampensteigung eingegeben ist (Am Eurotherm: Drücke 2xBlatt, 3xPfeil CCW -> Ramp Units -> Pfeiltasten zur Auswahl)(Achtung: Wähle das richtige Programm nach einmal Blatt)!\n2. Beachte Konfigurationseinstellung (Eurotherm) "Servo" (Eurotherm-Rampe: Start Soll- oder Istwert)!!',
-                                       'Note the configuration on the device:\n1. Check whether the correct setting for the ramp gradient has been entered (On Eurotherm: Press 2xSheet, 3xArrow CCW -> Ramp Units -> arrow keys to select)(Attention: Select the correct program after one sheet)!\n2. Note configuration setting (Eurotherm) "Servo" (Eurotherm ramp: start setpoint or actual value)!!']
 
         #---------------------------------------
         # Konfigurationen für das Senden:
         #---------------------------------------
         #self.send_betätigt = True
-        self.write_task  = {'Soll-Temperatur': False, 'Operating point':False, 'Auto_Mod': False, 'Manuel_Mod': False, 'Init':False, 'Start': False, 'EuRa': False, 'EuRa_Reset': False, 'Read_HO': False, 'Write_HO': False, 'PID': False, 'PID_Rezept_Mode_OP': False, 'PID-Update': False, 'Read_PID': False, 'Update Limit': False, 'PID-Reset': False}
-        self.write_value = {'Sollwert': 0 , 'EuRa_Soll': 0, 'EuRa_m': 0, 'Rez_OPTemp': -1, 'HO': 0, 'PID-Sollwert': 0, 'PID_Rez': -1, 'PID-Update': [0, 0, 0], 'Limits': [0, 0, 0, 0]} # Limits: oGOp, uGOp, oGPID, uGPID
+        self.write_task  = {'Soll-Temperatur': False, 'Operating point':False, 'Auto_Mod': False, 'Manuel_Mod': False, 'Init':False, 'Start': False,  'PID': False, 'PID_Rezept_Mode_OP': False, 'PID-Update': False, 'Read_PID': False, 'Update Limit': False, 'PID-Reset': False}
+        self.write_value = {'Sollwert': 0 , 'Rez_OPTemp': -1, 'PID-Sollwert': 0, 'PID_Rez': -1, 'PID-Update': [0, 0, 0], 'Limits': [0, 0, 0, 0]} # Limits: oGOp, uGOp, oGPID, uGPID
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -549,16 +508,8 @@ class EurothermWidget(QWidget):
         #---------------------------------------
         logger.info(f"{self.device_name} - {self.Log_Text_28_str[self.sprache]}") if self.init else logger.warning(f"{self.device_name} - {self.Log_Text_29_str[self.sprache]}")
         if self.neustart: logger.info(f"{self.device_name} - {self.Log_Text_30_str[self.sprache]}") 
-        logger.info(f"{self.device_name} - {self.Log_Text_41_str[self.sprache]}") if self.Safety else logger.info(f"{self.device_name} - {self.Log_Text_42_str[self.sprache]}")
         logger.info(f"{self.device_name} - {self.Log_Text_43_str[self.sprache]}") if self.startMode == 'Manuel' else logger.info(f"{self.device_name} - {self.Log_Text_44_str[self.sprache]}")
-        if self.Safety and self.init: 
-            self.start_later = True 
         logger.info(f'{self.device_name} - {self.Log_Text_245_str[self.sprache]}') if self.StartRampe == 'IST' else (logger.info(f'{self.device_name} - {self.Log_Text_246_str[self.sprache]}') if self.StartRampe == 'SOLL' else logger.warning(f'{self.device_name} - {self.Log_Text_247_str[self.sprache]}'))
-        
-        if self.RampeUnit_m == 'K/s':       unit_EuRa = self.Log_Text_EuRa_UnitKS[self.sprache]
-        elif self.RampeUnit_m == 'K/h':     unit_EuRa = self.Log_Text_EuRa_UnitKH[self.sprache]
-        elif self.RampeUnit_m == 'K/min':   unit_EuRa = self.Log_Text_EuRa_UnitKM[self.sprache]
-        logger.info(f'{self.device_name} - {self.Log_Text_EuRa_Unit[self.sprache]} {unit_EuRa}')
         
         ## Limit-Bereiche:
         logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_2[self.sprache]}: {self.uGST} {self.Log_Text_LB_4[self.sprache]} {self.oGST}{self.T_unit_einzel[self.sprache]}')
@@ -629,7 +580,7 @@ class EurothermWidget(QWidget):
 
         ### Label:
         #### Geräte-Titel:
-        self.La_name = QLabel(f'<b>{eurotherm}</b>')
+        self.La_name = QLabel(f'<b>{eduHeizer}</b>')
         #### Isttemperatur:
         self.La_IstTemp_text = QLabel(f'{istwert_str[self.sprache]}-{sT_str[self.sprache]} ')
         self.La_IstTemp_wert = QLabel(st_T_str[self.sprache])
@@ -761,19 +712,19 @@ class EurothermWidget(QWidget):
 
         ## Kurven-Namen:
         kurv_dict = {                                                                   # Wert: [Achse, Farbe/Stift, Name]
-            'IWT':    ['a1', pg.mkPen(self.color[0], width=2),                           f'{eurotherm} - {T_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'SWT':    ['a1', pg.mkPen(self.color[1]),                                    f'{eurotherm} - {T_einzel_str[self.sprache]}<sub>{sollwert_str[self.sprache]}</sub>'],
-            'IWOp':   ['a2', pg.mkPen(self.color[2], width=2),                           f'{eurotherm} - {P_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'oGT':    ['a1', pg.mkPen(color=self.color[0], style=Qt.DashLine),           f'{eurotherm} - {T_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGT':    ['a1', pg.mkPen(color=self.color[0], style=Qt.DashDotDotLine),     f'{eurotherm} - {T_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'oGOp':   ['a2', pg.mkPen(color=self.color[2], style=Qt.DashLine),           f'{eurotherm} - {P_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGOp':   ['a2', pg.mkPen(color=self.color[2], style=Qt.DashDotDotLine),     f'{eurotherm} - {P_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
-            'RezT':   ['a1', pg.mkPen(color=self.color[3], width=3, style=Qt.DotLine),   f'{eurotherm} - {rezept_Label_str[self.sprache]}<sub>{T_einzel_str[self.sprache]}</sub>'],
-            'RezOp':  ['a2', pg.mkPen(color=self.color[4], width=3, style=Qt.DotLine),   f'{eurotherm} - {rezept_Label_str[self.sprache]}<sub>{P_einzel_str[self.sprache]}</sub>'],
+            'IWT':    ['a1', pg.mkPen(self.color[0], width=2),                           f'{eduHeizer} - {T_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'SWT':    ['a1', pg.mkPen(self.color[1]),                                    f'{eduHeizer} - {T_einzel_str[self.sprache]}<sub>{sollwert_str[self.sprache]}</sub>'],
+            'IWOp':   ['a2', pg.mkPen(self.color[2], width=2),                           f'{eduHeizer} - {P_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'oGT':    ['a1', pg.mkPen(color=self.color[0], style=Qt.DashLine),           f'{eduHeizer} - {T_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGT':    ['a1', pg.mkPen(color=self.color[0], style=Qt.DashDotDotLine),     f'{eduHeizer} - {T_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'oGOp':   ['a2', pg.mkPen(color=self.color[2], style=Qt.DashLine),           f'{eduHeizer} - {P_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGOp':   ['a2', pg.mkPen(color=self.color[2], style=Qt.DashDotDotLine),     f'{eduHeizer} - {P_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'RezT':   ['a1', pg.mkPen(color=self.color[3], width=3, style=Qt.DotLine),   f'{eduHeizer} - {rezept_Label_str[self.sprache]}<sub>{T_einzel_str[self.sprache]}</sub>'],
+            'RezOp':  ['a2', pg.mkPen(color=self.color[4], width=3, style=Qt.DotLine),   f'{eduHeizer} - {rezept_Label_str[self.sprache]}<sub>{P_einzel_str[self.sprache]}</sub>'],
             'SWTPID': ['a1', pg.mkPen(self.color[5], width=2, style=Qt.DashDotLine),     f'{PID_Label_Soll} - {T_einzel_str[self.sprache]}_{cb_PID[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
             'IWTPID': ['a1', pg.mkPen(self.color[6], width=2, style=Qt.DashDotLine),     f'{PID_Label_Ist} - {T_einzel_str[self.sprache]}_{cb_PID[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
-            'oGPID':  ['a1', pg.mkPen(color=self.color[6], style=Qt.DashLine),           f'{eurotherm} - {self.PID_G_Kurve[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
-            'uGPID':  ['a1', pg.mkPen(color=self.color[6], style=Qt.DashDotDotLine),     f'{eurotherm} - {self.PID_G_Kurve[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
+            'oGPID':  ['a1', pg.mkPen(color=self.color[6], style=Qt.DashLine),           f'{eduHeizer} - {self.PID_G_Kurve[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
+            'uGPID':  ['a1', pg.mkPen(color=self.color[6], style=Qt.DashDotDotLine),     f'{eduHeizer} - {self.PID_G_Kurve[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
             }
 
         ## Kurven erstellen:
@@ -1036,11 +987,10 @@ class EurothermWidget(QWidget):
                 self.labelDict['IWT'].setStyleSheet(f"color: {self.color[0]}")  # Istwert PID
                 self.La_IstTemp_text.setStyleSheet(f"color: {self.color[0]}")  
                 self.labelDict['SWT'].setStyleSheet(f"color: {self.color[1]}")  # Sollwert PID
-                self.RB_choise_Temp.setStyleSheet(f"color: {self.color[1]}")   
+                self.RB_choise_Temp.setStyleSheet(f"color: {self.color[1]}")  
             TT_Temp = f'{self.TTLimit[self.sprache]}{self.TTSize_T[self.sprache]} {self.uGST} ... {self.oGST} {self.T_unit_einzel[self.sprache]}'
             self.LE_Temp.setToolTip(TT_Temp)
                      
-
     ##########################################
     # Reaktion auf Butttons:
     ##########################################
@@ -1118,7 +1068,7 @@ class EurothermWidget(QWidget):
     # Reaktion auf übergeordnete Butttons:
     ##########################################
     def Stopp(self, n = 3):
-        ''' Setzt den Eurotherm in einen Sicheren Zustand '''
+        ''' Setzt den Educrys in einen Sicheren Zustand '''
         if self.init:
             if n == 5: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
             # Beende PID-Modus:
@@ -1262,36 +1212,11 @@ class EurothermWidget(QWidget):
             logger.info(f'{self.device_name} - {self.Log_Text_LB_1[self.sprache]} {self.Log_Text_LB_3[self.sprache]} ({self.Log_Text_LB_5[self.sprache]}): {self.uGOp} {self.Log_Text_LB_4[self.sprache]} {self.oGOp} {self.P_unit_einzel[self.sprache]}')
 
             self.Fehler_Output(0)
-
-            if not self.Safety and self.init:
-                self.write_task['Write_HO'] = True
-                self.write_value['HO'] = self.oGOp
-            elif self.Safety:
-                logger.warning(f"{self.device_name} - {self.Log_Text_242_str[self.sprache]}")
-                self.typ_widget.Message(f'{self.device_name} - {self.puF_HO_str[self.sprache]}', 3, 600)
-            else:
-                self.Fehler_Output(1, self.err_4_str[self.sprache])
         else:
             self.Fehler_Output(1, self.Log_Yaml_Error[self.sprache], self.Text_Update[self.sprache])
-
-    def Lese_HO(self):
-        '''Lese HO neu aus!'''
-        if self.init:
-            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_80_str[self.sprache]}')
-            self.write_task['Read_HO'] = True
-        else:
-            self.Fehler_Output(1, self.err_4_str[self.sprache])
-
-    def Read_PID(self):
-        '''Lese PID neu aus!'''
-        if self.init:
-            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_80_3_str[self.sprache]}')
-            self.write_task['Read_PID'] = True
-        else:
-            self.Fehler_Output(1, self.err_4_str[self.sprache])
     
     def Write_PID(self):
-        '''Entnehme der Config die PID-Werte für Eurotherm und ändere diese!'''
+        '''Entnehme der Config die PID-Werte für Educrys und ändere diese!'''
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_80_2_str[self.sprache]}')
             
@@ -1404,13 +1329,7 @@ class EurothermWidget(QWidget):
             if kurve in self.grenzListDict:
                 self.grenzListDict[kurve].append(float(self.grenzValueDict[kurve]))
                 self.kurven_dict[kurve].setData(x_value, self.grenzListDict[kurve])
-        
-    def Pop_Up_Start_Later(self):
-        ## Pop-Up-Fenster verzögert zum Start starten:
-        if self.start_later:
-            self.start_later = False
-            self.typ_widget.Message(f'{self.device_name} - {self.puF_HO_str_2[self.sprache]}', 3, 450) 
-    
+            
     ########################################## 
     # Reaktion auf Initialisierung:
     ##########################################
@@ -1418,8 +1337,6 @@ class EurothermWidget(QWidget):
         ''' Initialisierung soll durch geführt werden '''
         self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_23_str[self.sprache]}')
         self.write_task['Init'] = True
-        if self.Safety: 
-            self.typ_widget.Message(f'{self.device_name} - {self.puF_HO_str_2[self.sprache]}', 3, 450)
             
     def init_controll(self, init_okay, menu):
         ''' Anzeige auf GUI ändern 
@@ -1527,7 +1444,7 @@ class EurothermWidget(QWidget):
     def RezEnde(self, rez_End=False, excecute = 1):
         ''' Rezept wurde/wird beendet 
         Args:
-            rez_End (Bool):   Wenn der Knopf betätigt wird, dann muss Eurotherm Rampe ausgeschaltet werden!
+            rez_End (Bool):   Wenn der Knopf betätigt wird, dann muss Educrys Rampe ausgeschaltet werden!
         '''
         if self.init:
             if self.Rezept_Aktiv:
@@ -1554,14 +1471,8 @@ class EurothermWidget(QWidget):
                 self.write_value['PID_Rez'] = -1
 
                 ## Am Ende oder bei Abbruch:
-                ## Eurotherm Rampe :
-                if self.Art_list[self.step] == 'er' and not rez_End:
-                    self.write_task['EuRa_Reset'] = True
-                elif self.Art_list[self.step] == 'er' and rez_End:
-                    self.write_task['Soll-Temperatur'] = True
-                    self.write_value['Sollwert'] = self.value_list[-1]
                 ## Leistungssprung in Temperatur-Rezept:
-                elif self.Art_list[self.step] == 'op':
+                if self.Art_list[self.step] == 'op':
                     self.write_task['Auto_Mod'] = True
                     self.write_task['Manuel_Mod'] = False
 
@@ -1625,18 +1536,7 @@ class EurothermWidget(QWidget):
                 else:
                     self.write_task['PID_Rezept_Mode_OP'] = False
                     self.write_value['PID_Rez'] = -1
-            elif self.Art_list[self.step] == 'er':
-                ## Kontrolliere ob der vorherige Schritt ein op-Schritt war:
-                if self.op_Mod:
-                    self.write_task['Manuel_Mod'] = False
-                    self.write_task['Auto_Mod'] = True
-                    self.op_Mod = False
-                ## Löse die Eurotherm-Rampe aus
-                self.write_value['EuRa_Soll'] = self.value_list[self.step]
-                self.write_value['EuRa_m'] = self.Steigung[self.step]   
-                self.write_task['EuRa'] = True
-                logger.info(f'{self.device_name} - {self.Log_EuRa_Werte_1[self.sprache]} = {self.value_list[self.step]}; {self.Log_EuRa_Werte_2[self.sprache]} = {self.Steigung[self.step]}')
-    
+
     def Rezept_lesen_controll(self):
         ''' Rezept wird ausgelesen und kontrolliert. Bei Fehler werden die Fehlermeldungen beschrieben auf der GUI. 
         
@@ -1650,7 +1550,7 @@ class EurothermWidget(QWidget):
         self.time_list      = []        # Timer-Zeiten
         self.value_list     = []        # Sollwerte
         self.value_list_op  = []        # Sollwerte für OP, im Fall eines Leistungssprungs im Temperaturrezept
-        self.Art_list       = []        # Speichert ob Eurotherm-Rampe, Rampe oder Sprung
+        self.Art_list       = []        # Speichert ob Educrys-Rampe, Rampe oder Sprung
         self.Steigung       = []        # Rampensteigungen (für er benötigt)
 
         ## Grenzwerte:
@@ -1691,31 +1591,20 @@ class EurothermWidget(QWidget):
             #///////////////////////////////////////////////////////////////////////////////
             ## Fehlermeldung: 
             ### Kontrolle des Leistungsrezeptes -> op und er nicht möglich
-            ### PID-Modus -> op, opr und er nicht möglich
+            ### PID-Modus:
             #//////////////////////////////////////////////////////////////////////////////
             if not self.RB_choise_Temp.isChecked():
                 for n in rez_dat:
-                    if 'er' in rez_dat[n]:  
-                        logger.warning(f'{self.device_name} - {self.Log_Text_182_str[self.sprache]}')
-                        self.Fehler_Output(1, self.err_16_str[self.sprache])
-                        return True
                     if 'op' in rez_dat[n]:
                         logger.warning(f'{self.device_name} - {self.Log_Text_184_str[self.sprache]}')
                         self.Fehler_Output(1, self.err_17_str[self.sprache])
                         return True
-            if self.PID_cb.isChecked():
-                for segment in ['er']:
-                    for n in rez_dat:
-                        if segment in rez_dat[n]: 
-                            logger.warning(f'{self.device_name} - {self.Log_Text_248_str[self.sprache]}')
-                            self.Fehler_Output(1, self.err_20_str[self.sprache])
-                            return True
             #////////////////////////////////////////////////////////////
             ## Ersten Eintrag prüfen (besondere Startrampe):
             #////////////////////////////////////////////////////////////
             first_line = rez_dat[list(rez_dat.keys())[0]].split(';')[2]
             ### der aktuelle Istwert wird als Sprung eingetragen in die Werte-Listen, wenn Messdaten vorliegen:
-            if (first_line.strip() == 'r' or first_line.strip() == 'er') and not self.ak_value == {}:
+            if first_line.strip() == 'r'  and not self.ak_value == {}:
                 self.value_list.append(ak_value)    # Aktueller Istwert
                 self.time_list.append(0)            # Rezept-Zeit Null Sekunden
                 self.value_list_op.append(0)        # Rezept-Zeit für OP auch 0 s
@@ -1725,14 +1614,6 @@ class EurothermWidget(QWidget):
             elif first_line.strip() == 'r' and self.ak_value == {}:
                 self.Fehler_Output(1, self.err_12_str[self.sprache])
                 return True
-            ### Bei der Eurotherm-Rampe wird bei keinen Messdaten von 20°C ausgegangen:
-            elif first_line.strip() == 'er' and self.ak_value == {}:
-                logger.warning(f'{self.device_name} - {self.Log_Text_181_str[self.sprache]}')
-                self.value_list.append(20)      # Aktueller Istwert
-                self.value_list_op.append(0)    # Rezept-Zeit Null Sekunden
-                self.time_list.append(0)        # Rezept-Zeit für OP auch 0 s
-                self.Art_list.append('s')       # Art des Rezepts: Sprung
-                self.Steigung.append(0)         # keine Steigung
             #////////////////////////////////////////////////////////////
             ## Rezept Kurven-Listen erstellen:
             #////////////////////////////////////////////////////////////
@@ -1762,7 +1643,7 @@ class EurothermWidget(QWidget):
                     for rampen_n in range(1,rampen_value+1):        
                         if not rampen_n == rampen_value:        
                             ak_ramp = self.value_list[-1] + rampen_step         # Sollwert berechnen für eigene Rampe
-                            self.value_list.append(round(ak_ramp,3))            # Runden: Eurotherm könnte bis 6 Nachkommerstellen, Display nur 2
+                            self.value_list.append(round(ak_ramp,3))            
                             self.time_list.append(rampen_config_step)           # Zeitwert eintragen
                         else: # Letzter Wert!
                             self.value_list.append(value)
@@ -1770,22 +1651,7 @@ class EurothermWidget(QWidget):
                         self.Art_list.append('r')                               # Rampen-Art: r
                         self.value_list_op.append(0)                            # OP-Wert auf Null
                         self.Steigung.append(rampen_config_step)                # Steigungswert eintragen
-                ### Eurotherm Rampe:
-                elif werte[2].strip() == 'er': 
-                    #### Berechnung der Steigung:
-                    if self.RampeUnit_m == 'K/s':       umFak = 1                           # Kelvin je Sekunde ist Default
-                    elif self.RampeUnit_m == 'K/h':     umFak = 3600                        # Kelvin je Stunde
-                    elif self.RampeUnit_m == 'K/min':   umFak = 60                          # Kelvin je Minute
-                    m = abs(round(((self.value_list[-1] - value)/time) * umFak, 3))       # Steigung: m = Delta(y)/Delta(x) -> m = (aktueller_Wert - Zielwert)/Segmentzeit * Einheiten_Umrechnungsfaktor  
-                    if m > 9999.9:
-                        self.Fehler_Output(1, f'{self.Log_EuRa_Text_m1[self.sprache]} {m} {self.RampeUnit_m} {self.Log_EuRa_Text_m2[self.sprache]} {n}!')       
-                        m = 9999.9
-                    #### Listen-füllen:
-                    self.value_list.append(value)                               # Sollwert speichern
-                    self.value_list_op.append(0)                                # OP-Wert auf Null
-                    self.time_list.append(time)                                 # Zeit-Wert speichern
-                    self.Art_list.append('er')                                  # Rampen-Art: er
-                    self.Steigung.append(m)                                     # Steigungswert eintragen
+                
                 ### Leistungssprung in Temperatur-Rezept:
                 elif werte[2].strip() == 'op':
                     self.value_list.append(value)                               # Sollwert (Temp) speichern
@@ -1828,7 +1694,7 @@ class EurothermWidget(QWidget):
                     for rampen_n in range(1,rampen_value+1):        
                         if not rampen_n == rampen_value:        
                             ak_ramp = self.value_list_op[-1] + rampen_step      # Sollwert berechnen für eigene Rampe
-                            self.value_list_op.append(round(ak_ramp,3))         # Runden: Eurotherm könnte bis 6 Nachkommerstellen, Display nur 2
+                            self.value_list_op.append(round(ak_ramp,3))         
                             self.time_list.append(rampen_config_step)           # Zeitwert eintragen
                         else: # Letzter Wert!
                             self.value_list_op.append(float(werte[3].replace(',','.')))
@@ -1857,12 +1723,6 @@ class EurothermWidget(QWidget):
         Return:
             error (bool):   Rezeptfehler
         '''
-        #////////////////////////////////////////////////////////////
-        # Pop-Up-Fenster:
-        #////////////////////////////////////////////////////////////
-        if not self.Rezept_Aktiv and not self.cb_Rezept.currentText() == '------------':
-            self.typ_widget.Message(f'{self.device_name} - {self.puF_RezeptAnz_str[self.sprache]}', 3, 450)
-
         #////////////////////////////////////////////////////////////
         # Variablen:
         #////////////////////////////////////////////////////////////
@@ -1908,7 +1768,7 @@ class EurothermWidget(QWidget):
                     self.RezTimeList.append(ak_time + n)
                     self.RezValueList.append(self.value_list[i])
                     if 'op' in self.Art_list[i] and not self.value_list_op[i] == 'IST':
-                        if self.Art_list[i-1] == 's' or self.Art_list[i-1] == 'r' or self.Art_list[i-1] == 'er':
+                        if self.Art_list[i-1] == 's' or self.Art_list[i-1] == 'r':
                             # Extra Punkt 1:
                             RezOPTimeList.append(ak_time)
                             RezOPValueList.append(0)
@@ -1919,20 +1779,12 @@ class EurothermWidget(QWidget):
                         RezOPTimeList.append(ak_time+n)
                         RezOPValueList.append(self.value_list_op[i])
                         try: 
-                            if self.Art_list[i+1] == 's' or self.Art_list[i+1] == 'r' or self.Art_list[i+1] == 'er':
+                            if self.Art_list[i+1] == 's' or self.Art_list[i+1] == 'r':
                                 # Extra Punkt 2:
                                 RezOPTimeList.append(ak_time+n)
                                 RezOPValueList.append(0)
                         except:
                             nix = 0
-                ## Lineare Kurve:
-                elif self.Art_list[i] == 'er':                          
-                    # Punkt 1: 
-                    self.RezTimeList.append(ak_time)
-                    self.RezValueList.append(self.value_list[i-1])
-                    # Punkt 2:
-                    self.RezTimeList.append(ak_time + n)
-                    self.RezValueList.append(self.value_list[i])
                 ## nächsten Punkt vorbereiten:
                 ak_time = ak_time + n
                 i += 1

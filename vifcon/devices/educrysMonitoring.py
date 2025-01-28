@@ -154,6 +154,7 @@ class EducrysMon:
         self.Log_Text_70_str    = ['Initialisierung aufheben! Gerät abtrennen!',                                                                                            'Cancel initialization! Disconnect device!']
         self.Log_Text_71_str    = ['Erstelle die Messdatei mit dem Pfad:',                                                                                                  'Create the measurement file with the path:']
         self.Log_Text_72_str    = ['Keine Messdatenerfassung aktiv!',                                                                                                       'No measurement data recording active!']
+        self.Log_Text_136_str   = ['Fehler Grund (Auslesen):',                                                                                                              'Error reason (reading):']
         self.Log_Text_Port_1    = ['Verbindungsfehler:',                                                                                                                    'Connection error:']
         self.Log_Text_Port_2    = ['Der Test für den Verbindungsaufbau ist fehlgeschlagen!',                                                                                'The connection establishment test failed!']
         self.Log_Text_Port_3    = ['Antwort der Test-Abfrage war None. Bearbeitung nicht möglich!',                                                                         'The answer to the test query was None. Processing not possible!']
@@ -211,36 +212,40 @@ class EducrysMon:
             # Lese alle Monitoringswerte aus (Mehr als gebraucht!) - 29 Werte
             self.serial.write(('!\r').encode())
             time.sleep(0.1)
+            
             # Lese Antwort:
             ''' 
-            1. read_until() - liest bin \n -> Timeout auf None, da scheinbar ein Bug in serial!
+            1. read_out()   - liest bis \n -> Eigene Funktion! Liest Zeichen für Zeichen!
             2. decode()     - Bytearray umwandeln
             3. strip()      - Leerzeichen am Anfang und Ende entfernen
             4. replace()    - *, # und Abschlusszeichen entfernen
 
             Antwort-Beispiel: 5212.780 794.726 24.58 -99.00 22.87 -242.02 -99.00 0.00 0 0 0 0.00 0.000000 0 0 1000.00 0.00 22.87 22.85 20.00 -569.24 1000.00 -0.00 200.00 0.00 0.00 0.00 -0.00 0.00
             '''
-            ans = self.serial.read_until()
+
+            ans = self.read_out(200)
+            ans = ans.replace("\r","").replace("\n","")
             logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
-            ans = ans.decode().strip().replace('*', '').replace('#','').replace('\r\n','')
+            ans = ans.strip().replace('*', '').replace('#','').replace('\r','').replace('\n','')
             logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans} ({self.Log_Text_EM001_str[self.sprache]})')
+            
             ## Antwort an den Leerzeichen trennen:
             liste = ans.split(' ')
 
             # Zuweisung:
-            ## Wenn nur b'' ankommt:
+            ## Wenn nur '' ankommt:
             if liste == [''] or len(liste) != 29:
-                logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_4_str[self.sprache]}')
-                ans = self.serial.read_until()
-                ans = ans.decode().strip().replace('*', '').replace('#','').replace('\r\n','')
+                logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_4_str[self.sprache]} (!)')
+                ans = self.read_out(200)
+                ans = ans.strip().replace('*', '').replace('#','').replace('\r','').replace('\n','')
                 liste = ans.split(' ')
                 if liste == [''] or len(liste) != 29:   
-                    logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_5_str[self.sprache]}')
+                    logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_5_str[self.sprache]} (!)')
                     while n != self.Loop: 
                         self.serial.write(('!\r').encode())
                         time.sleep(0.1)
-                        ans = self.serial.read_until()
-                        ans = ans.decode().strip().replace('*', '').replace('#','').replace('\r\n','')
+                        ans = self.read_out(200)
+                        ans = ans.strip().replace('*', '').replace('#','').replace('\r','').replace('\n','')
                         liste = ans.split(' ')
                         if liste == [''] or len(liste) != 29:   n += 1
                         else:
@@ -282,6 +287,32 @@ class EducrysMon:
             logger.info(f"{self.device_name} - {self.Log_Time_r[self.sprache]} {timediff} {self.Log_Time_wr[self.sprache]}")
 
         return self.value_name
+
+    def read_out(self, Anz):
+        '''Liest eine bestimmte Anzahl von Zeichen aus, verbindet diese und gibt einen String zurück!
+        
+        Args:
+            Anz (int):      Anzahl der maximal zu lesenden Zeichen
+        
+        Return:
+            ans_join (Str): Zurückgegebener String (Bei Fehler Leerer String)
+        '''
+        try:
+            ans_list = []                                   # Leere Liste
+            i = 0                                           # Kontroll Variable (Zeichen)
+            while 1:                                        # Endlosschleife
+                z = self.serial.read()                      # Lese Zeichen
+                if z != '': ans_list.append(z.decode())     # Wenn nicht Leer, dann füge an Liste
+                if z == b'\n':  break                       # Wenn \n (Newline) beende Endlosschleife
+                if i >= Anz:    break                       # Wenn Anzahl Zeichen überschritten oder gleich, dann Beende Endlosschleife
+                i += 1                                      # Erhöhe Zählvariable
+            ans_join = ''.join(ans_list)                    # Verbinde die Liste zu einem String
+        except Exception as e:
+            logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
+            logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
+            ans_join = ''
+
+        return ans_join
 
     ##########################################
     # Reaktion auf Initialisierung:
@@ -348,5 +379,7 @@ class EducrysMon:
 ## Bereich für alten Code, denn man noch nicht vollkommen löschen will,
 ## da dieser später vieleicht wieder ergänzt wird!!
 '''
-
+            #ans = self.serial.read_until()
+            #logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
+            #ans = ans.decode().strip().replace('*', '').replace('#','').replace('\r\n','')
 '''
