@@ -62,8 +62,8 @@ skalFak:                                                                  # Skal
   Speed_1:  1                                                             # Geschwindigkeit in mm/s        a2 (PI-Achse)
   Speed_2:  0                                                             # Geschwindigkeit in mm/min      a2 (Nemo-Linear, Educrys-Antrieb (L))
   WinSpeed: 0                                                             # Winkelgeschwindigkeit in 1/min a2 (Nemo-Rotation, Educrys-Antrieb (F,R))
-  Temp:     1                                                             # Temperatur in °C               a1 (Eurotherm)
-  Op:       1                                                             # Leistung in %                  a2 (Eurotherm)
+  Temp:     1                                                             # Temperatur in °C               a1 (Eurotherm, Educrys-Heizer)
+  Op:       1                                                             # Leistung in %                  a2 (Eurotherm, Educrys-Heizer)
   Current:  0                                                             # Strom in A                     a1 (TruHeat, Nemo-Generator)
   Voltage:  0                                                             # Spannung in V                  a1 (TruHeat, Nemo-Generator)
   Pow:      0                                                             # Leistung in kW                 a2 (TruHeat, Nemo-Generator)
@@ -1207,7 +1207,7 @@ devices:
       lese_st_Reg_AS: 209                                                 # Auslese Start-Adresse für Anlagensicherheit:  209 | Default bei Fehler: Programm-Exit! | Nur bei Nemo-2 vorhanden!!
     parameter:
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3   
-# --------------------------------------------------------------------------------------------------------------------------------------------------------
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
   Nemo-Generator_TIG50_100:                                               # Muss "Nemo-Generator" enthalten! 
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
     typ: Generator                                                        # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
@@ -1308,7 +1308,7 @@ devices:
         n1: 10 ; 0.3 ; s
         n2: 10 ; 0.6 ; s
         n3: 10 ; 0.2 ; s
-# --------------------------------------------------------------------------------------------------------------------------------------------------------
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
   Nemo-Generator_2:                                                       # Muss "Nemo-Generator" enthalten! 
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
     typ: Generator                                                        # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
@@ -1409,7 +1409,7 @@ devices:
         n1: 10 ; 1.3 ; s
         n2: 10 ; 1.6 ; s
         n3: 10 ; 1.2 ; s
-# --------------------------------------------------------------------------------------------------------------------------------------------------------
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
   Nemo-Generator_HF5010:                                                  # Muss "Nemo-Generator" enthalten! 
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
     typ: Generator                                                        # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
@@ -1510,7 +1510,7 @@ devices:
         n1: 10 ; 1.3 ; s
         n2: 10 ; 1.6 ; s
         n3: 10 ; 1.2 ; s    
-# --------------------------------------------------------------------------------------------------------------------------------------------------------
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
   Educrys-Monitoring:                                                     # Muss "Educrys-Monitoring" enthalten!
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
     typ: Monitoring                                                       # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
@@ -1528,13 +1528,13 @@ devices:
       bytesize: 8
       stopbits: 1
       parity: N
-      timeout: 1                                                          # Bei read_until gibt es scheinbar einen Bug, wodurch das Timeout nicht richtig funktioniert. Mit None bei timeout wird das behoben! 
+      timeout: 0.1                                                        # Bei read_until gibt es scheinbar einen Bug, wodurch das Timeout nicht richtig funktioniert. Mit None bei timeout wird das behoben! 
     multilog:
       write_trigger: /                                                    # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen) | Default bei Fehler: Port auf Null
       write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
     parameter:
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3  
-# --------------------------------------------------------------------------------------------------------------------------------------------------------
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
   Educrys-Antrieb_1:                                                      # Muss "Educrys-Antrieb" enthalten! 
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
     typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
@@ -1565,8 +1565,10 @@ devices:
       bytesize: 8
       stopbits: 1
       parity: N
-      timeout: 1                                                          # Bei read_until gibt es scheinbar einen Bug, wodurch das Timeout nicht richtig funktioniert. Mit None bei timeout wird das behoben! 
-    serial-loop-read: 3                                                   # Anzahl der Wiederholung bei dem Auslesen der Antwort bei Fehlschlag! | Default bei Fehler: 10
+      timeout: 0.1                                                        # Bei read_until gibt es scheinbar einen Bug, wodurch das Timeout nicht richtig funktioniert. Mit None bei timeout wird das behoben! 
+    serial-extra:
+      serial-loop-read: 3                                                 # Anzahl der Wiederholung bei dem Auslesen der Antwort bei Fehlschlag! | Default bei Fehler: 10
+      rel_tol_write_ans: 1e-02                                            # Die Relative Toleranz zum Vergleich der Antwort des Gerätes mit dem gesendeten Befehl | Default bei Fehler: 1e-02  
     multilog:
       write_trigger: /                                                    # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Hub | Default bei Fehler: Port auf Null
       write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
@@ -1606,7 +1608,7 @@ devices:
       minSpeed: -600                                                      # Minimale Geschwindigkeit [mm/min] | Default bei Fehler: -1
     GUI:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
-      legend: IWs ; IWv ; Rezv #; Rezx ; IWxPID ; SWxPID     
+      legend: IWs ; IWv ; Rezv      
                                                                           # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!), x - Externe-PID-Input-Größe, PID- PID-Modus
                                                                           # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, uGv, oGv, uGs, oGs, IWxPID, SWxPID, oGPID, uGPID
@@ -1634,7 +1636,7 @@ devices:
         n2: 20 ; -10 ; s
         n3: 100 ; 10 ; s
         n4: 100 ; -10 ; s
-# --------------------------------------------------------------------------------------------------------------------------------------------------------
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
   Educrys-Antrieb_2:                                                      # Muss "Educrys-Antrieb" enthalten! 
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
     typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
@@ -1665,8 +1667,10 @@ devices:
       bytesize: 8
       stopbits: 1
       parity: N
-      timeout: 1                                                          # Bei read_until gibt es scheinbar einen Bug, wodurch das Timeout nicht richtig funktioniert. Mit None bei timeout wird das behoben! 
-    serial-loop-read: 3                                                   # Anzahl der Wiederholung bei dem Auslesen der Antwort bei Fehlschlag! | Default bei Fehler: 10
+      timeout: 0.1                                                        # Bei read_until gibt es scheinbar einen Bug, wodurch das Timeout nicht richtig funktioniert. Mit None bei timeout wird das behoben! 
+    serial-extra:
+      serial-loop-read: 3                                                 # Anzahl der Wiederholung bei dem Auslesen der Antwort bei Fehlschlag! | Default bei Fehler: 10
+      rel_tol_write_ans: 1e-02                                            # Die Relative Toleranz zum Vergleich der Antwort des Gerätes mit dem gesendeten Befehl | Default bei Fehler: 1e-02  
     multilog:
       write_trigger: /                                                    # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Hub | Default bei Fehler: Port auf Null
       write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
@@ -1706,7 +1710,7 @@ devices:
       minSpeed: 0                                                         # Minimale Geschwindigkeit [mm/min] | Default bei Fehler: -1
     GUI:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
-      legend: IWv ; Rezv #; Rezx ; IWxPID ; SWxPID     
+      legend: IWv ; Rezv   
                                                                           # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!), x - Externe-PID-Input-Größe, PID- PID-Modus
                                                                           # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, uGv, oGv, uGs, oGs, IWxPID, SWxPID, oGPID, uGPID
@@ -1735,7 +1739,7 @@ devices:
         n2: 160 ; 500 ; r ; 10
         n3: 20 ; 500 ; s
         n4: 160 ; 340 ; r ; 10
-# --------------------------------------------------------------------------------------------------------------------------------------------------------
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
   Educrys-Antrieb_3:                                                      # Muss "Educrys-Antrieb" enthalten! 
     skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
     typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
@@ -1766,8 +1770,10 @@ devices:
       bytesize: 8
       stopbits: 1
       parity: N
-      timeout: 1                                                          # Bei read_until gibt es scheinbar einen Bug, wodurch das Timeout nicht richtig funktioniert. Mit None bei timeout wird das behoben! 
-    serial-loop-read: 3                                                   # Anzahl der Wiederholung bei dem Auslesen der Antwort bei Fehlschlag! | Default bei Fehler: 10
+      timeout: 0.1                                                        # Bei read_until gibt es scheinbar einen Bug, wodurch das Timeout nicht richtig funktioniert. Mit None bei timeout wird das behoben! 
+    serial-extra:
+      serial-loop-read: 3                                                 # Anzahl der Wiederholung bei dem Auslesen der Antwort bei Fehlschlag! | Default bei Fehler: 10
+      rel_tol_write_ans: 1e-02                                            # Die Relative Toleranz zum Vergleich der Antwort des Gerätes mit dem gesendeten Befehl | Default bei Fehler: 1e-02  
     multilog:
       write_trigger: /                                                    # Sende an Multilog: Aus Multilog entnehmen -> Liste bei Hub | Default bei Fehler: Port auf Null
       write_port: 0                                                       # Sende an Multilog: Port für die Verbindung (siehe Multilog - Achsen müssen Hochgezählt werden!) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
@@ -1807,7 +1813,7 @@ devices:
       minSpeed: -20                                                         # Minimale Geschwindigkeit [mm/min] | Default bei Fehler: -1
     GUI:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
-      legend: IWv ; Rezv #; Rezx ; IWxPID ; SWxPID     
+      legend: IWv ; Rezv  
                                                                           # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
                                                                           # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, s - Weg/Position, v - Geschwindigkeit, Rez - Rezept, d - Device/Gerät (nur bei IWs verfügbar!), x - Externe-PID-Input-Größe, PID- PID-Modus
                                                                           # Eingebaut: Rezv, Rezx, IWs, IWsd, IWv, uGv, oGv, uGs, oGs, IWxPID, SWxPID, oGPID, uGPID
@@ -1836,3 +1842,104 @@ devices:
         n2: 20 ; -5 ; s
         n3: 10 ; 5 ; s 
         n4: 10 ; -5 ; s
+  # --------------------------------------------------------------------------------------------------------------------------------------------------------
+  Educrys-Heizer_1:                                                       # Muss "Educrys-Heizer" enthalten!
+    skip: 1                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
+    typ:  Generator                                                       # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
+    start:
+      PID_Write: 1                                                        # Schreibe zum Start die neuen PID-Werte - True: Schreibe, False: Später über Menü | Default bei Fehler: False
+      start_modus: Manuel                                                 # Auto - Automatisch (Temperatur), Manuel - Manueller Modus (Leistung) | Default bei Fehler: Manuel
+      readTime: 0.5                                                       # Auslesezeit [s] | Default bei Fehler: 2
+      init: 1                                                             # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
+                                                                          # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
+                                                                          #               Messung wird nicht gestartet! 
+                                                                          # Start-Werte:  Keine
+                                                                          # ggf. Setzen:  Start-Modus (Auto, Manuel), PID-Parameter
+                                                                          # Default bei Fehler: False
+      ramp_start_value: ist                                               # Start-Wert für die erste Rampe (beginnt Erstellung bei dieser) -> IST = Istwert, SOLL = Sollwert -> Upper genutzt! 
+                                                                          # Default bei Fehler: IST
+    ende: 1                                                               # End-Bedingung (Programm-Exit Knopf):
+                                                                          # True - Ausführung der Stopp-Funktion (Umschalten auf Manuell Modus mit 0 % Op)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                          # False - Nichts wird getann!
+                                                                          # Default bei Fehler: True
+    serial-interface:
+      port: COM20
+      baudrate: 9600
+      bytesize: 7
+      stopbits: 1
+      parity: E
+      timeout: 1
+    serial-extra:
+      serial-loop-read: 3                                                 # Anzahl der Wiederholung bei dem Auslesen der Antwort bei Fehlschlag! | Default bei Fehler: 10
+      rel_tol_write_ans: 1e-02                                            # Die Relative Toleranz zum Vergleich der Antwort des Gerätes mit dem gesendeten Befehl | Default bei Fehler: 1e-02  
+    multilog:
+      write_trigger: /                                                    # Sende an Multilog: siehe Multilog --> Geräte-Bezeichnung dort = Trigger (außer Achsen) | Default bei Fehler: Port auf Null
+      write_port: 50000                                                   # Sende an Multilog: Port für die Verbindung (siehe Multilog) - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! Anzeige in Vifcon nur! | Default bei Fehler: Port auf Null
+      read_trigger_ist: DAQ-6510                                          # Hole von Multilog: Gerätebezeichnung aus Multilog | Istwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null! 
+      read_port_ist: 0                                                    # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+      read_trigger_soll: DAQ-6510                                         # Hole von Multilog: Gerätebezeichnung aus Multilog | Sollwert für Regelung | Default bei Fehler: Multilog-Link ausgeschaltet! Port auf Null!
+      read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
+    PID:                                                                  # Erstellung eines PID-Reglers
+      PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+                                                                          # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
+      kp: 200                                                             # P-Anteil [] | Default bei Fehler: 0
+      ki: 0.3                                                             # I-Anteil [] | Default bei Fehler: 0
+      kd: 0                                                               # D-Anteil [] | Default bei Fehler: 0
+      sample: 500                                                         # Sample-Time [ms] | Default bei Fehler: 500
+      sample_tolleranz: 100                                               # Ab wann soll das Programme eine Warnung erzeugen! Bereich z.B. 400 bis 600 ms keine Warnung | Default bei Fehler: 100
+      start_ist: 25                                                       # Start-Istwert [°C] (wird nur für die Initialisierung gebraucht) | Default bei Fehler: 0
+      start_soll: 25                                                      # Start-Sollwert [°C] | Default bei Fehler: 0
+      umstell_wert: 0                                                     # Umschalten von PID-Modus (Checked) zu Normalen-Modus (Unchecked) | Default bei Fehler: 0
+      Multilog_Sensor_Ist: TE_1_K air 155 mm over crucible                # Dictionary Bezeichnung - Istwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Multilog_Sensor_Soll: no sensor                                     # Dictionary Bezeichnung - Sollwert (siehe Multilog) z.B. TE_1_K air 155 mm over crucible, Pyro_h1 
+                                                                          # Sollte kein Sensor gewählt werden können: no sensor (Nutzung von lower-Methode)
+                                                                          # Default bei Fehler: Multilog-Link ausgeschaltet!
+      Input_Limit_max: 200                                                # Maximum Limit für Input | Default bei Fehler: 1
+      Input_Limit_min: 0                                                  # Minimum Limit für Input | Default bei Fehler: 0
+      Input_Error_option: error                                           # Bei Fehler mache folgendes: max - Setze Maximum Input, min - Setze Minimum Input, error - erzeuge Fehlermeldung (Input ist Letzter Input oder Start-Ist) | Default bei Fehler: error
+      debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
+    PID-Device:
+      PB: 11.8                                                            # Proportionalband [Eng] oder [%] - Eng: °C, F  - 0 bis 99999   - Float   (eine Nachkommastelle)   | Default bei Fehler: Werden nicht weitergegeben!
+      TI: 99                                                              # Integralzeit [s]                - Off = 0     - Aus bis 99999 - Integer (keine Nachkommerstelle) | Default bei Fehler: Werden nicht weitergegeben!
+      TD: 0                                                               # Differenzialzeit [s]            - Off = 0     - Aus bis 99999 - Integer (keine Nachkommerstelle) | Default bei Fehler: Werden nicht weitergegeben!
+    limits:
+      maxTemp: 500                                                        # Maximale Temperatur [°C] | Default bei Fehler: 1
+      minTemp: 0                                                          # Minimale Temperatur [°C] | Default bei Fehler: 0
+      opMax: 25                                                           # Maximale Leistung [%] | Default bei Fehler: 1
+      opMin: 0                                                            # Minimale Leistung [%] | Default bei Fehler: 0
+    GUI:
+      legend: RezOp ; RezT ; SWT ; IWT ; IWOp ; SWTPID ; IWTPID           
+                                                                          # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, Op - Leistung, T - Temperatur, Rez - Rezept, PID - PID Modus
+                                                                          # Eingebaut: RezT, RezOp, IWT, IWOp, IWTPID, SWT, SWTPID, uGT, oGT, uGOp, oGOp, oGPID, uGPID
+                                                                          # Default bei Fehler: IWT, IWOp
+    defaults:
+      startTemp: 20                                                       # Temperatur bei Programmstart [°C] | Default bei Fehler: 0
+      startPow: 0                                                         # Leistung bei Programmstart [%] | Default bei Fehler: 0
+    rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen ; Sollwert (°C/%) (Rampe: Endwert) ; Art der Rampe ; Abstand der Sprünge in s (r) | Sollwert Ausgangsleistung (op, opr) - IST bedeutet nur Wechsel zu Manuel-Mode ; Schritte in %/s (opr) ; Start der Rampe (opr)
+                                                                          # Art der Rampe: s - Sprung, r - Rampe, er - Eurotherm-Rampe, op - Leistungssprung in einem Temperaturrezept, opr - Leistungsrampe in einem Temperaturrezept
+                                                                          # Bei einem Leistungsrezept werden nur s und r genutzt!
+                                                                          # Beispiel:
+                                                                          # Sprung                        -> n5: 10 ; 80 ; s
+                                                                          # Rampe                         -> n3: 30 ; 100 ; r ; 1
+                                                                          # Eurotherm-Rampe               -> n1: 30 ; 100 ; er 
+                                                                          # Sprung Leistung in T-rezept   -> n2: 20 ; 100 ; op ; 5
+                                                                          # Rampe Leistung in T-rezept    -> n4: 30 ; 100 ; opr ; 0 ; 0.667 ; 20
+                                                                          #                               -> n1: 30 ; 20 ; opr ; 20 ; 0.6               
+                                                                          # Steigung: r - z.B. 1      --> bei 10 s und Ziel: 100°C, Start: 30°C -> 10 s/1 = 10 s -> (100°C-30°C)/10 s = 7 °C/s (Sprünge)
+                                                                          #           opr - z.B. 1    --> bei 10 s und Ziel: 50 %, Start: 10 % -> 10 s/1 = 10 s -> (50 % - 10 %)/10 s = 4 %/s (Sprünge)
+                                                                          # op und oprs sind nur bei einem Temperaturrezept möglich!
+                                                                          #   - op: Die Rezeptkurve enthält dann Sprünge von Null auf den gewünschten Wert, die Reale Kurve muss dabei nicht auf Null sein!
+                                                                          #   - op: Wenn IST angegeben, dann wird nur Umgeschaltet in den Manuellen Modus. Kein Plot wenn nur IST!
+                                                                          #   - opr: Fehlt das letzte wird bei Null begonnen!
+                                                                          # Datei-Rezept: ACHTUNG:  1. Schritt muss 'dat' heißen!
+                                                                          #                         2. Rezeptdatei muss im Ordner 'vifcon/rezepte/' liegen!
+                                                                          #                         3. In der Datei dürfen nur die Schritte stehen!
+                                                                          # Weitere Informationen im Ordner Information (Rezepte_DE.md, Rezepte_En.md) mit Beispielbild,
+                                                                          # oder im Ordner vifcon/rezepte in der Beispiel-Datei: rec_example.yml (Rezept zum Beispielbild)
+                                                                          # Default bei Fehler: {'rezept_Default':  {'n1': '10 ; 0 ; s'}}
+      Test:
+        n1: 10 ; 20 ; s

@@ -142,39 +142,39 @@ class EducrysMon:
         # Sprach-Einstellung:
         #---------------------------------------
         ## Logging: ##################################################################################################################################################################################################################################################################################
-        self.Log_Text_60_str    = ['Erstelle das Schnittstellen Objekt!',                                                                                                   'Create the interface object!']
-        self.Log_Text_61_str    = ['Aufbau Schnittstelle des Geräts fehlgeschlagen! Programm wird beendet!',                                                                'Setup of the device interface failed! Program will end!']
-        self.Log_Text_62_str    = ['Fehler Grund (Schnittstellen Aufbau):',                                                                                                 'Error reason (interface structure):']
-        self.Log_Text_63_str    = ['Antwort Messwerte:',                                                                                                                    'Answer measurements:']
-        self.Log_Text_64_str    = ['Das Gerät konnte nicht ausgelesen werden.',                                                                                             'The device could not be read.']
-        self.Log_Text_65_str    = ['Fehler Grund (Gerät Auslesen):',                                                                                                        'Error reason (reading device):']
-        self.Log_Text_67_str    = ['Messwerte Umgewandelt - Messwert',                                                                                                      'Measured Values Converted - Measured Value']
-        self.Log_Text_68_str    = ['Das Gerät konnte nicht initialisiert werden!',                                                                                          'The device could not be initialized!']
-        self.Log_Text_69_str    = ['Fehler Grund (Initialisierung):',                                                                                                       'Error reason (initialization):']
-        self.Log_Text_70_str    = ['Initialisierung aufheben! Gerät abtrennen!',                                                                                            'Cancel initialization! Disconnect device!']
-        self.Log_Text_71_str    = ['Erstelle die Messdatei mit dem Pfad:',                                                                                                  'Create the measurement file with the path:']
-        self.Log_Text_72_str    = ['Keine Messdatenerfassung aktiv!',                                                                                                       'No measurement data recording active!']
-        self.Log_Text_136_str   = ['Fehler Grund (Auslesen):',                                                                                                              'Error reason (reading):']
-        self.Log_Text_Port_1    = ['Verbindungsfehler:',                                                                                                                    'Connection error:']
-        self.Log_Text_Port_2    = ['Der Test für den Verbindungsaufbau ist fehlgeschlagen!',                                                                                'The connection establishment test failed!']
-        self.Log_Text_Port_3    = ['Antwort der Test-Abfrage war None. Bearbeitung nicht möglich!',                                                                         'The answer to the test query was None. Processing not possible!']
-        self.Log_Text_Port_4    = ['Bei der Werte-Umwandlung ist ein Fehler aufgetreten!',                                                                                  'An error occurred during value conversion!']
-        self.Log_Text_Port_5    = ['Fehlerbeschreibung:',                                                                                                                   'Error description:']
-        self.Log_Test_Ex_1      = ['Der Variablen-Typ der Größe',                                                                                                           'The variable type of size']
-        self.Log_Test_Ex_2      = ['ist nicht Float! Setze Nan ein! Fehlerhafter Wert:',                                                                                    'is not Float! Insert Nan! Incorrect value:']
-        self.Log_Time_wr        = ['s gedauert!',                                                                                                                           's lasted!']   
-        self.Log_Time_r         = ['Die read-Funktion hat',                                                                                                                 'The read function has']  
-        self.Log_Text_EM001_str = ['bereinigt',                                                                                                                             'adjusted']
-        self.Log_Edu_3_str      = ['Antwort Falsch!',                                                                                                                       'Answer False!']
-        self.Log_Edu_4_str      = ['Wiederhole Antwort lesen, bevor neu Senden!',                                                                                           'Please read the answer again before sending again!']
-        self.Log_Edu_5_str      = ['Sende Befehl erneut!',                                                                                                                  'Resend command!']
-        self.Log_Edu_6_str      = ['Das Senden an Educrys hat keine richtige Antwort erbracht! Dies kann trotzdem bedeuten, dass der Befehl am Gerät angekommen ist!',      'Sending to Educrys did not produce a correct response! This may still mean that the command was received by the device!']
-        self.Log_Edu_7_str      = ['Antwort des Geräts auf !:',                                                                                                             'Device response to !:']
-        
+        self.Log_Text_60_str    = ['Erstelle das Schnittstellen Objekt!',                                                                                                           'Create the interface object!']
+        self.Log_Text_61_str    = ['Aufbau Schnittstelle des Geräts fehlgeschlagen! Programm wird beendet!',                                                                        'Setup of the device interface failed! Program will end!']
+        self.Log_Text_62_str    = ['Fehler Grund (Schnittstellen Aufbau):',                                                                                                         'Error reason (interface structure):']
+        self.Log_Text_63_str    = ['Antwort Messwerte:',                                                                                                                            'Answer measurements:']
+        self.Log_Text_64_str    = ['Das Gerät konnte nicht ausgelesen werden.',                                                                                                     'The device could not be read.']
+        self.Log_Text_65_str    = ['Fehler Grund (Gerät Auslesen):',                                                                                                                'Error reason (reading device):']
+        self.Log_Text_67_str    = ['Messwerte Umgewandelt - Messwert',                                                                                                              'Measured Values Converted - Measured Value']
+        self.Log_Text_68_str    = ['Das Gerät konnte nicht initialisiert werden!',                                                                                                  'The device could not be initialized!']
+        self.Log_Text_69_str    = ['Fehler Grund (Initialisierung):',                                                                                                               'Error reason (initialization):']
+        self.Log_Text_70_str    = ['Initialisierung aufheben! Gerät abtrennen!',                                                                                                    'Cancel initialization! Disconnect device!']
+        self.Log_Text_71_str    = ['Erstelle die Messdatei mit dem Pfad:',                                                                                                          'Create the measurement file with the path:']
+        self.Log_Text_72_str    = ['Keine Messdatenerfassung aktiv!',                                                                                                               'No measurement data recording active!']
+        self.Log_Text_136_str   = ['Fehler Grund (Auslesen):',                                                                                                                      'Error reason (reading):']
+        self.Log_Text_Port_1    = ['Verbindungsfehler:',                                                                                                                            'Connection error:']
+        self.Log_Text_Port_2    = ['Der Test für den Verbindungsaufbau ist fehlgeschlagen!',                                                                                        'The connection establishment test failed!']
+        self.Log_Text_Port_3    = ['Antwort der Test-Abfrage war None. Bearbeitung nicht möglich!',                                                                                 'The answer to the test query was None. Processing not possible!']
+        self.Log_Text_Port_4    = ['Bei der Werte-Umwandlung ist ein Fehler aufgetreten!',                                                                                          'An error occurred during value conversion!']
+        self.Log_Text_Port_5    = ['Fehlerbeschreibung:',                                                                                                                           'Error description:']
+        self.Log_Test_Ex_1      = ['Der Variablen-Typ der Größe',                                                                                                                   'The variable type of size']
+        self.Log_Test_Ex_2      = ['ist nicht Float! Setze Nan ein! Fehlerhafter Wert:',                                                                                            'is not Float! Insert Nan! Incorrect value:']
+        self.Log_Time_wr        = ['s gedauert!',                                                                                                                                   's lasted!']   
+        self.Log_Time_r         = ['Die read-Funktion hat',                                                                                                                         'The read function has']  
+        self.Log_Text_EM001_str = ['bereinigt',                                                                                                                                     'adjusted']
+        self.Log_Edu_3_str      = ['Antwort Falsch!',                                                                                                                               'Answer False!']
+        self.Log_Edu_4_str      = ['Wiederhole Antwort lesen, bevor neu Senden!',                                                                                                   'Please read the answer again before sending again!']
+        self.Log_Edu_5_str      = ['Sende Befehl erneut!',                                                                                                                          'Resend command!']
+        self.Log_Edu_6_str      = ['Das Senden an Educrys hat keine richtige Antwort erbracht! Dies kann trotzdem bedeuten, dass der Befehl am Gerät angekommen ist!',              'Sending to Educrys did not produce a correct response! This may still mean that the command was received by the device!']
+        self.Log_Edu_7_str      = ['Antwort des Geräts auf !:',                                                                                                                     'Device response to !:']
+        self.Log_Edu_18_str     = ['Die Antwort des Lese-Befehls beinhaltet weniger als 29 Werte. Dies wird als Fehler gewertet!! Nan-Werte werden eingetragen. Länge Liste:',      'The response of the read command contains less than 29 values. This is considered an error!! Nan values ​​are entered. List length:']
         ## Ablaufdatei: ##############################################################################################################################################################################################################################################################################
-        self.Text_51_str        = ['Initialisierung!',                                                          'Initialization!']
-        self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                           'Initialization Failed!']
-        self.Text_61_str        = ['Das Senden ist fehlgeschlagen!',                                            'Sending failed!']
+        self.Text_51_str        = ['Initialisierung!',                                                                                                                              'Initialization!']
+        self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                               'Initialization Failed!']
+        self.Text_61_str        = ['Das Senden ist fehlgeschlagen!',                                                                                                                'Sending failed!']
         
         #---------------------------------------
         # Schnittstelle:
@@ -215,18 +215,18 @@ class EducrysMon:
             
             # Lese Antwort:
             ''' 
-            1. read_out()   - liest bis \n -> Eigene Funktion! Liest Zeichen für Zeichen!
-            2. decode()     - Bytearray umwandeln
-            3. strip()      - Leerzeichen am Anfang und Ende entfernen
-            4. replace()    - *, # und Abschlusszeichen entfernen
+            1. read_out_AZ()    - liest bis # -> Eigene Funktion! Liest Zeichen für Zeichen!
+            2. decode()         - Bytearray umwandeln
+            3. strip()          - Leerzeichen am Anfang und Ende entfernen
+            4. replace()        - *, # und Abschlusszeichen entfernen
 
             Antwort-Beispiel: 5212.780 794.726 24.58 -99.00 22.87 -242.02 -99.00 0.00 0 0 0 0.00 0.000000 0 0 1000.00 0.00 22.87 22.85 20.00 -569.24 1000.00 -0.00 200.00 0.00 0.00 0.00 -0.00 0.00
             '''
 
-            ans = self.read_out(200)
+            ans = self.read_out_AZ()
             ans = ans.replace("\r","").replace("\n","")
             logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
-            ans = ans.strip().replace('*', '').replace('#','').replace('\r','').replace('\n','')
+            ans = ans.replace('*', '').replace('#','').replace('\r','').replace('\n','').strip()
             logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans} ({self.Log_Text_EM001_str[self.sprache]})')
             
             ## Antwort an den Leerzeichen trennen:
@@ -234,46 +234,50 @@ class EducrysMon:
 
             # Zuweisung:
             ## Wenn nur '' ankommt:
-            if liste == [''] or len(liste) != 29:
+            if liste == ['']:
                 logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_4_str[self.sprache]} (!)')
-                ans = self.read_out(200)
-                ans = ans.strip().replace('*', '').replace('#','').replace('\r','').replace('\n','')
+                ans = self.read_out_AZ()
+                ans = ans.replace('*', '').replace('#','').replace('\r','').replace('\n','').strip()
                 liste = ans.split(' ')
-                if liste == [''] or len(liste) != 29:   
+                if liste == ['']:   
                     logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_5_str[self.sprache]} (!)')
                     while n != self.Loop: 
                         self.serial.write(('!\r').encode())
                         time.sleep(0.1)
-                        ans = self.read_out(200)
-                        ans = ans.strip().replace('*', '').replace('#','').replace('\r','').replace('\n','')
+                        ans = self.read_out_AZ()
+                        ans = ans.replace('*', '').replace('#','').replace('\r','').replace('\n','').strip()
                         liste = ans.split(' ')
-                        if liste == [''] or len(liste) != 29:   n += 1
+                        if liste == ['']:   n += 1
                         else:
                             logger.debug(f'{self.device_name} - {self.Log_Edu_7_str[self.sprache]} {ans}')
                             break
-                
+
             if n == self.Loop:
                 logger.warning(f"{self.device_name} - {self.Text_61_str[self.sprache]} (!)")
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]} (!)')
                 liste = []
                 for i in range(0,29,1):
                     liste.append(m.nan)
-
+            elif len(liste) != 29:
+                logger.warning(f"{self.device_name} - {self.Log_Edu_18_str[self.sprache]} {len(liste)}")
+                for i in range(0,29,1):
+                    liste.append(m.nan)    
+            
             ## Werte zuweisen:
-            self.value_name['TC1_T']        = liste[2]    
-            self.value_name['TC2_T']        = liste[3]       
-            self.value_name['PT1_T']        = liste[4]   
-            self.value_name['PT2_T']        = liste[5]   
-            self.value_name['Pyro_T']       = liste[6]                 
-            self.value_name['PID_Out']      = liste[7]  
-            self.value_name['PID_P']        = liste[28]       
-            self.value_name['PID_I']        = liste[27]   
-            self.value_name['PID_D']        = liste[15]   
-            self.value_name['PID_In']       = liste[20]  
-            self.value_name['PID_In_M']     = liste[21]
-            self.value_name['K_weight']     = liste[22] 
-            self.value_name['K_weight_M']   = liste[17]  
-            self.value_name['K_d']          = liste[18]
+            self.value_name['TC1_T']        = round(float(liste[2] ), self.nKS)   
+            self.value_name['TC2_T']        = round(float(liste[3] ), self.nKS)      
+            self.value_name['PT1_T']        = round(float(liste[4] ), self.nKS)  
+            self.value_name['PT2_T']        = round(float(liste[5] ), self.nKS)  
+            self.value_name['Pyro_T']       = round(float(liste[6] ), self.nKS)                
+            self.value_name['PID_Out']      = round(float(liste[7] ), self.nKS) 
+            self.value_name['PID_P']        = round(float(liste[28]), self.nKS)       
+            self.value_name['PID_I']        = round(float(liste[27]), self.nKS)   
+            self.value_name['PID_D']        = round(float(liste[15]), self.nKS)   
+            self.value_name['PID_In']       = round(float(liste[20]), self.nKS)  
+            self.value_name['PID_In_M']     = round(float(liste[21]), self.nKS)
+            self.value_name['K_weight']     = round(float(liste[22]), self.nKS) 
+            self.value_name['K_weight_M']   = round(float(liste[17]), self.nKS)  
+            self.value_name['K_d']          = round(float(liste[18]), self.nKS)
  
         except Exception as e:
             logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
@@ -288,23 +292,30 @@ class EducrysMon:
 
         return self.value_name
 
-    def read_out(self, Anz):
+    def read_out_AZ(self):
         '''Liest eine bestimmte Anzahl von Zeichen aus, verbindet diese und gibt einen String zurück!
-        
-        Args:
-            Anz (int):      Anzahl der maximal zu lesenden Zeichen
-        
+        Seperate Funktion für !-Befehl!
+
         Return:
             ans_join (Str): Zurückgegebener String (Bei Fehler Leerer String)
         '''
         try:
-            ans_list = []                                   # Leere Liste
-            i = 0                                           # Kontroll Variable (Zeichen)
+            ans_list    = []                                # Leere Liste
+            i           = 0                                 # Kontroll Variable (Zeichen)
+            max_anz     = 200   
+            try_read = 0                            
             while 1:                                        # Endlosschleife
                 z = self.serial.read()                      # Lese Zeichen
                 if z != '': ans_list.append(z.decode())     # Wenn nicht Leer, dann füge an Liste
-                if z == b'\n':  break                       # Wenn \n (Newline) beende Endlosschleife
-                if i >= Anz:    break                       # Wenn Anzahl Zeichen überschritten oder gleich, dann Beende Endlosschleife
+                if z == b'#':  break                        # Wenn \n (Newline) beende Endlosschleife
+                if z == b'*':                               # Start-Zeichen gefunden - Beginne!
+                    i = 0
+                    ans_list = []
+                if i >= max_anz:                            # Wenn Anzahl Zeichen überschritten oder gleich, dann Beende Endlosschleife
+                    if z != '#':        
+                        try_read += 1
+                        max_anz += 50
+                    if try_read > 3:    break                       
                 i += 1                                      # Erhöhe Zählvariable
             ans_join = ''.join(ans_list)                    # Verbinde die Liste zu einem String
         except Exception as e:
@@ -383,3 +394,29 @@ class EducrysMon:
             #logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
             #ans = ans.decode().strip().replace('*', '').replace('#','').replace('\r\n','')
 '''
+
+    # def read_out(self, Anz):
+    #     '''Liest eine bestimmte Anzahl von Zeichen aus, verbindet diese und gibt einen String zurück!
+        
+    #     Args:
+    #         Anz (int):      Anzahl der maximal zu lesenden Zeichen
+        
+    #     Return:
+    #         ans_join (Str): Zurückgegebener String (Bei Fehler Leerer String)
+    #     '''
+    #     try:
+    #         ans_list = []                                   # Leere Liste
+    #         i = 0                                           # Kontroll Variable (Zeichen)
+    #         while 1:                                        # Endlosschleife
+    #             z = self.serial.read()                      # Lese Zeichen
+    #             if z != '': ans_list.append(z.decode())     # Wenn nicht Leer, dann füge an Liste
+    #             if z == b'\n':  break                       # Wenn \n (Newline) beende Endlosschleife
+    #             if i >= Anz:    break                       # Wenn Anzahl Zeichen überschritten oder gleich, dann Beende Endlosschleife
+    #             i += 1                                      # Erhöhe Zählvariable
+    #         ans_join = ''.join(ans_list)                    # Verbinde die Liste zu einem String
+    #     except Exception as e:
+    #         logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
+    #         logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
+    #         ans_join = ''
+
+    #     return ans_join

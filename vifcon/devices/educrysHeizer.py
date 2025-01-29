@@ -256,11 +256,17 @@ class EducrysHeizer(QObject):
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Schnittstelle:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        try: self.Loop = self.config['serial-loop-read']
+        try: self.Loop = self.config['serial-extra']['serial-loop-read']
         except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} serial-loop-read {self.Log_Pfad_conf_5[self.sprache]} 10')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} serial-extra|serial-loop-read {self.Log_Pfad_conf_5[self.sprache]} 10')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.Loop = 10
+        #//////////////////////////////////////////////////////////////////////
+        try: self.rel_Tolleranz = float(self.config['serial-extra']['rel_tol_write_ans'])
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} serial-extra|rel_tol_write_ans {self.Log_Pfad_conf_5[self.sprache]} 1e-02')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.rel_Tolleranz = 1e-02
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Config-Fehler und Defaults:
@@ -339,6 +345,10 @@ class EducrysHeizer(QObject):
         if not type(self.Loop) == int or not self.Loop >= 1:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} serial-loop-read - {self.Log_Pfad_conf_2[self.sprache]} Integer (>=1) - {self.Log_Pfad_conf_3[self.sprache]} 10 - {self.Log_Pfad_conf_8[self.sprache]} {self.Loop}')
             self.Loop = 10
+        ### Relative Toleranz:
+        if not type(self.rel_Tolleranz) == float or not self.rel_Tolleranz >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} rel_tol_write_ans - {self.Log_Pfad_conf_2[self.sprache]} Float (>=0) - {self.Log_Pfad_conf_3[self.sprache]} 1e-02 - {self.Log_Pfad_conf_8[self.sprache]} {self.rel_Tolleranz}')
+            self.rel_Tolleranz = 1e-02
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Werte Dictionary:
@@ -445,6 +455,14 @@ class EducrysHeizer(QObject):
         self.Log_Edu_8_str      = ['Vor Änderung',                                                                                                                                                                          'Before change']
         self.Log_Edu_9_str      = ['Nach Änderung',                                                                                                                                                                         'After change']
         self.Log_Edu_10_str     = ['Setze die Limits ins Gerät ein! (Init)',                                                                                                                                                'Set the limits in the device! (Init)']
+        self.Log_Edu_11_str     = ['Umwandlung Float fehlgeschlagen! Antwort-Wert:',                                                                                                                                        'Conversion float failed! Response value:']
+        self.Log_Edu_12_str     = ['Der erhaltene Wert',                                                                                                                                                                    'The received value']
+        self.Log_Edu_13_str     = ['und der gesendete Wert',                                                                                                                                                                'and the sent value']
+        self.Log_Edu_14_str     = ['sind sich nicht ähnlich! Relative-Toleranz bei',                                                                                                                                        'are not similar! Relative tolerance at']
+        self.Log_Edu_15_str     = ['Der Antwort-String',                                                                                                                                                                    'The response string']
+        self.Log_Edu_16_str     = ['ist nicht in der Antwort',                                                                                                                                                              'is not contained in the response']
+        self.Log_Edu_17_str     = [' enthalten!',                                                                                                                                                                           '!']
+        self.Log_Edu_18_str     = ['Die Antwort des Lese-Befehls beinhaltet weniger als 29 Werte. Dies wird als Fehler gewertet!! Nan-Werte werden eingetragen. Länge Liste:',                                              'The response of the read command contains less than 29 values. This is considered an error!! Nan values ​​are entered. List length:']
         ## Ablaufdatei: ###############################################################################################################################################################################################################################################################################
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -682,27 +700,27 @@ class EducrysHeizer(QObject):
         #++++++++++++++++++++++++++++++++++++++++++
         ## Ändere Modus:
         if write_Okay['Auto_Mod'] and not write_Okay['PID']:
-            self.send_write(f'{self.Befehl_M}1', f'{self.Antworts_String_M}1')            
+            self.send_write(self.Befehl_M, 1, self.Antworts_String_M)            
             write_Okay['Auto_Mod'] = False
         elif write_Okay['Manuel_Mod'] or write_Okay['PID']:
-            self.send_write(f'{self.Befehl_M}2', f'{self.Antworts_String_M}2')    
+            self.send_write(self.Befehl_M, 2, self.Antworts_String_M)    
             write_Okay['Manuel_Mod'] = False
 
         for auswahl in write_Okay:
             ## Temperatur-Sollwert:
             if write_Okay[auswahl] and auswahl == 'Soll-Temperatur':
-                self.send_write(f'{self.Befehl_S}'+'{:.2f}'.format(round(sollwert,2)), self.Antworts_String_S+'{:.2f}'.format(round(sollwert,2)))
+                self.send_write(self.Befehl_S, sollwert, self.Antworts_String_S)
                 write_Okay[auswahl] = False
             ## Ausgangsleistung OP:
             elif write_Okay[auswahl] and auswahl == 'Operating point':
                 if write_value['Rez_OPTemp'] > -1:
                     sollwert = write_value['Rez_OPTemp']
                     write_value['Rez_OPTemp'] = -1
-                self.send_write(f'{self.Befehl_O}'+'{:.2f}'.format(round(sollwert,2)), self.Antworts_String_O+'{:.2f}'.format(round(sollwert,2)))
+                self.send_write(self.Befehl_O, sollwert, self.Antworts_String_O)
                 write_Okay[auswahl] = False
             ## Ausgangsleistung während des PID-Modus:
             elif PID_write_OP:
-                self.send_write(f'{self.Befehl_O}'+'{:.2f}'.format(round(PowOutPID,2)), self.Antworts_String_O+'{:.2f}'.format(round(PowOutPID,2)))
+                self.send_write(self.Befehl_O, PowOutPID, self.Antworts_String_O)
                 PID_write_OP = False
             ## Startwerte:
             elif write_Okay[auswahl] and auswahl == 'Start' and not self.neustart:
@@ -710,9 +728,9 @@ class EducrysHeizer(QObject):
                 write_Okay[auswahl] = False
             ## Schreibe die PID-Parameter:
             elif write_Okay[auswahl] and auswahl == 'PID-Update':
-                self.send_write(f'{self.Befehl_P}'+'{:.2f}'.format(round(write_value['PID-Update'][0],2)), self.Antworts_String_P+'{:.2f}'.format(round(write_value['PID-Update'][0],2)))
-                self.send_write(f'{self.Befehl_I}'+'{:.2f}'.format(round(write_value['PID-Update'][1],2)), self.Antworts_String_I+'{:.2f}'.format(round(write_value['PID-Update'][1],2)))
-                self.send_write(f'{self.Befehl_D}'+'{:.2f}'.format(round(write_value['PID-Update'][2],2)), self.Antworts_String_D+'{:.2f}'.format(round(write_value['PID-Update'][2],2)))
+                self.send_write(self.Befehl_P, write_value['PID-Update'][0], self.Antworts_String_P)
+                self.send_write(self.Befehl_I, write_value['PID-Update'][1], self.Antworts_String_I)
+                self.send_write(self.Befehl_D, write_value['PID-Update'][2], self.Antworts_String_D)
                 write_Okay[auswahl] = False
             ## Lese die PID-Parameter:
             elif write_Okay[auswahl] and auswahl == 'Read_PID':
@@ -763,12 +781,13 @@ class EducrysHeizer(QObject):
 
         return Input, error_Input
 
-    def send_write(self, Befehl, Antworts_String):
+    def send_write(self, Befehl, Wert, Antworts_String):
         ''' Schreibe Befehle an die Educrys Anlage!
 
         Args:
-            Befehl (str):           Volkommender Befehl - Zeichen z.B. 2L und Wert (zwei Nachkommerstellen)
-            Antworts_String (str):  Aussehen des Antwortsstring - z.B. l:=Wert
+            Befehl (str):           Befehls-Teil - Zeichen z.B. 2L 
+            Wert (float):           Zweiter Befehls-teil
+            Antworts_String (str):  Aussehen des Antwortsstring - z.B. l:=
         ''' 
         n = 0
         try:
@@ -776,45 +795,84 @@ class EducrysHeizer(QObject):
             self.serial.reset_input_buffer()
             
             # Sende den Befehl:
-            self.serial.write((Befehl+self.abschluss).encode())
-            logger.debug(f'{self.device_name} - {self.Log_Edu_1_str[self.sprache]} {(Befehl+self.abschluss).encode()} ({Befehl})')
+            self.serial.write((Befehl+str(Wert)+self.abschluss).encode())
+            logger.debug(f'{self.device_name} - {self.Log_Edu_1_str[self.sprache]} {(Befehl+str(Wert)+self.abschluss).encode()}')
             # Warte kurz:
             time.sleep(0.1)
-            # Lese die Antwort und Verhleiche sie:
+            # Lese die Antwort und Vergleiche sie:
             ans = self.read_out(10)
             ans = ans.strip().replace('\r\n','')
-            if ans == Antworts_String:  logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}')
+            check = self.answer_check_write(Wert, ans, Antworts_String, Befehl+str(Wert))
+
+            if not check:  logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}')
             else:                    
-                logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_4_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl})')       
+                logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_4_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl+str(Wert)})')       
 
                 ans = self.read_out(10)
                 ans = ans.strip().replace('\r\n','')
-                if ans == Antworts_String:  logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}')
+                check = self.answer_check_write(Wert, ans, Antworts_String, Befehl+str(Wert))
+
+                if not check:  logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}')
                 else:                    
-                    logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_5_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl})') 
+                    logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_5_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl+str(Wert)})') 
 
                     # Antwort stimmt nicht:
                     while n != self.Loop:
-                        self.serial.write((Befehl+self.abschluss).encode())
-                        logger.debug(f'{self.device_name} - {self.Log_Edu_1_str[self.sprache]} {(Befehl+self.abschluss).encode()}')
+                        self.serial.write((Befehl+str(Wert)+self.abschluss).encode())
+                        logger.debug(f'{self.device_name} - {self.Log_Edu_1_str[self.sprache]} {(Befehl+str(Wert)+self.abschluss).encode()}')
                         time.sleep(0.1)
                         ans = self.read_out(10)
                         ans = ans.strip().replace('\r\n','')
-                        if ans == Antworts_String:  
+                        check = self.answer_check_write(Wert, ans, Antworts_String, Befehl+str(Wert))
+                        if not check:  
                             logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}') 
                             break
                         else:                       
-                            logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Text_159_str[self.sprache]} {n} {self.Log_Text_160_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl})') 
+                            logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Text_159_str[self.sprache]} {n} {self.Log_Text_160_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl+str(Wert)})') 
                             n += 1 
 
             if n == self.Loop:
                 logger.warning(f"{self.device_name} - {self.Log_Edu_6_str[self.sprache]}")
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]} ({Befehl})')
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]} ({Befehl+str(Wert)})')
             else:
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Edu_1_str[self.sprache]} {Befehl} {self.Text_Edu_2_str[self.sprache]}') 
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Edu_1_str[self.sprache]} {Befehl+str(Wert)} {self.Text_Edu_2_str[self.sprache]}') 
         except:
-            logger.warning(f"{self.device_name} - {self.Log_Text_64_1_str[self.sprache]} ({Befehl})")
-            logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")    
+            logger.warning(f"{self.device_name} - {self.Log_Text_64_1_str[self.sprache]} ({Befehl+str(Wert)})")
+            logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")  
+
+    def answer_check_write(self, value_send, answer_read, res, befehl):
+        ''' Überprüfe die Antwort eines Schreibbefehls! (Aussnahme ist !-Befehl)
+
+        Args:
+            value_send (float):     Wert der gesendet wurde
+            answer_read (str):      Antwort des Gerätes auf einen Schreib-Befehl - Aufbau z.B. l:=10.00
+            res (str):              gewollter Teil der Antwort
+            befehl (str):           um Log-Nachrichten zuordnen zu können
+        return:
+            error (bool):           True  - Es gab einen Fehler in der Toleranz oder der Antwort!
+                                    False - Antwort ist richtig
+        '''
+        error = False
+        if res in answer_read:                      # Ist der Antwort-String in der Antwort?
+            ans_value = answer_read[3:]             # Wert vom String entfernen
+
+            ## Wandel String zu Float:
+            try:    ans_value = float(ans_value)
+            except:
+                    logger.warning(f'{self.Log_Edu_11_str[self.sprache]} {ans_value} ({befehl})')
+                    return True
+
+            ## Überprüfe die Toleranz:
+            ans_bool = m.isclose(value_send, ans_value, rel_tol=self.rel_Tolleranz)
+            
+            if not ans_bool:    
+                error = True
+                logger.warning(f'{self.Log_Edu_12_str[self.sprache]} ({ans_value}) {self.Log_Edu_13_str[self.sprache]} ({value_send}) {self.Log_Edu_14_str[self.sprache]} {self.rel_Tolleranz}! ({befehl})')        
+        else:
+            logger.warning(f'{self.Log_Edu_15_str[self.sprache]} ({res}) {self.Log_Edu_16_str[self.sprache]} ({answer_read}){self.Log_Edu_17_str[self.sprache]}  ({befehl})')
+            error = True
+
+        return error
 
     ##########################################
     # Schnittstelle (lesen):
@@ -837,8 +895,8 @@ class EducrysHeizer(QObject):
             # Etwas Zeit lassen:
             time.sleep(0.1)
             # Antwort lesen:
-            ans = self.read_out(200)
-            ans = ans.strip().replace('*', '').replace('#','').replace('\r','').replace('\n','')
+            ans = self.read_out_AZ()
+            ans = ans.replace('*', '').replace('#','').replace('\r','').replace('\n','').strip()
             ''' Relevante Werte:
                                                     Liste (0 - Ende)            Stelle (1 - Ende)
                          Heizer:    T-Ist           17                          18
@@ -849,15 +907,15 @@ class EducrysHeizer(QObject):
             logger.debug(f'{self.device_name} - {self.Log_Edu_7_str[self.sprache]} {ans}')   
             if ans == '':  
                 logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_4_str[self.sprache]} (!)')
-                ans = self.read_out(200)
-                ans = ans.strip().replace('*', '').replace('#','').replace('\r','').replace('\n','')
+                ans = self.read_out_AZ()
+                ans = ans.replace('*', '').replace('#','').replace('\r','').replace('\n','').strip()
                 if ans == '':   
                     logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_5_str[self.sprache]} (!)')
                     while n != self.Loop: 
                         self.serial.write(('!'+self.abschluss).encode())
                         time.sleep(0.1)
-                        ans = self.read_out(200)
-                        ans = ans.strip().replace('*', '').replace('#','').replace('\r','').replace('\n','')
+                        ans = self.read_out_AZ()
+                        ans = ans.replace('*', '').replace('#','').replace('\r','').replace('\n','').strip()
 
                         if ans == '':   n += 1
                         else:
@@ -878,16 +936,16 @@ class EducrysHeizer(QObject):
                     listen_Error = True
                 
                 if len(liste) != 29 or listen_Error:
-                    logger.warning(f"{self.device_name} - {self.Log_Edu_6_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans}")
+                    logger.warning(f"{self.device_name} - {self.Log_Edu_18_str[self.sprache]} {len(liste)}")
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]} (!)')
                     liste = []
                     for i in range(0,29,1):
                         liste.append(m.nan)
 
                 ## Werte eintragen:
-                self.value_name['IWT']  = float(liste[17])
-                self.value_name['SWT']  = float(liste[19])
-                self.value_name['IWOp'] = float(liste[15])
+                self.value_name['IWT']  = round(float(liste[17]), self.nKS)
+                self.value_name['SWT']  = round(float(liste[19]), self.nKS)
+                self.value_name['IWOp'] = round(float(liste[15]), self.nKS)
             else:
                 ## Bei Fehler Nan einfügen:
                 self.value_name['IWT']  = m.nan
@@ -936,6 +994,39 @@ class EducrysHeizer(QObject):
 
         return ans_join
     
+    def read_out_AZ(self):
+        '''Liest eine bestimmte Anzahl von Zeichen aus, verbindet diese und gibt einen String zurück!
+        Seperate Funktion für !-Befehl!
+
+        Return:
+            ans_join (Str): Zurückgegebener String (Bei Fehler Leerer String)
+        '''
+        try:
+            ans_list    = []                                # Leere Liste
+            i           = 0                                 # Kontroll Variable (Zeichen)
+            max_anz     = 200   
+            try_read = 0                            
+            while 1:                                        # Endlosschleife
+                z = self.serial.read()                      # Lese Zeichen
+                if z != '': ans_list.append(z.decode())     # Wenn nicht Leer, dann füge an Liste
+                if z == b'#':  break                        # Wenn \n (Newline) beende Endlosschleife
+                if z == b'*':                               # Start-Zeichen gefunden - Beginne!
+                    i = 0
+                    ans_list = []
+                if i >= max_anz:                            # Wenn Anzahl Zeichen überschritten oder gleich, dann Beende Endlosschleife
+                    if z != '#':        
+                        try_read += 1
+                        max_anz += 50
+                    if try_read > 3:    break                       
+                i += 1                                      # Erhöhe Zählvariable
+            ans_join = ''.join(ans_list)                    # Verbinde die Liste zu einem String
+        except Exception as e:
+            logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
+            logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
+            ans_join = ''
+
+        return ans_join
+
     ##########################################
     # Reaktion auf Initialisierung:
     ##########################################
@@ -970,18 +1061,18 @@ class EducrysHeizer(QObject):
                     P = round(float(str(self.config['PID-Device']['PB']).replace(',','.')),1)
                     I = round(float(str(self.config['PID-Device']['TI']).replace(',','.')),0)
                     D = round(float(str(self.config['PID-Device']['TD']).replace(',','.')),0)
-                    self.send_write(f'{self.Befehl_P}'+'{:.2f}'.format(round(P,2)), self.Antworts_String_P+'{:.2f}'.format(round(P,2)))
-                    self.send_write(f'{self.Befehl_I}'+'{:.2f}'.format(round(I,2)), self.Antworts_String_I+'{:.2f}'.format(round(I,2)))
-                    self.send_write(f'{self.Befehl_D}'+'{:.2f}'.format(round(D,2)), self.Antworts_String_D+'{:.2f}'.format(round(D,2)))
+                    self.send_write(self.Befehl_P, P, self.Antworts_String_P)
+                    self.send_write(self.Befehl_I, I, self.Antworts_String_I)
+                    self.send_write(self.Befehl_D, D, self.Antworts_String_D)
                 except Exception as e:
                     logger.warning(f'{self.device_name} - {self.Log_Text_PID_N25[self.sprache]}')
                     logger.exception(f'{self.device_name} - {self.Log_Text_PID_N24[self.sprache]}')
             ## Start-Modus setzen:
             if self.startMode == 'Auto':
-                self.send_write(f'{self.Befehl_M}1', f'{self.Antworts_String_M}1')   
+                self.send_write(self.Befehl_M, 1, self.Antworts_String_M)   
                 logger.info(f"{self.device_name} - {self.Log_Text_152_str[self.sprache]}")
             elif self.startMode == 'Manuel':
-                self.send_write(f'{self.Befehl_M}2', f'{self.Antworts_String_M}2') 
+                self.send_write(self.Befehl_M, 2, self.Antworts_String_M) 
                 logger.info(f"{self.device_name} - {self.Log_Text_153_str[self.sprache]}")
         except Exception as e:
             if self.init:

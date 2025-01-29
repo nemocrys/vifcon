@@ -299,11 +299,17 @@ class EducrysAntrieb(QObject):
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Schnittstelle:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        try: self.Loop = self.config['serial-loop-read']
+        try: self.Loop = self.config['serial-extra']['serial-loop-read']
         except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} serial-loop-read {self.Log_Pfad_conf_5[self.sprache]} 10')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} serial-extra|serial-loop-read {self.Log_Pfad_conf_5[self.sprache]} 10')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.Loop = 10
+        #//////////////////////////////////////////////////////////////////////
+        try: self.rel_Tolleranz = float(self.config['serial-extra']['rel_tol_write_ans'])
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} serial-extra|rel_tol_write_ans {self.Log_Pfad_conf_5[self.sprache]} 1e-02')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.rel_Tolleranz = 1e-02
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Config-Fehler und Defaults:
@@ -350,6 +356,10 @@ class EducrysAntrieb(QObject):
         if not type(self.Loop) == int or not self.Loop >= 1:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} serial-loop-read - {self.Log_Pfad_conf_2[self.sprache]} Integer (>=1) - {self.Log_Pfad_conf_3[self.sprache]} 10 - {self.Log_Pfad_conf_8[self.sprache]} {self.Loop}')
             self.Loop = 10
+        ### Relative Toleranz:
+        if not type(self.rel_Tolleranz) == float or not self.rel_Tolleranz >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} rel_tol_write_ans - {self.Log_Pfad_conf_2[self.sprache]} Float (>=0) - {self.Log_Pfad_conf_3[self.sprache]} 1e-02 - {self.Log_Pfad_conf_8[self.sprache]} {self.rel_Tolleranz}')
+            self.rel_Tolleranz = 1e-02
         ### Start Weg:
         if not type(self.Start_Weg) in [float, int]:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} start_weg - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.Start_Weg)}')
@@ -444,6 +454,14 @@ class EducrysAntrieb(QObject):
         self.Log_Edu_8_str      = ['Vor Änderung',                                                                                                                                                                          'Before change']
         self.Log_Edu_9_str      = ['Nach Änderung',                                                                                                                                                                         'After change']
         self.Log_Edu_10_str     = ['Setze die Limits ins Gerät ein! (Init)',                                                                                                                                                'Set the limits in the device! (Init)']
+        self.Log_Edu_11_str     = ['Umwandlung Float fehlgeschlagen! Antwort-Wert:',                                                                                                                                        'Conversion float failed! Response value:']
+        self.Log_Edu_12_str     = ['Der erhaltene Wert',                                                                                                                                                                    'The received value']
+        self.Log_Edu_13_str     = ['und der gesendete Wert',                                                                                                                                                                'and the sent value']
+        self.Log_Edu_14_str     = ['sind sich nicht ähnlich! Relative-Toleranz bei',                                                                                                                                        'are not similar! Relative tolerance at']
+        self.Log_Edu_15_str     = ['Der Antwort-String',                                                                                                                                                                    'The response string']
+        self.Log_Edu_16_str     = ['ist nicht in der Antwort',                                                                                                                                                              'is not contained in the response']
+        self.Log_Edu_17_str     = [' enthalten!',                                                                                                                                                                           '!']
+        self.Log_Edu_18_str     = ['Die Antwort des Lese-Befehls beinhaltet weniger als 29 Werte. Dies wird als Fehler gewertet!! Nan-Werte werden eingetragen. Länge Liste:',                                              'The response of the read command contains less than 29 values. This is considered an error!! Nan values ​​are entered. List length:']
         ## Ablaufdatei: ###############################################################################################################################################################################################################################################################################
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -586,8 +604,8 @@ class EducrysAntrieb(QObject):
             self.oGs = write_value['Limits'][0]
             self.uGs = write_value['Limits'][1]
             ## Sende Werte an Anlage:
-            self.send_write('2T'+'{:.2f}'.format(round(self.oGs,2)), 't:='+'{:.2f}'.format(round(self.oGs,2))) # Rundet perfekt auf zwei Nachkommerstellen, auch wenn eine Null ist!
-            self.send_write('2B'+'{:.2f}'.format(round(self.uGs,2)), 'b:='+'{:.2f}'.format(round(self.uGs,2)))
+            self.send_write('2T', self.oGs, 't:=') 
+            self.send_write('2B', self.uGs, 'b:=')
             write_Okay['Update Limit'] = False
 
         #++++++++++++++++++++++++++++++++++++++++++
@@ -667,7 +685,7 @@ class EducrysAntrieb(QObject):
             # Sende Position (Define Home - beliebiger Wert):
             #+++++++++++++++++++++++++++++++++++++++++++++++++++++
             if write_Okay['Sende Position']:
-                self.send_write('2Z'+'{:.2f}'.format(round(write_value["Position"],2)), 'z:='+'{:.2f}'.format(round(write_value["Position"],2)))
+                self.send_write('2Z', write_value["Position"], 'z:=')
                 write_Okay['Sende Position'] = False 
                 if self.oGs == 0:        self.Max_End = True
                 else:                    self.Max_End = False                       
@@ -724,7 +742,7 @@ class EducrysAntrieb(QObject):
         #++++++++++++++++++++++++++++++++++++++++++
         if write_Okay['Stopp']:
             try:
-                self.send_write(f'2{self.Antriebs_wahl}'+'{:.2f}'.format(round(0,2)), self.Antworts_String+'{:.2f}'.format(round(0,2)))       
+                self.send_write(f'2{self.Antriebs_wahl}', 0, self.Antworts_String)       
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_62_str[self.sprache]}') 
             except Exception as e:
                 logger.warning(f"{self.device_name} - {self.Log_Text_64_1_str[self.sprache]} ({f'2{self.Antriebs_wahl}'+'{:.2f}'.format(round(0,2))})")
@@ -740,11 +758,11 @@ class EducrysAntrieb(QObject):
             try:     
                 ## Sende Geschwindigkeit:
                 if write_Okay['Sende Speed']:
-                    self.send_write(f'2{self.Antriebs_wahl}'+'{:.2f}'.format(round(write_value["Speed"],2)), self.Antworts_String+'{:.2f}'.format(round(write_value["Speed"],2)))
+                    self.send_write(f'2{self.Antriebs_wahl}', write_value["Speed"], self.Antworts_String)
                     write_Okay['Sende Speed'] = False     
                 ## PID-Modus:
                 elif PID_write_V:
-                    self.send_write(f'2{self.Antriebs_wahl}'+'{:.2f}'.format(round(speed_vorgabe,2)), self.Antworts_String+'{:.2f}'.format(round(speed_vorgabe,2)))
+                    self.send_write(f'2{self.Antriebs_wahl}',speed_vorgabe, self.Antworts_String)
                     PID_write_V = False                    
             except Exception as e:
                 logger.warning(f"{self.device_name} - {self.Log_Text_76_str[self.sprache]}")
@@ -758,12 +776,13 @@ class EducrysAntrieb(QObject):
         if self.Log_WriteReadTime:
             logger.info(f"{self.device_name} - {self.Log_Time_w[self.sprache]} {timediff} {self.Log_Time_wr[self.sprache]}")   
 
-    def send_write(self, Befehl, Antworts_String):
+    def send_write(self, Befehl, Wert, Antworts_String):
         ''' Schreibe Befehle an die Educrys Anlage!
 
         Args:
-            Befehl (str):           Volkommender Befehl - Zeichen z.B. 2L und Wert (zwei Nachkommerstellen)
-            Antworts_String (str):  Aussehen des Antwortsstring - z.B. l:=Wert
+            Befehl (str):           Befehls-Teil - Zeichen z.B. 2L 
+            Wert (float):           Zweiter Befehls-teil
+            Antworts_String (str):  Aussehen des Antwortsstring - z.B. l:=
         ''' 
         n = 0
         try:
@@ -771,46 +790,84 @@ class EducrysAntrieb(QObject):
             self.serial.reset_input_buffer()
             
             # Sende den Befehl:
-            self.serial.write((Befehl+self.abschluss).encode())
-            logger.debug(f'{self.device_name} - {self.Log_Edu_1_str[self.sprache]} {(Befehl+self.abschluss).encode()}')
+            self.serial.write((Befehl+str(Wert)+self.abschluss).encode())
+            logger.debug(f'{self.device_name} - {self.Log_Edu_1_str[self.sprache]} {(Befehl+str(Wert)+self.abschluss).encode()}')
             # Warte kurz:
             time.sleep(0.1)
             # Lese die Antwort und Vergleiche sie:
             ans = self.read_out(10)
             ans = ans.strip().replace('\r\n','')
+            check = self.answer_check_write(Wert, ans, Antworts_String, Befehl+str(Wert))
 
-            if ans == Antworts_String:  logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}')
+            if not check:  logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}')
             else:                    
-                logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_4_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl})')       
+                logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_4_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl+str(Wert)})')       
 
                 ans = self.read_out(10)
                 ans = ans.strip().replace('\r\n','')
-                if ans == Antworts_String:  logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}')
+                check = self.answer_check_write(Wert, ans, Antworts_String, Befehl+str(Wert))
+
+                if not check:  logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}')
                 else:                    
-                    logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_5_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl})') 
+                    logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_5_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl+str(Wert)})') 
 
                     # Antwort stimmt nicht:
                     while n != self.Loop:
-                        self.serial.write((Befehl+self.abschluss).encode())
-                        logger.debug(f'{self.device_name} - {self.Log_Edu_1_str[self.sprache]} {(Befehl+self.abschluss).encode()}')
+                        self.serial.write((Befehl+str(Wert)+self.abschluss).encode())
+                        logger.debug(f'{self.device_name} - {self.Log_Edu_1_str[self.sprache]} {(Befehl+str(Wert)+self.abschluss).encode()}')
                         time.sleep(0.1)
                         ans = self.read_out(10)
                         ans = ans.strip().replace('\r\n','')
-                        if ans == Antworts_String:  
+                        check = self.answer_check_write(Wert, ans, Antworts_String, Befehl+str(Wert))
+                        if not check:  
                             logger.debug(f'{self.device_name} - {self.Log_Edu_2_str[self.sprache]} {ans}') 
                             break
                         else:                       
-                            logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Text_159_str[self.sprache]} {n} {self.Log_Text_160_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl})') 
+                            logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Text_159_str[self.sprache]} {n} {self.Log_Text_160_str[self.sprache]} - {self.Log_Edu_2_str[self.sprache]} {ans} ({Befehl+str(Wert)})') 
                             n += 1 
 
             if n == self.Loop:
                 logger.warning(f"{self.device_name} - {self.Log_Edu_6_str[self.sprache]}")
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]} ({Befehl})')
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]} ({Befehl+str(Wert)})')
             else:
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Edu_1_str[self.sprache]} {Befehl} {self.Text_Edu_2_str[self.sprache]}') 
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Edu_1_str[self.sprache]} {Befehl+str(Wert)} {self.Text_Edu_2_str[self.sprache]}') 
         except:
-            logger.warning(f"{self.device_name} - {self.Log_Text_64_1_str[self.sprache]} ({Befehl})")
+            logger.warning(f"{self.device_name} - {self.Log_Text_64_1_str[self.sprache]} ({Befehl+str(Wert)})")
             logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")
+
+    def answer_check_write(self, value_send, answer_read, res, befehl):
+        ''' Überprüfe die Antwort eines Schreibbefehls! (Aussnahme ist !-Befehl)
+
+        Args:
+            value_send (float):     Wert der gesendet wurde
+            answer_read (str):      Antwort des Gerätes auf einen Schreib-Befehl - Aufbau z.B. l:=10.00
+            res (str):              gewollter Teil der Antwort
+            befehl (str):           um Log-Nachrichten zuordnen zu können
+        return:
+            error (bool):           True  - Es gab einen Fehler in der Toleranz oder der Antwort!
+                                    False - Antwort ist richtig
+        '''
+        error = False
+        if res in answer_read:                      # Ist der Antwort-String in der Antwort?
+            ans_value = answer_read[3:]             # Wert vom String entfernen
+
+            ## Wandel String zu Float:
+            try:    ans_value = float(ans_value)
+            except:
+                    logger.warning(f'{self.Log_Edu_11_str[self.sprache]} {ans_value} ({befehl})')
+                    return True
+
+            ## Überprüfe die Toleranz:
+            ans_bool = m.isclose(value_send, ans_value, rel_tol=self.rel_Tolleranz)
+            
+            if not ans_bool:    
+                error = True
+                logger.warning(f'{self.Log_Edu_12_str[self.sprache]} ({ans_value}) {self.Log_Edu_13_str[self.sprache]} ({value_send}) {self.Log_Edu_14_str[self.sprache]} {self.rel_Tolleranz}! ({befehl})')        
+        else:
+            logger.warning(f'{self.Log_Edu_15_str[self.sprache]} ({res}) {self.Log_Edu_16_str[self.sprache]} ({answer_read}){self.Log_Edu_17_str[self.sprache]}  ({befehl})')
+            error = True
+
+        return error
 
     def Input_Filter(self, Input, Art = 'Ist'):
         ''' Input-Filter für den Multilog-VIFCON Link und die PID-Nutzung
@@ -870,8 +927,8 @@ class EducrysAntrieb(QObject):
             # Etwas Zeit lassen:
             time.sleep(0.1)
             # Antwort lesen:
-            ans = self.read_out(200)
-            ans = ans.strip().replace('*', '').replace('#','').replace('\r','').replace('\n','')
+            ans = self.read_out_AZ()
+            ans = ans.replace('*', '').replace('#','').replace('\r','').replace('\n','').strip()
             ''' Relevante Werte:
                                                     Liste (0 - Ende)            Stelle (1 - Ende)
                          Linear:    Koordinate      23                          24
@@ -882,15 +939,15 @@ class EducrysAntrieb(QObject):
             logger.debug(f'{self.device_name} - {self.Log_Edu_7_str[self.sprache]} {ans}')   
             if ans == '':  
                 logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_4_str[self.sprache]} (!)')
-                ans = self.read_out(200)
-                ans = ans.strip().replace('*', '').replace('#','').replace('\r','').replace('\n','')
+                ans = self.read_out_AZ()
+                ans = ans.replace('*', '').replace('#','').replace('\r','').replace('\n','').strip()
                 if ans == '':   
                     logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_5_str[self.sprache]} (!)')
                     while n != self.Loop: 
                         self.serial.write(('!'+self.abschluss).encode())
                         time.sleep(0.1)
-                        ans = self.read_out(200)
-                        ans = ans.strip().replace('*', '').replace('#','').replace('\r','').replace('\n','')
+                        ans = self.read_out_AZ()
+                        ans = ans.replace('*', '').replace('#','').replace('\r','').replace('\n','').strip()
 
                         if ans == '':   n += 1
                         else:
@@ -911,7 +968,7 @@ class EducrysAntrieb(QObject):
                     listen_Error = True
                 
                 if len(liste) != 29 or listen_Error:
-                    logger.warning(f"{self.device_name} - {self.Log_Edu_6_str[self.sprache]}")
+                    logger.warning(f"{self.device_name} - {self.Log_Edu_18_str[self.sprache]} {len(liste)}")
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]} (!)')
                     liste = []
                     for i in range(0,29,1):
@@ -919,12 +976,12 @@ class EducrysAntrieb(QObject):
 
                 ## Werte eintragen:
                 if self.Antriebs_wahl == 'L':
-                    self.value_name['IWs'] = float(liste[23])
-                    self.value_name['IWv'] = float(liste[24])
+                    self.value_name['IWs'] = round(float(liste[23]), self.nKS)
+                    self.value_name['IWv'] = round(float(liste[24]), self.nKS)
                 elif self.Antriebs_wahl == 'R':
-                    self.value_name['IWv'] = float(liste[25])
+                    self.value_name['IWv'] = round(float(liste[25]), self.nKS)
                 elif self.Antriebs_wahl == 'F':
-                    self.value_name['IWv'] = float(liste[26])
+                    self.value_name['IWv'] = round(float(liste[26]), self.nKS)
             else:
                 ## Bei Fehler Nan einfügen:
                 self.value_name['IWs'] = m.nan
@@ -963,6 +1020,39 @@ class EducrysAntrieb(QObject):
                 if z != '': ans_list.append(z.decode())     # Wenn nicht Leer, dann füge an Liste
                 if z == b'\n':  break                       # Wenn \n (Newline) beende Endlosschleife
                 if i >= Anz:    break                       # Wenn Anzahl Zeichen überschritten oder gleich, dann Beende Endlosschleife
+                i += 1                                      # Erhöhe Zählvariable
+            ans_join = ''.join(ans_list)                    # Verbinde die Liste zu einem String
+        except Exception as e:
+            logger.warning(f"{self.device_name} - {self.Log_Text_64_str[self.sprache]}")
+            logger.exception(f"{self.device_name} - {self.Log_Text_136_str[self.sprache]}")
+            ans_join = ''
+
+        return ans_join
+
+    def read_out_AZ(self):
+        '''Liest eine bestimmte Anzahl von Zeichen aus, verbindet diese und gibt einen String zurück!
+        Seperate Funktion für !-Befehl!
+
+        Return:
+            ans_join (Str): Zurückgegebener String (Bei Fehler Leerer String)
+        '''
+        try:
+            ans_list    = []                                # Leere Liste
+            i           = 0                                 # Kontroll Variable (Zeichen)
+            max_anz     = 200   
+            try_read = 0                            
+            while 1:                                        # Endlosschleife
+                z = self.serial.read()                      # Lese Zeichen
+                if z != '': ans_list.append(z.decode())     # Wenn nicht Leer, dann füge an Liste
+                if z == b'#':  break                        # Wenn \n (Newline) beende Endlosschleife
+                if z == b'*':                               # Start-Zeichen gefunden - Beginne!
+                    i = 0
+                    ans_list = []
+                if i >= max_anz:                            # Wenn Anzahl Zeichen überschritten oder gleich, dann Beende Endlosschleife
+                    if z != '#':        
+                        try_read += 1
+                        max_anz += 50
+                    if try_read > 3:    break                       
                 i += 1                                      # Erhöhe Zählvariable
             ans_join = ''.join(ans_list)                    # Verbinde die Liste zu einem String
         except Exception as e:
@@ -1015,7 +1105,7 @@ class EducrysAntrieb(QObject):
             
                 ## Start-Wert Überschreiben:
                 if self.Start_Weg_write:
-                    self.send_write('2Z'+'{:.2f}'.format(round(self.Start_Weg,2)), 'z:='+'{:.2f}'.format(round(self.Start_Weg,2)))
+                    self.send_write('2Z', self.Start_Weg, 'z:=')
                 
                     ## Start-Position auslesen:
                     read_ans = self.read()
@@ -1031,8 +1121,8 @@ class EducrysAntrieb(QObject):
             
                 if self.Start_WegLimit_write:
                     logger.info(f"{self.device_name} - {self.Log_Edu_10_str[self.sprache]}")
-                    self.send_write('2T'+'{:.2f}'.format(round(self.oGs,2)), 't:='+'{:.2f}'.format(round(self.oGs,2))) # Rundet perfekt auf zwei Nachkommerstellen, auch wenn eine Null ist!
-                    self.send_write('2B'+'{:.2f}'.format(round(self.uGs,2)), 'b:='+'{:.2f}'.format(round(self.uGs,2)))
+                    self.send_write('2T', self.oGs, 't:=') 
+                    self.send_write('2B', self.uGs, 'b:=')
             else:
                 logger.info(f"{self.device_name} - {self.Log_Text_180_str[self.sprache]}")
         except Exception as e:
