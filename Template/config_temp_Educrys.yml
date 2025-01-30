@@ -1947,11 +1947,11 @@ devices:
                                                                           # Default bei Fehler: True
     serial-interface:
       port: COM20
-      baudrate: 9600
-      bytesize: 7
+      baudrate: 115200
+      bytesize: 8
       stopbits: 1
-      parity: E
-      timeout: 1
+      parity: N
+      timeout: 0.1                                                        # Bei read_until gibt es scheinbar einen Bug, wodurch das Timeout nicht richtig funktioniert. Mit None bei timeout wird das behoben! 
     serial-extra:
       serial-loop-read: 3                                                 # Anzahl der Wiederholung bei dem Auslesen der Antwort bei Fehlschlag! | Default bei Fehler: 10
       rel_tol_write_ans: 1e-02                                            # Die Relative Toleranz zum Vergleich der Antwort des Gerätes mit dem gesendeten Befehl | Default bei Fehler: 1e-02  

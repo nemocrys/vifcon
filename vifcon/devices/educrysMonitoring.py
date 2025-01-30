@@ -168,14 +168,18 @@ class EducrysMon:
         self.Log_Edu_3_str      = ['Antwort Falsch!',                                                                                                                               'Answer False!']
         self.Log_Edu_4_str      = ['Wiederhole Antwort lesen, bevor neu Senden!',                                                                                                   'Please read the answer again before sending again!']
         self.Log_Edu_5_str      = ['Sende Befehl erneut!',                                                                                                                          'Resend command!']
-        self.Log_Edu_6_str      = ['Das Senden an Educrys hat keine richtige Antwort erbracht! Dies kann trotzdem bedeuten, dass der Befehl am Gerät angekommen ist!',              'Sending to Educrys did not produce a correct response! This may still mean that the command was received by the device!']
+        self.Log_Edu_6_str      = ['Das Senden an Educrys hat keine richtige Antwort erbracht!',                                                                                    'Sending to Educrys did not produce a correct response!']
         self.Log_Edu_7_str      = ['Antwort des Geräts auf !:',                                                                                                                     'Device response to !:']
         self.Log_Edu_18_str     = ['Die Antwort des Lese-Befehls beinhaltet weniger als 29 Werte. Dies wird als Fehler gewertet!! Nan-Werte werden eingetragen. Länge Liste:',      'The response of the read command contains less than 29 values. This is considered an error!! Nan values ​​are entered. List length:']
+        self.Log_Edu_19_str     = ['Start- und Endzeichen stimmen nicht!',                                                                                                          'Start and end characters are wrong!']
+        self.Log_Edu_20_str     = ['Leerer String!',                                                                                                                                'Empty string!']
         ## Ablaufdatei: ##############################################################################################################################################################################################################################################################################
         self.Text_51_str        = ['Initialisierung!',                                                                                                                              'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                               'Initialization Failed!']
         self.Text_61_str        = ['Das Senden ist fehlgeschlagen!',                                                                                                                'Sending failed!']
-        
+        self.Text_Edu_1_str     = ['Befehl',                                                                                                                                        'Command']
+        self.Text_Edu_2_str     = ['erfolgreich gesendet!',                                                                                                                         'sent successfully!']
+
         #---------------------------------------
         # Schnittstelle:
         #---------------------------------------
@@ -206,11 +210,19 @@ class EducrysMon:
         Return: 
             self.value_name (dict): Aktuelle Werte 
         '''
+        # Time Check 1:
         ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
-        n = 0
+
+        # Variablen:
+        n               = 0
+        listen_Error    = False
+        error           = False 
+        
         try:
             # Lese alle Monitoringswerte aus (Mehr als gebraucht!) - 29 Werte
+            ## Besteht aus vielen Werten im Format *Wert_1 Wert_2#
             self.serial.write(('!\r').encode())
+            ## Etwas Zeit lassen:
             time.sleep(0.1)
             
             # Lese Antwort:
@@ -222,47 +234,70 @@ class EducrysMon:
 
             Antwort-Beispiel: 5212.780 794.726 24.58 -99.00 22.87 -242.02 -99.00 0.00 0 0 0 0.00 0.000000 0 0 1000.00 0.00 22.87 22.85 20.00 -569.24 1000.00 -0.00 200.00 0.00 0.00 0.00 -0.00 0.00
             '''
-
             ans = self.read_out_AZ()
-            ans = ans.replace("\r","").replace("\n","")
+            ans = ans.replace('\r','').replace('\n','').strip()
             logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
-            ans = ans.replace('*', '').replace('#','').replace('\r','').replace('\n','').strip()
-            logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans} ({self.Log_Text_EM001_str[self.sprache]})')
-            
-            ## Antwort an den Leerzeichen trennen:
-            liste = ans.split(' ')
 
-            # Zuweisung:
-            ## Wenn nur '' ankommt:
-            if liste == ['']:
-                logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_4_str[self.sprache]} (!)')
-                ans = self.read_out_AZ()
-                ans = ans.replace('*', '').replace('#','').replace('\r','').replace('\n','').strip()
-                liste = ans.split(' ')
-                if liste == ['']:   
-                    logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_5_str[self.sprache]} (!)')
-                    while n != self.Loop: 
-                        self.serial.write(('!\r').encode())
-                        time.sleep(0.1)
-                        ans = self.read_out_AZ()
-                        ans = ans.replace('*', '').replace('#','').replace('\r','').replace('\n','').strip()
-                        liste = ans.split(' ')
-                        if liste == ['']:   n += 1
-                        else:
-                            logger.debug(f'{self.device_name} - {self.Log_Edu_7_str[self.sprache]} {ans}')
-                            break
+            ## Antwort prüfen:
+            ### Fehlerfall 1 - End- und Startzeichen richtig:
+            start_end = True
+            if ans != '':
+                if ans[0] == '*' and ans[-1] == '#':    
+                    ans = ans.replace('*', '').replace('#','').replace('#','').replace('\r','').strip()   
+                    logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans} ({self.Log_Text_EM001_str[self.sprache]})')
+                else:                                   
+                    ans         = ''
+                    start_end   = False  
 
+            ### Fehlerfall 2 - String ist Leer - Erneut Senden:    
+            if ans == '':  
+                logger.warning(f'{self.device_name} - {self.Log_Edu_3_str[self.sprache]} {self.Log_Edu_5_str[self.sprache]} {self.Log_Edu_19_str[self.sprache] if not start_end else self.Log_Edu_20_str[self.sprache]} (!)')
+                while n != self.Loop: 
+                    #### Erneut Senden:
+                    self.serial.write(('!'+self.abschluss).encode())
+                    time.sleep(0.1)
+                    #### Antwort Lesen:
+                    ans = self.read_out_AZ()
+                    ans = ans.replace('\r','').replace('\n','').strip()
+                    #### Kontrolle:
+                    start_end = True
+                    if ans != '':
+                        if ans[0] == '*' and ans[-1] == '#':    ans = ans.replace('*', '').replace('#','').strip()     
+                        else:                                   ans, start_end = '', False
+                    #### Auswerten:
+                    if ans == '':   n += 1
+                    else:
+                        logger.debug(f'{self.device_name} - {self.Log_Edu_7_str[self.sprache]} {ans}')
+                        break
+
+            ### While-Schleife hat Anschlag erreicht und wurde beendet:           
             if n == self.Loop:
-                logger.warning(f"{self.device_name} - {self.Text_61_str[self.sprache]} (!)")
+                logger.warning(f"{self.device_name} - {self.Log_Edu_6_str[self.sprache]}")
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]} (!)')
+                error = True
+            else:
+                logging.debug(f'{self.device_name} - {self.Text_Edu_1_str[self.sprache]} ! {self.Text_Edu_2_str[self.sprache]}')
+            
+            ### Kein Fehler:
+            if not error:
+                #### Liste erstellen - Fehlerfall 3 - Liste nicht erstellebar:
+                try:
+                    liste = ans.split(' ')
+                except:
+                    listen_Error = True
+                
+                #### Fehlerfall 4 - Liste hat nicht die richtige Länge:
+                if len(liste) != 29 or listen_Error:
+                    logger.warning(f"{self.device_name} - {self.Log_Edu_18_str[self.sprache]} {len(liste)}")
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_61_str[self.sprache]} (!)')
+                    liste = []
+                    for i in range(0,29,1):
+                        liste.append(m.nan)
+            else:
                 liste = []
                 for i in range(0,29,1):
                     liste.append(m.nan)
-            elif len(liste) != 29:
-                logger.warning(f"{self.device_name} - {self.Log_Edu_18_str[self.sprache]} {len(liste)}")
-                for i in range(0,29,1):
-                    liste.append(m.nan)    
-            
+ 
             ## Werte zuweisen:
             self.value_name['TC1_T']        = round(float(liste[2] ), self.nKS)   
             self.value_name['TC2_T']        = round(float(liste[3] ), self.nKS)      
@@ -311,6 +346,7 @@ class EducrysMon:
                 if z == b'*':                               # Start-Zeichen gefunden - Beginne!
                     i = 0
                     ans_list = []
+                    ans_list.append(z.decode())             # Füge das Start-Zeichen an
                 if i >= max_anz:                            # Wenn Anzahl Zeichen überschritten oder gleich, dann Beende Endlosschleife
                     if z != '#':        
                         try_read += 1

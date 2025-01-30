@@ -1004,9 +1004,6 @@ class EducrysHeizerWidget(QWidget):
             # Wenn der Radio-Button der Solltemperatur gewählt ist:
             if self.RB_choise_Temp.isChecked():
                 sollwert = self.LE_Temp.text().replace(",", ".")
-                if not self.PID_cb.isChecked():
-                    self.write_task['Soll-Temperatur'] = True
-                self.write_task['Operating point'] = False
                 oG, uG, einheit = self.oGST, self.uGST, self.T_unit_einzel[self.sprache]
                 if not self.PID_cb.isChecked():
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_29_str[self.sprache]}')
@@ -1015,8 +1012,6 @@ class EducrysHeizerWidget(QWidget):
             # Wenn der Radio-Button der Ausgangsleistung gewählt ist:
             else:
                 sollwert = self.LE_Pow.text().replace(",", ".")
-                self.write_task['Operating point'] = True
-                self.write_task['Soll-Temperatur'] = False
                 oG, uG, einheit = self.oGOp, self.uGOp, ' ' + self.P_unit_einzel[self.sprache]
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_30_str[self.sprache]}')
             # Kontrolliere die Eingabe im Eingabefeld:
@@ -1027,6 +1022,14 @@ class EducrysHeizerWidget(QWidget):
                     self.write_value['PID-Sollwert'] = sollwert
                 else:
                     self.write_value['Sollwert'] = sollwert
+                    ## Task erst nach Wert setzen, da es sonst Übertragungsfehler des Solwertes gab!!
+                    if self.RB_choise_Temp.isChecked():
+                        if not self.PID_cb.isChecked():
+                            self.write_task['Soll-Temperatur'] = True
+                        self.write_task['Operating point'] = False
+                    else:
+                        self.write_task['Operating point'] = True
+                        self.write_task['Soll-Temperatur'] = False
             else:
                 self.write_task['Operating point'] = False
                 self.write_task['Soll-Temperatur'] = False
