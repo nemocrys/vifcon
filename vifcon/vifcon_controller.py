@@ -112,6 +112,7 @@ class Sampler(QObject, metaclass=SignalMetaclass):
         self.port_error_anz = 5
         self.count_error = 0
         self.exit = False
+        self.serial_connect_bruch = False
 
         #---------------------------------------
         # Sprache:
@@ -145,10 +146,18 @@ class Sampler(QObject, metaclass=SignalMetaclass):
             #---------------------------------------
             # Port Kontrolle:
             #---------------------------------------
+            ## Überprüfe Port:
             if not self.test and self.device.init:  port = self.device.serial.is_open
             else:                                   port = True
 
-            if 'Nemo' in self.device_name and not port and self.exit and self.device.init:  # Bei Erfolgreichen Test, Port als offen ansehen!!
+            ## Bei Port = False und detektiertem Abbruch -> Teste Verbindung und öffne Port wieder:
+            if 'Nemo' in self.device_name and not port and self.serial_connect_bruch and self.device.init:
+                check3 = self.device.Test_Connection()
+                if check3: logger.info(f'Nemo-Anlage-{self.device_widget.Anlage} - {self.device_name} - Port wieder Öffnen! ')
+                self.serial_connect_bruch = False
+
+            ## Kontrolliere Port bei Exit (Bei Erfolgreichen Test, Port als offen ansehen!!):
+            if 'Nemo' in self.device_name and not port and self.exit and self.device.init:
                 check1 = self.device.Test_Connection()
                 check2 = self.device.serial.is_open
                 if check1 and check2:   port = True
@@ -243,6 +252,7 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                     self.count_error += 1
                     if self.count_error == self.port_error_anz:
                         logging.warning(f"{self.Log_Text_7_str[self.sprache]} {self.port_error_anz} {self.Log_Text_8_str[self.sprache]}")
+                self.serial_connect_bruch = True
         logging.debug(f"{self.device_name} - {self.Log_Text_5_str[self.sprache]}")
         self.end_done = True
 

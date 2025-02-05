@@ -346,6 +346,7 @@ class NemoGase:
                 #           2 Statuswörter          --> (3 * 2) + 2 = 8 Register
                 ans = self.serial.read_input_registers(self.start_Lese_Register_AS, 8)
                 logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans} ({self.Bezeichnung_3[self.sprache]})')
+                value_5 = []
                 if not ans == None:     value_5 = self.umwandeln_Float(ans[0:6])   
                 else:
                     for n in range(0,3,1):
@@ -542,7 +543,7 @@ class NemoGase:
     ###################################################
     # Prüfe die Verbindung:
     ###################################################
-    def Test_Connection(self, test):
+    def Test_Connection(self, test=True):
         '''Aufbau Versuch der TCP/IP-Verbindung zur Nemo-Anlage
         Args:
             test (bool)     - Wenn False werden die Fehlermeldungen nicht mehr in die Log-Datei geschrieben
