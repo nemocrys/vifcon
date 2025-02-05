@@ -603,7 +603,7 @@ class EducrysAntriebWidget(QWidget):
             self.icon_1 = "./vifcon/icons/p_start.png"               
             self.icon_2 = "./vifcon/icons/p_nichts.png"
 
-         #________________________________________    
+        #________________________________________    
         ## Grundgerüst:
         self.layer_widget = QWidget()
         self.layer_layout = QGridLayout()
@@ -1502,6 +1502,7 @@ class EducrysAntriebWidget(QWidget):
                     logger.info(f'{self.device_name} - {self.Log_Text_40_str[self.sprache]} {self.rezept_daten}')
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_24_str[self.sprache]} {self.cb_Rezept.currentText()} {self.rezept_datei}') 
 
+                    # Rezept-Wiederholungen:
                     if self.RZLoop_cb.isChecked():
                         logger.info(f'{self.device_name} - {self.Log_Text_Edu_7[self.sprache]} {self.cb_Rezept.currentText()} {self.Log_Text_Edu_8[self.sprache]} {self.rezept_Loop} {self.Log_Text_Edu_9[self.sprache]} {self.rezept_Loop + 1} {self.Log_Text_Edu_10[self.sprache]}')
                         self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Edu_1_str[self.sprache]} {self.rezept_Loop} ({self.cb_Rezept.currentText()})')

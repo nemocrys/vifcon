@@ -929,6 +929,7 @@ devices:
                                                                           # Default bei Fehler: IWw, IWv
     defaults:
       startSpeed: 1                                                       # Startgeschwindigkeit [1/min] | Default bei Fehler: 0
+    rezept_Loop: 3                                                        # Wenn größer Null, wird das Rezept um die angegebene Zahl wiederholt | z.B. 5 -> Rezept wird 6 mal durchgeführt! | Default bei Fehler: 0
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (1/min), Art der Rampe , Schritte/Steigung ((1/min)/s)
                                                                           # Art der Rampe: s - Sprung, r - Rampe
                                                                           # Schritte/Steigung wird bei Sprung nicht benötigt!
@@ -1155,6 +1156,7 @@ devices:
                                                                           # Default bei Fehler: IWw, IWv
     defaults:
       startSpeed: 1                                                       # Startgeschwindigkeit [1/min] | Default bei Fehler: 0
+    rezept_Loop: 3                                                        # Wenn größer Null, wird das Rezept um die angegebene Zahl wiederholt | z.B. 5 -> Rezept wird 6 mal durchgeführt! | Default bei Fehler: 0
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (1/min), Art der Rampe , Schritte/Steigung ((1/min)/s)
                                                                           # Art der Rampe: s - Sprung, r - Rampe
                                                                           # Schritte/Steigung wird bei Sprung nicht benötigt!

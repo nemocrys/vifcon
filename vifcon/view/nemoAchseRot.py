@@ -239,6 +239,12 @@ class NemoAchseRotWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} rezepte {self.Log_Pfad_conf_5[self.sprache]} {self.rezept_config}')
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+        try: self.rezept_Loop = self.config['rezept_Loop']
+        except Exception as e:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} rezept_Loop {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.rezept_Loop = 0
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## PID-Modus:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -367,6 +373,10 @@ class NemoAchseRotWidget(QWidget):
         if not type(self.v_invert) == bool and not self.v_invert in [0,1]: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} invert - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.v_invert}')
             self.v_invert = 0
+        ### Rezept Loop Anzahl:
+        if not type(self.rezept_Loop) in [int] or not self.rezept_Loop >= 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} rezept_Loop - {self.Log_Pfad_conf_2_1[self.sprache]} [int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.rezept_Loop)}')
+            self.rezept_Loop = 0
          
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -388,6 +398,7 @@ class NemoAchseRotWidget(QWidget):
         cb_EndloseRot_str       = ['Kont. Rot.',                                                                                                'Cont. Rot.']           # \u221E \u03B1
         cb_gPad_str             = ['GPad',                                                                                                      'GPad']
         cb_PID                  = ['PID',                                                                                                       'PID']
+        cb_RZLoop               = ['Rez.-Loop',                                                                                                 'Rec.-Loop']
         ## ToolTip: ###############################################################################################################################################################################################################################################################################                                                                                                   
         self.TTLimit            = ['Limit-',                                                                                                    'Limit-']
         self.TTSize_1           = ['Input-',                                                                                                    'Input-']
@@ -398,6 +409,7 @@ class NemoAchseRotWidget(QWidget):
         self.TTSize_kp          = ['kp =',                                                                                                      'kp =']
         self.TTSize_ki          = ['ki =',                                                                                                      'ki =']
         self.TTSize_kd          = ['kd =',                                                                                                      'kd =']
+        self.TTRezeptLoop       = ['Anzahl Rezept-Wiederholungen =',                                                                            'Number of recipe repetitions =']
         ## Einheiten mit Größe: #####################################################################################################################################################################################################################################################################
         self.v_str              = ['\u03C9 in 1/min:',                                                                                          '\u03C9 in 1/min:']
         self.x_str              = [f'x in {self.unit_PIDIn}:',                                                                                  f'x in {self.unit_PIDIn}:']
@@ -453,13 +465,13 @@ class NemoAchseRotWidget(QWidget):
         self.sta_Bit1_str       = ['Achse referiert',                                                                                           'Axis referenced']
         self.sta_Bit2_str       = ['Achse Fehler',                                                                                              'Axis error']
         self.sta_Bit3_str       = ['Antrieb läuft',                                                                                             'Drive is running']
-        self.sta_Bit5_str       = ['Läuft im Uhrzeigersinn (Rechts)',                                                       'Drive runs cw (right)']
-        self.sta_Bit4_str       = ['Läuft gegen den Uhrzeigersinn (Links)',                                                 'Drive runs ccw (left)']
-        self.sta_Bit6_str       = ['Achse Position oben (SE)',                                                                          'Axis position up (SE)']
-        self.sta_Bit7_str       = ['Achse Position unten (SE)',                                                                         'Axis position down (SE)']
-        self.sta_Bit8_str       = ['Achse Endlage oben (HE)',                                                                           'Axis end position up (HE)']
-        self.sta_Bit9_str       = ['Achse Endlage unten (HE)',                                                                          'Axis end position down (HE)']
-        self.sta_Bit10_str      = ['SE aus',                                                                                     'SE off']
+        self.sta_Bit5_str       = ['Läuft im Uhrzeigersinn (Rechts)',                                                                           'Drive runs cw (right)']
+        self.sta_Bit4_str       = ['Läuft gegen den Uhrzeigersinn (Links)',                                                                     'Drive runs ccw (left)']
+        self.sta_Bit6_str       = ['Achse Position oben (SE)',                                                                                  'Axis position up (SE)']
+        self.sta_Bit7_str       = ['Achse Position unten (SE)',                                                                                 'Axis position down (SE)']
+        self.sta_Bit8_str       = ['Achse Endlage oben (HE)',                                                                                   'Axis end position up (HE)']
+        self.sta_Bit9_str       = ['Achse Endlage unten (HE)',                                                                                  'Axis end position down (HE)']
+        self.sta_Bit10_str      = ['SE aus',                                                                                                    'SE off']
         self.sta_Bit11_str      = ['Achse in Stopp',                                                                                            'Axis in stop']
         self.sta_Bit12_str      = ['', ''] # Reserve
         self.sta_Bit13_str      = ['', ''] # Reserve
@@ -474,10 +486,10 @@ class NemoAchseRotWidget(QWidget):
         self.Stat_N2_Bit5       = ['', ''] # Reserve
         self.Stat_N2_Bit6       = ['', ''] # Reserve
         self.Stat_N2_Bit7       = ['', ''] # Reserve
-        self.Stat_N2_Bit8       = ['Rampe ein',                                                                                       'Ramp on']
-        self.Stat_N2_Bit9       = ['Rampe aus',                                                                                       'Ramp off']
-        self.Stat_N2_Bit10      = ['Winkel modus ein',                                                                                     'angle mode on']
-        self.Stat_N2_Bit11      = ['Winkel modus aus',                                                                                     'angle mode off']
+        self.Stat_N2_Bit8       = ['Rampe ein',                                                                                                 'Ramp on']
+        self.Stat_N2_Bit9       = ['Rampe aus',                                                                                                 'Ramp off']
+        self.Stat_N2_Bit10      = ['Winkel modus ein',                                                                                          'angle mode on']
+        self.Stat_N2_Bit11      = ['Winkel modus aus',                                                                                          'angle mode off']
         self.Stat_N2_Bit12      = ['', ''] # Reserve
         self.Stat_N2_Bit13      = ['', ''] # Reserve
         self.Stat_N2_Bit14      = self.sta_Bit14_str # Schnittstellen Fehler
@@ -512,6 +524,10 @@ class NemoAchseRotWidget(QWidget):
         self.Log_Text_PS_2      = ['zu',                                                                                                        'to']
         self.Log_Text_Kurve     = ['Kurvenbezeichnung existiert nicht:',                                                                        'Curve name does not exist:']
         self.Log_Status_Int     = ['Status-Integer',                                                                                            'Status-Integer']
+        self.Log_Text_Edu_7     = ['Das Rezept',                                                                                                'The Recipe']
+        self.Log_Text_Edu_8     = ['wird',                                                                                                      'is repeated']
+        self.Log_Text_Edu_9     = ['mal wiederholt. Das Rezept läuft somit',                                                                    'times. The recipe therefore runs']
+        self.Log_Text_Edu_10    = ['mal!',                                                                                                      'times!']
         ## Ablaufdatei: #############################################################################################################################################################################################################################################################################
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -544,6 +560,7 @@ class NemoAchseRotWidget(QWidget):
         self.Text_LimitUpdate   = ['Limit Update ausgelöst',                                                                                    'limit update triggered']
         self.Text_Extra_1       = ['Menü-Knopf betätigt - ',                                                                                    'Menu button pressed - ']
         self.Text_PIDResetError = ['Der PID ist aktiv in Nutzung und kann nicht resettet werden!',                                              'The PID is actively in use and cannot be reset!']
+        self.Text_Edu_1_str     = ['Rezept-Wiederholungen:',                                                                                    'Recipe repetitions:']
         # Pop-Up-Fenster: ###########################################################################################################################################################################################################################################################################
         self.Pop_up_EndRot      = ['Das kontinuierlische rotieren wurde beendet. Bitte beachte, dass zu diesem Zeitpunkt bereits ein Limit überschritten sein kann. In Fall der Überschreitung setze den Winkel auf Null, schalte die kontinuierlische Rotation wieder ein oder fahre in die andere Richtung. Wenn z.B. das CCW Limit erreicht wurde, so kann der Antrieb noch immer bis zum CW Limit fahren.',
                                    'Continuous rotation has ended. Please note that a limit may already have been exceeded at this point. If this limit is exceeded, set the angle to zero, switch continuous rotation back on or move in the other direction. If, for example, the CCW limit has been reached, the drive can still move up to the CW limit.']
@@ -637,6 +654,9 @@ class NemoAchseRotWidget(QWidget):
         self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_v[self.sprache]} {self.uGv} ... {self.oGv} {self.einheit_v_einzel[self.sprache]}'
         self.TT_PID_Para = f'{self.TTSize_3[self.sprache]} {self.TTSize_kp[self.sprache]} {kp_conf}; {self.TTSize_ki[self.sprache]} {ki_conf}; {self.TTSize_kd[self.sprache]} {kd_conf}'
         self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
+
+        self.RZLoop_cb = QCheckBox(cb_RZLoop[self.sprache])
+        self.RZLoop_cb.setToolTip(f'{self.TTRezeptLoop[self.sprache]} {self.rezept_Loop}')
 
         ### Label:
         #### Titel-Gerät:
@@ -751,6 +771,7 @@ class NemoAchseRotWidget(QWidget):
         self.first_row_layout.addWidget(self.gamepad)
         self.first_row_layout.addWidget(self.EndRot)
         self.first_row_layout.addWidget(self.PID_cb)
+        self.first_row_layout.addWidget(self.RZLoop_cb)
 
         self.first_row_layout.setContentsMargins(0,0,0,0)      # left, top, right, bottom
 
@@ -1519,6 +1540,11 @@ class NemoAchseRotWidget(QWidget):
                     logger.info(f'{self.device_name} - {self.Log_Text_39_str[self.sprache]} {self.cb_Rezept.currentText()} {self.rezept_datei}')
                     logger.info(f'{self.device_name} - {self.Log_Text_40_str[self.sprache]} {self.rezept_daten} {self.rezept_datei}')
                     self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_24_str[self.sprache]} {self.cb_Rezept.currentText()} {self.rezept_datei}') 
+                    
+                    # Rezept-Wiederholungen:
+                    if self.RZLoop_cb.isChecked():
+                        logger.info(f'{self.device_name} - {self.Log_Text_Edu_7[self.sprache]} {self.cb_Rezept.currentText()} {self.Log_Text_Edu_8[self.sprache]} {self.rezept_Loop} {self.Log_Text_Edu_9[self.sprache]} {self.rezept_Loop + 1} {self.Log_Text_Edu_10[self.sprache]}')
+                        self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_Edu_1_str[self.sprache]} {self.rezept_Loop} ({self.cb_Rezept.currentText()})')
 
                     # Erstes Element senden:
                     ## PID-Modus oder Normaler-Modus:
@@ -1564,6 +1590,7 @@ class NemoAchseRotWidget(QWidget):
                     self.btn_DH.setEnabled(False)
                     self.Auswahl.setEnabled(False)
                     self.PID_cb.setEnabled(False)
+                    self.RZLoop_cb.setEnabled(False)
 
                     # Timer Starten:
                     self.RezTimer.setInterval(int(abs(self.time_list[self.step]*1000)))
@@ -1599,6 +1626,7 @@ class NemoAchseRotWidget(QWidget):
                 self.btn_DH.setEnabled(True)
                 self.Auswahl.setEnabled(True)
                 if self.PID_Aktiv: self.PID_cb.setEnabled(True)
+                self.RZLoop_cb.setEnabled(True)
 
                 # Variablen:
                 self.Rezept_Aktiv = False
@@ -1780,13 +1808,26 @@ class NemoAchseRotWidget(QWidget):
                 else:
                     self.Fehler_Output(1, self.La_error_1, f'{self.err_Rezept[self.sprache]} {werte[2].strip()} ({n})')
                     return True
+            ## Loop-Funktion nutzen:
+            if self.RZLoop_cb.isChecked():
+                ### Listen-Vorbereiten bzw. merken:
+                value_List_Loop = [] + self.value_list
+                time_List_Loop  = [] + self.time_list
+                if self.PID_cb.isChecked(): move_list_Loop = [] + self.move_list
+                ### Listen erweitern:
+                if self.rezept_Loop > 0:
+                    for Loop in range(0,self.rezept_Loop,1):
+                        self.value_list += value_List_Loop
+                        self.time_list  += time_List_Loop
+                        if self.PID_cb.isChecked(): self.move_list += move_list_Loop
+            ## Kontrolle des Winkels:
             if not self.PID_cb.isChecked():
-                ## Positionen bestimmen:
+                ### Winkel bestimmen:
                 value_step = 0
                 for n_PosP in self.value_list:
                     pos_list.append(360/60 * n_PosP * self.time_list[value_step])
                     value_step += 1
-                ## Kontrolle Winkel:
+                ### Kontrolle Winkel:
                 logger.debug(f"{self.device_name} - {self.Log_Text_59_str[self.sprache]} {pos_list}")
                 rezept_schritt = 1 
                 for n in pos_list:

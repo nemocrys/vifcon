@@ -127,6 +127,8 @@ class Sampler(QObject, metaclass=SignalMetaclass):
         self.Log_Text_7_str = ['Anzeige der Port-Fehler-Warnung nur',                               'Port error warning only displayed']
         self.Log_Text_8_str = ['mal! Anzeige erst nach Fehlerfreien Port-Zugang!',                  'times! Display only after error-free port access!']
         self.Log_Text_1_PID = ['PID-Modus gilt als gesperrt! PID-Parameter nicht richtig!',         'PID mode is locked! PID parameters not correct!']
+        self.Log_Text_Neu_1 = ['Nemo-Anlage-',                                                      'Nemo-facility-']
+        self.Log_Text_Neu_2 = ['Port wieder Öffnen!',                                               'Open port again!']
 
     def sample(self):
         ''' Löse Lese und Schreib Funktionen am Gerät aus.
@@ -153,7 +155,7 @@ class Sampler(QObject, metaclass=SignalMetaclass):
             ## Bei Port = False und detektiertem Abbruch -> Teste Verbindung und öffne Port wieder:
             if 'Nemo' in self.device_name and not port and self.serial_connect_bruch and self.device.init:
                 check3 = self.device.Test_Connection()
-                if check3: logger.info(f'Nemo-Anlage-{self.device_widget.Anlage} - {self.device_name} - Port wieder Öffnen! ')
+                if check3: logger.info(f'{self.Log_Text_Neu_1[self.sprache]}{self.device_widget.Anlage} - {self.device_name} - {self.Log_Text_Neu_2[self.sprache]}')
                 self.serial_connect_bruch = False
 
             ## Kontrolliere Port bei Exit (Bei Erfolgreichen Test, Port als offen ansehen!!):
