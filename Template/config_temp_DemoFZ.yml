@@ -769,11 +769,14 @@ devices:
       invert: True                                                        # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
                                                                           # Eigentlich: Spindel:  Hoch-Fahren = Negative Geschwindigkeit
                                                                           #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
-                                                                          # Bei Nemo-2 nicht mehr so!
+                                                                          # Bei Nemo-2 ist dieses verhalten nicht mehr -> Istgeschwindigkeit immer Positiv!
+                                                                          #     Um aus der Istgeschwindigkeit die Richtung zu erkennen, wird sie bei Nemo-2 beim Runterfahren negiert!
+                                                                          #     Hoch - Positiv, Runter - Negtaiv
+                                                                          #     Bei invert = True wird dies gedreht!
                                                                           # Default bei Fehler: False
       invert_Pos: False                                                   # Wenn True wird der Positionswert mal -1 genommen!! 
                                                                           # Benötigt für die Nemo2 Spindel: ↑ Position sinkt, ↓ Position steigt
-                                                                          # Achtung: Achte auf oGs und uGs! Beim Tiegel liegt dieses Problem nicht vor! Dort Umbedingt auf False stellen!! 
+                                                                          # Achtung: Achte auf oGs und uGs (müssen dann Negativ sein)! Beim Tiegel liegt dieses Problem nicht vor! Dort Umbedingt auf False stellen!! 
                                                                           # Default bei Fehler: False
       start_weg: 0                                                        # Startweg in mm | Default bei Fehler: 0
       pos_control: SIM                                                    # Positions-Limit-Kontrolle -> SIM - Simulierter Weg, REAL - Realer Weg (Nutzung von Upper) | Default bei Fehler: SIM
@@ -891,6 +894,10 @@ devices:
       invert: True                                                        # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
                                                                           # Eigentlich: Spindel:  CW-Fahren   = Negative Geschwindigkeit
                                                                           #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
+                                                                          # Bei Nemo-2 ist dieses verhalten nicht mehr -> Istwinkelgeschwindigkeit immer Positiv!
+                                                                          #     Um aus der Istgeschwindigkeit die Richtung zu erkennen, wird sie bei Nemo-2 beim CCW negiert!
+                                                                          #     CW - Positiv, CCW - Negtaiv
+                                                                          #     Bei invert = True wird dies gedreht!                                                                          
                                                                           # Default bei Fehler: False
       start_winkel: 0                                                     # Startwinkel in ° | Default bei Fehler: 0
       kont_rot: 0                                                         # Setze Kontinuierlisches Drehen ein oder Aus | Default bei Fehler: False
@@ -1001,11 +1008,14 @@ devices:
       invert: False                                                       # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
                                                                           # Eigentlich: Spindel:  Hoch-Fahren = Negative Geschwindigkeit
                                                                           #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
-                                                                          # Bei Nemo-2 nicht mehr so!
+                                                                          # Bei Nemo-2 ist dieses verhalten nicht mehr -> Istgeschwindigkeit immer Positiv!
+                                                                          #     Um aus der Istgeschwindigkeit die Richtung zu erkennen, wird sie bei Nemo-2 beim Runterfahren negiert!
+                                                                          #     Hoch - Positiv, Runter - Negtaiv
+                                                                          #     Bei invert = True wird dies gedreht!
                                                                           # Default bei Fehler: False
       invert_Pos: False                                                   # Wenn True wird der Positionswert mal -1 genommen!! 
                                                                           # Benötigt für die Nemo2 Spindel: ↑ Position sinkt, ↓ Position steigt
-                                                                          # Achtung: Achte auf oGs und uGs! Beim Tiegel liegt dieses Problem nicht vor! Dort Umbedingt auf False stellen!! 
+                                                                          # Achtung: Achte auf oGs und uGs (müssen dann Negativ sein)! Beim Tiegel liegt dieses Problem nicht vor! Dort Umbedingt auf False stellen!! 
                                                                           # Default bei Fehler: False
       start_weg: 140                                                      # Startweg in mm | Default bei Fehler: 0
       pos_control: SIM                                                    # Positions-Limit-Kontrolle -> SIM - Simulierter Weg, REAL - Realer Weg (Nutzung von Upper) | Default bei Fehler: SIM
@@ -1118,6 +1128,10 @@ devices:
       invert: False                                                       # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
                                                                           # Eigentlich: Spindel:  CW-Fahren   = Negative Geschwindigkeit
                                                                           #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
+                                                                          # Bei Nemo-2 ist dieses verhalten nicht mehr -> Istwinkelgeschwindigkeit immer Positiv!
+                                                                          #     Um aus der Istgeschwindigkeit die Richtung zu erkennen, wird sie bei Nemo-2 beim CCW negiert!
+                                                                          #     CW - Positiv, CCW - Negtaiv
+                                                                          #     Bei invert = True wird dies gedreht!                                                                            
                                                                           # Default bei Fehler: False
       start_winkel: 0                                                     # Startwinkel in ° | Default bei Fehler: 0
       kont_rot: 1                                                         # Setze Kontinuierlisches Drehen ein oder Aus | Default bei Fehler: False

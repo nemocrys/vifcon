@@ -94,8 +94,8 @@ class NemoAchseLinWidget(QWidget):
         self.ak_value = {}
 
         ## Weitere:
-        self.Rezept_Aktiv = False
-        self.data = {}
+        self.Rezept_Aktiv   = False
+        self.data           = {}
 
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
@@ -598,7 +598,7 @@ class NemoAchseLinWidget(QWidget):
         #---------------------------------------
         #self.send_betätigt = False
         self.write_task  = {'Stopp': False, 'Hoch': False, 'Runter': False, 'Init':False, 'Define Home': False, 'Send': False, 'Start':False, 'Update Limit': False, 'PID': False, 'Prio-Stopp': False, 'PID-Reset': False}
-        self.write_value = {'Speed': 0, 'Limits': [0, 0, 0, 0, 0, 0], 'PID-Sollwert': 0} # Limits: oGs, uGs, oGv, uGv, oGx, uGx
+        self.write_value = {'Speed': 0, 'Limits': [0, 0, 0, 0, 0, 0], 'PID-Sollwert': 0, 'Fahrrichtung': 1} # Limits: oGs, uGs, oGv, uGv, oGx, uGx
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -1074,6 +1074,7 @@ class NemoAchseLinWidget(QWidget):
     def fahre_Hoch(self):
         '''Reaktion auf den Linken Knopf'''
         if self.init:
+            self.write_value['Fahrrichtung'] = 1
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_45_str[self.sprache]}')
             self.Fehler_Output(0, self.La_error_1) 
             ans = self.controll_value()
@@ -1093,6 +1094,7 @@ class NemoAchseLinWidget(QWidget):
     def fahre_Runter(self):
         '''Reaktion auf den Rechten Knopf'''
         if self.init:
+            self.write_value['Fahrrichtung'] = -1
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_46_str[self.sprache]}')
             self.Fehler_Output(0, self.La_error_1) 
             ans = self.controll_value()
@@ -1606,24 +1608,28 @@ class NemoAchseLinWidget(QWidget):
                         self.write_value['PID-Sollwert'] = self.value_list[self.step]
 
                         if self.move_list[self.step] == 'UP':
-                            self.write_task['Hoch'] = True
-                            self.write_task['Runter'] = False
-                            self.richtung_Rez = 'Hoch'
+                            self.write_value['Fahrrichtung']    = 1
+                            self.write_task['Hoch']             = True
+                            self.write_task['Runter']           = False
+                            self.richtung_Rez                   = 'Hoch'
                         elif self.move_list[self.step] == 'DOWN':
-                            self.write_task['Runter'] = True
-                            self.write_task['Hoch'] = False
-                            self.richtung_Rez = 'Runter'
+                            self.write_value['Fahrrichtung']    = -1
+                            self.write_task['Runter']           = True
+                            self.write_task['Hoch']             = False
+                            self.richtung_Rez                   = 'Runter'
                     else:
                         self.write_value['Speed'] = abs(self.value_list[self.step])
 
                         if self.value_list[self.step] < 0:             # Nachsehen: Wie was sich bei Hoch und Runter verhält bei Geschwindigkeit!
-                            self.write_task['Runter'] = True
-                            self.write_task['Hoch'] = False
-                            self.richtung_Rez = 'Runter'
+                            self.write_value['Fahrrichtung']    = -1
+                            self.write_task['Runter']           = True
+                            self.write_task['Hoch']             = False
+                            self.richtung_Rez                   = 'Runter'
                         else:
-                            self.write_task['Hoch'] = True
-                            self.write_task['Runter'] = False
-                            self.richtung_Rez = 'Hoch'
+                            self.write_value['Fahrrichtung']    = 1
+                            self.write_task['Hoch']             = True
+                            self.write_task['Runter']           = False
+                            self.richtung_Rez                   = 'Hoch'
                     ## Anzeige Betätigte Richtung:
                     if self.BTN_BW_grün and self.write_task['Hoch']:
                         self.btn_runter.setIcon(QIcon(self.icon_runter))
@@ -1706,30 +1712,34 @@ class NemoAchseLinWidget(QWidget):
             if self.PID_cb.isChecked():
                 self.write_value['PID-Sollwert'] = self.value_list[self.step]
                 if self.move_list[self.step] == 'UP':
-                    self.write_task['Hoch'] = True
-                    self.write_task['Runter'] = False
-                    richtung = 'Hoch'
+                    self.write_value['Fahrrichtung']    = 1
+                    self.write_task['Hoch']             = True
+                    self.write_task['Runter']           = False
+                    richtung                            = 'Hoch'
                 elif self.move_list[self.step] == 'DOWN':
-                    self.write_task['Runter'] = True
-                    self.write_task['Hoch'] = False
-                    richtung = 'Runter'
+                    self.write_value['Fahrrichtung']    = -1
+                    self.write_task['Runter']           = True
+                    self.write_task['Hoch']             = False
+                    richtung                            = 'Runter'
             else:
                 self.write_value['Speed'] = abs(self.value_list[self.step])
 
                 if self.value_list[self.step] < 0:
-                    self.write_task['Runter'] = True
-                    self.write_task['Hoch'] = False
-                    richtung = 'Runter'
+                    self.write_value['Fahrrichtung']    = -1
+                    self.write_task['Runter']           = True
+                    self.write_task['Hoch']             = False
+                    richtung                            = 'Runter'
                 else:
-                    self.write_task['Hoch']   = True
-                    self.write_task['Runter'] = False
-                    richtung = 'Hoch'
+                    self.write_value['Fahrrichtung']    = 1
+                    self.write_task['Hoch']             = True
+                    self.write_task['Runter']           = False
+                    richtung                            = 'Hoch'
             ## Prio-Stopp bei Nemo-2-Anlage:
             if self.Anlage == 2 and not self.richtung_Rez == richtung:
-                self.write_task['Prio-Stopp'] = True 
+                self.write_task['Prio-Stopp']       = True 
                 logger.info(f'{self.device_name} - {self.Log_Text_PS_1[self.sprache]} {self.richtung_Rez} {self.Log_Text_PS_2[self.sprache]} {richtung}')
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PS_1[self.sprache]}')
-                self.richtung_Rez = richtung
+                self.richtung_Rez                   = richtung
             ## Anzeige Betätigte Richtung:
             if self.BTN_BW_grün and self.write_task['Hoch']:
                 self.btn_runter.setIcon(QIcon(self.icon_runter))

@@ -84,7 +84,8 @@ class NemoAchseLin(QObject):
         self.typ                        = typ
 
         ## Weitere:
-        self.angezeigt = False
+        self.angezeigt  = False
+        self.v_VZ       = 1            # Anzeige der Richtung durch Istgeschwindigkeit (Positiv - Hoch, Negativ - Runter) (Normalfall)
 
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
@@ -793,6 +794,11 @@ class NemoAchseLin(QObject):
         '''
         ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
         #++++++++++++++++++++++++++++++++++++++++++
+        # Darstellung Nemo-2-Anlage - Ist-v:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if self.Anlage == 2:    self.v_VZ = write_value['Fahrrichtung']
+
+        #++++++++++++++++++++++++++++++++++++++++++
         # Start:
         #++++++++++++++++++++++++++++++++++++++++++
         if write_Okay['Start'] and not self.neustart:
@@ -1187,13 +1193,13 @@ class NemoAchseLin(QObject):
             i += 1
 
         # Reiehnfolge: vIst, vSoll, posIst, posSoll, posMax, posMin
-        self.value_name['IWv']  = round(value[0] * self.vF_ist, self.nKS) * multi   # Vorfaktor     # Einheit: mm/min 
-        self.value_name['SWv']  = round(value[1] * self.vF_soll , self.nKS)         # Vorfaktor     # Einheit: mm/min
-        self.value_name['IWs']  = round(self.akIWs, self.nKS)                                       # Einheit: mm
-        self.value_name['IWsd'] = round(value[2] * self.Pos_Invertierung, self.nKS)                 # Einheit: mm
-        self.value_name['SWs']  = round(value[3], self.nKS)                                         # Einheit: mm
-        self.value_name['oGs']  = round(self.oGs, self.nKS)                         # value[4]      # Einheit: mm
-        self.value_name['uGs']  = round(self.uGs, self.nKS)                         # value[5]      # Einheit: mm
+        self.value_name['IWv']  = round(value[0] * self.vF_ist, self.nKS) * multi * self.v_VZ       # Vorfaktor     # Einheit: mm/min 
+        self.value_name['SWv']  = round(value[1] * self.vF_soll , self.nKS)                         # Vorfaktor     # Einheit: mm/min
+        self.value_name['IWs']  = round(self.akIWs, self.nKS)                                                       # Einheit: mm
+        self.value_name['IWsd'] = round(value[2] * self.Pos_Invertierung, self.nKS)                                 # Einheit: mm
+        self.value_name['SWs']  = round(value[3], self.nKS)                                                         # Einheit: mm
+        self.value_name['oGs']  = round(self.oGs, self.nKS)                                         # value[4]      # Einheit: mm
+        self.value_name['uGs']  = round(self.uGs, self.nKS)                                         # value[5]      # Einheit: mm
         logger.debug(f'{self.device_name} - {self.Log_Text_175_str[self.sprache]} {value[3]}, {self.Log_Text_176_str[self.sprache]}: {value[4]}, {self.Log_Text_177_str[self.sprache]}: {value[5]}')
 
         # Lese: Status

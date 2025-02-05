@@ -569,7 +569,7 @@ class NemoAchseRotWidget(QWidget):
         # Konfigurationen für das Senden:
         #---------------------------------------
         self.write_task  = {'Stopp': False, 'CCW': False, 'CW': False, 'Init':False, 'Define Home': False, 'Start':False, 'Send':False, 'Update Limit': False, 'PID': False, 'EndRot':False, 'Prio-Stopp': False, 'PID-Reset': False}
-        self.write_value = {'Speed': 0, 'Limits': [0, 0, 0, 0, 0, 0], 'PID-Sollwert': 0} # Limits: oGw, uGw, oGv, uGv, oGx, uGx
+        self.write_value = {'Speed': 0, 'Limits': [0, 0, 0, 0, 0, 0], 'PID-Sollwert': 0, 'Fahrrichtung': 1} # Limits: oGw, uGw, oGv, uGv, oGx, uGx
 
         # Wenn Init = False, dann werden die Start-Auslesungen nicht ausgeführt:
         if self.init and not self.neustart:
@@ -1044,6 +1044,7 @@ class NemoAchseRotWidget(QWidget):
     def fahre_cw(self):
         '''Reaktion auf den Linken Knopf'''
         if self.init:
+            self.write_value['Fahrrichtung'] = 1
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_49_str[self.sprache]}')
             self.Fehler_Output(0, self.La_error_1) 
             ans = self.controll_value()
@@ -1063,6 +1064,7 @@ class NemoAchseRotWidget(QWidget):
     def fahre_ccw(self):
         '''Reaktion auf den Rechten Knopf'''
         if self.init:
+            self.write_value['Fahrrichtung'] = -1
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_50_str[self.sprache]}')
             self.Fehler_Output(0, self.La_error_1) 
             ans = self.controll_value()
@@ -1552,24 +1554,28 @@ class NemoAchseRotWidget(QWidget):
                         self.write_value['PID-Sollwert'] = self.value_list[self.step]
 
                         if self.move_list[self.step] == 'CW':
-                            self.write_task['CW'] = True
-                            self.write_task['CCW'] = False
-                            self.richtung_Rez = 'CW'
+                            self.write_value['Fahrrichtung']    = 1
+                            self.write_task['CW']               = True
+                            self.write_task['CCW']              = False
+                            self.richtung_Rez                   = 'CW'
                         elif self.move_list[self.step] == 'CCW':
-                            self.write_task['CCW'] = True
-                            self.write_task['CW'] = False
-                            self.richtung_Rez = 'CCW'
+                            self.write_value['Fahrrichtung']    = -1
+                            self.write_task['CCW']              = True
+                            self.write_task['CW']               = False
+                            self.richtung_Rez                   = 'CCW'
                     else:
                         self.write_value['Speed'] = abs(self.value_list[self.step]) 
 
                         if self.value_list[self.step] < 0:
-                            self.write_task['CCW'] = True
-                            self.write_task['CW'] = False
-                            self.richtung_Rez = 'CCW'
+                            self.write_value['Fahrrichtung']    = -1
+                            self.write_task['CCW']              = True
+                            self.write_task['CW']               = False
+                            self.richtung_Rez                   = 'CCW'
                         else:
-                            self.write_task['CW'] = True
-                            self.write_task['CCW'] = False
-                            self.richtung_Rez = 'CW'
+                            self.write_value['Fahrrichtung']    = 1
+                            self.write_task['CW']               = True
+                            self.write_task['CCW']              = False
+                            self.richtung_Rez                   = 'CW'
                     ## Anzeige Betätigte Richtung:
                     if self.BTN_BW_grün and self.write_task['CW']:
                         self.btn_ccw.setIcon(QIcon(self.icon_ccw))
@@ -1657,24 +1663,28 @@ class NemoAchseRotWidget(QWidget):
             if self.PID_cb.isChecked():
                 self.write_value['PID-Sollwert'] = self.value_list[self.step]
                 if self.move_list[self.step] == 'CW':
-                    self.write_task['CW'] = True
-                    self.write_task['CCW'] = False
-                    richtung = 'CW'
+                    self.write_value['Fahrrichtung']    = 1
+                    self.write_task['CW']               = True
+                    self.write_task['CCW']              = False
+                    richtung                            = 'CW'
                 elif self.move_list[self.step] == 'CCW':
-                    self.write_task['CCW'] = True
-                    self.write_task['CW'] = False
-                    richtung = 'CCW'
+                    self.write_value['Fahrrichtung']    = -1
+                    self.write_task['CCW']              = True
+                    self.write_task['CW']               = False
+                    richtung                            = 'CCW'
             else:
                 self.write_value['Speed'] = abs(self.value_list[self.step]) 
 
                 if self.value_list[self.step] < 0:
-                    self.write_task['CCW'] = True
-                    self.write_task['CW'] = False
-                    richtung = 'CCW'
+                    self.write_value['Fahrrichtung']    = -1
+                    self.write_task['CCW']              = True
+                    self.write_task['CW']               = False
+                    richtung                            = 'CCW'
                 else:
-                    self.write_task['CW'] = True
-                    self.write_task['CCW'] = False
-                    richtung = 'CW'
+                    self.write_value['Fahrrichtung']    = 1
+                    self.write_task['CW']               = True
+                    self.write_task['CCW']              = False
+                    richtung                            = 'CW'
             ## Prio-Stopp bei Nemo-2-Anlage:
             if self.Anlage == 2 and not self.richtung_Rez == richtung:
                 self.write_task['Prio-Stopp'] = True 

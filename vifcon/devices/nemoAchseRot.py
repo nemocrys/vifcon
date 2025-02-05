@@ -85,7 +85,8 @@ class NemoAchseRot(QObject):
         self.typ                        = typ
 
         ## Weitere:
-        self.angezeigt = False
+        self.angezeigt  = False
+        self.v_VZ       = 1            # Anzeige der Richtung durch Istgeschwindigkeit (Positiv - CW, Negativ - CCW) (Normalfall)
 
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
@@ -118,6 +119,14 @@ class NemoAchseRot(QObject):
         self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',                                                                           'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
         Log_Text_PID_N18        = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
 
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ## Übergeordnet:
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        try: self.Anlage = self.config['nemo-Version']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} nemo-Version {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.Anlage = 1
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Zum Start:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -453,6 +462,10 @@ class NemoAchseRot(QObject):
         if not type(self.nKS) in [int] or not self.nKS >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nKS_Aus - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 3 - {self.Log_Pfad_conf_8[self.sprache]} {self.nKS}')
             self.nKS = 3
+        ### Anlagen-Version:
+        if not self.Anlage in [1, 2]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nemo-Version - {self.Log_Pfad_conf_2[self.sprache]} [1, 2] - {self.Log_Pfad_conf_3[self.sprache]} 1')
+            self.Anlage = 1
 
         #---------------------------------------------------------
         # Andere Variablen:
@@ -697,6 +710,11 @@ class NemoAchseRot(QObject):
             write_value (dict): beinhaltet die Werte die geschrieben werden sollen
         '''
         ak_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Darstellung Nemo-2-Anlage - Ist-v:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if self.Anlage == 2:    self.v_VZ = write_value['Fahrrichtung']
+
         #++++++++++++++++++++++++++++++++++++++++++
         # Start:
         #++++++++++++++++++++++++++++++++++++++++++
@@ -1082,8 +1100,8 @@ class NemoAchseRot(QObject):
             i += 1
 
         # Reiehnfolge: vIst, vSoll
-        self.value_name['IWv'] = round(value[0]*self.vF_ist, self.nKS) * multi   # Vorfaktor beachten        # Einheit: 1/min
-        self.value_name['SWv'] = round(value[1]*self.vF_soll, self.nKS)          # Vorfaktor beachten        # Einheit: 1/min
+        self.value_name['IWv'] = round(value[0]*self.vF_ist, self.nKS) * multi * self.v_VZ      # Vorfaktor beachten        # Einheit: 1/min
+        self.value_name['SWv'] = round(value[1]*self.vF_soll, self.nKS)                         # Vorfaktor beachten        # Einheit: 1/min
 
         # Lese: Status
         ans = self.serial.read_input_registers(self.Status_Reg, 1)
