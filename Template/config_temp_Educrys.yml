@@ -809,7 +809,7 @@ devices:
                                                                           #               Messung wird nicht gestartet! 
                                                                           # Start-Werte:  Minamles und Maximales Positionslimit
                                                                           # Default bei Fehler: False
-      invert: 0                                                           # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
+      invert: 1                                                           # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
                                                                           # Eigentlich: Spindel:  Hoch-Fahren = Negative Geschwindigkeit
                                                                           #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
                                                                           # Bei Nemo-2 ist dieses verhalten nicht mehr -> Istgeschwindigkeit immer Positiv!
@@ -1487,9 +1487,9 @@ devices:
     parameter:
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3 
     defaults:
-      startCurrent: 2.5                                                   # Strom bei Programmstart [A] | Default bei Fehler: 0
-      startPow: 11.2                                                      # Leistung bei Programmstart [kW] | Default bei Fehler: 0
-      startVoltage: 1200                                                  # Spannung bei Programmstart [V] | Default bei Fehler: 0
+      startCurrent: 0                                                     # Strom bei Programmstart [A] | Default bei Fehler: 0
+      startPow: 0                                                         # Leistung bei Programmstart [kW] | Default bei Fehler: 0
+      startVoltage: 0                                                     # Spannung bei Programmstart [V] | Default bei Fehler: 0
     rezepte:                                                              # Schritte: Zeit (s) -> max. 3 Nachkommerstellen, Sollwert (kW/V/A), Art der Rampe, Schritt/Steigung (kW/s, V/s, A/s)
                                                                           # Art der Rampe: s - Sprung, r - Rampe
                                                                           # Schritte/Steigung wird bei Sprung nicht benötigt!

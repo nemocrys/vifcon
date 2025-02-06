@@ -478,9 +478,9 @@ class NemoAchseRotWidget(QWidget):
         self.sta_Bit14_str      = ['Schnittstellenfehler',                                                                                      'Interface error']
         self.sta_Bit15_str      = ['Test-Modus Aktiv',                                                                                          'Test Mode Active']
         ## Status-N2: ##############################################################################################################################################################################################################################################################################                                                              
-        self.Stat_N2_Bit0       = self.sta_Bit5_str
+        self.Stat_N2_Bit0       = ['Rechtslauf',                                                                                                'Clockwise rotation']
         self.Stat_N2_Bit1       = self.sta_Bit11_str
-        self.Stat_N2_Bit2       = self.sta_Bit4_str
+        self.Stat_N2_Bit2       = ['Linkslauf',                                                                                                 'Counterclockwise rotation']
         self.Stat_N2_Bit3       = self.sta_Bit0_str
         self.Stat_N2_Bit4       = self.sta_Bit2_str 
         self.Stat_N2_Bit5       = ['', ''] # Reserve

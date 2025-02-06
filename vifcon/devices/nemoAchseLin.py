@@ -653,7 +653,8 @@ class NemoAchseLin(QObject):
         self.Text_68_str        = ['Versuchen!',                                                                                                                                                                            'Attempts!']
         self.Text_69_str        = ['Geschwindigkeit erfolgreich gesendet!',                                                                                                                                                 'Speed sent successfully!']
         self.Text_70_str        = ['Befehl sende Geschwindigkeit fehlgeschlagen!',                                                                                                                                          'Command send speed failed!']
-
+        self.Text_Neu_1_str     = ['v =',                                                                                                                                                                                   'v =']
+        
         #---------------------------------------
         # Schnittstelle:
         #---------------------------------------
@@ -1141,7 +1142,7 @@ class NemoAchseLin(QObject):
             False:              Exception ausgelöst!    
         '''
         try:
-            sollwert = round(sollwert/self.vF_soll, 2)      # Beachtung des Vorfaktors
+            sollwert = round(sollwert/self.vF_soll, 3)      # Beachtung des Vorfaktors
             sollwert_hex = utils.encode_ieee(sollwert)
             if sollwert_hex == 0:
                 sollwert_hex = '0x00000000'
@@ -1152,7 +1153,7 @@ class NemoAchseLin(QObject):
 
             ans = self.serial.write_multiple_registers(self.start_write_v, [int(sollwert_hex_HB,16), int(sollwert_hex_LB,16)])
             if ans:
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_69_str[self.sprache]}') 
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_69_str[self.sprache]} ({self.Text_Neu_1_str[self.sprache]} {sollwert} {self.Log_Text_LB_unit[self.sprache]})') 
             else:
                 logger.warning(f'{self.device_name} - {self.Log_Text_172_str[self.sprache]}')
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_70_str[self.sprache]}') 

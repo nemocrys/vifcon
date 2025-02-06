@@ -646,6 +646,13 @@ class Controller(QObject):
         self.generator = Generator(self.start_time, self.tab_GenAnt.splitter, self.add_Ablauf, self.stopp_all, self.main_window.menu_dict, legend_generator, scale, self.sprache, Color_Anzeige)
         self.antrieb = Antrieb(self.start_time, self.tab_GenAnt.splitter, self.add_Ablauf, self.stopp_all, self.synchro_achse, self.main_window.menu_dict, legend_antriebe, scale, self.sprache, Color_Anzeige)
 
+        if self.generator.legend_pos == 'SIDE':
+            self.generator.btn_LCA.clicked.connect(lambda: self.Legend_Check('Generator'))
+            self.generator.btn_LUCA.clicked.connect(lambda: self.Legend_Uncheck('Generator'))
+        if self.antrieb.legend_pos == 'SIDE':
+            self.antrieb.btn_LCA.clicked.connect(lambda: self.Legend_Check('Antrieb'))
+            self.antrieb.btn_LUCA.clicked.connect(lambda: self.Legend_Uncheck('Antrieb'))
+
         ### Haupttab Monitoring:
         self.tab_Mon = Splitter('H', True)
         self.main_window.add_tab(self.tab_Mon.splitter, main_window_tab_2_str[self.sprache])
@@ -1367,6 +1374,24 @@ class Controller(QObject):
         except Exception as e: 
             logger.warning(f'{self.Log_Yaml_Error[self.sprache]}')
             logger.exception(f'{self.Log_Yaml_Reason[self.sprache]}')
+
+    def Legend_Check(self, typ):
+        '''Setze alle Legenden-Kurven'''
+        for device in self.widgets:
+            if self.widgets[device].typ == typ:
+                for checkbox in self.widgets[device].kurven_side_legend:
+                    checkbox.setChecked(True)
+                    kurve = self.widgets[device].kurven_side_legend[checkbox]
+                    self.widgets[device].curveDict[kurve].setVisible(True)
+
+    def Legend_Uncheck(self, typ):
+        '''Schalte alle Legenden-Kurven aus'''
+        for device in self.widgets:
+            if self.widgets[device].typ == typ:
+                for checkbox in self.widgets[device].kurven_side_legend:
+                    checkbox.setChecked(False)
+                    kurve = self.widgets[device].kurven_side_legend[checkbox]
+                    self.widgets[device].curveDict[kurve].setVisible(False)
 
     ##########################################
     # Erweiterung von Text-Datein:

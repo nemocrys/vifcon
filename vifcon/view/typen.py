@@ -212,6 +212,16 @@ class Generator(QWidget, Cursor, PopUpWindow):
         
         ## AutoScale Knopf definieren:
         self.btn_AS = QPushButton(QIcon("./vifcon/icons/AutoScale.png"), '')     # Icon
+
+        ## All Check and All Uncheck definieren:
+        if self.legend_pos == 'SIDE':
+            if sprache == 0:    image_CL  = "./vifcon/icons/p_LCA.png"
+            else:               image_CL  = "./vifcon/icons/p_LCA_En.png"
+            if sprache == 0:    image_UCL = "./vifcon/icons/p_LUCA.png"
+            else:               image_UCL = "./vifcon/icons/p_LUCA_En.png"
+
+            self.btn_LCA  = QPushButton(QIcon(image_CL), '') 
+            self.btn_LUCA = QPushButton(QIcon(image_UCL), '') 
         
         ## Graphen/Plot erstellen:
         if self.legend_pos == 'SIDE' and (self.Side_Legend_position == 'RL' or self.Side_Legend_position == 'L'):
@@ -251,12 +261,22 @@ class Generator(QWidget, Cursor, PopUpWindow):
         self.btn_AS.setToolTip(f'{autoR_str[self.sprache]} {Typ[self.sprache]} - {action_ar_str[self.sprache]}')    # ToolTip
         self.controll_layout.addWidget(self.btn_AS, 1, 0)                                                           # Platzierung
 
+        ### Legenden Setzen/nicht setzen:
+        if self.legend_pos == 'SIDE':
+            self.btn_LCA.setFlat(True) 
+            self.btn_LCA.setIconSize(QSize(60, 60)) 
+            self.controll_layout.addWidget(self.btn_LCA, 2, 0) 
+
+            self.btn_LUCA.setFlat(True) 
+            self.btn_LUCA.setIconSize(QSize(60, 60)) 
+            self.controll_layout.addWidget(self.btn_LUCA, 3, 0) 
+
         ### Achsen Werte:
-        self.Add_Widget(2)
+        self.Add_Widget(4)
 
         ## Anordnung-rechts-Grid Size:
         self.controll_layout.setRowStretch(1, 1) 
-        self.controll_layout.setColumnStretch(3, 1)
+        self.controll_layout.setColumnStretch(4, 1)
 
         ## Spacing:
         self.controll_layout.setHorizontalSpacing(3)       
@@ -406,6 +426,16 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         ## AutoScale Knopf definieren:
         self.btn_AS = QPushButton(QIcon("./vifcon/icons/AutoScale.png"), '')     # Icon
 
+        ## All Check and All Uncheck definieren:
+        if self.legend_pos == 'SIDE':
+            if sprache == 0:    image_CL  = "./vifcon/icons/p_LCA.png"
+            else:               image_CL  = "./vifcon/icons/p_LCA_En.png"
+            if sprache == 0:    image_UCL = "./vifcon/icons/p_LUCA.png"
+            else:               image_UCL = "./vifcon/icons/p_LUCA_En.png"
+
+            self.btn_LCA  = QPushButton(QIcon(image_CL), '') 
+            self.btn_LUCA = QPushButton(QIcon(image_UCL), '') 
+
         ## Graphen erstellen:
         if self.legend_pos == 'SIDE' and (self.Side_Legend_position == 'RL' or self.Side_Legend_position == 'L'):
             self.legend_achsen_Links_widget = Widget_VBox()
@@ -451,12 +481,22 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
         self.btn_AS.setToolTip(f'{autoR_str[self.sprache]} {Typ[self.sprache]} - {action_ar_str[self.sprache]}')    # ToolTip
         self.controll_layout.addWidget(self.btn_AS, 2, 0)                                                           # Platzierung
 
+        ### Legenden Setzen/nicht setzen:
+        if self.legend_pos == 'SIDE':
+            self.btn_LCA.setFlat(True) 
+            self.btn_LCA.setIconSize(QSize(60, 60)) 
+            self.controll_layout.addWidget(self.btn_LCA, 3, 0) 
+
+            self.btn_LUCA.setFlat(True) 
+            self.btn_LUCA.setIconSize(QSize(60, 60)) 
+            self.controll_layout.addWidget(self.btn_LUCA, 4, 0) 
+
         ### Achsen Werte:
-        self.Add_Widget(3)
+        self.Add_Widget(5)
 
         ## Grid Size:
         self.controll_layout.setRowStretch(3, 1) 
-        self.controll_layout.setColumnStretch(3, 1)
+        self.controll_layout.setColumnStretch(5, 1)
 
         ## Spacing:
         self.controll_layout.setHorizontalSpacing(3)       

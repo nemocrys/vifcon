@@ -569,7 +569,9 @@ class NemoAchseRot(QObject):
         self.Text_72_str        = ['Befehl Clock Wise erfolgreich gesendet!',                                                                                                                                               'Clock Wise command sent successfully!']
         self.Text_73_str        = ['Befehl Counter Clock Wise fehlgeschlagen!',                                                                                                                                             'Counter Clock Wise command failed!']
         self.Text_74_str        = ['Befehl Counter Clock Wise erfolgreich gesendet!',                                                                                                                                       'Counter Clock Wise command sent successfully!']
-
+        self.Text_70_str        = ['Befehl sende Geschwindigkeit fehlgeschlagen!',                                                                                                                                          'Command send speed failed!']
+        self.Text_Neu_1_str     = ['\u03C9 =',                                                                                                                                                                              '\u03C9 =']
+        
         #---------------------------------------
         # Schnittstelle:
         #---------------------------------------
@@ -1058,7 +1060,7 @@ class NemoAchseRot(QObject):
 
             ans = self.serial.write_multiple_registers(self.start_write_v, [int(sollwert_hex_HB,16), int(sollwert_hex_LB,16)])
             if ans:
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_69_str[self.sprache]}') 
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_69_str[self.sprache]} ({self.Text_Neu_1_str[self.sprache]} {sollwert} {self.Log_Text_LB_unit[self.sprache]})') 
             else:
                 logger.warning(f'{self.device_name} - {self.Log_Text_172_str[self.sprache]}')
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_70_str[self.sprache]}') 
@@ -1199,7 +1201,7 @@ class NemoAchseRot(QObject):
         """
         PID_x_unit = self.unit_PIDIn
         self.filename = f"{pfad}/{self.device_name}.csv"
-        units = f"# datetime,s,1/min,°,1/min,{PID_x_unit},{PID_x_unit},\n"
+        units = f"# datetime,s,1/min,DEG,1/min,{PID_x_unit},{PID_x_unit},\n"
         header = "time_abs,time_rel,Ist-Winkelgeschwindigkeit,Ist-Winkel,Soll-Winkelgeschwindigkeit,Soll-x_PID-Modus_A,Ist-x_PID-Modus_A,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")

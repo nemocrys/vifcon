@@ -605,7 +605,8 @@ class NemoGenerator(QObject):
         self.Text_NG_8          = ['Befehl Generator Ein erfolgreich gesendet!',                                                                                                                                            'Command Generator On sent successfully!']
         self.Text_NG_9          = ['Befehl Generator Aus fehlgeschlagen!',                                                                                                                                                  'Command Generator Off failed!']
         self.Text_NG_10         = ['Befehl Generator Aus erfolgreich gesendet!',                                                                                                                                            'Command Generator Off sent successfully!']
-
+        self.Text_Neu_1_str     = ['Wert =',                                                                                                                                                                                'Value =']
+        
         #---------------------------------------
         # Werte Dictionary:
         #---------------------------------------
@@ -954,7 +955,7 @@ class NemoGenerator(QObject):
             False:              Exception ausgelöst!         
         '''
         try:
-            sollwert = round(sollwert, 2)                       
+            sollwert = round(sollwert, 3)                       
             sollwert_hex = utils.encode_ieee(sollwert)
             if sollwert_hex == 0:
                 sollwert_hex = '0x00000000'
@@ -965,7 +966,7 @@ class NemoGenerator(QObject):
 
             ans = self.serial.write_multiple_registers(self.reg_write_Soll, [int(sollwert_hex_HB,16), int(sollwert_hex_LB,16)])
             if ans:
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_69_str[self.sprache]}') 
+                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_69_str[self.sprache]} ({self.Text_Neu_1_str[self.sprache]} {sollwert})') 
             else:
                 logger.warning(f'{self.device_name} - {self.Log_Text_172_str[self.sprache]}')
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_70_str[self.sprache]}') 

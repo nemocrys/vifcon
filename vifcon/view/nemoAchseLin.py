@@ -154,6 +154,12 @@ class NemoAchseLinWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} defaults|startSpeed {self.Log_Pfad_conf_5[self.sprache]} 1')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.startSpeed = 1
+        #//////////////////////////////////////////////////////////////////////
+        try: self.control_pos_choise   = self.config['start']['pos_control'].upper()
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|pos_control {self.Log_Pfad_conf_5[self.sprache]} SIM')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.control_pos_choise = 'SIM' 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Limits:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -356,6 +362,10 @@ class NemoAchseLinWidget(QWidget):
         if not type(self.PID_Mode_Switch_Value) in [float, int] or not self.PID_Mode_Switch_Value >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} umstell_wert - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.PID_Mode_Switch_Value)}')
             self.PID_Mode_Switch_Value = 0
+        ### Positions Kontroll Wahl:
+        if not self.control_pos_choise in ['SIM', 'REAL']:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} pos_control - {self.Log_Pfad_conf_2[self.sprache]} [SIM, REAL] - {self.Log_Pfad_conf_3[self.sprache]} SIM')
+            self.control_pos_choise = 'SIM'
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -1785,7 +1795,8 @@ class NemoAchseLinWidget(QWidget):
         rezept = self.cb_Rezept.currentText()
         pos_list = [] 
         try:
-            start_pos = self.posList[-1]
+            if self.control_pos_choise == 'REAL':   start_pos = self.posListOr[-1] 
+            else:                                   start_pos = self.posList[-1]
         except:
             error = True 
 
