@@ -6,11 +6,13 @@ The individual widgets of the VIFCON GUI are shown below. Special features are s
 
 <img src="../Bilder/GUI_Plot_En.png" alt="Drive plot widget" title='Plot widget of the drive side' width=700/>
 
-The plot widget of the drive side can be seen in the picture. The generator side is identical, except for the one button for the **synchronous movement** of the drives/axes. Both sides have a button for **stopping all devices** and for **auto scaling**. The buttons in the lower area contain the coordinates of the mouse cursor when it is in the plot. All other points are changed by the configuration. These points are:
+The plot widget of the drive side can be seen in the picture. The generator side is identical, except for the one button for the **synchronous movement** of the drives/axes. Both sides have a button for **stopping all devices**, for **auto scaling**, for **setting all curves** and for **removing all curves**. The buttons in the lower area contain the coordinates of the mouse cursor when it is in the plot. All other points are changed by the configuration. These points are:
 
 - the position of the legend,
 - the curves to be seen (legend and plot) and,
 - the scaling of the two y-axes.
+
+The two buttons for setting and removing all legends can only be used with the **Side** variant of the legend configuration and are therefore only displayed then! This variant is shown in the example. If, for example, the Remove all curves button is pressed, all checkboxes in the legend are set to False (Unchecked). Furthermore, no curves are then displayed in the plot. The other button does the opposite.
 
 ## Menu
 
@@ -25,7 +27,8 @@ The individual device widgets are shown below. Parts of the GUI can be activated
 ### Eurotherm
 
 <img src="../Bilder/WidgetEn_Eurotherm.png" alt="Eurotherm-Widget" title='Example of Eurotherm widget' width=700/>
-Image status: 12/3/24
+
+Image status: December 3, 2024
 
 The image shows the widget for the Eurotherm controller. With this widget you can switch between temperature (automatic) and power (manual). The widget contains the following points:
 
@@ -40,7 +43,8 @@ In PID mode, the names and colors of the target and actual values ​​then cha
 ### TruHeat
 
 <img src="../Bilder/WidgetEn_TruHeat.png" alt="TruHeat-Widget" title='Example for TruHeat-Widget' width=700/>
-Image status: 12/3/24
+
+Image status: December 3, 2024
 
 The image shows the widget of the TruHeat generator. With this widget you can choose between power, voltage and current. The widget contains the following points:
 
@@ -57,7 +61,8 @@ In PID mode, the selected size is swapped with the PID values. If, for example, 
 
 <img src="../Bilder/WidgetEn_PIAchse_R.png" alt="PI-Achse-Widget-Relativ" title='Example 1 for Pi axis widget' width=700/>
 <img src="../Bilder/WidgetEn_PIAchse_A.png" alt="PI-Achse-Widget-Absolut" title='Example 2 for Pi axis widget' width=700/>
-Images as of: 12/3/24
+
+Images as of: December 3, 2024
 
 The two widgets belong to the PI axis. The axis can travel relative distances or move to absolute positions using VIFCON. Speed ​​and distance or position are therefore sent. The widget contains the following points:
 
@@ -75,7 +80,8 @@ Here, too, the PID mode changes the setpoints. Depending on the direction of mov
 ### Nemo system: Drive stroke
 
 <img src="../Bilder/WidgetEn_NemoLin.png" alt="NemoHub-Widget" title='Example of Nemo system hub widget' width=700/>
-Image status: 12/3/24
+
+Image status: December 3, 2024
 
 The widget belongs to the stroke movement of the Nemo system drives. The example shows the widget of Nemo system 2. The rapid traverse status does not exist for Nemo system 1. The speed is sent here. The widget contains the following points:
 
@@ -94,7 +100,8 @@ As with the PI axis and TruHeat, the PID mode changes the setpoint to be entered
 ### Nemo system: Drive rotation
 
 <img src="../Bilder/WidgetEn_NemoRot.png" alt="NemoRot-Widget" title='Example of Nemo system rotation widget' width=700/>
-Image status: 12/3/24
+
+Image status: February 11, 2025
 
 The widget belongs to the rotation movement of the Nemo system drives. The example shows the widget of Nemo system 2. Nemo system 1 has an identical GUI structure. The angular velocity is sent here. The widget contains the following points:
 
@@ -108,6 +115,7 @@ The widget belongs to the rotation movement of the Nemo system drives. The examp
 8. Activate continuous rotation (checkbox)
 9. The *o.K.* shows the error messages -> If there is a red and bold *Error!* there, you can see what the problem is via the tooltip.
 10. Status messages
+11. Recipe Repetition (checkbox)
 
 As with the PI axis and TruHeat, the PID mode changes the setpoint to be entered and replaces it.
 
@@ -115,14 +123,49 @@ As with the PI axis and TruHeat, the PID mode changes the setpoint to be entered
 
 <img src="../Bilder/WidgetEn_NemoGas.png" alt="Nemo1-Monitoring-Widget" title='Example of Nemo system 1 monitoring widget' width=700/>
 <img src="../Bilder/WidgetEn_NemoGas2.png" alt="Nemo2-Monitoring-Widget" title='Example of Nemo system 2 monitoring widget' width=700/>
-Status of images: 12/3/24
+
+Status of images: December 3, 2024
 
 Monitoring varies depending on the system. The images show the monitoring values ​​of the Nemo-1 and Nemo-2 systems of the IKZ.
 
 ### Nemo system: generator
 <img src="../Bilder/WidgetDe_NemoGen.png" alt="Nemo2-Generator-Widget" title='Example of Nemo-Anlage-2-Generator-Widget' width=700/>
 
+Status of images: February 11, 2025
+
 The widget shows the Nemo generator module. The structure is the same as [TruHeat](#TruHeat).
+
+### Educrys system: drives
+<img src="../Bilder/WidgetEn_EducrysAntrieb.png" alt="Educrys system drive widget" title='Example of Educrys system drive widget' width=700/>
+
+Status of the images: February 11, 2025
+
+The widget shows the Educrys drive module. Educrys has three addressable drive types: **R**otation, **L**inear and **F**an. The last two can be seen in the image. Depending on which of the three drives is selected, only small details change. With Linear, everything is available and with Rotation and Fan, the position is set and the target position is locked, as well as the buttons changed. With the Fan (ventilator), only a start button is needed. With Rotation, the arrows from the [Nemo rotation widget](#Nemo-system:-Drive-rotation) would be visible.
+
+The widget contains the following points:
+1. Start movement (arrow or start)
+2. End movement (stop)
+3. Synchro mode (checkbox)
+4. GamePad mode (checkbox)
+5. PID mode (checkbox)
+6. Recipe repeat mode (checkbox)
+7. Recipe functions (start, end, selection)
+8. Set a position (linear only)
+9. Enter speed and target position
+
+### Educrys system: heater
+<img src="../Bilder/WidgetEn_EducrysHeizer.png" alt="Educrys system heater widget" title='Example of Educrys system heater widget' width=700/>
+
+Status of the images: February 11, 2025
+
+The widget shows the Educrys heater module. The structure is the same as [Eurotherm](#Eurotherm).
+
+### Educrys system: monitoring
+<img src="../Bilder/WidgetEn_EducrysMon.png" alt="Educrys system monitoring widget" title='Example of Educrys system monitoring widget' width=200/>
+
+Status of the images: February 11, 2025
+
+The widget shows the monitoring data of the Educrys system.
 
 ## More
 
@@ -132,7 +175,7 @@ The configurations can be used to make the widget frames visible so that placeme
 
 <img src="../Bilder/Widget_ToolTip_En.png" alt="Limit-Tool-Tip" title='Widget Limit-Tool-Tip' width=700/>
 
-All input fields and the PID checkbox show the corresponding limits.
+All input fields and the PID checkbox show the corresponding limits as a tool tip. The Nemo generator provides another tool tip, which contains the interface combination and the read name of the generator. This data can then be found in the displayed config name (in the example this would be TruHeat or PI-Achse_h).
 
 ## Pop-up window
 
@@ -153,4 +196,4 @@ TruHeat             | Set measurement time to zero seconds! Also at Init! | The 
 
 ## Last change
 
-The last change to this description was: December 17, 2024
+The last change to this description was: February 11, 2025

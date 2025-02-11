@@ -4,13 +4,15 @@ Im folgenden werden die einzelnen Widgets der VIFCON-GUI gezeigt. Hierbei werden
 
 ## Plot
 
-<img src="../Bilder/GUI_Plot_DE.png" alt="Antriebs-Plot-Widget" title='Plot-Widget der Antriebsseite' width=700/>
+<img src="../Bilder/GUI_Plot_De.png" alt="Antriebs-Plot-Widget" title='Plot-Widget der Antriebsseite' width=700/>
 
-In dem Bild kann das Plot-Widget der Antriebsseite gesehen werden. Die Generator-Seite ist identisch, bis auf den einen Knopf für die **Synchrobewegung** der Antriebe/Achsen. Beide Seiten haben einen Knopf für den **Stopp aller Geräte** und für das **Auto Scaling**. Bei den Knöpfen im unteren Bereich findet man die Koordinaten des Maus-Cursor, wenn dieser im Plot ist. Alle anderen Punkte werden durch die Konfiguration verändert. Diese Punkte sind:
+In dem Bild kann das Plot-Widget der Antriebsseite gesehen werden. Die Generator-Seite ist identisch, bis auf den einen Knopf für die **Synchrobewegung** der Antriebe/Achsen. Beide Seiten haben einen Knopf für den **Stopp aller Geräte**, für das **Auto Scaling**, für das **Setzen aller Kurven** und das **Entfernen aller Kurven**. Bei den Knöpfen im unteren Bereich findet man die Koordinaten des Maus-Cursor, wenn dieser im Plot ist. Alle anderen Punkte werden durch die Konfiguration verändert. Diese Punkte sind:
 
 - die Position der Legende,
 - die zu sehenden Kurven (Legende und Plot) und,
 - die Skalierung der beiden y-Achsen.
+
+Die beiden Knöpfe zum Setzen und Entfernen aller Legenden ist nur bei der Variante **Side** der Legenden Konfiguration nutzbar und wird daher nur dann angezeigt! In dem Beispiel ist diese Variante dargestellt. Wenn z.B. der Entferne alle Kurven Knopf betätigt wird, sowerden alle Checkboxen in der Legende auf False (Unckecked) gesetzt. Weiterhin wird dann keine Kurve im Plot mehr angezeigt. Der andere Knopf sorgt für das Gegenteil. 
 
 ## Menü
 
@@ -24,7 +26,8 @@ Im folgenden werden die einzelnen Geräte-Widgets gezeigt. Durch die Konfigurati
 
 ### Eurotherm
 
-<img src="../Bilder/WidgetDe_Eurotherm.png" alt="Eurotherm-Widget" title='Beispiel für Eurotherm-Widget' width=700/>    
+<img src="../Bilder/WidgetDe_Eurotherm.png" alt="Eurotherm-Widget" title='Beispiel für Eurotherm-Widget' width=700/>   
+
 Stand des Bildes: 03.12.24
 
 In dem Bild ist das Widget für den Eurotherm-Regler zu sehen. Bei diesem Widget kann man zwischen Temperatur (Automatisch) und Leitsung (Manuel) umschalten. Folgende Punkte beinhaltet das Widget:
@@ -40,6 +43,7 @@ Im PID-Modus ändern sich dann die Bezeichnungen bzw. Farben der Soll- und Istgr
 ### TruHeat
 
 <img src="../Bilder/WidgetDe_TruHeat.png" alt="TruHeat-Widget" title='Beispiel für TruHeat-Widget' width=700/>    
+
 Stand des Bildes: 03.12.24
 
 In dem Bild ist das Widget des TruHeat Generators zu sehen. Bei diesem Widget kann zwischen Leistung, Spannung und Strom gewählt werden. Folgende Punkte beinhaltet das Widget:
@@ -56,7 +60,8 @@ Im PID-Modus werden die gewählte Größe mit den PID-Werten getauscht. Wenn z.B
 ### PI-Achse
 
 <img src="../Bilder/WidgetDe_PIAchse_R.png" alt="PI-Achse-Widget-Relativ" title='Beispiel 1 für Pi-Achse-Widget' width=700/>
-<img src="../Bilder/WidgetDe_PIAchse_A.png" alt="PI-Achse-Widget-Absolut" title='Beispiel 2 für Pi-Achse-Widget' width=700/>    
+<img src="../Bilder/WidgetDe_PIAchse_A.png" alt="PI-Achse-Widget-Absolut" title='Beispiel 2 für Pi-Achse-Widget' width=700/>  
+
 Stand der Bilder: 03.12.24
 
 Die beiden Widgets gehören zur PI-Achse. Die Achse kann durch VIFCON relative Wege fahren oder absolute Positionen anfahren. Gesendet werden daher Geschwindigkeit und Weg oder Position. Folgende Punkte beinhaltet das Widget:
@@ -74,7 +79,8 @@ Auch hier wechselt der PID-Modus die Sollwerte aus. Je nach Bewegungsrichtung (z
 
 ### Nemo-Anlage: Antrieb Hub
 
-<img src="../Bilder/WidgetDe_NemoLin.png" alt="NemoHub-Widget" title='Beispiel für Nemo-Anlage-Hub-Widget' width=700/>   
+<img src="../Bilder/WidgetDe_NemoLin.png" alt="NemoHub-Widget" title='Beispiel für Nemo-Anlage-Hub-Widget' width=700/>  
+
 Stand des Bildes: 03.12.24
 
 Das Widget gehört zu der Hub-Bewegung der Nemo-Anlagen-Antriebe. Im Beispiel wird das Widget der Nemo-Anlage 2 gezeigt. Bei Nemo-Anlage 1 gibt es den Eilgang Status nicht. Gesendet wird hier die Geschwindigkeit. Folgende Punkte beinhaltet das Widget:
@@ -94,7 +100,8 @@ Wie bei PI-Achse und TruHeat ändert der PID-Modus den einzugebenen Sollwert und
 ### Nemo-Anlage: Antrieb Rotation
 
 <img src="../Bilder/WidgetDe_NemoRot.png" alt="NemoRot-Widget" title='Beispiel für Nemo-Anlage-Rotation-Widget' width=700/>    
-Stand des Bildes: 03.12.24
+
+Stand des Bildes: 11.02.25
 
 Das Widget gehört zu der Rotations-Bewegung der Nemo-Anlagen-Antriebe. Im Beispiel wird das Widget der Nemo-Anlage 2 gezeigt. Die Nemo-Anlage 1 ist identisch im Aufbau der GUI. Gesendet wird hier die Winkelgeschwindigkeit. Folgende Punkte beinhaltet das Widget:
 
@@ -108,13 +115,15 @@ Das Widget gehört zu der Rotations-Bewegung der Nemo-Anlagen-Antriebe. Im Beisp
 8. Kontinuierliche Rotation einschalten (Checkbox)
 9. Das *o.K.* zeigt die Fehlermeldungen -> Wenn dort ein rotes und fettes *Fehler!* steht, kann man über den Tooltip sehen, welches Problem anliegt.
 10. Statusmeldungen
+11. Rezept Wiederholung (Checkbox)
 
 Wie bei PI-Achse und TruHeat ändert der PID-Modus den einzugebenen Sollwert und wechselt diesen aus. 
 
 ### Nemo-Anlage: Monitoring
 
 <img src="../Bilder/WidgetDe_NemoGas.png" alt="Nemo1-Monitoring-Widget" title='Beispiel für Nemo-Anlage-1-Monitoring-Widget' width=700/>
-<img src="../Bilder/WidgetDe_NemoGas2.png" alt="Nemo2-Monitoring-Widget" title='Beispiel für Nemo-Anlage-2-Monitoring-Widget' width=700/>    
+<img src="../Bilder/WidgetDe_NemoGas2.png" alt="Nemo2-Monitoring-Widget" title='Beispiel für Nemo-Anlage-2-Monitoring-Widget' width=700/>   
+
 Stand der Bilder: 03.12.24
 
 Je nach Anlage ist das Monitoring verschieden. Die Bilder zeigen die Monitorings-Werte der Nemo-1 und Nemo-2-Anlage des IKZ. 
@@ -122,7 +131,41 @@ Je nach Anlage ist das Monitoring verschieden. Die Bilder zeigen die Monitorings
 ### Nemo-Anlage: Generator
 <img src="../Bilder/WidgetDe_NemoGen.png" alt="Nemo2-Generator-Widget" title='Beispiel für Nemo-Anlage-2-Generator-Widget' width=700/>
 
+Stand der Bilder: 11.02.25
+
 Das Widget zeigt das Nemo-Generator-Modul. Der Aufbau ist wie bei [TruHeat](#TruHeat).
+
+### Educrys-Anlage: Antriebe
+<img src="../Bilder/WidgetDe_EducrysAntrieb.png" alt="Educrys-Anlage Antriebs-Widget" title='Beispiel für Educrys-Anlage Antriebs-Widget' width=700/>     
+
+Stand der Bilder: 11.02.25
+
+Das Widget zeigt das Educrys-Antriebs-Modul. Educrys hat drei ansprechbare Antriebs-Arten: **R**otation, **L**inear und **F**an. Die letzten beiden sind in dem Bild zu sehen. Je nach dem welcher der drei Antriebe ausgewählt wurde, ändern sich nur Kleinigkeiten. Bei Linear ist alles Verfügbar und bei Rotation und Fan wird das Position setzen und die Sollposition verriegelt, als auch die Knöpfe geändert. Beim Fan (Lüfter) braucht es nur einen Start Knopf. Bei der Rotation würden die Pfeile aus dem [Nemo-Rotations-Widget](#Nemo-Anlage:-Antrieb-Rotation) zu sehen sein. 
+
+Folgende Punkte beinhaltet das Widget:
+1. Bewegung starten (Pfeil oder Start)
+2. Bewegung beenden (Stopp)
+3. Synchro-Modus (Checkbox)
+4. GamePad-Modus (Checkbox)
+5. PID-Modus (Checkbox)
+6. Rezept Wiederholungs Modus (Checkbox)
+7. Rezept-Funktionen (Start, Ende, Auswahl)
+8. Setze eine Position (nur Linear)
+9. Einagbe von Geschwindigkeit und Sollposition
+
+### Educrys-Anlage: Heizer
+<img src="../Bilder/WidgetDe_EducrysHeizer.png" alt="Educrys-Anlage Heizer-Widget" title='Beispiel für Educrys-Anlage Heizer-Widget' width=700/>   
+
+Stand der Bilder: 11.02.25
+
+Das Widget zeigt das Educrys-Heizer-Modul. Der Aufbau ist wie bei [Eurotherm](#Eurotherm).
+
+### Educrys-Anlage: Monitoring
+<img src="../Bilder/WidgetDe_EducrysMon.png" alt="Educrys-Anlage Monitorings-Widget" title='Beispiel für Educrys-Anlage Monitorings-Widget' width=200/>     
+
+Stand der Bilder: 11.02.25
+
+Das Widget zeigt die Monitorings-Daten der Educrys-Anlage. 
 
 ## Weiteres
 
@@ -132,7 +175,7 @@ Durch die Konfigurationen können die Widget-Rahmen sichtbar gemacht werden, sod
 
 <img src="../Bilder/Widget_ToolTip_DE.png" alt="Limit-Tool-Tip" title='Widget Limit-Tool-Tip' width=700/> 
 
-Alle Eingabefelder und die PID-Checkbox, zeigen die dazugehörigen Limits. 
+Alle Eingabefelder und die PID-Checkbox, zeigen die dazugehörigen Limits als Tool-Tip. Beim Nemo-Generator wird ein weitere Tool-Tip gegeben, welches die Schnittstellen Kombination und den ausgelesenen Namen des Generators beinhaltet. Diese Daten sind dann beim angezeigten Konfig-Namen zu finden (im Beispiel wäre das TruHeat oder PI-Achse_h).  
 
 ## Pop-Up-Fenster
 
@@ -153,4 +196,4 @@ TruHeat             | Messzeit auf Null Sekunden setzen! Auch beim Init! | Der W
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 17.12.2024
+Die Letzte Änderung dieser Beschreibung war: 11.02.2025

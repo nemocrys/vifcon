@@ -536,7 +536,7 @@ class NemoAchseLin(QObject):
         if not type(self.invert_Pos) == bool and not self.invert_Pos in [0,1]: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} invert_Pos - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.invert_Pos}')
             self.invert_Pos = 0
-        if self.control_pos_choise == 'SIM' or self.Anlage == 1:
+        if self.control_pos_choise == 'SIM' or self.Anlage == 1: # Notiz: Eventuell noch - and self.invert_Pos = True
             self.invert_Pos = 0  
             logger.warning(f'{self.device_name} - {self.Log_Block_invert_Pos[self.sprache]}')
         if self.invert_Pos: self.Pos_Invertierung = -1

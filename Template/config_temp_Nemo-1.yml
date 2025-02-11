@@ -1914,6 +1914,8 @@ devices:
       PB: 11.8                                                            # Proportionalband [Eng] oder [%] - Eng: °C, F  - 0 bis 99999   - Float   (eine Nachkommastelle)   | Default bei Fehler: Werden nicht weitergegeben!
       TI: 99                                                              # Integralzeit [s]                - Off = 0     - Aus bis 99999 - Integer (keine Nachkommerstelle) | Default bei Fehler: Werden nicht weitergegeben!
       TD: 0                                                               # Differenzialzeit [s]            - Off = 0     - Aus bis 99999 - Integer (keine Nachkommerstelle) | Default bei Fehler: Werden nicht weitergegeben!
+    parameter:
+      nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3
     limits:
       maxTemp: 500                                                        # Maximale Temperatur [°C] | Default bei Fehler: 1
       minTemp: 0                                                          # Minimale Temperatur [°C] | Default bei Fehler: 0

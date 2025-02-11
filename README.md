@@ -19,11 +19,19 @@ In particular, VIFCON can access the PLC of the Nemo-1 and Nemo-2 system of the 
 
 - drives for rotation,
 - drives for stroke and,
-- measuring devices for pressure and flow.
+- Measuring instruments for pressure and flow, cooling and plant safety.
+
+The so-called Educrys system (Demo-CZ) from VIFCON can also be addressed. The system consists of 3 drives (hub, rotation, fan) and a heater. VIFCON addresses an Arduino via an RS232 interface, which then controls all devices based on the commands. VIFCON monitoring also reads out values.
 
 A gamepad/controller can also be used to control the drives. The gamepad used is an old one from Nintendo or now from GeekPi. The gamepad is shown in the picture [Gamepad.jpg](Bilder/Gamepad.jpg).
 
 A connection to the Multilog logging software can also be established. This was also designed by the model experiments group at the IKZ. See: https://github.com/nemocrys/multilog
+
+In terms of the IKZ, VIFCON can communicate with all systems (see [Configuration](#Configuration)):
+1. Nemo-1 system
+2. Nemo-2 system
+3. DemoFZ
+4. Educrys (DemoCZ)
 
 ## Usage
 ### Starting VIFCON
@@ -69,7 +77,8 @@ In addition to this file, there is also a template for the process file and the 
 
 Nemo-1: Nemo-Achse-Linear (2x), Nemo-Achse-Rotation (2x), Nemo-Gase, Eurotherm ([config_temp_Nemo-1.yml](Template/config_temp_Nemo-1.yml))    
 Nemo-2: Nemo-Achse-Linear (2x), Nemo-Achse-Rotation (2x), Nemo-Gase, Nemo-Generator (2x) ([config_temp_Nemo-2.yml](Template/config_temp_Nemo-2.yml))    
-Demo-FZ: PI-Achse (4x), TruHeat ([config_temp_DemoFZ.yml](Template/config_temp_DemoFZ.yml))
+Demo-FZ: PI-Achse (4x), TruHeat ([config_temp_DemoFZ.yml](Template/config_temp_DemoFZ.yml))   
+Educrys: Educrys-Antrieb (3x ( Hub, Rot, Fan)), Educrys-Heizer, Educrys-Monitoring ([config_temp_Educrys.yml](Template/config_temp_Educrys.yml)) 
 
 The configuration file contains comments that describe the individual lines and also state the default error if the reading fails. Further information about the configuration file can be found in the file [Config_En.md](Information/Config_En.md).
 
@@ -94,7 +103,7 @@ If everything has been configured correctly, VIFCON starts and the GUI is displa
 <img src="Bilder/GUI_S_En.png" alt="GUI" title='Graphical interface - Tab Control' width=700/>
 <img src="Bilder/GUI_M_En.png" alt="GUI" title='Graphical interface - Tab Monitoring' width=700/>
 
-Status of the GUI: December 03, 2024
+Status of the GUI: February 11, 2025
 
 ## Dependencies
 

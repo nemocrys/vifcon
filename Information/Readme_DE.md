@@ -19,13 +19,21 @@ Speziell kann VIFCON auf die SPS der Nemo-1- und Nemo-2-Anlage der Modellexperim
 
 - Antriebe für die Rotation,
 - Antriebe für den Hub und,
-- Messgeräte für Druck und Durchfluss
+- Messgeräte für Druck und Durchfluss, Kühlung und Anlagensicherheit
 
 angesprochen.
+
+Weiterhin kann die sogenannte Educrys-Anlage (Demo-CZ) von VIFCON angesprochen werden. Die Anlage besteht dabei aus 3 Antrieben (Hub, Rotation, Lüfter) und einem Heizer. VIFCON spricht über eine RS232-Schnittstelle einen Arduino an, welcher alle Geräte dann anhand der Befehle steuert. Weiterhin liest VIFCON-Monitorings Werte aus.  
 
 Für die Steuerung der Antriebe kann auch ein Gamepad/Controller genutzt werden. Das genutzte Gamepad ist ein alter von Nintendo bzw. nun von GeekPi. Das Gamepad wird im Bild [Gamepad.jpg](../Bilder/Gamepad.jpg) gezeigt. 
 
 Weiterhin kann eine Verbindung zu der Logging-Software Multilog aufgebaut werden. Auch dieses wurde von der Modellexperimente-Gruppe am IKZ entworfen. Siehe: https://github.com/nemocrys/multilog
+
+Im Sinne des IKZ kann VIFCON mit allen Anlagen kommunizieren (siehe [Konfiguration](#Konfiguration)):
+1. Nemo-1-Anlage 
+2. Nemo-2-Anlage
+3. DemoFZ 
+4. Educrys (DemoCZ)
 
 ## Benutzung
 ### Start von VIFCON
@@ -71,7 +79,8 @@ Neben dieser Datei sind auch ein Template für die Ablauf-Datei und die Log-Date
 
 Nemo-1: Nemo-Achse-Linear (2x), Nemo-Achse-Rotation (2x), Nemo-Gase, Eurotherm ([config_temp_Nemo-1.yml](../Template/config_temp_Nemo-1.yml))    
 Nemo-2: Nemo-Achse-Linear (2x), Nemo-Achse-Rotation (2x), Nemo-Gase, Nemo-Generator (2x) ([config_temp_Nemo-2.yml](../Template/config_temp_Nemo-2.yml))    
-Demo-FZ: PI-Achse (4x), TruHeat ([config_temp_DemoFZ.yml](../Template/config_temp_DemoFZ.yml))
+Demo-FZ: PI-Achse (4x), TruHeat ([config_temp_DemoFZ.yml](../Template/config_temp_DemoFZ.yml))   
+Educrys: Educrys-Antrieb (3x ( Hub, Rot, Fan)), Educrys-Heizer, Educrys-Monitoring ([config_temp_Educrys.yml](../Template/config_temp_Educrys.yml)) 
 
 In der Konfigurationsdatei gibt es Kommentare die die einzelnen Zeilen beschreiben und auch deren Default-Fehler nennen, sollte das Einlesen misslingen. Weitere Informationen zu der Konfigurationsdatei sind in der Datei [Config_DE.md](Config_DE.md) zu finden.
 
@@ -96,7 +105,7 @@ Wenn alles richtig konfiguriert wurde startet VIFCON und die GUI wird angezeigt.
 <img src="../Bilder/GUI_S_De.png" alt="GUI" title='Grafische Oberfläche - Tab Steuerung' width=700/>
 <img src="../Bilder/GUI_M_De.png" alt="GUI" title='Grafische Oberfläche - Tab Monitoring' width=700/>
 
-Stand der GUI: 03.12.24
+Stand der GUI: 11.02.25
 
 ## Abhängigkeiten
 
