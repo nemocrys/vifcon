@@ -1822,7 +1822,7 @@ class NemoAchseLinWidget(QWidget):
             if first_line.strip() == 'r' and not self.ak_value == {}:
                 self.value_list.append(ak_value) 
                 self.time_list.append(0) 
-                self.move_list.append('Beginn')
+                self.move_list.append('UP')
             elif first_line.strip() == 'r' and self.ak_value == {}:
                 self.Fehler_Output(1, self.La_error_1, self.err_12_str[self.sprache])
                 return True
