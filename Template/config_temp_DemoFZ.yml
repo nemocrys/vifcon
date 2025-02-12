@@ -277,7 +277,7 @@ devices:
     skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
     typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
     mercury_model: C862                                                   # C862 (schwarz), C863 (grau) | Default bei Fehler: Programm Exit bei Fehler!
-    read_TT_log: True                                                     # Anzeige der Zielwerte in Log-Datei | Default bei Fehler: False
+    read_TT_log: True                                                     # Anzeige der Zielwerte in Log-Datei (als Info) | Default bei Fehler: False
     gamepad_Button: PIh                                                   # Verknüpfung Gamepad-Knöpfe und Achsen:
                                                                           # Möglich: PIh, PIz, PIx, PIy
                                                                           # PIh - ← & → (Axis)
@@ -396,7 +396,7 @@ devices:
     skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
     typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
     mercury_model: C863                                                   # C862 (schwarz), C863 (grau) | Default bei Fehler: Programm Exit bei Fehler!
-    read_TT_log: True                                                     # Anzeige der Zielwerte in Log-Datei | Default bei Fehler: False
+    read_TT_log: True                                                     # Anzeige der Zielwerte in Log-Datei (als Info) | Default bei Fehler: False
     gamepad_Button: PIy                                                   # Verknüpfung Gamepad-Knöpfe und Achsen:
                                                                           # Möglich: PIh, PIz, PIx, PIy
                                                                           # PIh - ← & → (Axis)
@@ -515,7 +515,7 @@ devices:
     skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
     typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
     mercury_model: C863                                                   # C862 (schwarz), C863 (grau) | Default bei Fehler: Programm Exit bei Fehler!
-    read_TT_log: True                                                     # Anzeige der Zielwerte in Log-Datei | Default bei Fehler: False
+    read_TT_log: True                                                     # Anzeige der Zielwerte in Log-Datei (als Info) | Default bei Fehler: False
     gamepad_Button: PIx                                                   # Verknüpfung Gamepad-Knöpfe und Achsen:
                                                                           # Möglich: PIh, PIz, PIx, PIy
                                                                           # PIh - ← & → (Axis)
@@ -634,7 +634,7 @@ devices:
     skip: 0                                                               # Überspringt Gerät: True (1) - Überspringe Gerät, False (0) - Gerät wird erstellt | Default bei Fehler: True
     typ: Antrieb                                                          # Default bei Fehler: Generator -> Gerät wird nicht erstellt, wenn es unter Generatoren nicht exestiert!
     mercury_model: C862                                                   # C862 (schwarz), C863 (grau) | Default bei Fehler: Programm Exit bei Fehler!
-    read_TT_log: True                                                     # Anzeige der Zielwerte in Log-Datei | Default bei Fehler: False
+    read_TT_log: True                                                     # Anzeige der Zielwerte in Log-Datei (als Info) | Default bei Fehler: False
     gamepad_Button: PIz                                                   # Verknüpfung Gamepad-Knöpfe und Achsen:
                                                                           # Möglich: PIh, PIz, PIx, PIy
                                                                           # PIh - ← & → (Axis)
@@ -757,7 +757,7 @@ devices:
                                                                           # Möglich: HubS, HubT
                                                                           # HubS - X & B (Spindel) (Button) 
                                                                           # HubT - ↑ & ↓ (Tiegel)  (Axes)
-                                                                          # Knöpfe: X & Y - ↑ (Hoch), B & A - ↓ (Runter)
+                                                                          # Knöpfe: X & ↑ - Hoch, B & ↓ - Runter
                                                                           # Default bei Fehler: Gamepad ausgeschaltet!
     start:
       readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
@@ -882,7 +882,7 @@ devices:
                                                                           # Möglich: RotS, RotT
                                                                           # RotS - Y & A (Spindel) (Button)
                                                                           # RotT - ← & → (Tiegel)  (Axes)
-                                                                          # Knöpfe: ↑ & ← - ↻ (CW), ↓ & → - ↺ (CCW)
+                                                                          # Knöpfe: Y & ← - ↻ (CW), A & → - ↺ (CCW)
                                                                           # Default bei Fehler: Gamepad ausgeschaltet!
     start:
       readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
@@ -997,7 +997,7 @@ devices:
                                                                           # Möglich: HubS, HubT
                                                                           # HubS - X & B (Spindel)
                                                                           # HubT - ↑ & ↓ (Tiegel)
-                                                                          # Knöpfe: X & Y - ↑ (Hoch), B & A - ↓ (Runter)
+                                                                          # Knöpfe: X & ↑ - Hoch, B & ↓ - Runter
                                                                           # Default bei Fehler: Gamepad ausgeschaltet!
     start:
       readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
@@ -1116,14 +1116,14 @@ devices:
                                                                           # Möglich: RotS, RotT
                                                                           # RotS - Y & A (Spindel) (Button)
                                                                           # RotT - ← & → (Tiegel)  (Axes)
-                                                                          # Knöpfe: ↑ & ← - ↻ (CW), ↓ & → - ↺ (CCW)
+                                                                          # Knöpfe: Y & ← - ↻ (CW), A & → - ↺ (CCW)
                                                                           # Default bei Fehler: Gamepad ausgeschaltet!
     start:
       readTime: 2                                                         # Auslesezeit [s] | Default bei Fehler: 2
       init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
                                                                           # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
                                                                           #               Messung wird nicht gestartet! 
-                                                                          # Start-Werte:  Minamles und Maximales Positionslimit
+                                                                          # Start-Werte:  Nichts
                                                                           # Default bei Fehler: False
       invert: False                                                       # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
                                                                           # Eigentlich: Spindel:  CW-Fahren   = Negative Geschwindigkeit

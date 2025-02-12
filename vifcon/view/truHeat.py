@@ -1593,9 +1593,10 @@ class TruHeatWidget(QWidget):
             elif self.RB_choise_Voltage.isChecked():        oGPID, uGPID = self.oGU, self.uGU
 
             ## Aufagben setzen:
-            self.write_task['Update Limit'] = True
-            self.write_value['Limits']      = [oGPID, uGPID, self.oGx, self.uGx, True]
-            self.write_task['PID-Reset']    = True
+            self.write_task['Update Limit']  = True
+            self.write_value['Limits']       = [oGPID, uGPID, self.oGx, self.uGx, True]
+            self.write_task['PID-Reset']     = True
+            self.write_value['PID-Sollwert'] = 0
             
             ## Meldung:
             self.Fehler_Output(0)

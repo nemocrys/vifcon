@@ -238,7 +238,7 @@ class EducrysAntriebWidget(QWidget):
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} gamepad_Button {self.Log_Pfad_conf_5_4[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.Button_Link   = 'PIz'
+            self.Button_Link   = 'EduF'
             self.gamepad_aktiv = False
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### PID-Modus:
@@ -300,9 +300,9 @@ class EducrysAntriebWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} knopf_anzeige - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.BTN_BW_grün}')
             self.BTN_BW_grün = 0
         ### Gamepad-Button:
-        if not self.Button_Link in ['/']:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} gamepad_Button - {self.Log_Pfad_conf_2[self.sprache]} [PIz, PIy, PIx, PIh] - {self.Log_Pfad_conf_5_4[self.sprache].replace("; ","")} - {self.Log_Pfad_conf_8[self.sprache]} {self.Button_Link}')
-            self.Button_Link = '/'
+        if not self.Button_Link in ['EduL', 'EduR', 'EduF']:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} gamepad_Button - {self.Log_Pfad_conf_2[self.sprache]} [EduL, EduR, EduF] - {self.Log_Pfad_conf_5_4[self.sprache].replace("; ","")} - {self.Log_Pfad_conf_8[self.sprache]} {self.Button_Link}')
+            self.Button_Link = 'EduF'
             self.gamepad_aktiv = False
          ### Init:
         if not type(self.init) == bool and not self.init in [0,1]: 
@@ -1060,7 +1060,7 @@ class EducrysAntriebWidget(QWidget):
             self.fahre_links_K()                                              # Plus
 
     def fahre_links_K(self):
-        '''Reaktion auf den Linken Knopf'''
+        '''Reaktion auf den Linken Knopf - CW, Hoch, Start'''
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_45_str[self.sprache]}')
             self.Fehler_Output(0, self.La_error_1) 
@@ -1079,7 +1079,7 @@ class EducrysAntriebWidget(QWidget):
             self.Fehler_Output(1, self.La_error_1, self.err_4_str[self.sprache])
 
     def fahre_rechts_K(self):
-        '''Reaktion auf den Rechten Knopf'''
+        '''Reaktion auf den Rechten Knopf - CCW, Runter'''
         if self.init:
             self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_46_str[self.sprache]}')
             self.Fehler_Output(0, self.La_error_1) 

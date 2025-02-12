@@ -139,6 +139,8 @@ class Gamepad_1(QObject):
                                     self.Riegel_dict.update({achse: [achse.time_Riegel, startzeit]})
                             if achse.gamepad.isChecked() and 'Nemo-Achse-Linear' in achse.device_name and achse.Button_Link == 'HubS':
                                 achse.fahre_Hoch()
+                            if achse.gamepad.isChecked() and 'Educrys-Antrieb' in achse.device_name and achse.Button_Link == 'EduL':
+                                achse.fahre_links_K()
 
                     if event.button == 1: # A
                         self.add_Text_To_Ablauf_Datei(f'{self.Log_Text_224_str[self.sprache]} - {self.name} - {self.Log_Text_235_str[self.sprache]}')
@@ -151,6 +153,8 @@ class Gamepad_1(QObject):
                                     self.Riegel_dict.update({achse: [achse.time_Riegel, startzeit]})
                             if achse.gamepad.isChecked() and 'Nemo-Achse-Rotation' in achse.device_name and achse.Button_Link == 'RotS':
                                 achse.fahre_ccw()
+                            if achse.gamepad.isChecked() and 'Educrys-Antrieb' in achse.device_name and achse.Button_Link == 'EduR':
+                                achse.fahre_rechts_K()
 
                     if event.button == 2: # B
                         self.add_Text_To_Ablauf_Datei(f'{self.Log_Text_224_str[self.sprache]} - {self.name} - {self.Log_Text_236_str[self.sprache]}')
@@ -163,6 +167,8 @@ class Gamepad_1(QObject):
                                     self.Riegel_dict.update({achse: [achse.time_Riegel, startzeit]})
                             if achse.gamepad.isChecked() and 'Nemo-Achse-Linear' in achse.device_name and achse.Button_Link == 'HubS':
                                 achse.fahre_Runter()
+                            if achse.gamepad.isChecked() and 'Educrys-Antrieb' in achse.device_name and achse.Button_Link == 'EduL':
+                                achse.fahre_rechts_K()
                     
                     if event.button == 3: # Y
                         self.add_Text_To_Ablauf_Datei(f'{self.Log_Text_224_str[self.sprache]} - {self.name} - {self.Log_Text_237_str[self.sprache]}')
@@ -175,6 +181,8 @@ class Gamepad_1(QObject):
                                     self.Riegel_dict.update({achse: [achse.time_Riegel, startzeit]})
                             if achse.gamepad.isChecked() and 'Nemo-Achse-Rotation' in achse.device_name and achse.Button_Link == 'RotS':
                                 achse.fahre_cw()
+                            if achse.gamepad.isChecked() and 'Educrys-Antrieb' in achse.device_name and achse.Button_Link == 'EduR':
+                                achse.fahre_links_K()
                         
                     if event.button == 4: # L
                         self.add_Text_To_Ablauf_Datei(f'{self.Log_Text_224_str[self.sprache]} - {self.name} - {self.Log_Text_238_str[self.sprache]}')
@@ -194,6 +202,9 @@ class Gamepad_1(QObject):
                     if event.button == 9: # Start
                         self.add_Text_To_Ablauf_Datei(f'{self.Log_Text_224_str[self.sprache]} - {self.name} - {self.Log_Text_241_str[self.sprache]}')
                         logger.debug(f'{self.Log_Text_224_str[self.sprache]} - {self.name} - {self.Log_Text_241_str[self.sprache]}')
+                        for achse in self.Achsen_list:
+                            if achse.gamepad.isChecked() and 'Educrys-Antrieb' in achse.device_name and achse.Button_Link == 'EduF':
+                                achse.fahre_links_K()
                     
                 elif event.type == pygame.JOYAXISMOTION:
                     if event.axis == 0:         # Links, Rechts

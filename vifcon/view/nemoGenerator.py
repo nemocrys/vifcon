@@ -1159,9 +1159,10 @@ class NemoGeneratortWidget(QWidget):
             self.LE_Current.setEnabled(False)
             self.LE_Voltage.setEnabled(False)
             self.write_value['Ak_Size'] = 'P'
-            self.write_task['Wahl_P'] = True
+            self.write_task['Wahl_P']   = True
             self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_P[self.sprache]} {self.uGP} ... {self.oGP} {self.einheit_P_einzel[self.sprache]}'
             self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
+            self.PID_Reset(1)
 
     def BlassOutPI(self, selected):
         ''' Spannungs Eingabefeld ist Verfügbar '''
@@ -1174,6 +1175,7 @@ class NemoGeneratortWidget(QWidget):
             self.write_task['Wahl_U'] = True
             self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_U[self.sprache]} {self.uGU} ... {self.oGU} {self.einheit_U_einzel[self.sprache]}'
             self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
+            self.PID_Reset(1)
 
     def BlassOutPU(self, selected):
         ''' Strom Eingabefeld ist Verfügbar '''
@@ -1186,6 +1188,7 @@ class NemoGeneratortWidget(QWidget):
             self.write_task['Wahl_I'] = True
             self.TT_PID_Out  = f'{self.TTSize_2[self.sprache]}{self.TTLimit[self.sprache]}{self.TTSize_I[self.sprache]} {self.uGI} ... {self.oGI} {self.einheit_I_einzel[self.sprache]}'
             self.PID_cb.setToolTip(f'{self.TT_PID_In}\n{self.TT_PID_Out}\n{self.TT_PID_Para}')
+            self.PID_Reset(1)
     
     ##########################################
     # Reaktion auf Butttons:
@@ -1663,9 +1666,10 @@ class NemoGeneratortWidget(QWidget):
             elif self.RB_choise_Voltage.isChecked():        oGPID, uGPID = self.oGU, self.uGU
 
             ## Aufagben setzen:
-            self.write_task['Update Limit'] = True
-            self.write_value['Limits']      = [oGPID, uGPID, self.oGx, self.uGx, True]
-            self.write_task['PID-Reset']    = True
+            self.write_task['Update Limit']  = True
+            self.write_value['Limits']       = [oGPID, uGPID, self.oGx, self.uGx, True]
+            self.write_task['PID-Reset']     = True
+            self.write_value['PID-Sollwert'] = 0
             ## Meldung:
             self.Fehler_Output(0)
         else:
