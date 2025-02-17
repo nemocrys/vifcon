@@ -34,14 +34,14 @@ In the example, the value of the key "language" would be evaluated.
 
 ## Configuration templates
 
-VIFCON was created on 4 systems. There is a template for each system in the [Template](..\Template) folder. The template [config_temp.yml](..\Template\config_temp.yml) can be seen as an example. The following [explanations](#explanation-of-the-individual-points) shows the individual configurations.
+VIFCON was created on 4 systems. There is a template for each system in the [Template](../Template) folder. The template [config_temp.yml](../Template/config_temp.yml) can be seen as an example. The following [explanations](#explanation-of-the-individual-points) shows the individual configurations.
 
 System | Template
 -------|---------------
-DemoFZ | [config_temp_DemoFZ.yml](..\Template\config_temp_DemoFZ.yml)
-Nemo-1 | [config_temp_Nemo-1.yml](..\Template\config_temp_Nemo-1.yml)
-Nemo-2 | [config_temp_Nemo-2.yml](..\Template\config_temp_Nemo-2.yml)
-DemoCZ | [config_temp_Educrys.yml](..\Template\config_temp_Educrys.yml)
+DemoFZ | [config_temp_DemoFZ.yml](../Template/config_temp_DemoFZ.yml)
+Nemo-1 | [config_temp_Nemo-1.yml](../Template/config_temp_Nemo-1.yml)
+Nemo-2 | [config_temp_Nemo-2.yml](../Template/config_temp_Nemo-2.yml)
+DemoCZ | [config_temp_Educrys.yml](../Template/config_temp_Educrys.yml)
 
 ## Explanation of the individual points
 

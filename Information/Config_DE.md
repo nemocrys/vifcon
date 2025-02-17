@@ -34,14 +34,14 @@ In dem Beispiel würde so der Wert des Schlüssels "language" gewertet werden.
 
 ## Konfigurations Templates
 
-VIFCON wurde an 4 Anlagen erstelle. Für jede Anlage gibt es ein Template im Ordner [Template](..\Template). Das Template [config_temp.yml](..\Template\config_temp.yml) kann als Beispiel angesehen werden. Die folgenden [Erklärungen](#erklärung-der-einzelnen-punkte) zeigt die einzelnen Konfigurationen.
+VIFCON wurde an 4 Anlagen erstelle. Für jede Anlage gibt es ein Template im Ordner [Template](../Template). Das Template [config_temp.yml](../Template/config_temp.yml) kann als Beispiel angesehen werden. Die folgenden [Erklärungen](#erklärung-der-einzelnen-punkte) zeigt die einzelnen Konfigurationen.
 
 Anlage | Template
 -------|---------------
-DemoFZ | [config_temp_DemoFZ.yml](..\Template\config_temp_DemoFZ.yml)
-Nemo-1 | [config_temp_Nemo-1.yml](..\Template\config_temp_Nemo-1.yml)
-Nemo-2 | [config_temp_Nemo-2.yml](..\Template\config_temp_Nemo-2.yml)
-DemoCZ | [config_temp_Educrys.yml](..\Template\config_temp_Educrys.yml)
+DemoFZ | [config_temp_DemoFZ.yml](../Template/config_temp_DemoFZ.yml)
+Nemo-1 | [config_temp_Nemo-1.yml](../Template/config_temp_Nemo-1.yml)
+Nemo-2 | [config_temp_Nemo-2.yml](../Template/config_temp_Nemo-2.yml)
+DemoCZ | [config_temp_Educrys.yml](../Template/config_temp_Educrys.yml)
 
 ## Erklärung der einzelnen Punkte
 
