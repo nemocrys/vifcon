@@ -32,9 +32,20 @@ self.config['language']
 
 In the example, the value of the key "language" would be evaluated.
 
+## Configuration templates
+
+VIFCON was created on 4 systems. There is a template for each system in the [Template](..\Template) folder. The template [config_temp.yml](..\Template\config_temp.yml) can be seen as an example. The following [explanations](#explanation-of-the-individual-points) shows the individual configurations.
+
+System | Template
+-------|---------------
+DemoFZ | [config_temp_DemoFZ.yml](..\Template\config_temp_DemoFZ.yml)
+Nemo-1 | [config_temp_Nemo-1.yml](..\Template\config_temp_Nemo-1.yml)
+Nemo-2 | [config_temp_Nemo-2.yml](..\Template\config_temp_Nemo-2.yml)
+DemoCZ | [config_temp_Educrys.yml](..\Template\config_temp_Educrys.yml)
+
 ## Explanation of the individual points
 
-Descriptions can also be found in the template of the file ([config_temp.yml](../Template/config_temp.yml)). 
+Descriptions can also be found in the [templates](#Configuration-templates).  
 
 The following are the points:
 1. [Times](#times)
@@ -204,367 +215,369 @@ PIDA and PIDG refer to specific values. PIDA is used for the PI axis and the two
 ```
 devices:
   Eurotherm 3504:
+    skip: 1                         # Level 1
+    typ: Generator                  # Level 1
+    ende: 1                         # Level 1
+    start:                          # Level 1
+      sicherheit: 1  PI-Achse_h:    # Level 2
     ...
   PI-Achse_h:
     ...
+
 ```
 
 All existing devices can now be found under the key ***devices***. Each device must have a specific part of its name:
 
-Device                             | String part
------------------------------------|----------------------
-Eurotherm                          | Eurotherm
-TruHeat                            | TruHeat
-PI axis                            | PI-Achse
-Nemo facility 1 & 2 lifting drive  | Nemo-Achse-Linear
-Nemo facility 1 & 2 rotation drive | Nemo-Achse-Rotation
-Nemo facility 1 & 2 sensors        | Nemo-Gase
-Nemo facility 2 generator          | Nemo-Generator
+Device                                                      | String part
+------------------------------------------------------------|----------------------
+[Eurotherm](#Eurotherm)                                     | Eurotherm
+[TruHeat](#TruHeat)                                         | TruHeat
+[PI axis](#PI-Achse)                                        | PI-Achse
+[Nemo facility 1 & 2 lifting drive](#nemo-achse-linear)     | Nemo-Achse-Linear
+[Nemo facility 1 & 2 rotation drive](#nemo-achse-rotation)  | Nemo-Achse-Rotation
+[Nemo facility 1 & 2 sensors](#nemo-gase)                   | Nemo-Gase
+[Nemo facility 2 generator](#nemo-generator)                | Nemo-Generator
+[Educrys facility sensors](#educrys-monitoring)             | Educrys-Monitoring
+[Educrys facility drives](#educrys-antrieb)                 | Educrys-Antrieb
+[Educrys facility heater](#educrys-heizer)                  | Educrys-Heizer
 
-An example of the PI axis and the Eurotherm controller can be found at the beginning. The individual devices have some differences and some similarities.
+An example can be found at the beginning of the PI axis and the Eurotherm controller. The individual devices have some differences and some similarities. The different configurations are shown in tables below. In the example you can see the levels that are shown in the tables. Level refers to the indentation in the Yaml file. The higher-level indentations of `devices` and the device name are not taken into account.
 
 #### Similarities
 
-1. ```skip: 1```
-    - In order not to transfer a device to the GUI, the value True (1) must be selected for this key. In this case, the definition of the device in the program is skipped.
-2. ```typ:  Generator```
-    - Options: Generator, Antrieb, Monitoring
-    - Generator: Eurotherm, TruHeat
-    - Drive: PI-Achse, Nemo-Achse-Linear, Nemo-Achse-Rotation
-    - Monitoring: Nemo-Gase
-    - This key determines the page and tab of the widget. 
-3. ```ende: 0```
-    - This key is used to activate the safe end state. If the value is set to True (1), the stop function of the respective device is activated and executed when the exit (end of the application) is executed. 
-4.  ```serial-interface```
-    - Interface properties for communication
-    - RS233
-      - port, baudrate, bytesize, stopbits, parity, timeout
-      - Eurotherm, TruHeat, PI-Achse
-    - Modbus
-      - host (Server IP address), port, debug
-      - Nemo facility 1 & 2
-5. Multilog-Link 
-    ```
-      multilog:
-        write_trigger: Eurotherm1
-        write_port: 50000
-        read_trigger_ist: IGA-6-23-adv
-        read_port_ist: 0              
-        read_trigger_soll: DAQ-6510   
-        read_port_soll: 0             
-    ```
-    - Trigger word depends on Multilog configuration
-    - Port depends on Multilog configuration
-    - Through these keys, VIFCON communicates with Multilog:
-      - Write: VIFCON sends values ​​to Multilog
-      - Read: VIFCON gets values ​​from Multilog for the PID mode
-        - read_trigger and read_Port are not available in Nemo-Gase!
-        - once for setpoint and once for actual value
-6. Limits
-    - Every device has certain limits.
-    - These limits are software limits, which means that sending values ​​only works up to these values.
-    - Example Eurotherm:
-      ```
-      limits:
-        maxTemp: 1000
-        minTemp: 0
-        opMax: 35 
-        opMin: 0
-      ```
-7. GUI curves
-    ```
-      GUI:
-        legend: RezOp ; RezT ; IWT ; IWOp ; SWT ; uGT ; oGT ; oGOp ; uGOp
-    ```
-    - This configuration tells the program which curves should be displayed in the plot.
-    - Depending on the device, there are different names.
-    - Basic: recipes, actual values, target values, upper limit, lower limit + size name
-    - e.g. RezOP means recipe curve for operating point (power)
-8. Input field display
-    ```
-      defaults:
-        startTemp: 20  
-        startPow: 25 
-    ```
-    - These values ​​are displayed in the GUI at the beginning of the program. 
-9. Recipes:
-    - For this item please see [Rezepte_En.md](Rezepte_En.md).
-10. PID-Mode:
-    ```
-      PID:  
-        PID_Aktiv: 1 
-        Value_Origin: VV  
-        kp: 200 
-        ki: 0.3 
-        kd: 0  
-        sample: 500 
-        sample_tolleranz: 100
-        start_ist: 25
-        start_soll: 25
-        umstell_wert: 0
-        Multilog_Sensor_Ist: TE_1_K air 155 mm over crucible
-        Multilog_Sensor_Soll: TE_2_K air 155 mm over crucible
-        Input_Limit_max: 1000
-        Input_Limit_min: 0
-        Input_Error_option: error
-        debug_log_time: 5
-    ```
-    - There are only minimal differences between the devices!
-    - `PID_Active` - If True, the PID mode can be activated!
-    - `Value_Origin` - Shows the origin of the input values
-      - First position: actual value
-      - Second position: setpoint
-      - V - VIFCON, M - Multilog
-    - PID parameters: kp, ki, kd
-    - `sample` - PID timer time, sample rate
-      - `sample_tolleranz` - Deviation from sample rate without error message
-    - `start_ist` and `start_soll` show the first value for the input
-    - `umstell_wert` - Value that is saved in the write_value dictionary for the output size in normal mode when changing!
-      - TruHeat has three of these variables
-    - `Multilog_Sensor_Ist` - Multilog sensor from which the actual value input comes
-    - `Multilog_Sensor_Soll` - Multilog sensor from which the setpoint input comes
-    - Limits input: `Input_Limit_max` and `Input_Limit_min`
-    - `Input_Error_option` - If a reading error occurs, one of three options is set
-      - max - Upper limit is set as input
-      - min - Lower limit is set as input
-      - error - Use error message and last input
-    - `debug_log_time` - Debug log time in s
+The first table shows the basic similarities such as PID controller and Multilog.
+
+**Level 1** | **Level 2** | **Explanation**
+--- | --- | ---
+skip || In order not to transfer a device to the GUI, the value **True (1)** must be selected for this key. In this case, the definition of the device in the program is skipped.
+typ || *Options*: **Generator**, **Antrieb**, **Monitoring**<br><br>Generator: Eurotherm, TruHeat, Nemo generator, Educrys heater<br>Drive: PI axis, Nemo axis linear, Nemo axis rotation, Educrys drive<br>Monitoring: Nemo gases, Educrys monitoring<br><br>This key determines the page and tab (control, monitoring) of the widget.
+ende || If **True** is selected, a safe end state is set when the program ends!
+multilog |write_trigger| Communication string for Multilog
+multilog |write_port| Communication port for sending to Multilog
+multilog |read_trigger_ist| Communication string for VIFCON – reception of actual values ​​by Multilog
+multilog |read_port_ist| Communication port for receiving the Multilog actual values
+multilog |read_trigger_soll| Communication string for VIFCON – reception of setpoint values ​​by Multilog
+multilog |read_port_soll| multilog read_port_soll Communication port for receiving the Multilog setpoint values
+PID |PID_Aktiv | If **True**, the PID mode is enabled and usable.
+PID |Value_Origin| Origin of the target and actual values: **VV**, **VM**, **MM**, **MV**<br>First letter = actual value<br>Second letter = target value<br>V – VIFCON, M – Multilog
+PID |kp |VIFCON-PID P-element parameter
+PID |ki |VIFCON-PID I-element parameter
+PID |kd |VIFCON-PID D-element parameter
+PID |sample |Time in seconds with which the PID controller is called (sample rate)
+PID |sample_tolleranz |Time in seconds (deviation from sample rate without error message)
+PID |start_ist |Start actual value (used for initialization) (PID input)
+PID |start_soll |Start target value (PID input)
+PID |umstell_wert|Value that is written into the input field when the PID mode is ended and which is Change in the write_value dictionary for the output size is saved in normal mode!
+PID |Multilog_Sensor_Ist |Sensor name for the multilog communication (actual value)|
+PID |Multilog_Sensor_Soll |Sensor name for the multilog communication (setpoint)
+PID |Input_Limit_max |Limit for PID input
+PID |Input_Limit_min |Limit for PID input
+PID |Input_Error_option |If the value is incorrect, something is done depending on the configuration:<br>**error** – last value is retained<br>**max** – maximum value is used (limit)<br>**min** – minimum value is used (limit)
+PID |debug_log_time| Logging in debug<br>Time in seconds that writes a log message that shows the inputs and outputs of the PID controller
+rezepte || See explanations in [Rezepte_En.md](Rezepte_En.md)
+
+**Examples:**
+
+Here are the configurations for Multilog and PID. If the `read` configurations are used, certain `PID` configurations must also be set. For example, `Value_Origin` must contain an `M` and `Multilog_Sensor_Ist` must contain something specific in `read_trigger_ist` depending on the sensor!
+
+```
+  multilog:
+    write_trigger: Eurotherm1
+    write_port: 50000
+    read_trigger_ist: IGA-6-23-adv
+    read_port_ist: 0              
+    read_trigger_soll: DAQ-6510   
+    read_port_soll: 0 
+```
+
+```
+  PID:  
+    PID_Aktiv: 1 
+    Value_Origin: VV  
+    kp: 200 
+    ki: 0.3 
+    kd: 0  
+    sample: 500 
+    sample_tolleranz: 100
+    start_ist: 25
+    start_soll: 25
+    umstell_wert: 0
+    Multilog_Sensor_Ist: TE_1_K air 155 mm over crucible
+    Multilog_Sensor_Soll: TE_2_K air 155 mm over crucible
+    Input_Limit_max: 1000
+    Input_Limit_min: 0
+    Input_Error_option: error
+    debug_log_time: 5
+```
+
+The individual GUI legend curves are shown in the tables under [Differences](#Differences). Below is an example of the definition of the configuration in question. The configuration consists of a string. When read, this is separated using the character `;`.
+
+```
+ GUI:
+    legend: RezOp ; RezT ; IWT ; IWOp ; SWT ; uGT ; oGT ; oGOp ; uGOp
+```
+
+---
+
+The second table shows the similarities in the **RS232 interface**:
+
+**Level 1** | **Level 2** | **Explanation**
+--- | --- | ---
+serial-interface |port |RS232 interface
+serial-interface |baudrate| transfer rate
+serial-interface |bytesize| size of the byte
+serial-interface |stopbits| number of stop bits
+serial-interface |parity |check bit
+serial-interface |timeout |abort of the interface read and write commands
+
+**Devices:** Eurotherm, TruHeat, PI axis, Educrys facility
+
+---
+
+The second table shows the similarities in **Modbus communication**:
+
+**Level 1** | **Level 2** | **Explanation**
+--- | --- | ---
+serial-interface |host |IP address server
+serial-interface |port |Port for communication
+serial-interface |default|Output of communication in the console<br>**ATTENTION**: Only works with pyModbusTCP < 0.3.0, works with 0.2.1<br>Comment out in case of error!! (see [Python_RPi_En.py](Python_RPi_En.md))
+serial-interface| timeout| Abort of interface read and write commands
+
+**Devices:** Nemo facility
+
+---
 
 #### Differences
 
-**Eurotherm:**
+The configurations of the individual devices are shown below. Points such as multilog, PID and interface can be found above in the [similarities](#similarities).
 
-```
-    start:
-      sicherheit: 0
-      PID_Write: 0
-      start_modus: Auto
-      readTime: 2 
-      init: 1
-      ramp_start_value: ist 
-      ramp_m_unit: K/s
-```
+##### **Eurotherm:**
 
-*sicherheit*:
-  - Determines how the maximum power output (HO) is set.
-    - True: HO can only be changed on the device
-    - False: HO can only be read by VIFCON, which adjusts OPmax (1. Menu button, 2. Switch to manual mode)
+**Level 1** | **Level 2** | **Explanation**
+--- | --- | ---
+start | sicherheit | Specifies how the maximum power output (HO) is set.<br>**True** – maximum power (HO) can only be changed on the device <br>**False** – VIFCON sends the max. power (HO) to Eurotherm (transmitted value OP max)
+start | PID_Write |If **True**, the PID parameters from `PID-Device` are sent to the Eurotherm device!
+start | start_modus |**Manuel** for manual mode (user determines power output)<br>**Auto** for automatic mode (temperature control active, PID controller ensures power output)
+start | readTime |Time in seconds at which the device is read
+start | init |If **True** the device is initialized!<br>If **False** the sending of commands is blocked so that VIFCON starts and the initialization can take place later. **ATTENTION**: The interface that was configured must exist!!
+start | ramp_start_value |Start value of a ramp if this is selected as segment 1 in the recipe!!<br>**IST** – actual value<br>**SOLL** – setpoint
+start | ramp_m_unit |Unit of the recipe segment (Eurotherm ramp)<br>*Possible*: **K/s**, **K/h**, **K/min**<br>**ATTENTION**: Must also be set on the device!!
+PID device | PB |Eurotherm size: proportional band
+PID device | TI |Eurotherm size: integral time
+PID device | TD |Eurotherm size: differential time
+limits | maxTemp |Limit temperature maximum
+limits | minTemp |Limit temperature minimum
+limits | oPMax |Limit operating point (output power) maximum
+limits | oPMin |Limit operating point (output power) minimum
+GUI | legend |String with curve names for the legend<br>*Structure*: Value type + size<br>*Example*: RezOP = recipe (Rez) for the output power (OP)<br><br>*Built-in*:<br> RezT, RezOp, IWT, IWOp, IWTPID, SWT, SWTPID, uGT, oGT, uGOp, oGOp, oGPID, uGPID
+defaults | startTemp |Value that is written into the temperature input field for initialization
+defaults | startPow |Value that is written into the power input field for initialization
 
-*PID_Write:*
-  - If True, the PID parameters from `PID-Device` are sent to the Eurotherm device!
+---
 
-*start_modus*:
-  - Options: Auto, Manual
-    - Eurotherm has two modes
-        - Automatic mode:
-            - Temperature control active
-            - PID controller provides power output
-        - Manual mode:
-            - User sets power output
+##### **TruHeat:**
 
-*readtime*:
-    - Time interval when the device should be read
-    - a zero switches off the reading of values
+**Level 1** | **Level 2** | **Explanation**
+--- | --- | ---
+start |start_modus | Start mode for the generator (radio button GUI)<br>The generator can start with power (**P**), current (**I**) or voltage (**U**).
+start |readTime | Time in seconds at which the device is read
+start |init | If **True**, the device is initialized!<br>If **False**, the sending of commands is blocked so that VIFCON starts and initialization can take place later. <br>**ATTENTION**: The interface that was configured must exist!!
+start |ad | Address of the generator
+start |watchdog_Time | The TruHeat has a watchdog timer as a safety function. The time value in milliseconds is set at the start of the program.
+start |send_Delay | Here you can specify a time in milliseconds that causes a delay between sending commands.<br>Should not be greater than the watchdog time!
+serial-loop-read | | Number of repetitions if the device responds incorrectly (while loop)
+limits |maxI | Limit current maximum
+limits |minI | Limit current minimum
+limits |maxP | Limit power maximum
+limits |minP | Limit power minimum
+limits |maxU | Limit voltage maximum
+limits |minU | Limit voltage minimum
+GUI |legend | String with curve names for the legend<br>*Structure*: Value type + size<br>*Example*: RezP = recipe (Rez) for the power (P)<br><br>*Built-in*:<br> RezI, RezU, RezP, Rezx, IWI, IWU, IWP, IWf, SWI, SWU, SWP, uGI, oGI, uGU, oGU, uGP, oGP, IWxPID, SWxPID, oGPID, uGPID
+defaults |startCurrent | Value that is written into the current input field for initialization
+defaults |startPow | Value that is written into the power input field for initialization
+defaults |startVoltage | Value that is written into the voltage input field for initialization
 
-*init*:
-    - Initialization of the device should or should not occur
-    - True:
-        - Device is connected to the interface and is addressed directly by the program
-    - False:
-        - Interface exists, but the device is not necessarily connected to it yet
-        - Program ensures that no commands are sent
+---
 
-*ramp_start_value*:
-  - Possible: IST, SOLL
-  - Depending on the selection, the first ramp starts at the target value or the actual value
+##### **PI-Achse:**
 
-*ramp_m_unit*:
-  - Possible: K/s, K/h, K/min
-  - This setting adapts the Eurotherm ramp to an internal device setting. This must be changed in the Eurotherm controller itself. The setting can be used to tell VIFCON which gradient unit the ramp should have.
+**Level 1** | **Level 2** | **Explanation**
+--- | --- | ---
+mercury_model | | Selected controller<br>**C862** or **C863**
+read_TT_log | | Display of the target value (TT) as info in the log file
+gamepad_Button | | String for the button assignment:<br>**PIh** - ← & → (Axis)<br>**PIz** - ↑ & ↓ (Axis)<br>**PIx** - X & B (Button)<br>**PIy** - Y & A (Button)<br><br>*Buttons:*<br>X - Out <br>B - In<br>Y - Left<br>A - Right<br>← & ↑ - Up<br>→ & ↓ - Down<br>Select - Stop drives
+start |readTime | Time in seconds for the device to be read out
+start |init | If **True**, the device is initialized!<br>If **False**, the sending of commands is blocked so that VIFCON starts and initialization can take place later. <br>**ATTENTION**: The interface that was configured must exist!!
+start |mode | Mode for unlocking the movement buttons:<br>**0** - No locking<br>**1** - Unlocking by timer<br>**2** - Unlocking when 0 mm/s is reached
+serial-loop-read | | Number of repetitions if the device gives an incorrect response (while loop)
+parameter |adv | Address selection code
+parameter |cpm | Counts per mm (conversion factor)
+parameter |mvtime | Read delay for determining the axis speed [ms]<br>Required for the MV command on C862!
+parameter |nKS_Aus | Read decimal places
+limits |maxPos | Limit position maximum
+limits |minPos | Limit position minimum
+limits |maxSpeed ​​| Limit speed maximum
+limits |minSpeed ​​| Limit speed minimum
+GUI |bewegung | Direction of movement (display of arrows in GUI)<br>**y** – right and left<br>**x** – in and out<br>**z** – up and down
+GUI |piSymbol | Alignment of the axis (there is a PI symbol on the device)<br>y (**Left** - left, **Right** - right)<br>x (**Front** - front, **Hi** - back)<br>z (**Up** - top, **Down** - bottom)<br>Minus values ​​to the PI symbol, other direction plus
+GUI |knopf_anzeige | Buttons change color when the movement is selected. If you move upwards, the arrow pointing upwards is displayed in color (green or gray).
+GUI |legend | String with curve names for the legend<br>*Structure*: Value type + size<br>*Example*: Rezv = recipe (Rez) for the speed (v)<br><br>*Built-in*:<br> Rezv, IWs, IWv, SWv, uGv, oGv, uGs, oGs, IWxPID , SWxPID, oGPID, uGPID, Rezx
+defaults |startSpeed ​​| Value that is written into the speed input field for initialization
+defaults |startPos | Value that is written into the position input field for initialization
 
-```
-  PID-Device:
-    PB: 11.8
-    TI: 114
-    TD: 0 
-```
+---
 
-The three Eurotherm PID parameters are defined here. These can be written at start-up or via a menu function.
+##### **Nemo-Achse-Linear:**
 
-**TruHeat:**
+**Level 1** | **Level 2** | **Explanation**
+--- | --- | ---
+nemo-version | | Version of the system used: **1** or **2**
+gamepad_Button | | String for the button assignment:<br>*Possible*: HubS, HubT<br>**HubS** - X & B (spindle) (button)<br>**HubT** - ↑ & ↓ (crucible) (axes)<br><br>*Buttons:* <br>X & ↑ - Up<br>B & ↓ - Down<br>Select - Stop drives
+start |readTime | Time in seconds at which the device is read
+start |init | If **True** the device is initialized!<br>If **False** the sending of commands is blocked so that VIFCON starts and initialization can take place later. <br>**ATTENTION**: The interface that was configured must exist!!
+start |invert | If **True** was selected, the speed is inverted. <br>*Used*: Nemo-1 system spindle
+start |invert_Pos | If **True** was selected, the position value is inverted. <br>*Used*: Nemo-2 system spindle (real path)
+start |start_weg | Start path for the simulated path
+start |pos_control | **REAL** – Use of the path read from the device<br>**SIM** – Use of the simulated path <br> Path for limit control!
+start |sicherheit | Safety mode when using the real position value:<br>**0** - Ignore errors and faults<br>**1** - Error and stop
+register | | See [Modbus_Nemo_En.md](Modbus_Nemo_En.md) <br>Coils, input and holding registers for communication with the PLC
+parameter |nKS_Aus | Read decimal places
+parameter |Vorfaktor_Ist | Prefactor for the actual speed
+parameter |Vorfaktor_Soll| Prefactor for the target speed
+limits |maxPos | Limit position maximum
+limits |minPos | Limit position minimum
+limits |maxSpeed ​​| Limit speed maximum
+limits |minSpeed ​​| Limit speed minimum
+GUI |knopf_anzeige | Buttons change color when the movement is selected. Button operation becomes visible!
+GUI |legend | String with curve names for the legend<br>*Structure*: Value type + size<br>*Example*: RezOP = recipe (Rez) for the output power (OP)<br><br>*Built-in*:<br> Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID, oGPID, uGPID
+defaults |startSpeed ​​| Value that is written into the speed input field for initialization
 
-```
-    start:
-      start_modus: P
-      readTime: 0
-      init: True 
-      ad: '00001'
-      watchdog_Time: 5000
-      send_Delay: 20 
-```
+---
 
-*init* and *readTime* are identical on all devices, see Eurotherm for explanation!
+##### **Nemo-Achse-Rotation:**
 
-*start_modus*:
-  - Possible: P, I, U
-  - This will set the radio button in the GUI to the size.
+**Level 1** | **Level 2** | **Explanation**
+--- | --- | ---
+nemo-version | | Version of the system used: **1** or **2**
+gamepad_Button | | String for the button assignment:<br>*Possible*: RotS, RotT<br>**RotS** - Y & A (spindle) (button)<br>**RotT** - ← & → (crucible) (axes)<br><br>*Buttons:*<br>Y & ← - ↻ (CW)<br>A & → - ↺ (CCW)<br>Select - Stop drives
+start |readTime | Time in seconds at which the device is read
+start |init | If **True** the device is initialized!<br>If **False** the sending of commands is blocked so that VIFCON starts and initialization can take place later.<br>**ATTENTION**: The interface that was configured must exist!!
+start |invert | If **True** was selected, the speed is inverted. <br>Used: Nemo-1 system spindle
+start |start_winkel | Start angle for the simulated angle
+start |kont_rot | If **True** the checkbox for continuous rotation is set directly!
+register | | See [Modbus_Nemo_En.md](Modbus_Nemo_En.md) <br>Coils, input and holding registers for communication with the PLC
+parameter |nKS_Aus | Reading of decimal places
+parameter |Vorfaktor_Ist | Prefactor for the actual speed
+parameter |Vorfaktor_Soll | Pre-factor for the target speed
+limits |maxWinkel | Limit angle maximum
+limits |minWinkel | Limit angle minimum
+limits |maxSpeed ​​| Limit speed maximum
+limits |minSpeed ​​| Limit speed minimum
+GUI |knopf_anzeige | Buttons change color when the movement is selected. Button activation becomes visible!
+GUI |legend | String with curve names for the legend<br>*Structure*: Value type + size<br>*Example*: RezOP = Recipe (Rez) for the output power (OP)<br><br>*Built-in*:<br> Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID, oGPID, uGPID
+defaults |startSpeed ​​| Value that is written into the speed input field for initialization
+rezept_Loop | | Number of recipe repetitions
 
-*ad*:
-  - TruHeat Generator Address
+---
 
-*watchdog_Time*:
-  - The TruHeat has a watchdog timer as a safety function. The time value in milliseconds is set at the beginning of the program.
+##### **Nemo-Gase:**
 
-*send_Delay*:
-  - Here you can specify a time in milliseconds that causes a delay between sending commands.
-  - Should not be greater than the watchdog time!
+**Level 1** | **Level 2** | **Explanation**
+--- | --- | ---
+nemo-version| | Version of the system used: **1** or **2**
+start |readTime | Time in seconds at which the device is read
+start |init | If **True**, the device is initialized!<br>If **False**, the sending of commands is blocked so that VIFCON starts and initialization can take place later. <br>**ATTENTION**: The interface that was configured must exist!!
+register | | See [Modbus_Nemo_En.md](Modbus_Nemo_EN.md)<br>Coils, input and holding registers for communication with the PLC
+parameter |nKS_Aus | Reading decimal places
 
-```
-    serial-loop-read: 3
-```
+Since *Nemo-Gase* is a **monitoring module**, all write functions are not available, as only reading is possible! Therefore, not all similarities apply to Nemo-Gase, such as `read_trigger`.
 
-The configuration controls a while loop. With TruHeat and the PI axis there is a while loop that repeats a reading attempt. The value indicates the frequency of these repetitions.
+---
 
-**PI-Achse:**
+##### **Nemo-Generator:**
 
-1. ```mercury_model: C862```
-    - Two different models of the Mercury model were used for the PI axis. These were C862 and C863.
-    - Both models have small differences. Especially when measuring or reading the speed.
+**Level 1** | **Level 2** | **Explanation**
+--- | --- | ---
+nemo-version | | Version of the system used: **2**
+start |start_modus | Start mode for the generator (radio button GUI and Nemo system GUI - Coil)<br>The generator can start with power (**P**), current (**I**) or voltage (**U**).
+start |Auswahl | **I** – Only current is available for selection<br>**PUI** – Switching between current, voltage and power is possible
+start |readTime | Time in seconds for which the device is read out
+start |init | If **True**, the device is initialized!<br>If **False**, the sending of commands is blocked so that VIFCON starts and initialization can take place later. <br>**ATTENTION**: The interface that was configured must exist!!
+register | | See [Modbus_Nemo_En.md](Modbus_Nemo_En.md) <br>Coils, input and holding registers for communication with the PLC
+limits |maxI | Limit current maximum
+limits |minI | Limit current minimum
+limits |maxP | Limit power maximum
+limits |minP | Limit power minimum
+limits |maxU | Limit voltage maximum
+limits |minU | Limit voltage minimum
+GUI |legend | String with curve names for the legend<br>*Structure*: Value type + size<br>*Example*: RezOP = recipe (Rez) for the output power (OP)<br><br>*Built-in*:<br> RezI, RezU, RezP, Rezx, IWI, IWU, IWP, IWf, SWI, SWU, SWP, uGI, oGI, uGU, oGU, uGP, oGP, IWxPID, SWxPID, oGPID, uGPID
+parameter |nKS_Aus | Read decimal places
+defaults |startCurrent | Value that is written to the current input field for initialization
+defaults |startPow | Value that is written to the power input field for initialization
+defaults |startVoltage | Value that is written to the voltage input field for initialization
 
-2. ```gamepad_Button: PIh```
-    - Possible for PI axis: PIh, PIz, PIx, PIy
-    - This key unlocks certain buttons for certain axis movement directions.
+---
 
-3. Start:
-    - For the PI axis there are only *init*, *readTime* and *mode*.
-    - The first two are the same as for the others (see Eurotherm).
-    - *mode*
-        - Locking mode of the movement buttons
-        - 0 - No locking
-        - 1 - Unlocking by timer
-        - 2 - Unlocking by reaching 0 mm/s
+##### **Educrys-Monitoring:**
 
-4. Parameter:
-    ```
-      parameter:
-        adv: '0133' 
-        cpm: 29752 
-        mvtime: 25  
-        nKS_Aus: 3  
-    ```
-    - *adv* = Address selection code
-    - *cpm* = Counts per mm
-      - Conversion factor
-    - *mvtime*
-      - Read delay for the axis speed (ms)
-      - Required for the MV command at C862
-    - *nKS_Aus*
-      - displayed decimal places
+**Level 1** | **Level 2** | **Explanation**
+--- | --- | ---
+start |readTime | Time in seconds at which the device is read
+start |init | If **True**, the device is initialized!<br>If **False**, the sending of commands is blocked so that VIFCON starts and initialization can take place later. <br>**ATTENTION**: The interface that was configured must exist!!
+serial-loop-read | | Number of repetitions if the device responds incorrectly
+parameter |nKS_Aus | Reading decimal places
 
-5. Logging target values:
-      ```
-          read_TT_log: True
-      ```
-    - If True, the TT command is executed, which logs the position target values.
+---
 
-6. While loop:
-      ```
-        serial-loop-read: 3
-      ```
+##### **Educrys-Antrieb:**
 
-    - The configuration controls a while loop. For TruHeat and the PI axis, there is a while loop that repeats a read attempt. The value indicates the frequency of these repetitions.
+**Level 1** | **Level 2** | **Explanation**
+--- | --- | ---
+Antriebs_Art | | Educrys has three drives<br>**L** – Hub<br>**R** – Rotation<br>**F** – Fan
+gamepad_Button | | String for the button assignment:<br>*Possible*: EduL, EduR, EduF<br>**EduL** - X, B, ↑ & ↓<br>**EduR** - A, Y, ← & →<br>**EduF** - Start<br><br>*Buttons:*<br>X & ↑ - Up<br>B & ↓ - Down<br>A & → - CCW<br>Y & ← - CW<br>Start - Fan On<br>Select - Stop drives
+start |readTime | Time in seconds for the device to be read
+start |init | If **True**, the device is initialized!<br>If **False**, the sending of commands is blocked so that VIFCON starts and initialization can take place later. <br>**ATTENTION**: The interface that was configured must exist!!
+start |start_weg | Start position (*relevant for* linear motor)
+start |write_SW | If **True**, the start path is sent to the system and the position is set (*Define Position*). (*relevant for* linear motor)
+start |write_SLP | If **True**, the position limits are sent to the system. (*relevant for* linear motor)
+start |sicherheit | Safety mode when using the real position value:<br>**0** - Ignore errors and faults<br>**1** - Error and stop
+serial-extra |serial-loop-read | Number of repetitions if the device responds incorrectly
+serial-extra |rel_tol_write_ans| The relative tolerance for comparing the device's response with the command sent!
+parameter |nKS_Aus | Read decimal places
+limits |maxPos | Limit position maximum
+limits |minPos | Limit position minimum
+limits |maxSpeed ​​| Limit speed maximum
+limits |minSpeed ​​| Limit speed minimum
+GUI |knopf_anzeige | Buttons change color when the movement is selected. Button operation becomes visible!
+GUI |legend | String with curve names for the legend<br>*Structure*: Value type + size<br>*Example*: RezOP = Recipe (Rez) for the output power (OP)<br><br>*Built-in*:<br> Rezv, Rezx, IWs, IWsd, IWv, uGv, oGv, uGs, oGs, IWxPID, SWxPID, oGPID, uGPID
+defaults |startSpeed ​​| Value that is written into the speed input field for initialization
+defaults |startPos | Value that is written into the position input field for initialization
+rezept_Loop | | Number of recipe repetitions
 
-7. GUI configuration:
-      ```
-      GUI:
-        movement: z
-        piSymbol: Un
-        button_display: 1
-      ```
-      - *movement* - Direction of movement (y, x, z)
-      - *piSymbol* - Alignment of the axis with the PI symbol (y -> Li, Re | x -> Vo, Hi | z -> Ob, Un)
-      - *button_display* - If True, the direction is displayed by a green button!
-        - Movement button e.g. ↑ then turns green (background)
-        - Returns to normal color when stopped!
+---
 
-**Nemo-Achse-Linear and Nemo-Achse-Rotation:**
+##### **Educrys-Heizer:**
 
-1. ```gamepad_Button: HubS```
-    - Possible for Linear: HubS, HubT
-    - Possible for Rotation: RotS, RotT
-    - This key unlocks certain buttons for certain axis movement directions.
-
-2. Start:
-    - *readTime* and *init* are the same as the others (see Eurotherm).
-    - *invert*
-        - True: Inversion of the speed value
-        - For the spindle, the recipe and the real speed would be different!
-    - *invert_Pos* (only Nemo-Achse-Linear)
-      - With the Nemo-2 system, the real positions can also be used! However, these are in the wrong direction!
-      - If True, the position is multiplied by -1.
-    - *start_weg* or *start_winkel*
-        - For the Nemo-1 system, the path and the speed are calculated automatically.
-        - For this reason, you can specify a start value here.
-    - *pos_controll* (only Nemo-Achse-Linear)
-      - Possible: REAL, SIM
-      - REAL: the real position values ​​are used for limit control
-      - SIM: the simulated position values ​​are used for limit control
-    - *sicherheit* (only Nemo-Achse-Linear)
-      - Is used for the real position values, as a value can also arrive incorrectly!!
-      - 0: error message, ignore error
-      - 1: error message, axis stops
-    - *kont_rot* (only Nemo-Achse-Rotation)
-      - sets the checkbox in the GUI to True
-      - The angle has no limits when the checkbox is True!
-  
-  3. Modbus-Register
-      ```
-        register:
-          hoch: 17 
-          runter: 18  
-          stopp: 16   
-          lese_st_Reg: 38  
-          write_v_Reg: 4
-          posAktuel: 42  
-          posLimReg: 46
-          InfoReg: 143
-          statusReg: 50
-          statusRegEil: 155
-      ```
-      - Certain registers are set in the Nemo system.
-      - This addresses coils, input registers and holding registers.
-      - *InfoReg* and *statusRegEil* only available in Nemo-2!
-  
-  4. Parameter:
-      - These have *nKS_Aus*, *Vorfaktor_Ist* and *Vorfaktor_Soll*.
-      - The former are the decimal places that are displayed.
-      - The prefactor was used to correct the incorrect driving. The set speed was not the correct one that was received by the drives.
-
-  5. System version:
-    - `nemo version: 2`
-    - The configuration can be used to switch between Nemo-1 and Nemo-2!
-
-  6. Display of the button status:
-    - Under GUI: `button_display: 1`
-    - If True, the direction is displayed by a green button!
-      - Movement button e.g. ↑ then turns green (background)
-      - When stopped, the color returns to normal!
-
-**Nemo-Gase:**
-
-- Has fewer parts because only reading is done.
-- Values ​​are only displayed in GUI and can be passed to Multilog.
-- Similar to the rest of Nemo-facility.
-
-**Nemo generator:**
-
-The Nemo generator is made up of the TruHeat and the Nemo axes when configured. The following point is new:
-
-1. under start - `Auswahl`
-  - Options: PUI, I
-  - Among the generators in the Nemo system, there is one that only allows electricity.
-  - *I* tells VIFCON that the radio buttons cannot be changed. Only the one for electricity can be selected or is already set.
-  - With *PUI*, all three sizes can be used.
+**Level 1** | **Level 2** | **Explanation**
+--- | --- | ---
+start |PID_Write | If **True**, the Eurotherm PID parameters are written for initialization.
+start |start_modus | **Manual** for manual mode<br>**Auto** for automatic mode
+start |readTime | Time in seconds at which the device is read
+start |init | If **True**, the device is initialized!<br>If **False**, the sending of commands is blocked so that VIFCON starts and initialization can take place later. <br>**ATTENTION**: The interface that was configured must exist!!
+start |ramp_start_value | Start value of a ramp if this is selected as segment 1 in the recipe!!<br>**IST** – actual value<br>**SOLL** – setpoint
+serial-extra |serial-loop-read | Number of repetitions if the device responds incorrectly
+serial-extra |rel_tol_write_ans| The relative tolerance for comparing the device's response with the command sent!
+PID-Device |PB | Educrys-PID-Size - P-component
+PID-Device |TI | Educrys-PID-Size - I-component
+PID-Device |TD | Educrys-PID-Size - D-component
+parameter |nKS_Aus | Read decimal places
+limits |maxTemp | Limit temperature maximum
+limits |minTemp | Limit temperature minimum
+limits |oPMax | Limit power at the output maximum
+limits |oPMin | Limit power at the output minimum
+GUI |legend | String with curve names for the legend<br>*Structure*: Value type + size<br>*Example*: RezOP = recipe (Rez) for the output power (OP)<br><br>*Built-in*:<br> RezT, RezOp, IWT, IWOp, IWTPID, SWT, SWTPID, uGT, oGT, uGOp, oGOp, oGPID, uGPID
+defaults |startTemp | Value that is written into the temperature input field for initialization
+defaults |startPow | Value that is written into the power input field for initialization
 
 ## Reading secure:
 
@@ -608,4 +621,4 @@ if not type(self.init) == bool and not self.init in [0,1]:
 
 ## Last change
 
-The last change to the [template](#explanation-of-the-individual-points) and this description was: December 17, 2024
+The last change to the [templates](#Configuration-templates) and this description was: February 2, 2025
