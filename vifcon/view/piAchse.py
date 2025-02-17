@@ -415,6 +415,7 @@ class PIAchseWidget(QWidget):
         ## Zusatz: ################################################################################################################################################################################################################################################################################# 
         self.str_Size_1         = ['Geschwindigkeit',                                                                                           'Speed']
         self.str_Size_2         = ['Position/Weg/Strecke',                                                                                      'Position/path/distance']
+        Kurven_Device_M         = ['Gerät:',                                                                                                    'Device:']
         ## Checkbox: ###############################################################################################################################################################################################################################################################################        
         cb_sync_str             = ['Sync',                                                                                                      'Sync']
         cb_gPad_str             = ['GPad',                                                                                                      'GPad']
@@ -901,8 +902,8 @@ class PIAchseWidget(QWidget):
             'Rezv':     ['a2', pg.mkPen(color=self.color[2], width=3, style=Qt.DotLine), f'{piAchse} - {rezept_Label_str[self.sprache]}<sub>{v_einzel_str[self.sprache]}</sub>'],
             'SWv':      ['a2', pg.mkPen(self.color[3], width=2),                         f'{piAchse} - {v_einzel_str[self.sprache]}<sub>{sollwert_str[self.sprache]}</sub>'],
             'Rezx':     ['a1', pg.mkPen(color=self.color[6], width=3, style=Qt.DotLine), f'{piAchse} - {rezept_Label_str[self.sprache]}<sub>{x_einzel_str[self.sprache]}</sub>'],
-            'SWxPID':   ['a1', pg.mkPen(self.color[4], width=2, style=Qt.DashDotLine),   f'{PID_Label_Soll} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
-            'IWxPID':   ['a1', pg.mkPen(self.color[5], width=2, style=Qt.DashDotLine),   f'{PID_Label_Ist} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
+            'SWxPID':   ['a1', pg.mkPen(self.color[4], width=2, style=Qt.DashDotLine),   f'{PID_Label_Soll} ({Kurven_Device_M[self.sprache]} {piAchse}) - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
+            'IWxPID':   ['a1', pg.mkPen(self.color[5], width=2, style=Qt.DashDotLine),   f'{PID_Label_Ist} ({Kurven_Device_M[self.sprache]} {piAchse}) - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
             'oGPID':    ['a1', pg.mkPen(color=self.color[5], style=Qt.DashLine),         f'{piAchse} - {self.PID_G_Kurve[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
             'uGPID':    ['a1', pg.mkPen(color=self.color[5], style=Qt.DashDotDotLine),   f'{piAchse} - {self.PID_G_Kurve[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
         }

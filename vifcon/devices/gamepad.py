@@ -219,6 +219,8 @@ class Gamepad_1(QObject):
                                         self.Riegel_dict.update({achse: [achse.time_Riegel, startzeit]})
                                 if achse.gamepad.isChecked() and 'Nemo-Achse-Rotation' in achse.device_name and achse.Button_Link == 'RotT':
                                     achse.fahre_ccw()
+                                if achse.gamepad.isChecked() and 'Educrys-Antrieb' in achse.device_name and achse.Button_Link == 'EduR':
+                                    achse.fahre_rechts_K()
                         elif round(self.joystick.get_axis(0)) == -1: # Links
                             self.add_Text_To_Ablauf_Datei(f'{self.Log_Text_224_str[self.sprache]} - {self.name} - {self.Log_Text_245_str[self.sprache]}')
                             logger.debug(f'{self.Log_Text_224_str[self.sprache]} - {self.name} - {self.Log_Text_245_str[self.sprache]}') 
@@ -230,6 +232,8 @@ class Gamepad_1(QObject):
                                         self.Riegel_dict.update({achse: [achse.time_Riegel, startzeit]})
                                 if achse.gamepad.isChecked() and 'Nemo-Achse-Rotation' in achse.device_name and achse.Button_Link == 'RotT':
                                     achse.fahre_cw()
+                                if achse.gamepad.isChecked() and 'Educrys-Antrieb' in achse.device_name and achse.Button_Link == 'EduR':
+                                    achse.fahre_links_K()
                     
                     if event.axis == 1:         # Auf, Runter
                         if round(self.joystick.get_axis(1)) == 1: # Runter
@@ -243,6 +247,8 @@ class Gamepad_1(QObject):
                                         self.Riegel_dict.update({achse: [achse.time_Riegel, startzeit]})
                                 if achse.gamepad.isChecked() and 'Nemo-Achse-Linear' in achse.device_name and achse.Button_Link == 'HubT':
                                     achse.fahre_Runter()
+                                if achse.gamepad.isChecked() and 'Educrys-Antrieb' in achse.device_name and achse.Button_Link == 'EduL':
+                                    achse.fahre_rechts_K()
                         elif round(self.joystick.get_axis(1)) == -1: # Hoch
                             self.add_Text_To_Ablauf_Datei(f'{self.Log_Text_224_str[self.sprache]} - {self.name} - {self.Log_Text_242_str[self.sprache]}')
                             logger.debug(f'{self.Log_Text_224_str[self.sprache]} - {self.name} - {self.Log_Text_242_str[self.sprache]}')
@@ -254,6 +260,8 @@ class Gamepad_1(QObject):
                                         self.Riegel_dict.update({achse: [achse.time_Riegel, startzeit]})
                                 if achse.gamepad.isChecked() and 'Nemo-Achse-Linear' in achse.device_name and achse.Button_Link == 'HubT':
                                     achse.fahre_Hoch()
+                                if achse.gamepad.isChecked() and 'Educrys-Antrieb' in achse.device_name and achse.Button_Link == 'EduL':
+                                    achse.fahre_links_K()
 
     def ende(self):
         '''Beendet die Nutzung des Gamepads. Beendet While-Schleife!'''

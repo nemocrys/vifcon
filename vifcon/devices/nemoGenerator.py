@@ -767,8 +767,6 @@ class NemoGenerator(QObject):
         # Normaler Betrieb:
         #++++++++++++++++++++++++++++++++++++++++++
         if not write_Okay['PID']:  
-            ## Sollwert Lesen:
-            sollwert = write_value['Sollwert']      # in eine Zahl umgewandelter Wert (Float)
             PID_write_wert = False
             self.angezeigt = False
         #++++++++++++++++++++++++++++++++++++++++++    
@@ -868,15 +866,15 @@ class NemoGenerator(QObject):
                 write_Okay[auswahl] = False
             ## Sende Soll-Leistung:
             elif write_Okay[auswahl] and auswahl == 'Soll-Leistung':
-                self.write_PUI(sollwert)
+                self.write_PUI(write_value['Sollwert'])
                 write_Okay[auswahl] = False
             ## Sende Soll-Strom:
             elif write_Okay[auswahl] and auswahl == 'Soll-Strom':
-                self.write_PUI(sollwert)
+                self.write_PUI(write_value['Sollwert'])
                 write_Okay[auswahl] = False
             ## Sende Soll-Spannung:
             elif write_Okay[auswahl] and auswahl == 'Soll-Spannung':
-                self.write_PUI(sollwert)
+                self.write_PUI(write_value['Sollwert'])
                 write_Okay[auswahl] = False
             ## PID-Modus:
             elif PID_write_wert:

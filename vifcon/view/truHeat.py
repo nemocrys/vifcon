@@ -489,6 +489,7 @@ class TruHeatWidget(QWidget):
         rezept_Label_str        = ['Rezept',                                                                                                    'Recipe']
         ober_Grenze_str         = ['oG',                                                                                                        'uL']                                   # uL - upper Limit
         unter_Grenze_str        = ['uG',                                                                                                        'lL']                                   # lL - lower Limit
+        Kurven_Device_M         = ['Gerät:',                                                                                                    'Device:']
         ## Logging: ###############################################################################################################################################################################################################################################################################
         self.Log_Text_1_str 	= ['Erstelle Widget.',                                                                                          'Create widget.']
         self.Log_Text_28_str    = ['Gerät wurde Gestartet/Initialisiert!',                                                                      'Device has been started/initialized!']
@@ -904,8 +905,8 @@ class TruHeatWidget(QWidget):
             'RezI':     ['a1', pg.mkPen(color=self.color[9], width=3, style=Qt.DotLine),    f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{I_einzel_str[self.sprache]}</sub>'],
             'RezU':     ['a1', pg.mkPen(color=self.color[8], width=3, style=Qt.DotLine),    f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{U_einzel_str[self.sprache]}</sub>'],
             'RezP':     ['a2', pg.mkPen(color=self.color[7], width=3, style=Qt.DotLine),    f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{P_einzel_str[self.sprache]}</sub>'],
-            'SWxPID':   ['a1', pg.mkPen(self.color[10], width=2, style=Qt.DashDotLine),     f'{PID_Label_Soll} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{self.sollwert_str[self.sprache]}</sub>'], 
-            'IWxPID':   ['a1', pg.mkPen(self.color[11], width=2, style=Qt.DashDotLine),     f'{PID_Label_Ist} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
+            'SWxPID':   ['a1', pg.mkPen(self.color[10], width=2, style=Qt.DashDotLine),     f'{PID_Label_Soll} ({Kurven_Device_M[self.sprache]} {truheat}) - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{self.sollwert_str[self.sprache]}</sub>'], 
+            'IWxPID':   ['a1', pg.mkPen(self.color[11], width=2, style=Qt.DashDotLine),     f'{PID_Label_Ist} ({Kurven_Device_M[self.sprache]} {truheat}) - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
             'Rezx':     ['a1', pg.mkPen(color=self.color[12], width=3, style=Qt.DotLine),   f'{truheat} - {rezept_Label_str[self.sprache]}<sub>{x_einzel_str[self.sprache]}</sub>'],
             'oGPID':    ['a1', pg.mkPen(color=self.color[11], style=Qt.DashLine),           f'{truheat} - {self.PID_G_Kurve[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
             'uGPID':    ['a1', pg.mkPen(color=self.color[11], style=Qt.DashDotDotLine),     f'{truheat} - {self.PID_G_Kurve[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],

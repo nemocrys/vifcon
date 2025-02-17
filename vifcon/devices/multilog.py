@@ -13,6 +13,8 @@ Verbindung mit Multilog
 ## GUI:
 from PyQt5.QtCore import (
     QObject,
+    QTimer,
+    QThread,
 )
 
 ## Algemein:
@@ -25,9 +27,10 @@ import json                         # Dicts zu String
 # ++++++++++++++++++++++++++++
 logger = logging.getLogger(__name__)
 
+
 class Multilog(QObject):
     def __init__(self, sprache, ports_send, ports_read, Ablauf_Funktion, widget_dict, device_dict, trigger_dict_sM, trigger_dict_rM):
-        ''' Erstellung einer Verbindung zum IKZ
+        ''' Erstellung einer Verbindung zum IKZ System Multilog
         
         Args:
             sprache (int):              Sprache der GUI (Listenplatz)
@@ -263,12 +266,51 @@ class Multilog(QObject):
         self.add_Text_To_Ablauf_Datei(f'{self.Log_Text_186_str[self.sprache]} - {self.Log_Text_199_str[self.sprache]}')
         logger.info(f"{self.Log_Text_186_str[self.sprache]} - {self.Log_Text_199_str[self.sprache]}")
 
+
 ##########################################
 # Verworfen:
 ##########################################
 ## Bereich für alten Code, denn man noch nicht vollkommen löschen will,
 ## da dieser später vieleicht wieder ergänzt wird!!
 '''
+class MultilogAbbruchTimer(QObject):
+    def __init__(self):
+        super().__init__()
+        ## Timer erstellen:
+        self.timer_Multilog_Abbruch_Timer = QTimer()
+        self.timer_Multilog_Abbruch_Timer.setInterval(2000)
+        self.timer_Multilog_Abbruch_Timer.setSingleShot(True)
+        ## Funktion zuordnen:
+        self.timer_Multilog_Abbruch_Timer.timeout.connect(self.Multilog_Link_Abbruch)
 
+    def Multilog_Link_Abbruch(self):
+        print('Verbindung konnte nicht aufgebaut werden!')
+        exit()
+    
+    def run(self):
+        print('Start')
+        self.timer_Multilog_Abbruch_Timer.start()
+        print(self.timer_Multilog_Abbruch_Timer)
+        for n in range(0,50,1):
+            print(f'Zähle {n}')
+        print('m' + n)
+
+    def stopp(self):
+        print('Stopp')
+        self.timer_Multilog_Abbruch_Timer.stop()
+
+Main Init:
+        # Verbindungsaufbau Probleme:
+        ## Thread erstellen:
+        self.Multilog_Abbruch_Thread = QThread()
+        self.Abbruch = MultilogAbbruchTimer()
+        ## Thread zuordnen:
+        self.Abbruch.moveToThread(self.Multilog_Abbruch_Thread)
+        ## Thread Starten:
+        self.Multilog_Abbruch_Thread.start()
+
+create_socket:
+        self.Abbruch.run()                                                          # Starte Timer
+        self.Abbruch.stopp()                                                        # Stopp Timer
 
 '''

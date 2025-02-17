@@ -114,7 +114,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 200                                                             # P-Anteil [] | Default bei Fehler: 0
       ki: 0.3                                                             # I-Anteil [] | Default bei Fehler: 0
@@ -218,7 +218,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog 
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog 
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -315,7 +315,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -434,7 +434,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -552,7 +552,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -661,7 +661,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -780,7 +780,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -899,7 +899,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -1019,7 +1019,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -1133,7 +1133,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -1257,7 +1257,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 1                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog 
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog 
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -1358,7 +1358,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 1                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog 
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog 
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -1459,7 +1459,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 1                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog 
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog 
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -1594,7 +1594,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -1696,7 +1696,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -1799,7 +1799,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+      Value_Origin: MV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 1                                                               # P-Anteil [] | Default bei Fehler: 0
       ki: 0.003                                                           # I-Anteil [] | Default bei Fehler: 0
@@ -1897,7 +1897,7 @@ devices:
       read_port_soll: 0                                                   # Hole von Multilog: Port für die Verbindung - Wenn 0 dann wird keine Verbindung für das Gerät erstellt! | Default bei Fehler: Port auf Null
     PID:                                                                  # Erstellung eines PID-Reglers
       PID_Aktiv: 0                                                        # Bei False wird der PID-Modus (Checkbox, Timer) nicht aktiviert!! | Default bei Fehler: False
-      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte (Möglich: VV, MV) - V = VIFCON, M = Multilog
+      Value_Origin: VV                                                    # Herkunft der Ist- und Sollwerte - V = VIFCON, M = Multilog
                                                                           # Default bei Fehler: VV - Istwerte und Sollwerte durch VIFCON gestellt 
       kp: 200                                                             # P-Anteil [] | Default bei Fehler: 0
       ki: 0.3                                                             # I-Anteil [] | Default bei Fehler: 0

@@ -385,6 +385,7 @@ class EducrysAntriebWidget(QWidget):
         self.str_Size_1         = ['Geschwindigkeit',                                                                                                       'Speed']
         self.str_Size_2         = ['Position/Weg/Strecke',                                                                                                  'Position/path/distance']
         self.str_Size_3         = ['Winkelgeschwindigkeit',                                                                                                 'Angular velocity']
+        Kurven_Device_M         = ['Gerät:',                                                                                                                'Device:']
         ## Checkbox: ################################################################################################################################################################################################################################################################################   
         cb_sync_str             = ['Sync',                                                                                                                  'Sync']
         cb_gPad_str             = ['GPad',                                                                                                                  'GPad']
@@ -880,8 +881,8 @@ class EducrysAntriebWidget(QWidget):
             'uGv':      ['a2', pg.mkPen(color=self.color[1], style=Qt.DashDotDotLine),   f'{eduAchse} - {v_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
             'Rezv':     ['a2', pg.mkPen(color=self.color[2], width=3, style=Qt.DotLine), f'{eduAchse} - {rezept_Label_str[self.sprache]}<sub>{v_einzel_str[self.sprache]}</sub>'],
             'Rezx':     ['a1', pg.mkPen(color=self.color[5], width=3, style=Qt.DotLine), f'{eduAchse} - {rezept_Label_str[self.sprache]}<sub>{x_einzel_str[self.sprache]}</sub>'],
-            'SWxPID':   ['a1', pg.mkPen(self.color[3], width=2, style=Qt.DashDotLine),   f'{PID_Label_Soll} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
-            'IWxPID':   ['a1', pg.mkPen(self.color[4], width=2, style=Qt.DashDotLine),   f'{PID_Label_Ist} - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
+            'SWxPID':   ['a1', pg.mkPen(self.color[3], width=2, style=Qt.DashDotLine),   f'{PID_Label_Soll} ({Kurven_Device_M[self.sprache]} {eduAchse}) - {x_einzel_str[self.sprache]}<sub>{PID_Export_Soll}{sollwert_str[self.sprache]}</sub>'], 
+            'IWxPID':   ['a1', pg.mkPen(self.color[4], width=2, style=Qt.DashDotLine),   f'{PID_Label_Ist} ({Kurven_Device_M[self.sprache]} {eduAchse}) - {x_einzel_str[self.sprache]}<sub>{PID_Export_Ist}{istwert_str[self.sprache]}</sub>'],
             'oGPID':    ['a1', pg.mkPen(color=self.color[4], style=Qt.DashLine),         f'{eduAchse} - {self.PID_G_Kurve[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
             'uGPID':    ['a1', pg.mkPen(color=self.color[4], style=Qt.DashDotDotLine),   f'{eduAchse} - {self.PID_G_Kurve[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
         }
