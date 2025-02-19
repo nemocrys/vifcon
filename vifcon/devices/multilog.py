@@ -179,7 +179,8 @@ class Multilog(QObject):
                    ### Bei Read-Port soll PID-Regler gesperrt werden:
                    if ReadSend[port] == 'Read':
                        name_device = self.trigger_read[port][1]
-                       self.device_widget[name_device].PID_Aktiv = False
+                       self.device_widget[name_device].PID_Aktiv  = False
+                       self.device_schnitt[name_device].PID_Aktiv = False
                        self.device_widget[name_device].PID_cb.setEnabled(False)
                        logger.warning(f"{self.Log_Text_186_str[self.sprache]} - {self.Log_Text_PETOP_str[self.sprache]} {name_device}")
         else:
