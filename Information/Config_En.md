@@ -50,13 +50,14 @@ Descriptions can also be found in the [templates](#Configuration-templates).
 The following are the points:
 1. [Times](#times)
 2. [Feature-Skip](#feature-skip)
-3. [Save Files and Images](#save-files-and-images)
-4. [GUI](#gui)
-5. [Logging File](#logging-file)
-6. [Console Logging](#console-logging)
-7. [GUI Legend](#legend)
-8. ​​[Scaling Factors](#scaling-factors)
-9. [Devices](#devices)
+3. [Multilog-Extra](#Multilog-extra)
+4. [Save Files and Images](#save-files-and-images)
+5. [GUI](#gui)
+6. [Logging File](#logging-file)
+7. [Console Logging](#console-logging)
+8. [GUI Legend](#legend)
+9. ​​[Scaling Factors](#scaling-factors)
+10. [Devices](#devices)
 
 ### Times:
 
@@ -80,6 +81,16 @@ Function_Skip:
 If the value is set to True (1), the functions for the multilog link and the gamepad are enabled. If False, this is skipped in the code and has no effect on VIFCON.
 
 With `writereadTime` a time period is logged as a debug. For this function to work, the `level` must be set to 10 for `logging`! The time period measured here is for the `write` and `read` functions of the individual devices. This determines how long these functions take. Both functions are important for device communication!
+
+### Multilog-Extra
+
+```
+Multilog_extra:
+  timeout: 10             
+  connection_error_case: 1
+```
+
+The function for the Multilog link can be activated under [Feature Skip](#Feature-Skip). Using the function and the various settings under the [Devices](#Devices) ([similarities](#Similarities) - `Multilog` and `PID`), communication can be established with the Multilog program. The extra configurations are for crash handling. With the link, it is important that VIFCON is started first and then Multilog. Despite this, it can happen that the ports are not activated in the correct order (Multilog side), which causes VIFCON to hang. This is why there is the `timeout`. The timeout must be set somewhat higher because Multilog must be started. The `connection_error_case` setting regulates how the crash is handled, i.e. when the timeout is triggered. In case **1** the program is terminated and in case **2** it is started. If a read port (receiving multilog data) is not created in case 2, the PID function is blocked. With multilog, Nan values ​​would arrive in the event of a write port error.
 
 ### Save files and images
 
@@ -621,4 +632,4 @@ if not type(self.init) == bool and not self.init in [0,1]:
 
 ## Last change
 
-The last change to the [templates](#Configuration-templates) and this description was: February 2, 2025
+The last change to the [templates](#Configuration-templates) and this description was: February 19, 2025

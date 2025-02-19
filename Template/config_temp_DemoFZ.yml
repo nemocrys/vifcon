@@ -10,6 +10,12 @@ Function_Skip:                                                            # Skip
                                                                           # Achtung:  Info muss bei Logging aktiv sein!!
                                                                           #           Durch die Reaktionszeit, kann die Log-Datei schnell sehr groß werden!!
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Multilog_extra:
+  timeout: 10                                                             # Multilog-Timeout bei Port Connection | Zeit in Sekunde | Default bei Fehler: 10
+  connection_error_case: 1                                                # 1 - Programm Exit
+                                                                          # 2 - Fehlermeldung und Programm Start 
+                                                                          # Default bei Fehler: 1 
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 save:
   config_save: True                                                       # Speichere die Config, nach Ende im Messordner | Default bei Fehler: True
   log_save: True                                                          # Speichere die Log-Datei, nach Ende im Messordner | Default bei Fehler: True

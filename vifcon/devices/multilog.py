@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 class Multilog(QObject):
-    def __init__(self, sprache, ports_send, ports_read, Ablauf_Funktion, widget_dict, device_dict, trigger_dict_sM, trigger_dict_rM):
+    def __init__(self, sprache, ports_send, ports_read, Ablauf_Funktion, widget_dict, device_dict, trigger_dict_sM, trigger_dict_rM, timeout, connection_Errorcase):
         ''' Erstellung einer Verbindung zum IKZ System Multilog
         
         Args:
@@ -55,7 +55,9 @@ class Multilog(QObject):
         self.device_widget              = widget_dict
         self.device_schnitt             = device_dict
         self.trigger_send               = trigger_dict_sM   
-        self.trigger_read               = trigger_dict_rM       
+        self.trigger_read               = trigger_dict_rM 
+        self.timeout                    = timeout      
+        self.Error_Case                 = connection_Errorcase
 
         ## Weitere:
         self.done                       = False                 # Ende der Endlosschleife, wenn True      
@@ -92,7 +94,11 @@ class Multilog(QObject):
         self.Log_Text_rM        =   ['Wert konnte nicht von Multilog geholt werden. Connection: ',                                      'Value could not be retrieved from Multilog. Connection: ']
         self.Log_Text_MD_1      =   ['Multilog Daten:',                                                                                 'Multilog data:']
         self.Log_Text_MD_2      =   ['für',                                                                                             'for']
-        
+        self.Log_Text_PETO_str  =   ['Der Timeout wurde ausgelöst! Die Verbindung kann nicht hergestellt werden! - Port:',              'The timeout has been triggered! The connection cannot be established! - Port:']
+        self.Log_Text_PETOF_str =   ['Fehlergrund (Port-Verbindungsfehler):',                                                           'Reason for error (port connection error):']
+        self.Log_Text_PETOE_str =   ['VIFCON wird wegen des Multilog-Port-Verbindungsfehlers geschlossen!',                             'VIFCON is closed due to multilog port connection error!']
+        self.Log_Text_PETOP_str =   ['Der PID-Regler wird gesperrt! Gerät:',                                                            'The PID controller is locked! Device:']
+
         #--------------------------------------- 
         # Informationen 1:
         #---------------------------------------
@@ -163,11 +169,19 @@ class Multilog(QObject):
         if not error:
             for port in portList:
                 c, a = self.create_socket(port)                     # Erstellen einer neuen Verbindung
-                logger.info(f"{self.Log_Text_186_str[self.sprache]} - {port}{self.Log_Text_192_str[self.sprache]} {c} {self.Log_Text_193_str[self.sprache]} {a}")
-                self.connectList.append(c)                          # Verbindung zu einer Liste hinzufügen
-                self.ReadSend_Connection.update({c:ReadSend[port]})
-                if self.ReadSend_Connection[c] == 'Read':
-                    self.Trigger_Connection.update({c:trigger_dict_rM[port]})
+                if not c == '':
+                    logger.info(f"{self.Log_Text_186_str[self.sprache]} - {port}{self.Log_Text_192_str[self.sprache]} {c} {self.Log_Text_193_str[self.sprache]} {a}")
+                    self.connectList.append(c)                      # Verbindung zu einer Liste hinzufügen
+                    self.ReadSend_Connection.update({c:ReadSend[port]})
+                    if self.ReadSend_Connection[c] == 'Read':
+                        self.Trigger_Connection.update({c:trigger_dict_rM[port]})
+                else:
+                   ### Bei Read-Port soll PID-Regler gesperrt werden:
+                   if ReadSend[port] == 'Read':
+                       name_device = self.trigger_read[port][1]
+                       self.device_widget[name_device].PID_Aktiv = False
+                       self.device_widget[name_device].PID_cb.setEnabled(False)
+                       logger.warning(f"{self.Log_Text_186_str[self.sprache]} - {self.Log_Text_PETOP_str[self.sprache]} {name_device}")
         else:
             logger.warning(f"{self.Log_Text_186_str[self.sprache]} - {self.Log_Text_210_str[self.sprache]}")
             self.done = True
@@ -186,11 +200,21 @@ class Multilog(QObject):
                                                                                     -> Quelle: https://docs.python.org/3/library/socket.html#socket.socket.accept
         '''
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:    # durch with, kann auf das close verzichtet werden
+            server_socket.settimeout(self.timeout)                                  # Setze ein Timeout
             server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             server_socket.bind(('', TCP_PORT))                                      # Eine bestimmte IP muss nur in Mutilog angegeben werden
             server_socket.listen(1)
             logging.warning(f'{self.Log_Text_209_str[self.sprache]} {TCP_PORT}')
-            connection, address = server_socket.accept() 
+            try:    connection, address = server_socket.accept()                    # Verbindungsaufbau    
+            except Exception as e:                                                  # Timeout sorgt für einen Fehler und löst Except aus
+                logger.warning(f"{self.Log_Text_186_str[self.sprache]} - {self.Log_Text_PETO_str[self.sprache]} {TCP_PORT}")
+                logger.exception(f'{self.Log_Text_PETOF_str[self.sprache]}')
+                if self.Error_Case == 1:                                            # Error Case 1: Programm wird beendet
+                    logger.warning(f"{self.Log_Text_186_str[self.sprache]} - {self.Log_Text_PETOE_str[self.sprache]}")
+                    exit()                                                          
+                elif self.Error_Case == 2:                                          # Error Case 1: Programm wird gestartet aber ohne den Trigger   
+                    connection, address = '',''
+            server_socket.settimeout(None)                      
         return connection, address 
 
     ##########################################

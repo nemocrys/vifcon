@@ -50,13 +50,14 @@ In dem [Templates](#Konfigurations-Templates) können auch Beschreibungen gefund
 Im folgenden sind die Punkte:
 1. [Zeiten](#zeiten)
 2. [Feature-Überspringen](#feature-überspringen)
-3. [Speicher Dateien und Bilder](#speicher-dateien-und-bilder)
-4. [GUI](#GUI)
-5. [Logging-Datei](#logging-datei)
-6. [Konsolen-Logging](#konsolen-logging)
-7. [Legende der GUI](#legende)
-8. [Skalierungsfaktoren](#skalierungsfaktoren)
-9. [Geräte](#geräte)
+3. [Multilog-Extra](#Multilog-extra)
+4. [Speicher Dateien und Bilder](#speicher-dateien-und-bilder)
+5. [GUI](#GUI)
+6. [Logging-Datei](#logging-datei)
+7. [Konsolen-Logging](#konsolen-logging)
+8. [Legende der GUI](#legende)
+9. [Skalierungsfaktoren](#skalierungsfaktoren)
+10. [Geräte](#geräte)
 
 ### Zeiten:
 
@@ -80,6 +81,16 @@ Function_Skip:
 Wenn der Wert auf True (1) steht, so werden die Funktionen für den Multilog-Link und dem Gamepad freigeschaltet. Bei False wird dies im Code übersprungen und wirkt sich nicht auf VIFCON aus. 
 
 Bei `writereadTime` wird eine Zeitspanne als Debug gelogged. Damit diese Funktion funktioniert, muss beim `logging` das `level` auf 10 gesetzt werden! Die Zeitspanne die hier gemessen wird ist für die Funktionen `write` und `read` der einzelnen Geräte. Somit wird ermittelt, wie lange diese Funktionen dauern. Beide Funktionen sind für die Geräte-Kommunikation wichtig!
+
+### Multilog-Extra
+
+```
+Multilog_extra:
+  timeout: 10             
+  connection_error_case: 1
+```
+
+Unter [Feature-Überspringen](#feature-überspringen) kann die Funktion für den Multilog-Link freigeschaltet werden. Durch die Funktion und den verschiedenen Einstellungen unter den [Geräten](#Geräte) ([Gemeinsamkeiten](#gemeinsamkeiten) - `Multilog` und `PID`) kann eine Kommunikation mit dem Multilog-Programm aufgebaut werden. Die Extra Konfigurationen sind für die Absturz-Behandlung. Bei dem Link ist es wichtig das erst VIFCON und dann Multilog gestartet wird. Trotzallem kann es passieren das die Ports nicht in der richtigen Reihenfolge (Multilog-Seite) aktiviert werden, wodurch VIFCON hängen bleibt. Aus dem Grund gibt es den `timeout`. Der Timeout muss etwas höher gesetzt werden, da Multilog gestartet werden muss. Die Einstellung `connection_error_case` regelt das Handhaben des Absturzes, also wenn der Timeout auslöst. Im Fall **1** wird das Programm beendet und bei Fall **2** gestartet. Wenn in Fall 2 ein Read-Port (Empfang von Multilog-Daten) nicht erstellt wird, so wird die PID-Funktion gesperrt. Bei Multilog würden bei Write-Port-Fehler Nan-Werte ankommen. 
 
 ### Speicher Dateien und Bilder
 
@@ -620,4 +631,4 @@ if not type(self.init) == bool and not self.init in [0,1]:
 
 ## Letzte Änderung
 
-Die Letzte Änderung des [Templates](#Konfigurations-Templates) und dieser Beschreibung war: 17.02.2025
+Die Letzte Änderung des [Templates](#Konfigurations-Templates) und dieser Beschreibung war: 19.02.2025

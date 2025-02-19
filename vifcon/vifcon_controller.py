@@ -557,7 +557,7 @@ class Controller(QObject):
         app = QApplication(sys.argv)
         
         ## Konfigurationen prüfen:
-        ### Gamapad Aktiviuerung:
+        ### Gamapad Aktivierung:
         try: gamepad_Link = self.config['Function_Skip']['Generell_GamePad']
         except Exception as e: 
             logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} Function_Skip|Generell_GamePad {self.Log_Pfad_conf_5[self.sprache]} False')
@@ -596,6 +596,25 @@ class Controller(QObject):
         if not type(Color_Anzeige) == bool and not Color_Anzeige in [0,1]: 
             logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} GUI_color_Widget - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {Color_Anzeige}')
             Color_Anzeige = 0 
+        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+        ### Multilog Übergeordnet - timeout:
+        try: multilog_timeout = self.config['Multilog_extra']['timeout'] 
+        except Exception as e: 
+            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} Multilog_extra|timeout {self.Log_Pfad_conf_5[self.sprache]} 10')
+            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+            multilog_timeout = 10 
+        if not type(multilog_timeout) == int: 
+            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} timeout - {self.Log_Pfad_conf_2_1[self.sprache]} {self.Log_Pfad_conf_2_1[self.sprache]} Integer (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 10 - {self.Log_Pfad_conf_8[self.sprache]} {multilog_timeout}')
+            multilog_timeout = 10 
+        ### Multilog Übergeordnet - Fehler-Situation:
+        try: multilog_CEC = self.config['Multilog_extra']['connection_error_case'] 
+        except Exception as e: 
+            logger.warning(f'{self.Log_Pfad_conf_4[self.sprache]} Multilog_extra|connection_error_case {self.Log_Pfad_conf_5[self.sprache]} 1')
+            logger.exception(f'{self.Log_Pfad_conf_6[self.sprache]}')
+            multilog_CEC = 1 
+        if not type(multilog_CEC) == int and not multilog_CEC in [1,2]: 
+            logger.warning(f'{self.Log_Pfad_conf_1[self.sprache]} connection_error_case - {self.Log_Pfad_conf_2[self.sprache]} [1, 2] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8[self.sprache]} {multilog_CEC}')
+            multilog_CEC = 1 
         
         ## Hauptfenster:
         self.main_window = MainWindow(self.exit, self.sync_rezept, self.sync_end_rezept, self.rezept_einlesen, self.sprache, gamepad_Link)                                    
@@ -973,7 +992,7 @@ class Controller(QObject):
         self.Multilog_Nutzung = multilog_Link
         if self.Multilog_Nutzung:
             self.LinkMultilogThread = QThread()
-            self.MultiLink = Multilog(self.sprache, self.port_List_send, self.port_List_read, self.add_Ablauf, self.widgets, self.devices, self.trigger_send, self.trigger_read)
+            self.MultiLink = Multilog(self.sprache, self.port_List_send, self.port_List_read, self.add_Ablauf, self.widgets, self.devices, self.trigger_send, self.trigger_read, multilog_timeout, multilog_CEC)
             self.MultiLink.moveToThread(self.LinkMultilogThread)
             self.LinkMultilogThread.start()
             self.signal_Multilog.connect(self.MultiLink.event_Loop)
