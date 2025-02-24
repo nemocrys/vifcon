@@ -136,7 +136,7 @@ VIFCON works with Python >= 3.8 on Windows, Linux and Raspberry Pi (RPi OS 64-bi
     - argparse
     - math
 
-[See also](Information/Python_RPi_En.md)
+[See also](Information/Python_RPI_En.md)
 
 ### Screen size:
 The GUI requires a minimum screen resolution of 1240x900 pixels.
@@ -149,7 +149,7 @@ The **[Information](Information)** folder contains further documents that descri
 
 1. The Readme file in German. [Show](Information/Readme_DE.md)
 2. Python and Raspberry Pi - Installation and libraries 
-    - [Show En](Information/Python_RPi_En.md)
+    - [Show En](Information/Python_RPI_En.md)
     - [Show De](Information/Python_RPi_DE.md)
 3. Recipes 
     - [Show En](Information/Rezepte_En.md) 

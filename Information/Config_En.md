@@ -351,7 +351,7 @@ The second table shows the similarities in **Modbus communication**:
 --- | --- | ---
 serial-interface |host |IP address server
 serial-interface |port |Port for communication
-serial-interface |default|Output of communication in the console<br>**ATTENTION**: Only works with pyModbusTCP < 0.3.0, works with 0.2.1<br>Comment out in case of error!! (see [Python_RPi_En.py](Python_RPi_En.md))
+serial-interface |default|Output of communication in the console<br>**ATTENTION**: Only works with pyModbusTCP < 0.3.0, works with 0.2.1<br>Comment out in case of error!! (see [Python_RPI_En.py](Python_RPI_En.md))
 serial-interface| timeout| Abort of interface read and write commands
 
 **Devices:** Nemo facility
