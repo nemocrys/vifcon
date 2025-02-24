@@ -7,7 +7,7 @@ The information explains points about Python and Raspberry Pi.
 Query in CMD with: `python --version`   
 **Version:** Python 3.8.5
 
-Version number according to `pip list` in the Visual Studio Code terminal!
+Version number according to `pip list` in the Visual Studio Code terminal! A short version of the following list can be found in the document [requirements.txt](../requirements.txt).
 
 1. **argparse**
     - *install:* Comes with Python, no install
@@ -75,7 +75,9 @@ Version number according to `pip list` in the Visual Studio Code terminal!
         - https://pypi.org/project/pygame/  
 16. **pyModbusTCP**    
     - *install:* pip install pyModbusTCP
-    - *version:* 0.3.0
+    - *Version (see [Special features](Special-features)):*  
+            - 0.3.0 (Comment out debug in the template!)  
+            - 0.2.1 (template)
     - *Doc:* 
         - https://pymodbustcp.readthedocs.io/en/latest/
         - https://pypi.org/project/pyModbusTCP/ 
@@ -201,4 +203,4 @@ After all libraries have been installed, VIFCON works on the Raspberry Pi mentio
 
 ## Last change
 
-The last change of this description was: October 15, 2024
+The last change of this description was: February 24, 2025
