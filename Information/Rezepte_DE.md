@@ -85,6 +85,26 @@ Im Falle der Achsen muss nun das Rezept um einen Richtungsstring erweitert werde
 
 In der Konfiguration der PI-Achse gibt es unter `GUI` die Konfiguration `piSymbol`. Bei diesem können `Re`, `Li`, `Ob`, `Un`, `Vo` und `Hi` angegeben werden. Dabei werden die x-, y- oder z-Richtung angesprochen (siehe Konfiguration). Durch die GUI-Konfiguration werden auch die Knöpfe belegt. Bei `Re`, `Un` und `Hi` wird der linke Knopf positiv und der rechte negativ belegt. Das heißt das wenn man auf den rechten Knopf drückt zum PI-Symbol gefahren wird. Bei `Li`, `Ob` und `Vo` dreht sich dies um.
 
+## Rezept-Wiederholungen
+
+Bei einigen Geräten findet sich in der [Konfiguration](Config_DE.md) die Konfiguration `rezept_Loop` wieder. Die besagten Geräte sind der Edzcrys-Antrieb und die Nemo-Rotation. Bei der Konfiguration wird ein Integer angegeben. Wenn z.B, eine 3 dort steht, so wird das Rezept dreimal wiederholt, heißt viermal durchgeführt. In der GUI muss dafür nur die Checkbox `Rez.-Loop` ausgewählt werden. Wenn diese ausgeschaltet ist, wird das Rezept nur einmal ausgeführt. 
+
+*Beispiel:*
+```
+device:
+    Nemo-Achse-Rotation_S:
+        # Sonstige Einstellungen
+        rezept_Loop: 3                             
+        rezepte:
+          v_Test:
+            n1: 20 ; 1 ; s
+            n2: 20 ; -1 ; s
+            n3: 100 ; 1 ; r ; 10
+            n4: 10 ; 1 ; s
+```
+
+<img src="../Bilder/Rezept_Loop_DE.png" alt="Rezept Beispiel Loop" title='Rezept Beispiel Loop' width=700/>
+
 ## Auslagern von Rezepten
 
 Der Ordner **rezepte** ist für VIFCON-Rezepte vorgesehen. Das Format dieser Datein ist Yaml (.yml). 
@@ -242,4 +262,4 @@ Dieses Rezept ist im Template der Configdatei für die [Demo-FZ](../Template/con
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 15.01.2025
+Die Letzte Änderung dieser Beschreibung war: 10.03.2025

@@ -83,6 +83,26 @@ In the case of the axes, the recipe must now be extended by a direction string! 
 
 In the configuration of the PI axis there is the configuration `piSymbol` under `GUI`. Here you can specify `Re`, `Li`, `Ob`, ​​`Un`, `Vo` and `Hi`. The x, y or z direction is addressed (see configuration). The buttons are also assigned by the GUI configuration. For `Re`, `Un` and `Hi` the left button is assigned positively and the right one negatively. This means that if you press the right button it goes to the PI symbol. For `Li`, `Ob` and `Vo` this is reversed.
 
+## Recipe repetitions
+
+For some devices, the configuration `recipe_loop` can be found in the [configuration](Config_En.md). The devices in question are the Edzcrys drive and the Nemo rotation. An integer is specified in the configuration. If, for example, a 3 is entered there, the recipe is repeated three times, i.e. carried out four times. In the GUI, all you have to do is select the `Rec.-Loop` checkbox. If this is switched off, the recipe is only carried out once.
+
+*Example:*
+```
+device:
+    Nemo-Achse-Rotation_S:
+        # Other Settings
+        rezept_Loop: 3                             
+        rezepte:
+          v_Test:
+            n1: 20 ; 1 ; s
+            n2: 20 ; -1 ; s
+            n3: 100 ; 1 ; r ; 10
+            n4: 10 ; 1 ; s
+```
+
+<img src="../Bilder/Rezept_Loop_En.png" alt="Recipe Example Loop" title='Recipe Example Loop' width=700/>
+
 ## Outsourcing of recipes
 
 The folder **rezepte** is intended for VIFCON recipes. The format of these files is Yaml (.yml).
@@ -106,7 +126,7 @@ In the folder *rezepte* you will find the example file [rec_example.yml](../vifc
     ``` 
     device:
         Eurotherm:
-            # Sonstige Einstellungen
+            # Other Settings
             rezepte:
                 Test_Recipe_1:  
                     n1: 600 ; 100 ; r ; 100
@@ -241,4 +261,4 @@ This recipe is in the template of the config file for the [Demo-FZ](../Template/
 
 ## Last change
 
-The last change of this description was: January 01, 2025
+The last change of this description was: March 10, 2025
