@@ -205,7 +205,7 @@ class Generator(QWidget, Cursor, PopUpWindow):
                 if not self.Faktor[size] == 0:
                     label_list.append(f'{label_dict[size]}x{self.Faktor[size]}')
                 else:
-                    label_list.append('0')
+                    label_list.append(' 0')
                     logging.warning(f'{self.Log_Text_185_str_1[self.sprache]} {size} {self.Log_Text_185_str_2[self.sprache]}')
             else:
                 label_list.append(f'{label_dict[size]}')
@@ -228,10 +228,10 @@ class Generator(QWidget, Cursor, PopUpWindow):
             self.legend_achsen_Links_widget = Widget_VBox()
             self.splitter_row_one.splitter.addWidget(self.legend_achsen_Links_widget.widget)
 
-        Achse_y1_str = f'{label_list[0]} | {label_list[1]} | {label_list[2]} | {label_list[7]}'.replace(' | 0', '').replace('0 |','')
+        Achse_y1_str = f'{label_list[0]} | {label_list[1]} | {label_list[2]} | {label_list[7]}'.replace(' |  0', '').replace(' 0 |','')
         if Achse_y1_str == '0':
             Achse_y1_str = self.Eintrag_Achse[self.sprache]
-        Achse_y2_str = f'{label_list[3]} | {label_list[4]} | {label_list[5]} | {label_list[6]}'.replace(' | 0', '').replace('0 |','')
+        Achse_y2_str = f'{label_list[3]} | {label_list[4]} | {label_list[5]} | {label_list[6]}'.replace(' |  0', '').replace(' 0 |','')
         if Achse_y2_str == '0':
             Achse_y2_str = self.Eintrag_Achse[self.sprache]
         self.plot = PlotWidget(menu_dict, self.btn_AS, self.legend_ops, self.sprache, 'Generator', 't [s]', Achse_y1_str, Achse_y2_str)            
@@ -418,7 +418,7 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
                 if not self.Faktor[size] == 0:
                     label_list.append(f'{label_dict[size]}x{self.Faktor[size]}')
                 else:
-                    label_list.append('0')
+                    label_list.append(' 0')
                     logging.warning(f'{self.Log_Text_185_str_1[self.sprache]} {size} {self.Log_Text_185_str_2[self.sprache]}')
             else:
                 label_list.append(f'{label_dict[size]}')
@@ -441,10 +441,10 @@ class Antrieb(QWidget, Cursor, PopUpWindow):
             self.legend_achsen_Links_widget = Widget_VBox()
             self.splitter_row_one.splitter.addWidget(self.legend_achsen_Links_widget.widget)
 
-        Achse_y1_str = f'{label_list[0]} | {label_list[1]} | {label_list[5]}'.replace(' | 0', '').replace('0 |','')
+        Achse_y1_str = f'{label_list[0]} | {label_list[1]} | {label_list[5]}'.replace(' |  0', '').replace(' 0 |','')
         if Achse_y1_str == '0':
             Achse_y1_str = self.Eintrag_Achse[self.sprache]
-        Achse_y2_str = f'{label_list[2]} | {label_list[3]} | {label_list[4]}'.replace(' | 0', '').replace('0 |','')
+        Achse_y2_str = f'{label_list[2]} | {label_list[3]} | {label_list[4]}'.replace(' |  0', '').replace(' 0 |','')
         if Achse_y2_str == '0':
             Achse_y2_str = self.Eintrag_Achse[self.sprache]
         self.plot = PlotWidget(menu_dict, self.btn_AS, self.legend_ops, self.sprache, 'Antrieb', 't [s]', Achse_y1_str, Achse_y2_str)          
