@@ -165,6 +165,9 @@ Im Ordner **[Information](../Information)** befinden sich weitere Dokumente, die
 5. GUI
     - [Zeige En](GUI_En.md) 
     - [Zeige De](GUI_De.md)
+6. VIFCON-Funktionen
+    - [Zeige En](Funktion_En.md) 
+    - [Zeige De](Funktion_DE.md)
 
 ## Letzte Änderung
 

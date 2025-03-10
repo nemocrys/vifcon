@@ -220,7 +220,7 @@ devices:
       watchdog_Time: 5000                                               # Watchdog-Zeit [ms] (Integer) - Wertebereich: 0 bis 10000 - Deaktivierung: 0 - Notiz: Im Fall init = False und readTime = 0, sollte der Watchdog deaktiviert werden, da dann keine regelmäßigen Befehle kommen! | Default bei Fehler: 5000
       send_Delay: 20                                                    # Sende Delay [ms] (Sollte die Watchdog Zeit nicht überschreiten) | Default bei Fehler: 20
     ende: True                                                          # End-Bedingung (Programm-Exit Knopf):
-                                                                        # True - Ausführung der Stopp-Funktion (Setze P und U auf Null, I auf Minimum)(Rezept wird ebenfals beendet, wenn es läuft!)
+                                                                        # True - Ausführung der Stopp-Funktion (Setze P, I und U auf Null)(Rezept wird ebenfals beendet, wenn es läuft!)
                                                                         # False - Nichts wird getann!
                                                                         # Default bei Fehler: True
     serial-interface:

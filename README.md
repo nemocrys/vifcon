@@ -164,6 +164,9 @@ The **[Information](Information)** folder contains further documents that descri
 6. GUI
     - [Zeige En](Information/GUI_En.md) 
     - [Zeige De](Information/GUI_De.md)
+7. Functions in VIFCON
+    - [Zeige En](Information/Funktion_En.md) 
+    - [Zeige De](Information/Funktion_DE.md)
 
 ## Last change
 
