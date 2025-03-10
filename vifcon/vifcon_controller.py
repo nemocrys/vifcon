@@ -171,10 +171,16 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                 #---------------------------------------
                 # Initialisierung übergeben:
                 #---------------------------------------
-                if self.device_widget.write_task['Init'] and not self.test:
-                    self.device.init_device()
+                if self.device_widget.write_task['Init']:
+                    ## Betriebsmodus:
+                    if not self.test:        self.device.init_device()
+                    ## Test-Modus:
+                    else:               
+                        if self.device.init: self.device.init = False
+                        else:                self.device.init = True
+                    ## GUI Anpassung:
                     self.device_widget.init_controll(self.device.init, self.btn_Init)
-                    self.device_widget.write_task['Init'] = False
+                    self.device_widget.write_task['Init'] = False 
 
                 #---------------------------------------
                 # Schreibe Werte:
