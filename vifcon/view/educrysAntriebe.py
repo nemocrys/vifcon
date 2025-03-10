@@ -712,6 +712,8 @@ class EducrysAntriebWidget(QWidget):
         self.btn_right = QPushButton(QIcon(self.icon_2), '')
         self.btn_right.setFlat(True)
         self.btn_right.clicked.connect(self.fahre_rechts_K)
+        if self.Antriebs_wahl == 'F':   self.btn_right.setEnabled(False)
+
         #### Stopp:
         icon_pfad = "./vifcon/icons/p_stopp.png" if sprache == 0 else  "./vifcon/icons/p_stopp_En.png" 
         self.btn_mitte = QPushButton(QIcon(icon_pfad), '')
@@ -1056,7 +1058,8 @@ class EducrysAntriebWidget(QWidget):
     def fahre_links(self):
         '''Synchron Knopf Achse'''
         if float(self.LE_Speed.text().replace(",", ".")) < 0:
-            self.fahre_rechts_K()                                             # Minus
+            if self.Antriebs_wahl == 'F':           self.fahre_links_K()      # Fan hat keinen rechten Knopf!!
+            else:                                   self.fahre_rechts_K()     # Minus
         else:
             self.fahre_links_K()                                              # Plus
 

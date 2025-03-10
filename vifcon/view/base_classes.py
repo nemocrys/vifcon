@@ -140,7 +140,8 @@ class PlotWidget(QWidget):
         # Sprach-Einstellung:
         #--------------------------------------- 
         ## Menü-Leiste:
-        action_grid_str         = ['Toggle Gitter An/Aus',  'Toggle Grid On/Off']
+        action_grid_str_G       = ['Generator - &Toggle Gitter An/Aus',  'Generator - &Toggle Grid On/Off']
+        action_grid_str_A       = ['Antrieb - T&oggle Gitter An/Aus',    'Drive - T&oggle Grid On/Off']
         ## Save:
         self.sichere_Bild_3_str = ['legend',                'legend']
 
@@ -220,7 +221,8 @@ class PlotWidget(QWidget):
         # Grid und AutoRange - Menüleiste:
         #---------------------------------------        
         ## Actions:
-        self.button_action_1 = QAction(QIcon("./vifcon/icons/p_nichts.png"), f"{typ} - {action_grid_str[self.sprache]}", self)
+        action_grid_str = action_grid_str_A if typ == 'Antrieb' else action_grid_str_G
+        self.button_action_1 = QAction(QIcon("./vifcon/icons/p_nichts.png"), f"{action_grid_str[self.sprache]}", self)
         self.button_action_1.triggered.connect(self.GridOnOff)
         self.button_action_1.setCheckable(True)
 
