@@ -80,12 +80,15 @@ class Eurotherm(QObject):
         self.typ                        = typ
 
         ## Weitere:
-        self.op             = 0
-        self.EuRa_Aktiv     = False
-        self.Save_End_State = False
-        self.done_ones      = False
-        self.mode_aktiv     = False 
-        self.Rez_OP         = -1
+        self.op                 = 0
+        self.EuRa_Aktiv         = False
+        self.Save_End_State     = False
+        self.done_ones          = False
+        self.mode_aktiv         = False 
+        self.Rez_OP             = -1
+        self.PID_Ein            = False
+        self.Block_Ablaufdatei  = False
+        self.value_old          = -1
 
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
@@ -592,6 +595,7 @@ class Eurotherm(QObject):
             write_Okay['PID-Reset'] = False
             self.Ist  = 0
             self.Soll = 0
+            self.value_old = -1
 
         #++++++++++++++++++++++++++++++++++++++++++
         # Update Limit:
@@ -616,6 +620,7 @@ class Eurotherm(QObject):
         # Normaler Betrieb:
         #++++++++++++++++++++++++++++++++++++++++++
         if not write_Okay['PID']:  
+            self.PID_Ein = False
             # Sollwertn Lesen (OP oder Temp):
             sollwert = write_value['Sollwert']
             PID_write_OP = False
@@ -623,6 +628,7 @@ class Eurotherm(QObject):
         # PID-Regler:
         #++++++++++++++++++++++++++++++++++++++++++
         elif write_Okay['PID']:
+            self.PID_Ein = True
             #---------------------------------------------
             ## Auswahl Sollwert:
             #---------------------------------------------
@@ -825,6 +831,18 @@ class Eurotherm(QObject):
             value (str):        übergebender Wert
             befehl_start (str): Start des Befehls
         '''
+        # Ablaufdatei Zusatz:
+        if self.PID_Ein and write_mn == 'OP':
+            if self.value_old != self.op:
+                self.value_old = self.op
+                self.Block_Ablaufdatei = False
+            else:
+                self.Block_Ablaufdatei = True
+        elif self.PID_Ein and write_mn == 'SW>':
+            self.Block_Ablaufdatei = True
+        else:
+            self.Block_Ablaufdatei = False
+
         # Schreibe:
         bcc_Wert = self.bcc(write_mn + value)
         try: 
@@ -834,11 +852,13 @@ class Eurotherm(QObject):
             logger.exception(f"{self.device_name} - {self.Log_Text_77_str[self.sprache]}")
 
         # Lese Antwort (Kontrolle des Eingangs des Befehls):
-        self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {write_mn}{value} {self.Text_56_str[self.sprache]}')
+        if not self.Block_Ablaufdatei:
+            self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {write_mn}{value} {self.Text_56_str[self.sprache]}')
         try:
             answer = self.serial.readline().decode()                                            
             if answer == '\x06':
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_53_str[self.sprache]}')          
+                if not self.Block_Ablaufdatei:
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_53_str[self.sprache]}')          
                 logger.debug(f'{self.device_name} {self.Text_53_str[self.sprache]}')
             elif answer == '\x15':
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_54_str[self.sprache]}')    

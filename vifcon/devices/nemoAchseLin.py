@@ -84,8 +84,11 @@ class NemoAchseLin(QObject):
         self.typ                        = typ
 
         ## Weitere:
-        self.angezeigt  = False
-        self.v_VZ       = 1            # Anzeige der Richtung durch Istgeschwindigkeit (Positiv - Hoch, Negativ - Runter) (Normalfall)
+        self.angezeigt          = False
+        self.v_VZ               = 1            # Anzeige der Richtung durch Istgeschwindigkeit (Positiv - Hoch, Negativ - Runter) (Normalfall)
+        self.PID_Ein            = False
+        self.Block_Ablaufdatei  = False
+        self.value_old          = -1
 
         #---------------------------------------------------------
         # Konfigurationskontrolle und Konfigurationsvariablen:
@@ -814,6 +817,7 @@ class NemoAchseLin(QObject):
             write_Okay['PID-Reset'] = False
             self.Ist  = 0
             self.Soll = 0
+            self.value_old = -1
 
         #++++++++++++++++++++++++++++++++++++++++++
         # Update Limit:
@@ -917,7 +921,8 @@ class NemoAchseLin(QObject):
         #++++++++++++++++++++++++++++++++++++++++++
         # Normaler Betrieb:
         #++++++++++++++++++++++++++++++++++++++++++
-        if not write_Okay['PID']:  
+        if not write_Okay['PID']: 
+            self.PID_Ein = False 
             ## Sollwert Lesen (v):
             speed_vorgabe = write_value['Speed']
             PID_write_V = False
@@ -926,6 +931,7 @@ class NemoAchseLin(QObject):
         # PID-Regler:
         #++++++++++++++++++++++++++++++++++++++++++
         elif write_Okay['PID']:
+            self.PID_Ein = True
             #---------------------------------------------
             ## Auswahl Sollwert:
             #---------------------------------------------
@@ -1142,6 +1148,17 @@ class NemoAchseLin(QObject):
             False:              Exception ausgelöst!    
         '''
         try:
+            # Ablaufdatei Zusatz:
+            if self.PID_Ein:
+                if self.value_old != self.PID_Out:
+                    self.value_old = self.PID_Out
+                    self.Block_Ablaufdatei = False
+                else:
+                    self.Block_Ablaufdatei = True
+            else:
+                self.Block_Ablaufdatei = False
+
+            # Vorbereitung und Senden:
             sollwert = round(sollwert/self.vF_soll, 3)      # Beachtung des Vorfaktors
             sollwert_hex = utils.encode_ieee(sollwert)
             if sollwert_hex == 0:
@@ -1153,7 +1170,7 @@ class NemoAchseLin(QObject):
 
             ans = self.serial.write_multiple_registers(self.start_write_v, [int(sollwert_hex_HB,16), int(sollwert_hex_LB,16)])
             if ans:
-                self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_69_str[self.sprache]} ({self.Text_Neu_1_str[self.sprache]} {sollwert} {self.Log_Text_LB_unit[self.sprache]})') 
+                if not self.Block_Ablaufdatei: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_69_str[self.sprache]} ({self.Text_Neu_1_str[self.sprache]} {sollwert} {self.Log_Text_LB_unit[self.sprache]})') 
             else:
                 logger.warning(f'{self.device_name} - {self.Log_Text_172_str[self.sprache]}')
                 self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_70_str[self.sprache]}') 

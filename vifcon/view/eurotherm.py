@@ -1108,7 +1108,7 @@ class EurothermWidget(QWidget):
                 if value < uG or value > oG:
                     self.Fehler_Output(1, f'{self.err_2_str[self.sprache]} {uG} {self.err_3_str[self.sprache]} {oG}{unit}', self.Text_20_str[self.sprache])
                 else:
-                    self.Fehler_Output(0, error_Message_Ablauf=f'{self.Text_21_str[self.sprache]} {value}.')
+                    self.Fehler_Output(0, error_Message_Ablauf=f'{self.Text_21_str[self.sprache]} {value}{unit}.')
                     return value
             except Exception as e:
                 self.Fehler_Output(1, self.err_5_str[self.sprache], self.Text_22_str[self.sprache])
