@@ -13,6 +13,7 @@ This Readme describes and shows the most important functions of the VIFCON appli
 9. [Gamepad mode](#Gamepad-mode)
 10. [Multilog link](#Multilog-link)
 11. [Test mode](#Test-mode)
+12. [Files](#Files)
 
 ## Initialization
 
@@ -325,6 +326,53 @@ To switch on communication, the *Multilog_Link* configuration under *Function_Sk
 ## Test mode
 
 At the start of a program, test mode can be switched on via the console (`-t`). This function allows VIFCON to be used without a device. The [Initialization](#Initialization), the [Recipe function](#Recipe mode) and other points can be viewed. However, it must be noted that the measurement values ​​shown are generated randomly. An example can be found in the [main readme](../README.md).
+
+## Files
+
+Various files are created in VIFCON:
+
+**Example:**
+measdata_2024-09-27_#03
+
+**Contents of the folder:**  
+<img src="../Bilder/Datein.png" alt="Measurement folder content" title='Contents of a Messfolder' width=200/>
+
+**File types:**
+
+1. [*CSV*](#CSV-file) - Measurement data for each configured device
+2. [*PNG*](#Images-on-Exit) - Images of the GUI and plots (plot + legend)
+3. [*YML*](#Copies-of-important-files) - Copy of the last YAML file (config file)
+4. [*LOG*](#Copies-of-important-files) - Copy of the log file
+5. [*TXT*](#Trace-file) - Trace file
+
+### CSV file
+
+All measurement data is saved in the CSV file. Each device receives its own CSV file.
+
+```
+# datetime,s,ml/min,ml/min,ml/min,ml/min,mbar,mbar,mbar,%,
+time_abs,time_rel,MFC24,MFC25,MFC26,MFC27,DM21,PP21,PP22,PP22I,
+2025-02-19 13:20:12.895+01:00,6.528,0.0,0.0,0.0,0.0,1023.401,0.0,1020.541,0.145,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+2025-02-19 13:20:15.011+01:00,8.644,0.0,0.0,0.0,0.0,1023.401,0.0,1020.541,0.145,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+```
+
+The example shows the CSV file for the **Nemo-Gase** device. The first line contains the units, and the second line contains the quantities. The following times contain the timestamps and corresponding measured values. Such a CSV file can be displayed as a table using Excel. It can be loaded into Excel using **Data** and From **Text/CSV**.
+
+<img src="../Bilder/CSV_Beispiel.png" alt="CSV_Example" title='Example of a CSV file in Excel' width=700/>
+
+### Images on Exit
+
+In the [Configuration] (Config_DE.md), there are various configurations under `save` that can be set to True. `plot_save` and `GUI_save` save the plot and the GUI. In both cases, the last state is saved upon program exit. If the Monitoring tab is open, this tab is saved as a GUI. If the plot is closed, an image is also saved, but heavily compressed. Depending on the legend setting, this is saved as an extra image.
+
+### Copies of important files
+
+In the [Configuration](Config_En.md), there are various configurations under `save` that can be set to True. `log_save` and `config_save` allow you to copy the most important files upon program exit. This refers to the config and log files.
+
+It is important to note that the config file can also be modified during a test. The [Menu](#Menu) contains functions that, for example, allow you to reload the recipe. These config changes are logged. When the file is saved or copied, this is the last version of the file.
+
+### Trace file
+
+The expiration file is an additional log file. It records, for example, which GUI button was pressed and when, and whether a function, such as sending a value, worked. An example of the expiration file can be found in the templates: [Example](../Template/Expiration_temp.txt)
 
 ## Last change
 

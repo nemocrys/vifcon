@@ -13,6 +13,7 @@ Im diesem Readme sollen die wichtigsten Funktionen der VIFCON-Anwendung beschrei
 9. [Gamepad-Modus](#Gamepad-Modus)
 10. [Multilog Link](#Multilog-Link)
 11. [Test-Modus](#Test-Modus)
+12. [Dateien](#Dateien)
 
 ## Initialisierung
 
@@ -324,6 +325,53 @@ Um die Kommunikation einzuschalten, muss die Konfiguration *Multilog_Link* unter
 ## Test-Modus
 
 Zu Beginn eines Programmes kann der Test-Modus über die Konsole (`-t`) eingeschaltet werden. Durch diese Funktion kann VIFCON vollkommen ohne ein Gerät genutzt werden. Die [Initialisierung](#Initialisierung), die [Rezept-Funktion](#Rezept-Modus) und andere Punkte können sich angesehen werden. Beachtet werden muss aber, das die zu sehenden Messwerte zufällig generiert werden. Im [Haupt-Readme](Readme_DE.md) ist ein Beispiel zu finden.
+
+## Dateien
+
+In VIFCON werden verschiedene Dateien erstellt:
+
+**Beispiel:**    
+measdata_2024-09-27_#03
+
+**Inhalt des Ordners:**   
+<img src="../Bilder/Datein.png" alt="Messordner Inhalt" title='Inhalt eines Messordners' width=200/>
+
+**Datei-Typen:**
+
+1. [*CSV*](#CSV-Datei) - Messdaten für jedes konfigurierte Gerät
+2. [*PNG*](#Bilder-bei-Exit) - Bilder der GUI und der Plots (Plot + Legende)
+3. [*YML*](#Kopien-von-wichtigen-Dateien) - Kopie der Letzten Yaml-Datei (Config-Datei)
+4. [*LOG*](#Kopien-von-wichtigen-Dateien) - Kopie der Log-Datei
+5. [*TXT*](#Ablaufdatei) - Ablaufdatei
+
+### CSV-Datei
+
+In der CSV-Datei werden alle Messdaten gespeichert. Hierbei bekommt jedes Gerät eine eigene CSV-Datei. 
+
+```
+# datetime,s,ml/min,ml/min,ml/min,ml/min,mbar,mbar,mbar,%,
+time_abs,time_rel,MFC24,MFC25,MFC26,MFC27,DM21,PP21,PP22,PP22I,
+2025-02-19 13:20:12.895+01:00,6.528,0.0,0.0,0.0,0.0,1023.401,0.0,1020.541,0.145,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+2025-02-19 13:20:15.011+01:00,8.644,0.0,0.0,0.0,0.0,1023.401,0.0,1020.541,0.145,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+```
+
+Das Beispiel zeigt die CSV-Datei des Gerätes **Nemo-Gase**. In der ersten Zeile stehen die Einheiten und in der zweiten Zeile die Größen. Die folgenden Zeiten beinhalten die Zeitstempel und passenden Messwerte. Über Excel lässt eine solche CSV-Datei als Tabelle anzeigen. Über **Data** und From **Text/CSV** lässt sich diese in Excel laden. 
+
+<img src="../Bilder/CSV_Beispiel.png" alt="CSV_Example" title='Beispiel einer CSV-Datei in Excel' width=700/>
+
+### Bilder bei Exit
+
+In der [Konfiguration](Config_DE.md) gibt es unter `save` verschiedene Konfigurationen die auf True gesetzt werden können. Mit `plot_save` und `GUI_save` werden der Plot und die GUI gespeichert. In beidem Fällen wird der letzte Stand bei Programm-Exit gespeichert. Wenn der Monitorings-Tab offen ist, so wird dieser Tab als GUI gespeichert. Wenn der Plot zugeklappt ist, so wird auch ein Bild gespeichert, aber stark komprimiert. Jenach Einstellung der Legende, wird diese als Extra-Bild gespeichert. 
+
+### Kopien von wichtigen Dateien
+
+In der [Konfiguration](Config_DE.md) gibt es unter `save` verschiedene Konfigurationen die auf True gesetzt werden können. Mit `log_save` und `config_save` lassen sich die wichtigsten Datein bei Programm-Exit kopieren. Hierbei sind die Config- und Log-Datei gemeint. 
+
+Bei der Config-Datei muss beachtet werden, das diese während eines Versuchs auch geändert werden kann. Im [Menü](#Menü) finden sich Funktionen mit denen z.B. das Rezept neueinlesen lässt. Diese Config Änderungen werden gelogged. Wenn die Datei gespeichert bzw. kopiert wird, ist dies der letzte Stand der Datei. 
+
+### Ablaufdatei
+
+Die Ablaufdatei ist eine zusätzliche Log-Datei. In dieser wird z.B. vermerkt, welcher GUI-Knopf wann betätigt wurde und ob die Funktion wie z.B. das Senden eines Wertes funktioniert hat. Ein Beispiel für die Ablaufdatei ist in den Templates zu finden: [Beispiel](../Template/Ablauf_temp.txt)
 
 ## Letzte Änderung
 
