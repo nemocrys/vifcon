@@ -3,7 +3,7 @@
 This Readme describes and shows the most important functions of the VIFCON application. For example, the different modes such as gamepad and PID are explained, as well as special GUI functions. A table of contents is shown below:
 
 1. [Initialization](#Initialization)
-2. [Plot, legends and cursors](#Plot,-legends-and-cursors)
+2. [Plot, legends and cursors](#Plot-legends-and-cursors)
 3. [Menu](#Menu)
 4. [Error display](#Error-display)
 5. [Safe end state](#Safe-end-state)
@@ -12,7 +12,7 @@ This Readme describes and shows the most important functions of the VIFCON appli
 8. [PID mode](#PID-mode)
 9. [Gamepad mode](#Gamepad-mode)
 10. [Multilog link](#Multilog-link)
-10. [Test mode](#Test-mode)
+11. [Test mode](#Test-mode)
 
 ## Initialization
 
@@ -131,6 +131,11 @@ Re-read all devices                 | 3 | A
 Alt+M+R+A --> All recipes are reloaded!   
 Alt+M+P+G+T --> Toggles the grid of the generator plot
 
+The following image shows the keyboard shortcut displayed in the GUI. The letters shown in the table are underlined when Alt is pressed.
+
+<img src="../Bilder/Menu_TK_En.png" alt="GUI-Menü_TK" title='Graphical interface - Menu key combination Alt+M+D+V' width=500/>
+
+
 ## Error display
 
 Every device has an error display. This function is there to alert the operator directly to an error. All errors and warnings are only logged if correctly configured. However, certain errors or warnings are displayed directly in the widget. When the device is functioning, the operator sees an "o.k." and, if an error occurs, a big red "**Error**". To see the warning, the operator must look at the **tooltip**. The following warnings can appear:
@@ -170,7 +175,7 @@ In VIFCON there is a synchro mode, which allows the drives to be started simulta
 1. [Menu](#Menu) (**Recipe Synchro-Start** and **Recipe Synchro-End**)
 2. Parent buttons (**Stop All** and **⇈**)
 
-You can see what these buttons look like in the picture in the chapter [Plot, Legends and Cursors](#Plot,-Legends-and-Cursors).
+You can see what these buttons look like in the picture in the chapter [Plot, Legends and Cursors](#Plot-Legends-and-Cursors).
 
 With the exception of the **Stop All** function, the synchro mode must be activated by a **checkbox** (`Sync`). With this checkbox, the operator can decide which devices he wants to control at the same time. The two GUI buttons **Recipe Start** and **Recipe End** are triggered for the recipe options. The [recipe function](#recipe-mode) comes later and can also be found [outsourced](Rezepte_En.md).
 
@@ -291,16 +296,16 @@ In the example, the dictionary is sent by Nemo-Gase!
 **Example read:**
 
 ```
-Trigger-actual value:	IGA-6-23-adv	(Config: read_trigger_ist)
-Port-actual value:		59001		    (Config: read_port_ist)
-Trigger-setpoint:	    DAQ-6510	    (Config: read_trigger_soll)
-Port-setpoint:		    59002		    (Config: read_port_soll)
+Trigger-actual value:	  IGA-6-23-adv  (Config: read_trigger_ist)
+Port-actual value:	    59001         (Config: read_port_ist)
+Trigger-setpoint:       DAQ-6510      (Config: read_trigger_soll)
+Port-setpoint:          59002         (Config: read_port_soll)
 ```
 
 Here too, the triggers are the device names in the multilog config. However, you have to be careful with some devices, as the transmission includes more than the device name! Several sensors can be defined for the DAQ multimeter. Since the function has to do with the PID controller in VIFCON, there are a few more settings in the config under PID.
 
 ```
-actual sensor value:		no sensor				            (Config: Multilog_Sensor_Ist)
+actual sensor value:		no sensor                           (Config: Multilog_Sensor_Ist)
 sensor setpoint:	        TE_1_K air 155 mm over crucible 	(Config: Multilog_Sensor_Soll)
 ```
 
@@ -311,7 +316,7 @@ If the dictionary of values ​​has no sub-sensors, **“no sensor”** is spe
 {'Series-600': {'Pyro_h1': 11.6}}
 ```
 
-For the Series-600 pyrometer, the sensor information is required. In the example, you can see that there is another dictionary in the dictionary!
+For the Series-600 pyrometer, the sensor information is required. In the example, you can see that there is another dictionary in the dictionary! The sensor is then specified as `Pyro_h1`!
 
 If something goes wrong during setup or Multilog is closed, VIFCON reacts and terminates communication with the faulty connections, but continues running. The last value that arrived is remembered so that the program does not crash.
 
@@ -319,8 +324,8 @@ To switch on communication, the *Multilog_Link* configuration under *Function_Sk
 
 ## Test mode
 
-At the start of a program, test mode can be switched on via the console (`-t`). This function allows VIFCON to be used without a device. The [Initialization](#Initialization), the [Recipe function](#Recipe mode) and other points can be viewed. However, it must be noted that the measurement values ​​shown are generated randomly.
+At the start of a program, test mode can be switched on via the console (`-t`). This function allows VIFCON to be used without a device. The [Initialization](#Initialization), the [Recipe function](#Recipe mode) and other points can be viewed. However, it must be noted that the measurement values ​​shown are generated randomly. An example can be found in the [main readme](../Readme.md).
 
 ## Last change
 
-The last change to this description was: March 10, 2025
+The last change to this description was: March 13, 2025
