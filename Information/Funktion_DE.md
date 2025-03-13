@@ -37,7 +37,7 @@ Educrys-Antrieb (Linear) | 	1. Lese Istposition<br>2. Schreibe Start Weg (Ein- u
 Educrys-Antrieb (Rotation, Lüfter) | nichts passiert 
 Educrys-Heizer | 1. Schreibe PID-Werte (Ein- und Ausschaltbar - Config)<br>2. Setze den Modus (nach Config)
 Eurotherm |	1. Lese Informationen:<br>- Instrument Identity, Software Version, Instrumenten Modus, Display Maximum, Display Minimum, Sollwert Maximum, Sollwert Minimum<br>2. Schreibe PID-Werte (Ein- und Ausschaltbar - Config)<br>3. Lese PID-Parameter (Überprüfung)<br>4. Lese Statuswort und Setze Modus (nach Config)<br>5. Ändere HO (wenn Sicherheit False)<br>6. Lese HO aus (HO - Maximale Ausgangsleistung)
-Nemo-Achse-Linear |	1. Lese Limits Position<br>2. Lese (Anlage 2) Informationen<br>- TEO, TEU, SEO, SEU, Aktuelle Position Lineal, Positions Offset<br>
+Nemo-Achse-Linear |	1. Lese Limits Position<br>2. Lese Informationen<br>- Pos. Max, Pos. Min (Nemo-1, Nemo-2)<br>- TEO, TEU, SEO, SEU, Aktuelle Position Lineal, Positions Offset (nur Nemo-2) <br>
 Nemo-Achse_Rotation | Nichts passiert!
 Nemo-Generator |1. Lese Max-Limits (P, I, U, f) und Generator Einstellungen (Name, Typ, Schnittstelle (Mode))<br>2. Setze den Modus (Coil)
 PI-Achse | 1. Lese Informationen: <br>- Board Adresse, Status, Version <br>2. Start-Position Lesen

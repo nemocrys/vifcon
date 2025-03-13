@@ -37,7 +37,7 @@ Educrys drive (linear) | 1. Read actual position<br>2. Write start path (can be 
 Educrys drive (rotation, fan) | nothing happens
 Educrys heater | 1. Write PID values ​​(can be switched on and off - Config)<br>2. Set the mode (after Config)
 Eurotherm | 1. Read information:<br>- Instrument identity, software version, instrument mode, display maximum, display minimum, setpoint maximum, setpoint minimum<br>2. Write PID values ​​(can be switched on and off - Config)<br>3. Read PID parameters (check)<br>4. Read status word and set mode (after config)<br>5. Change HO (if security false)<br>6. Read HO from (HO - maximum output power)
-Nemo-Axis-Linear | 1. Read limits position<br>2. Read (Appendix 2) information<br>- TEO, TEU, SEO, SEU, Current position ruler, Position offset<br>
+Nemo-Axis-Linear | 1. Read limits position<br>2. Read information<br>- Pos. Max, Pos. Min (Nemo-1, Nemo-2)<br>- TEO, TEU, SEO, SEU, Current position ruler, Position offset (only Nemo-2)<br>
 Nemo-Axis_Rotation | Nothing happens!
 Nemo-Generator |1. Read max limits (P, I, U, f) and generator settings (name, type, interface (mode))<br>2. Set mode (coil)
 PI-Axis | 1. Read information: <br>- Board address, status, version <br>2. Read start position

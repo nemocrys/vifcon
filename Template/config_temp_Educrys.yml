@@ -813,7 +813,8 @@ devices:
       init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
                                                                           # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
                                                                           #               Messung wird nicht gestartet! 
-                                                                          # Start-Werte:  Minamles und Maximales Positionslimit
+                                                                          # Start-Werte:  Minamles und Maximales Positionslimit (Nemo-1, Nemo-2)
+                                                                          #               TEO, TEU, SEO, SEU, Aktuelle Position Lineal, Positions Offset (nur Nemo-2)
                                                                           # Default bei Fehler: False
       invert: 1                                                           # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
                                                                           # Eigentlich: Spindel:  Hoch-Fahren = Negative Geschwindigkeit
@@ -1062,7 +1063,8 @@ devices:
       init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
                                                                           # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
                                                                           #               Messung wird nicht gestartet! 
-                                                                          # Start-Werte:  Minamles und Maximales Positionslimit
+                                                                          # Start-Werte:  Minamles und Maximales Positionslimit (Nemo-1, Nemo-2)
+                                                                          #               TEO, TEU, SEO, SEU, Aktuelle Position Lineal, Positions Offset (nur Nemo-2)
       invert: False                                                       # Wenn True werden die Werte der Geschwindigkeit invertiert! Bei der Spindel würden Rezept und Reale Geschwindigkeit sich unterscheiden!
                                                                           # Eigentlich: Spindel:  Hoch-Fahren = Negative Geschwindigkeit
                                                                           #             Tiegel:   Hoch Fahren = Positive Geschwindigkeit
@@ -1320,10 +1322,10 @@ devices:
       init: 1                                                             # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
                                                                           # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
                                                                           #               Messung wird nicht gestartet! 
-                                                                          # Start-Werte:  
+                                                                          # Start-Werte:  Pmax, Imax, Umax, fmax, Name, Typ, Mode
                                                                           # Default bei Fehler: False
     ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
-                                                                          # True - Ausführung der Stopp-Funktion (Setze ...)
+                                                                          # True - Ausführung der Stopp-Funktion (Setze Alle Größen auf Null, Stoppe Generator)
                                                                           # False - Nichts wird getann!
                                                                           # Default bei Fehler: True
     serial-interface:
@@ -1423,10 +1425,10 @@ devices:
       init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
                                                                           # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
                                                                           #               Messung wird nicht gestartet! 
-                                                                          # Start-Werte:  
+                                                                          # Start-Werte:  Pmax, Imax, Umax, fmax, Name, Typ, Mode
                                                                           # Default bei Fehler: False
     ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
-                                                                          # True - Ausführung der Stopp-Funktion (Setze ...)
+                                                                          # True - Ausführung der Stopp-Funktion (Setze Alle Größen auf Null, Stoppe Generator)
                                                                           # False - Nichts wird getann!
                                                                           # Default bei Fehler: True
     serial-interface:
@@ -1526,10 +1528,10 @@ devices:
       init: True                                                          # True:         Gerät gilt bei Start als Initialisiert und die Start-Werte werden ausgelesen, Init-Menü = grüner Kreis
                                                                           # False:        Gerät gilt als nicht initialisiert, Init-Menü = rotes Kreuz, Gerät kann durch Init-Menü initialisiert werden, Start-Werte werden mit Initialisierung ausgelesen
                                                                           #               Messung wird nicht gestartet! 
-                                                                          # Start-Werte:  
+                                                                          # Start-Werte:  Pmax, Imax, Umax, fmax, Name, Typ, Mode
                                                                           # Default bei Fehler: False
     ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
-                                                                          # True - Ausführung der Stopp-Funktion (Setze ...)
+                                                                          # True - Ausführung der Stopp-Funktion (Setze Alle Größen auf Null, Stoppe Generator)
                                                                           # False - Nichts wird getann!
                                                                           # Default bei Fehler: True
     serial-interface:
