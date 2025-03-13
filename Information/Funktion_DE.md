@@ -304,7 +304,7 @@ Port-Sollwert:		59002		    (Config: read_port_soll)
 Auch hier sind die Trigger die Gerätenamen in der Multilog-Config. Bei einigen Geräten muss jedoch aufgepasst werden, da die Übertragung mehr als den Geräte-Namen beinhaltet! Bei dem DAQ-Multimeter können mehrere Sensoren definiert werden. Da die Funktion mit dem PID-Regler in VIFCON zutun hat, gibt es in der Config unter PID noch ein paar Einstellungen.
 
 ```
-Sensor-Istwert:		no sensor		            (Config: Multilog_Sensor_Ist)
+Sensor-Istwert:		no sensor		                (Config: Multilog_Sensor_Ist)
 Sensor-Sollwert:	TE_1_K air 155 mm over crucible 	(Config: Multilog_Sensor_Soll)
 ```
 

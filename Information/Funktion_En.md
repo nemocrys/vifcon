@@ -296,8 +296,8 @@ In the example, the dictionary is sent by Nemo-Gase!
 **Example read:**
 
 ```
-Trigger-actual value:	  IGA-6-23-adv  (Config: read_trigger_ist)
-Port-actual value:	    59001         (Config: read_port_ist)
+Trigger-actual value:	IGA-6-23-adv  (Config: read_trigger_ist)
+Port-actual value:	59001         (Config: read_port_ist)
 Trigger-setpoint:       DAQ-6510      (Config: read_trigger_soll)
 Port-setpoint:          59002         (Config: read_port_soll)
 ```
@@ -305,7 +305,7 @@ Port-setpoint:          59002         (Config: read_port_soll)
 Here too, the triggers are the device names in the multilog config. However, you have to be careful with some devices, as the transmission includes more than the device name! Several sensors can be defined for the DAQ multimeter. Since the function has to do with the PID controller in VIFCON, there are a few more settings in the config under PID.
 
 ```
-actual sensor value:		no sensor                           (Config: Multilog_Sensor_Ist)
+actual sensor value:		no sensor                             	(Config: Multilog_Sensor_Ist)
 sensor setpoint:	        TE_1_K air 155 mm over crucible 	(Config: Multilog_Sensor_Soll)
 ```
 
@@ -324,7 +324,7 @@ To switch on communication, the *Multilog_Link* configuration under *Function_Sk
 
 ## Test mode
 
-At the start of a program, test mode can be switched on via the console (`-t`). This function allows VIFCON to be used without a device. The [Initialization](#Initialization), the [Recipe function](#Recipe mode) and other points can be viewed. However, it must be noted that the measurement values ​​shown are generated randomly. An example can be found in the [main readme](../Readme.md).
+At the start of a program, test mode can be switched on via the console (`-t`). This function allows VIFCON to be used without a device. The [Initialization](#Initialization), the [Recipe function](#Recipe mode) and other points can be viewed. However, it must be noted that the measurement values ​​shown are generated randomly. An example can be found in the [main readme](../README.md).
 
 ## Last change
 
