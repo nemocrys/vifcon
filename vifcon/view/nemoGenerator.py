@@ -1267,10 +1267,11 @@ class NemoGeneratortWidget(QWidget):
             self.write_task['Aus'] = True
             self.write_task['Ein'] = False
             self.Generator_Ein = False
-            if self.Auswahl_PUI == 'PUI':
-                self.RB_choise_Pow.setEnabled(True)
-                self.RB_choise_Voltage.setEnabled(True) 
-            self.RB_choise_Current.setEnabled(True)
+            if not self.write_task['PID']:
+                if self.Auswahl_PUI == 'PUI':
+                    self.RB_choise_Pow.setEnabled(True)
+                    self.RB_choise_Voltage.setEnabled(True) 
+                self.RB_choise_Current.setEnabled(True)
         else:
             self.Fehler_Output(1, self.err_4_str[self.sprache])
     
