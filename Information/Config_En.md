@@ -498,7 +498,7 @@ rezept_Loop | | Number of recipe repetitions
 nemo-version| | Version of the system used: **1** or **2**
 start |readTime | Time in seconds at which the device is read
 start |init | If **True**, the device is initialized!<br>If **False**, the sending of commands is blocked so that VIFCON starts and initialization can take place later. <br>**ATTENTION**: The interface that was configured must exist!!
-register | | See [Modbus_Nemo_En.md](Modbus_Nemo_EN.md)<br>Coils, input and holding registers for communication with the PLC
+register | | See [Modbus_Nemo_En.md](Modbus_Nemo_En.md)<br>Coils, input and holding registers for communication with the PLC
 parameter |nKS_Aus | Reading decimal places
 
 Since *Nemo-Gase* is a **monitoring module**, all write functions are not available, as only reading is possible! Therefore, not all similarities apply to Nemo-Gase, such as `read_trigger`.

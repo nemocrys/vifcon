@@ -2,7 +2,7 @@
 
 In addition to the RS232 interface, VIFCON also uses the Modbus communication protocol. To implement Modbus, Ethernet is required as an interface, as well as a master (PC) and a slave. The slave is the IKZ system.
 
-You can read more about Modbus theory in the master's thesis, see [Readme](../Readme.md). IN VIFCON, the *pyModbusTCP* library is used for implementation in Python. The documentation for this library can be found in [Python_RPI_En.md](Python_RPI_En.md).
+You can read more about Modbus theory in the master's thesis, see [Readme](../README.md). IN VIFCON, the *pyModbusTCP* library is used for implementation in Python. The documentation for this library can be found in [Python_RPI_En.md](Python_RPI_En.md).
 
 In VIFCON there are three devices that use Modbus. These are:
 

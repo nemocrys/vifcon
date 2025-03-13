@@ -75,7 +75,7 @@ Version number according to `pip list` in the Visual Studio Code terminal! A sho
         - https://pypi.org/project/pygame/  
 16. **pyModbusTCP**    
     - *install:* pip install pyModbusTCP
-    - *Version (see [Special features](Special-features)):*  
+    - *Version (see [Special features](#Special-features)):*  
             - 0.3.0 (Comment out debug in the template!)  
             - 0.2.1 (template)
     - *Doc:* 

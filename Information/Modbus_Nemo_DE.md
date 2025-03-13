@@ -2,7 +2,7 @@
 
 In VIFCON wird neben der RS232 Schnittstelle auch das Modbus-Kommunikationsprotokoll genutzt. Für die Umsetzung von Modbus wird als Schnittstelle Ethernet benötigt, sowie ein Master (PC) und ein Slave. Der Slave sind die Anlagen des IKZ. 
 
-Zu Modbus-Theorie kann mehr in der Master-Arbeit, siehe [Readme](../Readme.md) nachgelesen werden. IN VIFCON wird für die Umsetzung in Python die *pyModbusTCP*-Bibliothek genutzt. Die Dokumentation für diese Bibliothek kann im [Python_RPi_DE.md](Python_RPi_DE.md) gefunden werden.
+Zu Modbus-Theorie kann mehr in der Master-Arbeit, siehe [Readme](Readme_DE.md) nachgelesen werden. IN VIFCON wird für die Umsetzung in Python die *pyModbusTCP*-Bibliothek genutzt. Die Dokumentation für diese Bibliothek kann im [Python_RPi_DE.md](Python_RPi_DE.md) gefunden werden.
 
 In VIFCON gibt es drei Geräte die Modbus nutzen. Diese sind:
 

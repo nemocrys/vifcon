@@ -61,7 +61,7 @@ options:
   -v, --version         show program's version number and exit
 ```
 
-VIFCON wird durch den Aufruf von [vifcon_main.py](..\vifcon_main.py) gestartet.
+VIFCON wird durch den Aufruf von [vifcon_main.py](../vifcon_main.py) gestartet.
 ```
 python .\vifcon_main.py
 ```
