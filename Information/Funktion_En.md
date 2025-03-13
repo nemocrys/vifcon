@@ -372,7 +372,7 @@ It is important to note that the config file can also be modified during a test.
 
 ### Trace file
 
-The expiration file is an additional log file. It records, for example, which GUI button was pressed and when, and whether a function, such as sending a value, worked. An example of the expiration file can be found in the templates: [Example](../Template/Expiration_temp.txt)
+The expiration file is an additional log file. It records, for example, which GUI button was pressed and when, and whether a function, such as sending a value, worked. An example of the expiration file can be found in the templates: [Example](../Template/Ablauf_temp.txt)
 
 ## Last change
 
