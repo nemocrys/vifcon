@@ -124,7 +124,7 @@ As with the PI axis and TruHeat, the PID mode changes the setpoint to be entered
 <img src="../Bilder/WidgetEn_NemoGas.png" alt="Nemo1-Monitoring-Widget" title='Example of Nemo system 1 monitoring widget' width=700/>
 <img src="../Bilder/WidgetEn_NemoGas2.png" alt="Nemo2-Monitoring-Widget" title='Example of Nemo system 2 monitoring widget' width=700/>
 
-Status of images: December 3, 2024
+Status of images: March 19, 2025
 
 Monitoring varies depending on the system. The images show the monitoring values ​​of the Nemo-1 and Nemo-2 systems of the IKZ.
 

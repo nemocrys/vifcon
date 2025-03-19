@@ -43,6 +43,23 @@ Nemo-1 | [config_temp_Nemo-1.yml](../Template/config_temp_Nemo-1.yml)
 Nemo-2 | [config_temp_Nemo-2.yml](../Template/config_temp_Nemo-2.yml)
 DemoCZ | [config_temp_Educrys.yml](../Template/config_temp_Educrys.yml)
 
+Weiterhin gibt es ein Template namens [config_temp_Empty.yml](../Template/config_temp_Empty.yml) bei dem alle Geräte (`skip`) auf True gesetzt wurden und somit beim Start, deises Templates nichts in VIFCON angezeigt wird, außer zwei Leere Plots! Mit diesem Template kann der Nutzer von Grundauf anfangen mit der Konfiguration.
+
+## Mit der Konfiguration starten
+
+Das Bild [Guide_Config_De.png](../Bilder/Guide_Config_De.png) zeigt einen schematischen Ablauf für die Konfiguration eines Experimentes. Dabei ist die linke Seite für den Aufbau von Grundauf und die rechte für ein vorhandenes Anlagen-Template. Folgende Punkte findet man in dem Ablaufdiagramm:
+
+1. Auswahl des Templates
+2. Erste Änderungen und Einfügend er Geräte (GUI, Legende, Logging, etc.)
+3. Erste Einstellungen bei den einzelnen Geräten (Start und Ende)
+4. Soll Mulitlog genutzt werden?
+5. Soll der PID-Regler genutzt werden und soll Multilog einen oder beide Input-Werte liefern?
+6. Soll das Gamepad genutzt werden?
+7. Einstellung der Parameter, Limits und Rezepte
+8. Starte das Programm
+
+Die Punkte 4, 5, 6 und 7 sind dabei Optional. Der Punkt 7 kann im laufenden Betrieb noch über die GUI angepasst werden. Um alle einzelnen Konfigurationen zu verstehen, sollte sich dieses Readme angesehen werden oder zumindestens die Kommentare in den Templates an den einzelnen Konfigurationen!
+
 ## Erklärung der einzelnen Punkte
 
 In dem [Templates](#Konfigurations-Templates) können auch Beschreibungen gefunden werden. 
@@ -631,4 +648,4 @@ if not type(self.init) == bool and not self.init in [0,1]:
 
 ## Letzte Änderung
 
-Die Letzte Änderung des [Templates](#Konfigurations-Templates) und dieser Beschreibung war: 19.02.2025
+Die Letzte Änderung des [Templates](#Konfigurations-Templates) und dieser Beschreibung war: 19.03.2025

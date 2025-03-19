@@ -73,7 +73,7 @@ python .\vifcon_main.py -t -c ./Template/config_temp.yml
 
 ### Konfiguration
 
-Die Konfiguration von VIFCON wird durch die Datei config.yml erreicht. Anhand der Datei wird VIFCON erstellt. Das Template [config_temp.yml](../Template/config_temp.yml) zeigt dabei diese Config-Datei. Um VIFCON nutzen zu können, muss dieses kopiert und für den jeweiligen Versuch abgeändert werden. 
+Die Konfiguration von VIFCON wird durch die Datei `config.yml` erreicht. Anhand der Datei wird VIFCON erstellt. Das Template [config_temp.yml](../Template/config_temp.yml) zeigt dabei diese Config-Datei. Um VIFCON nutzen zu können, muss dieses kopiert und für den jeweiligen Versuch abgeändert werden. 
 
 Neben dieser Datei sind auch ein Template für die Ablauf-Datei und die Log-Datei zu finden. In der Modellexperimente-Gruppe des IKZ gibt es drei Anlagen die mit VIFCON betrieben werden: Nemo-1, Nemo-2 und Demo-FZ. Für alle diese Anlagen gibt es auch ein Template. 
 
@@ -83,6 +83,8 @@ Demo-FZ: PI-Achse (4x), TruHeat ([config_temp_DemoFZ.yml](../Template/config_tem
 Educrys: Educrys-Antrieb (3x ( Hub, Rot, Fan)), Educrys-Heizer, Educrys-Monitoring ([config_temp_Educrys.yml](../Template/config_temp_Educrys.yml)) 
 
 In der Konfigurationsdatei gibt es Kommentare die die einzelnen Zeilen beschreiben und auch deren Default-Fehler nennen, sollte das Einlesen misslingen. Weitere Informationen zu der Konfigurationsdatei sind in der Datei [Config_DE.md](Config_DE.md) zu finden.
+
+Weiterhin gibt es eine [shematische Darstellung](../Bilder/Guide_Config_De.png), wie man bei der Konfiguration am besten vorgeht. Hierfür wurde noch ein weiteres Template erstellt, das kein Gerät ausgewählt hat: [config_temp_Empty.yml](../Template/config_temp_Empty.yml)
 
 ### Rezepte
 
@@ -171,4 +173,4 @@ Im Ordner **[Information](../Information)** befinden sich weitere Dokumente, die
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 17.12.2024
+Die Letzte Änderung dieser Beschreibung war: 19.03.2025

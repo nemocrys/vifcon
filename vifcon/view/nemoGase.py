@@ -81,7 +81,6 @@ class NemoGaseWidget:
         ü5_str                  = ['Anlagensicherheit (AS)',                                    'Facility Safety (FS)']
         ü6_str                  = ['Kühlung (K)',                                               'Cooling (C)']
         ü7_str                  = ['K1. Wasserkreis Daten',                                     'C1. Water Cycle Data']
-        ü8_str                  = ['K2. Weitere Daten',                                         'C2. Additional data']
         ü9_str                  = ['AS1. Sicherheits-Thermoelement',                            'FS1. Safety Thermocouple']
         ü10_str                 = ['AS2. Status',                                               'FS2. Status']
         ## Bezeichnung: #############################################################################################################################################################################################################################################################################
@@ -91,7 +90,6 @@ class NemoGaseWidget:
         B4_str                  = ['Drehzahl',                                                  'Rotational frequency']             # Rotational speed, Rate of rotation
         B5_str                  = ['max P zum Start',                                           'max P to start']
         B6_str                  = ['Ventilstellung',                                            'valve position']
-        B7_str                  = ['Servicegrad',                                               'service level']
         B8_str                  = ['Sollwert',                                                  'Setpoint']
         B9_str                  = ['Istwert',                                                   'Actual value']
         B10_str                 = ['MaxFlow',                                                   'MaxFlow']
@@ -102,11 +100,6 @@ class NemoGaseWidget:
         B15_str                 = ['Anlagen',                                                   'System']
         B16_str                 = ['Kreis',                                                     'Cycle']
         B17_str                 = ['Temperatur',                                                'Temperatur']
-        B18_str                 = ['Wasserkreis 5',                                             'Water Cycle 5']
-        B19_str                 = ['Wasserkreis 4/6',                                           'Water Cycle 4/6']
-        B20_str                 = ['Rein',                                                      'In']
-        B21_str                 = ['Raus',                                                      'Out']
-        B22_str                 = ['Differenz',                                                 'Difference']
         ## Status: ##################################################################################################################################################################################################################################################################################                                                 
         self.no_sta_str         = ['Kein Status!',                                              'No Status!']
         ### Pumpe Nemo-1 (P1): #######################################################################################################################################################################################################################################################################
@@ -396,7 +389,6 @@ class NemoGaseWidget:
         self.labelMon2 = QLabel(f'<i><b>{ü5_str[self.sprache]}:</b></i>')
         self.labelMon3 = QLabel(f'<i><b>{ü6_str[self.sprache]}:</b></i>')
         self.labelÜ4 = QLabel(f'<b>{ü7_str[self.sprache]}:</b>')
-        self.labelÜ5 = QLabel(f'<b>{ü8_str[self.sprache]}:</b>')
         self.labelÜ6 = QLabel(f'<b>{ü9_str[self.sprache]}:</b>')
         self.labelÜ7 = QLabel(f'<b>{ü10_str[self.sprache]}:</b>')
 
@@ -488,10 +480,6 @@ class NemoGaseWidget:
         self.DVlabelValu_MV1_VS = QLabel()
         self.DVlabelUnit_MV1_VS = QLabel(E3_n_str[self.sprache])
 
-        self.DVlabelSize_MV1_SG = QLabel(f'{G9_D_str_2[self.sprache]} {B7_str[self.sprache]}: ')
-        self.DVlabelValu_MV1_SG = QLabel()
-        self.DVlabelUnit_MV1_SG = QLabel(E3_n_str[self.sprache])
-
         #### Andere Status-Werte:
         self.FSlabelSize_MFC24 = QLabel(f'{G1_F_str[self.sprache]} {B3_str[self.sprache]}: ')
         self.FSlabelValu_MFC24 = QLabel()
@@ -536,8 +524,6 @@ class NemoGaseWidget:
         #### Tabellen:
         self.KTabÜ1 = QLabel(f'<i>{B1_str[self.sprache]}</i>')
         self.KTabÜ2 = QLabel(f'<i>{B17_str[self.sprache]}</i>')
-        self.KTabÜ3 = QLabel(f'<i>{B18_str[self.sprache]}</i>')
-        self.KTabÜ4 = QLabel(f'<i>{B19_str[self.sprache]}</i>')
 
         #### Kreise:
         self.KWKlabelSize_list  = []
@@ -572,24 +558,6 @@ class NemoGaseWidget:
         self.KWKlabelValu_K9T = QLabel()
 
         self.KWKlabelValu_list_T = [self.KWKlabelValu_K1T, self.KWKlabelValu_K2T, self.KWKlabelValu_K3T, self.KWKlabelValu_K4T, self.KWKlabelValu_K5T, self.KWKlabelValu_K6T, self.KWKlabelValu_K7T, self.KWKlabelValu_K8T, self.KWKlabelValu_K9T]
-
-        #### Weitere Daten:
-        self.KWKlabelSize_In   = QLabel(f'{B20_str[self.sprache]}: ')
-        self.KWKlabelSize_Out  = QLabel(f'{B21_str[self.sprache]}: ')
-        self.KWKlabelSize_diff = QLabel(f'{B22_str[self.sprache]}: ')
-
-        self.KWKlabelValu_In5       = QLabel()
-        self.KWKlabelUnit_In5       = QLabel(f'{E4_F_str[self.sprache]}')
-        self.KWKlabelValu_Out5      = QLabel()
-        self.KWKlabelUnit_Out5      = QLabel(f'{E4_F_str[self.sprache]}')
-        self.KWKlabelValu_diff5     = QLabel()
-        self.KWKlabelUnit_diff5     = QLabel(f'{E4_F_str[self.sprache]}')
-        self.KWKlabelValu_In46      = QLabel()
-        self.KWKlabelUnit_In46      = QLabel(f'{E4_F_str[self.sprache]}')
-        self.KWKlabelValu_Out46     = QLabel()
-        self.KWKlabelUnit_Out46     = QLabel(f'{E4_F_str[self.sprache]}')
-        self.KWKlabelValu_diff46    = QLabel()
-        self.KWKlabelUnit_diff46    = QLabel(f'{E4_F_str[self.sprache]}')
 
         ### Anlagensicherheit:
         self.ASlabelSize_TO = QLabel(f'{B11_str[self.sprache]}: ')
@@ -689,9 +657,6 @@ class NemoGaseWidget:
             self.layer_layout.addWidget(self.DVlabelSize_MV1_VS,pos+8, 0)
             self.layer_layout.addWidget(self.DVlabelValu_MV1_VS,pos+8, 1)
             self.layer_layout.addWidget(self.DVlabelUnit_MV1_VS,pos+8, 2, alignment=Qt.AlignLeft)
-            self.layer_layout.addWidget(self.DVlabelSize_MV1_SG,pos+9, 0)
-            self.layer_layout.addWidget(self.DVlabelValu_MV1_SG,pos+9, 1)
-            self.layer_layout.addWidget(self.DVlabelUnit_MV1_SG,pos+9, 2, alignment=Qt.AlignLeft)
         if   self.Anlage == 1: posLZ = pos+5
         elif self.Anlage == 2: posLZ = pos+11
         self.Leerzeile(posLZ, AnzColum = 5 if self.Anlage == 1 else (10 if self.Anlage == 2 else -1))
@@ -777,29 +742,8 @@ class NemoGaseWidget:
                 i += 1
             
             self.Leerspalte(13, 4, 9)
-            self.Leerzeile(13,  9, 8)
+            self.Leerzeile(19,  9, 8)
 
-            self.layer_layout.addWidget(self.labelÜ5,               pos+13,      10   , 1 , CS)
-            self.layer_layout.addWidget(self.KTabÜ3,                pos+14,      11   , 1 , 2)
-            self.layer_layout.addWidget(self.KTabÜ4,                pos+14,      14   , 1 , 2)
-            self.layer_layout.addWidget(self.KWKlabelSize_In,       pos+15,      10) 
-            self.layer_layout.addWidget(self.KWKlabelValu_In5,      pos+15,      11) 
-            self.layer_layout.addWidget(self.KWKlabelUnit_In5,      pos+15,      12) 
-            self.layer_layout.addWidget(self.KWKlabelValu_In46,     pos+15,      14) 
-            self.layer_layout.addWidget(self.KWKlabelUnit_In46,     pos+15,      15)
-            self.layer_layout.addWidget(self.KWKlabelSize_Out,      pos+16,      10) 
-            self.layer_layout.addWidget(self.KWKlabelValu_Out5,     pos+16,      11) 
-            self.layer_layout.addWidget(self.KWKlabelUnit_Out5,     pos+16,      12) 
-            self.layer_layout.addWidget(self.KWKlabelValu_Out46,    pos+16,      14) 
-            self.layer_layout.addWidget(self.KWKlabelUnit_Out46,    pos+16,      15)
-            self.layer_layout.addWidget(self.KWKlabelSize_diff,     pos+17,      10) 
-            self.layer_layout.addWidget(self.KWKlabelValu_diff5,    pos+17,      11) 
-            self.layer_layout.addWidget(self.KWKlabelUnit_diff5,    pos+17,      12) 
-            self.layer_layout.addWidget(self.KWKlabelValu_diff46,   pos+17,      14) 
-            self.layer_layout.addWidget(self.KWKlabelUnit_diff46,   pos+17,      15)
-
-            self.Leerspalte(13, 16, 3)
-            self.Leerzeile(19, 9, 8)
             self.Leerspalte(16,1,19)
 
         #________________________________________
@@ -814,7 +758,7 @@ class NemoGaseWidget:
                                'MFC25': self.FlabelValu_MFC25,      'MFC25_S': self.FlabelValu_MFC25_S,     'MFC25_FM': self.FlabelValu_MFC25_FM, 'MFC25Status': self.FSlabelValu_MFC25,
                                'MFC26': self.FlabelValu_MFC26,      'MFC26_S': self.FlabelValu_MFC26_S,     'MFC26_FM': self.FlabelValu_MFC26_FM, 'MFC26Status': self.FSlabelValu_MFC26,
                                'MFC27': self.FlabelValu_MFC27,      'MFC27_S': self.FlabelValu_MFC27_S,     'MFC27_FM': self.FlabelValu_MFC27_FM, 'MFC27Status': self.FSlabelValu_MFC27,
-                               'MV1_I': self.DlabelValu_MV1_I,      'MV1_S': self.DlabelValu_MV1_S,         'MV1_VS': self.DVlabelValu_MV1_VS,    'MV1_SG': self.DVlabelValu_MV1_SG,      'MV1Status': self.DSlabelValu_MV1,
+                               'MV1_I': self.DlabelValu_MV1_I,      'MV1_S': self.DlabelValu_MV1_S,         'MV1_VS': self.DVlabelValu_MV1_VS,    'MV1Status': self.DSlabelValu_MV1,
                                'DM21': self.DlabelValu_DM21,        
                                'PP21': self.DlabelValu_PP21,        'PP21Status': self.DSlabelValu_PP21,    
                                'PP22': self.DlabelValu_PP22,        'PP22Status': self.DSlabelValu_PP22,    'PP22I': self.DIlabelValu_PP22,       'PP22mPtS': self.DlabelValu_P2,
@@ -824,8 +768,6 @@ class NemoGaseWidget:
                                'KWKDF_6': self.KWKlabelValu_K6F,    'KWKDF_7': self.KWKlabelValu_K7F,       'KWKDF_8': self.KWKlabelValu_K8F,     'KWKDF_9': self.KWKlabelValu_K9F,
                                'KWKT_1': self.KWKlabelValu_K1T,     'KWKT_2': self.KWKlabelValu_K2T,        'KWKT_3': self.KWKlabelValu_K3T,      'KWKT_4': self.KWKlabelValu_K4T,        'KWKT_5': self.KWKlabelValu_K5T,
                                'KWKT_6': self.KWKlabelValu_K6T,     'KWKT_7': self.KWKlabelValu_K7T,        'KWKT_8': self.KWKlabelValu_K8T,      'KWKT_9': self.KWKlabelValu_K9T,
-                               'KWK5_In': self.KWKlabelValu_In5,    'KWK5_Out': self.KWKlabelValu_Out5,     'KWK5_diff': self.KWKlabelValu_diff5,
-                               'KWK46_In': self.KWKlabelValu_In46,  'KWK46_Out': self.KWKlabelValu_Out46,   'KWK46_diff': self.KWKlabelValu_diff46,
                                'ASTO': self.ASlabelValu_TO,         'ASTM': self.ASlabelValu_TM,            'ASTU': self.ASlabelValu_TU,          'ASBMStatus': self.ASlabelValu_BMS,      'ASStatus': self.ASlabelValu_AS,
                                }     # Label
 
@@ -874,7 +816,7 @@ class NemoGaseWidget:
         '''
         
         self.data.update({'Time' : x_value[-1]})  
-        self.data.update(value_dict)                                
+        self.data.update(value_dict)                           
 
         for messung in value_dict:
             if not 'Status' in messung:
@@ -1028,7 +970,68 @@ class NemoGaseWidget:
 ##########################################
 ## Bereich für alten Code, denn man noch nicht vollkommen löschen will,
 ## da dieser später vieleicht wieder ergänzt wird!!
-'''
+'''     
+        ü8_str                  = ['K2. Weitere Daten',                                         'C2. Additional data']
+        B7_str                  = ['Servicegrad',                                               'service level']
+        B18_str                 = ['Wasserkreis 5',                                             'Water Cycle 5']
+        B19_str                 = ['Wasserkreis 4/6',                                           'Water Cycle 4/6']
+        B20_str                 = ['Rein',                                                      'In']
+        B21_str                 = ['Raus',                                                      'Out']
+        B22_str                 = ['Differenz',                                                 'Difference']
 
+        self.labelÜ5 = QLabel(f'<b>{ü8_str[self.sprache]}:</b>')
+        self.DVlabelSize_MV1_SG = QLabel(f'{G9_D_str_2[self.sprache]} {B7_str[self.sprache]}: ')
+        self.DVlabelValu_MV1_SG = QLabel()
+        self.DVlabelUnit_MV1_SG = QLabel(E3_n_str[self.sprache])
+        self.KTabÜ3 = QLabel(f'<i>{B18_str[self.sprache]}</i>')
+        self.KTabÜ4 = QLabel(f'<i>{B19_str[self.sprache]}</i>')
+
+        #### Weitere Daten:
+        self.KWKlabelSize_In   = QLabel(f'{B20_str[self.sprache]}: ')
+        self.KWKlabelSize_Out  = QLabel(f'{B21_str[self.sprache]}: ')
+        self.KWKlabelSize_diff = QLabel(f'{B22_str[self.sprache]}: ')
+
+        self.KWKlabelValu_In5       = QLabel()
+        self.KWKlabelUnit_In5       = QLabel(f'{E4_F_str[self.sprache]}')
+        self.KWKlabelValu_Out5      = QLabel()
+        self.KWKlabelUnit_Out5      = QLabel(f'{E4_F_str[self.sprache]}')
+        self.KWKlabelValu_diff5     = QLabel()
+        self.KWKlabelUnit_diff5     = QLabel(f'{E4_F_str[self.sprache]}')
+        self.KWKlabelValu_In46      = QLabel()
+        self.KWKlabelUnit_In46      = QLabel(f'{E4_F_str[self.sprache]}')
+        self.KWKlabelValu_Out46     = QLabel()
+        self.KWKlabelUnit_Out46     = QLabel(f'{E4_F_str[self.sprache]}')
+        self.KWKlabelValu_diff46    = QLabel()
+        self.KWKlabelUnit_diff46    = QLabel(f'{E4_F_str[self.sprache]}')
+
+            self.layer_layout.addWidget(self.DVlabelSize_MV1_SG,pos+9, 0)
+            self.layer_layout.addWidget(self.DVlabelValu_MV1_SG,pos+9, 1)
+            self.layer_layout.addWidget(self.DVlabelUnit_MV1_SG,pos+9, 2, alignment=Qt.AlignLeft)
+
+            self.layer_layout.addWidget(self.labelÜ5,               pos+13,      10   , 1 , CS)
+            self.layer_layout.addWidget(self.KTabÜ3,                pos+14,      11   , 1 , 2)
+            self.layer_layout.addWidget(self.KTabÜ4,                pos+14,      14   , 1 , 2)
+            self.layer_layout.addWidget(self.KWKlabelSize_In,       pos+15,      10) 
+            self.layer_layout.addWidget(self.KWKlabelValu_In5,      pos+15,      11) 
+            self.layer_layout.addWidget(self.KWKlabelUnit_In5,      pos+15,      12) 
+            self.layer_layout.addWidget(self.KWKlabelValu_In46,     pos+15,      14) 
+            self.layer_layout.addWidget(self.KWKlabelUnit_In46,     pos+15,      15)
+            self.layer_layout.addWidget(self.KWKlabelSize_Out,      pos+16,      10) 
+            self.layer_layout.addWidget(self.KWKlabelValu_Out5,     pos+16,      11) 
+            self.layer_layout.addWidget(self.KWKlabelUnit_Out5,     pos+16,      12) 
+            self.layer_layout.addWidget(self.KWKlabelValu_Out46,    pos+16,      14) 
+            self.layer_layout.addWidget(self.KWKlabelUnit_Out46,    pos+16,      15)
+            self.layer_layout.addWidget(self.KWKlabelSize_diff,     pos+17,      10) 
+            self.layer_layout.addWidget(self.KWKlabelValu_diff5,    pos+17,      11) 
+            self.layer_layout.addWidget(self.KWKlabelUnit_diff5,    pos+17,      12) 
+            self.layer_layout.addWidget(self.KWKlabelValu_diff46,   pos+17,      14) 
+            self.layer_layout.addWidget(self.KWKlabelUnit_diff46,   pos+17,      15)
+
+            self.Leerspalte(13, 16, 3)
+            self.Leerzeile(19, 9, 8)
+            
+            # Entfernt:  'MV1_SG': self.DVlabelValu_MV1_SG, 
+            #            'KWK5_In': self.KWKlabelValu_In5,    'KWK5_Out': self.KWKlabelValu_Out5,     'KWK5_diff': self.KWKlabelValu_diff5,
+            #            'KWK46_In': self.KWKlabelValu_In46,  'KWK46_Out': self.KWKlabelValu_Out46,   'KWK46_diff': self.KWKlabelValu_diff46,
 
 '''

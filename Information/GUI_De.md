@@ -124,7 +124,7 @@ Wie bei PI-Achse und TruHeat ändert der PID-Modus den einzugebenen Sollwert und
 <img src="../Bilder/WidgetDe_NemoGas.png" alt="Nemo1-Monitoring-Widget" title='Beispiel für Nemo-Anlage-1-Monitoring-Widget' width=700/>
 <img src="../Bilder/WidgetDe_NemoGas2.png" alt="Nemo2-Monitoring-Widget" title='Beispiel für Nemo-Anlage-2-Monitoring-Widget' width=700/>   
 
-Stand der Bilder: 03.12.24
+Stand der Bilder: 19.03.25
 
 Je nach Anlage ist das Monitoring verschieden. Die Bilder zeigen die Monitorings-Werte der Nemo-1 und Nemo-2-Anlage des IKZ. 
 
