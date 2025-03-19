@@ -182,7 +182,7 @@ devices:
       Template_Dat:
         dat: rec_example.yml
       Template_Config:
-        n1: 10 ; 100 ; er ; 8
+        n1: 10 ; 100 ; er
         n2: 10 ; 100 ; s
         n3: 10 ; 200 ; r ; 0,667
         n4: 10 ; 200 ; op ; 20
