@@ -101,27 +101,29 @@ class NemoAchseRot(QObject):
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Einstellung für Log:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        self.Log_Pfad_conf_1    = ['Konfigurationsfehler im Element:',                                                                                                                                                      'Configuration error in element:']
-        self.Log_Pfad_conf_2    = ['Möglich sind:',                                                                                                                                                                         'Possible values:']
-        self.Log_Pfad_conf_2_1  = ['Möglich sind die Typen:',                                                                                                                                                               'The following types are possible:']
-        self.Log_Pfad_conf_3    = ['Default wird eingesetzt:',                                                                                                                                                              'Default is used:']
-        self.Log_Pfad_conf_4    = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                                                                                                    'Error reading config during configuration:']
-        self.Log_Pfad_conf_5    = ['; Setze auf Default:',                                                                                                                                                                  '; Set to default:']
-        self.Log_Pfad_conf_5_1  = ['; Register-Fehler -> Programm zu Ende!!!',                                                                                                                                              '; Register error -> program ends!!!']
-        self.Log_Pfad_conf_5_2  = ['; PID-Modus Aus!!',                                                                                                                                                                     '; PID mode off!!']
-        self.Log_Pfad_conf_5_3  = ['; Multilog-Link Aus!!',                                                                                                                                                                 '; Multilog-Link off!!']
-        self.Log_Pfad_conf_6    = ['Fehlergrund:',                                                                                                                                                                          'Reason for error:']
-        self.Log_Pfad_conf_7    = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                                                                                                'Please correct and re-read config before use!']
-        self.Log_Pfad_conf_8    = ['Fehlerhafte Eingabe:',                                                                                                                                                                  'Incorrect input:']
-        self.Log_Pfad_conf_8_1  = ['Fehlerhafte Typ:',                                                                                                                                                                      'Incorrect type:']
-        self.Log_Pfad_conf_9    = ['Die Obergrenze ist kleiner als die Untergrenze! Setze die Limits auf Default:',                                                                                                         'The upper limit is smaller than the lower limit! Set the limits to default:']
-        self.Log_Pfad_conf_10   = ['zu',                                                                                                                                                                                    'to']
-        self.Log_Pfad_conf_11   = ['Winkelgeschwindhigkeit',                                                                                                                                                                'Angular velocity']
-        self.Log_Pfad_conf_12   = ['PID-Eingang Istwert',                                                                                                                                                                   'PID input actual value']
-        self.Log_Pfad_conf_13   = ['Winkel',                                                                                                                                                                                'Angle']
-        self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',                                                                           'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
-        Log_Text_PID_N18        = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
-
+        self.Log_Pfad_conf_1        = ['Konfigurationsfehler im Element:',                                                                                                                                                      'Configuration error in element:']
+        self.Log_Pfad_conf_2        = ['Möglich sind:',                                                                                                                                                                         'Possible values:']
+        self.Log_Pfad_conf_2_1      = ['Möglich sind die Typen:',                                                                                                                                                               'The following types are possible:']
+        self.Log_Pfad_conf_3        = ['Default wird eingesetzt:',                                                                                                                                                              'Default is used:']
+        self.Log_Pfad_conf_4        = ['Fehler beim Auslesen der Config bei Konfiguration:',                                                                                                                                    'Error reading config during configuration:']
+        self.Log_Pfad_conf_5        = ['; Setze auf Default:',                                                                                                                                                                  '; Set to default:']
+        self.Log_Pfad_conf_5_1      = ['; Register-Fehler -> Programm zu Ende!!!',                                                                                                                                              '; Register error -> program ends!!!']
+        self.Log_Pfad_conf_5_2      = ['; PID-Modus Aus!!',                                                                                                                                                                     '; PID mode off!!']
+        self.Log_Pfad_conf_5_3      = ['; Multilog-Link Aus!!',                                                                                                                                                                 '; Multilog-Link off!!']
+        self.Log_Pfad_conf_6        = ['Fehlergrund:',                                                                                                                                                                          'Reason for error:']
+        self.Log_Pfad_conf_7        = ['Bitte vor Nutzung Korrigieren und Config Neu Einlesen!',                                                                                                                                'Please correct and re-read config before use!']
+        self.Log_Pfad_conf_8        = ['Fehlerhafte Eingabe:',                                                                                                                                                                  'Incorrect input:']
+        self.Log_Pfad_conf_8_1      = ['Fehlerhafte Typ:',                                                                                                                                                                      'Incorrect type:']
+        self.Log_Pfad_conf_9        = ['Die Obergrenze ist kleiner als die Untergrenze! Setze die Limits auf Default:',                                                                                                         'The upper limit is smaller than the lower limit! Set the limits to default:']
+        self.Log_Pfad_conf_10       = ['zu',                                                                                                                                                                                    'to']
+        self.Log_Pfad_conf_11       = ['Winkelgeschwindhigkeit',                                                                                                                                                                'Angular velocity']
+        self.Log_Pfad_conf_12       = ['PID-Eingang Istwert',                                                                                                                                                                   'PID input actual value']
+        self.Log_Pfad_conf_13       = ['Winkel',                                                                                                                                                                                'Angle']
+        self.Log_Pfad_conf_14       = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',                                                                           'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
+        Log_Text_PID_N18            = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
+        self.Log_Block_invert_Pos   = ['Wenn der simulierte Winkel oder die Nemo-1-Anlage genutzt werden, wird die Winkelinvertierung auf False gesetzt!',                                                                      'If the simulated angle or the Nemo-1 system is used, the angle inversion is set to False!']
+        self.Log_WinkelSim          = ['Bei der Anlage Nemo-1 gibt es keinen realen Winkel von der Anlage. Daher wird die Simulation des Winkels eingeschaltet!',                                                               'With the Nemo-1 system, there is no real angle from the system. Therefore, the angle simulation is enabled!']
+       
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Übergeordnet:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -156,6 +158,24 @@ class NemoAchseRot(QObject):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|start_winkel {self.Log_Pfad_conf_5[self.sprache]} 0')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.Start_Winkel = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: self.control_winkel_choise   = self.config['start']['angle_control'].upper()
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|angle_control {self.Log_Pfad_conf_5[self.sprache]} SIM')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.control_winkel_choise = 'SIM' 
+        #//////////////////////////////////////////////////////////////////////
+        try: self.save_mode = self.config['start']['sicherheit']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|sicherheit {self.Log_Pfad_conf_5[self.sprache]} 0')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.save_mode = 0
+        #//////////////////////////////////////////////////////////////////////
+        try: self.invert_Winkel = self.config['start']['invert_angle']
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|invert_angle {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            self.invert_Winkel = 0
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ### Parameter:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -212,6 +232,24 @@ class NemoAchseRot(QObject):
         try: self.Status_Reg             = self.config['register']['statusReg']        # Startregister für Status
         except Exception as e: 
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|statusReg {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.read_wIst             = self.config['register']['lese_w_Ist']        # Startregister Winkel-Istwert auslesen
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|lese_w_Ist {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.read_wUm             = self.config['register']['lese_w_U']        # Startregister Winkel in Umdrehungen auslesen
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|lese_w_U {self.Log_Pfad_conf_5_1[self.sprache]}')
+            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+            exit()
+        #//////////////////////////////////////////////////////////////////////
+        try: self.reg_DH             = self.config['register']['def-Home']        # Coil Define Home
+        except Exception as e: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} register|def-Home {self.Log_Pfad_conf_5_1[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             exit()
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -441,6 +479,18 @@ class NemoAchseRot(QObject):
         if not type(self.Status_Reg) == int:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} statusReg - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.Status_Reg)}')
             exit()
+        ### Register Lese Winkel Istwert in Grad:
+        if not type(self.read_wIst) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_w_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.read_wIst)}')
+            exit()
+        ### Register Lese Winkel Istwert in Umdrehungen:
+        if not type(self.read_wUm) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} lese_w_U - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.read_wUm)}')
+            exit()
+        ### Register Coil Define Home:
+        if not type(self.reg_DH) == int:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} def-Home - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer] - {self.Log_Pfad_conf_5_1[self.sprache].replace("; ", "")} - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.reg_DH)}')
+            exit()
         ### Vorfaktor Ist:
         if not type(self.vF_ist) in [float, int] or not self.vF_ist >= 0:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} Vorfaktor_Ist - {self.Log_Pfad_conf_2_1[self.sprache]} [Integer, Float] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8[self.sprache]} {self.vF_ist}')
@@ -469,13 +519,34 @@ class NemoAchseRot(QObject):
         if not self.Anlage in [1, 2]:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} nemo-Version - {self.Log_Pfad_conf_2[self.sprache]} [1, 2] - {self.Log_Pfad_conf_3[self.sprache]} 1')
             self.Anlage = 1
+        ### Winkel Kontroll Wahl:
+        if not self.control_winkel_choise in ['SIM', 'REAL']:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} angle_control - {self.Log_Pfad_conf_2[self.sprache]} [SIM, REAL] - {self.Log_Pfad_conf_3[self.sprache]} SIM')
+            self.control_winkel_choise = 'SIM'
+        if self.Anlage == 1:
+            logger.warning(f'{self.device_name} - {self.Log_WinkelSim[self.sprache]}')    
+            self.control_winkel_choise = 'SIM'
+        ### Anlagen-Sicherheit bei Realer-Positions-Limitregelung:
+        if not self.save_mode in [0, 1]:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} sicherheit - {self.Log_Pfad_conf_2[self.sprache]} [0, 1] - {self.Log_Pfad_conf_3[self.sprache]} 0')
+            self.save_mode = 0
+        ### Winkel Invertierung:
+        if not type(self.invert_Winkel) == bool and not self.invert_Winkel in [0,1]: 
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} invert_angle - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.invert_Pos}')
+            self.invert_Winkel = 0
+        if self.control_winkel_choise == 'SIM':
+            self.invert_Winkel = 0  
+            logger.warning(f'{self.device_name} - {self.Log_Block_invert_Pos[self.sprache]}')
+        if self.invert_Winkel:   self.Winkel_Invertierung = -1
+        else:                    self.Winkel_Invertierung = 1 
 
         #---------------------------------------------------------
         # Andere Variablen:
         #---------------------------------------------------------
         self.Limit_stop         = False
         self.Limit_Stop_Text    = -1
-        self.value_name         = {'IWv': 0, 'IWw':0, 'SWv': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0}
+        if self.Anlage == 2:    self.value_name         = {'IWv': 0, 'IWw':0, 'IWwd':0, 'IWwU':0, 'SWv': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0}
+        elif self.Anlage == 1:  self.value_name         = {'IWv': 0, 'IWw':0, 'SWv': 0, 'SWxPID': self.Soll, 'IWxPID': self.Ist, 'Status': 0}
 
         #--------------------------------------- 
         # Sprach-Einstellung:
@@ -559,6 +630,7 @@ class NemoAchseRot(QObject):
         self.Log_Time_wr        = ['s gedauert!',                                                                                                                                                                           's lasted!']   
         self.Log_Time_r         = ['Die read-Funktion hat',                                                                                                                                                                 'The read function has']  
         self.Log_Text_PIDVV     = ['Noch nicht vollkommen implementiert, Vifcon als PID-Input Sollwert! Hier wird Istwert auf Sollwert gesetzt!',                                                                           'Not yet fully implemented, Vifcon as PID input setpoint!! Here the actual value is set to the target value!']
+        self.Log_Text_DH_str    = ['Befehl wurde nicht akzeptiert (Define Home)!',                                                                                                                                          'Command was not accepted (Define Home)!']
         ## Ablaufdatei: ###############################################################################################################################################################################################################################################################################
         self.Text_51_str        = ['Initialisierung!',                                                                                                                                                                      'Initialization!']
         self.Text_52_str        = ['Initialisierung Fehlgeschlagen!',                                                                                                                                                       'Initialization Failed!']
@@ -574,7 +646,10 @@ class NemoAchseRot(QObject):
         self.Text_74_str        = ['Befehl Counter Clock Wise erfolgreich gesendet!',                                                                                                                                       'Counter Clock Wise command sent successfully!']
         self.Text_70_str        = ['Befehl sende Geschwindigkeit fehlgeschlagen!',                                                                                                                                          'Command send speed failed!']
         self.Text_Neu_1_str     = ['\u03C9 =',                                                                                                                                                                              '\u03C9 =']
+        self.Text_DH1_str       = ['Befehl Define Home fehlgeschlagen!',                                                                                                                                                    'Define Home command failed!']
+        self.Text_DH2_str       = ['Befehl Define Home erfolgreich gesendet!',                                                                                                                                              'Define Home command sent successfully!']
         
+
         #---------------------------------------
         # Schnittstelle:
         #---------------------------------------
@@ -785,6 +860,27 @@ class NemoAchseRot(QObject):
             self.CW_End = False
             write_Okay['Define Home'] = False
 
+            if self.Anlage == 2:
+                ans = self.serial.write_single_coil(self.reg_DH, True)
+                if not ans:
+                    logger.warning(f'{self.device_name} - {self.Log_Text_DH_str[self.sprache]}')
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_DH1_str[self.sprache]}') 
+                else:
+                    self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_DH2_str[self.sprache]}')
+
+        #++++++++++++++++++++++++++++++++++++++++++
+        # Winkel auslesen:
+        #++++++++++++++++++++++++++++++++++++++++++
+        if self.control_winkel_choise == 'REAL':
+            ans_posAkt   = self.serial.read_input_registers(self.read_wIst, 2)
+            value_posAkt = self.umwandeln_Float(ans_posAkt)
+            if value_posAkt == []:  posAkt = m.nan
+            else:                   posAkt = value_posAkt[0] * self.Winkel_Invertierung
+
+            if not type(posAkt) == float:    
+                posAkt = m.nan
+                logger.warning(f'{self.Log_Test_Ex_1[self.sprache]} IWwd {self.Log_Test_Ex_2[self.sprache]} {posAkt} ({self.Log_Test_Ex_3[self.sprache]})')
+
         #++++++++++++++++++++++++++++++++++++++++++
         # Position berechnen und Limits beachten:
         #++++++++++++++++++++++++++++++++++++++++++
@@ -804,22 +900,31 @@ class NemoAchseRot(QObject):
                 self.akIWw = self.akIWw + pos
             elif self.rechne == 'Sub':
                 self.akIWw = self.akIWw - pos
+            ## Wert für die Kontrolle der Grenzen festlegen:
+            if self.control_winkel_choise == 'REAL':   checkPos = posAkt
+            elif self.control_winkel_choise == 'SIM':  checkPos = self.akIWw
             ## Endlose Rotation Ein/Aus:
             if not write_Okay['EndRot']:
-                # Kontrolliere die Grenzen:
-                if self.akIWw >= self.oGw and not self.CW_End:
+                ### Kontrolliere die Grenzen:
+                if m.isnan(checkPos) and self.save_mode == 1:
+                    write_Okay['Stopp']     = True
+                    self.Limit_stop         = True
+                    self.Limit_Stop_Text    = 4
+                elif m.isnan(checkPos) and self.save_mode == 0:
+                    self.Limit_Stop_Text    = 5
+                if checkPos >= self.oGw and not self.CW_End:
                     self.CW_End = True
                     logger.warning(f'{self.device_name} - {self.Log_Text_220_str[self.sprache]}')
                     self.Limit_Stop_Text    = 0
                     self.Limit_stop         = True
                     write_Okay['Stopp']     = True
-                if self.akIWw <= self.uGw and not self.CCW_End:
+                if checkPos <= self.uGw and not self.CCW_End:
                     self.CCW_End = True
                     logger.warning(f'{self.device_name} - {self.Log_Text_221_str[self.sprache]}')
                     self.Limit_Stop_Text    = 1
                     self.Limit_stop         = True
                     write_Okay['Stopp']     = True
-                if self.akIWw > self.uGw and self.akIWw < self.oGw:
+                if checkPos > self.uGw and checkPos < self.oGw:
                     self.CW_End             = False
                     self.CCW_End            = False
                     self.Limit_Stop_Text    = -1
@@ -1121,14 +1226,33 @@ class NemoAchseRot(QObject):
         # Reiehnfolge: vIst, vSoll
         self.value_name['IWv'] = round(value[0]*self.vF_ist, self.nKS) * multi * self.v_VZ      # Vorfaktor beachten        # Einheit: 1/min
         self.value_name['SWv'] = round(value[1]*self.vF_soll, self.nKS)                         # Vorfaktor beachten        # Einheit: 1/min
-
+        
         # Lese: Status
         ans = self.serial.read_input_registers(self.Status_Reg, 1)
         if not ans == None and type(ans[0]) == int:     self.value_name['Status'] = ans[0]
         else:                                       	self.value_name['Status'] = 64
 
         # Istwinkel:
-        self.value_name['IWw'] = round(self.akIWw, self.nKS)                                                 # Einheit: °
+        self.value_name['IWw']  = round(self.akIWw, self.nKS)            # Einheit: °
+
+        if self.Anlage == 2:
+            ## Lese realen Winkel:
+            ans = self.serial.read_input_registers(self.read_wIst, 2)
+            logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
+            value_IWwd = self.umwandeln_Float(ans)[0]
+            if not type(value_IWwd) == float:    
+                value_IWwd = m.nan
+                logger.warning(f'{self.Log_Test_Ex_1[self.sprache]} IWwd {self.Log_Test_Ex_2[self.sprache]} {value_IWwd}')
+            self.value_name['IWwd'] = round(value_IWwd * self.Winkel_Invertierung, self.nKS)       # Einheit: °
+
+            ## Lese realen Winkel in Umdrehung:
+            ans = self.serial.read_input_registers(self.read_wUm, 2)
+            logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
+            value_IWwU = self.umwandeln_Float(ans)[0]
+            if not type(value_IWwU) == float:    
+                value_IWwU = m.nan
+                logger.warning(f'{self.Log_Test_Ex_1[self.sprache]} IWwU {self.Log_Test_Ex_2[self.sprache]} {value_IWwU}')
+            self.value_name['IWwU'] = round(value_IWwU, self.nKS)             # Einheit: Umdr.
 
         # PID-Modus:
         self.value_name['SWxPID'] = self.Soll
@@ -1218,8 +1342,12 @@ class NemoAchseRot(QObject):
         """
         PID_x_unit = self.unit_PIDIn
         self.filename = f"{pfad}/{self.device_name}.csv"
-        units = f"# datetime,s,1/min,DEG,1/min,{PID_x_unit},{PID_x_unit},\n"
-        header = "time_abs,time_rel,Ist-Winkelgeschwindigkeit,Ist-Winkel,Soll-Winkelgeschwindigkeit,Soll-x_PID-Modus_A,Ist-x_PID-Modus_A,\n"
+        if self.Anlage == 2:
+            units = f"# datetime,s,1/min,DEG,DEG,Umdr.,1/min,{PID_x_unit},{PID_x_unit},\n"
+            header = "time_abs,time_rel,Ist-Winkelgeschwindigkeit(sim),Ist-Winkelgeschwindigkeit(real),Umdrehungen,Ist-Winkel,Soll-Winkelgeschwindigkeit,Soll-x_PID-Modus_A,Ist-x_PID-Modus_A,\n"
+        elif self.Anlage == 1:
+            units = f"# datetime,s,1/min,DEG,1/min,{PID_x_unit},{PID_x_unit},\n"
+            header = "time_abs,time_rel,Ist-Winkelgeschwindigkeit(sim),Ist-Winkel,Soll-Winkelgeschwindigkeit,Soll-x_PID-Modus_A,Ist-x_PID-Modus_A,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
             with open(self.filename, "w", encoding="utf-8") as f:
@@ -1232,7 +1360,8 @@ class NemoAchseRot(QObject):
         '''Schreibe die Daten in die Datei.
 
         Args:
-            daten (Dict):               Dictionary mit den Daten in der Reihenfolge: 'IWs', 'IWv'
+            daten (Dict):               Dictionary mit den Daten in der Reihenfolge: Nemo1: 'IWv', 'IWw', 'SWv', 'SWxPID', 'IWxPID'
+                                                                                     Nemo2: 'IWv', 'IWw', 'IWwd', 'IWwU', 'SWv', 'SWxPID', 'IWxPID'
             absolut_Time (datetime):    Absolute Zeit der Messung (Zeitstempel)
             relativ_Time (float):       Zeitpunkt der Messung zum Startzeiptpunkt.
         '''

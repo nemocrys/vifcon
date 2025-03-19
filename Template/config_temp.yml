@@ -886,8 +886,13 @@ devices:
                                                                           #     CW - Positiv, CCW - Negtaiv
                                                                           #     Bei invert = True wird dies gedreht!                                                                          
                                                                           # Default bei Fehler: False
+      invert_angle: 0                                                     # Invertiert den ausgelesenen Winkel - Bei Nemo-2 Spindel wichtig!
+                                                                          # Default bei Fehler: False
       start_winkel: 0                                                     # Startwinkel in ° | Default bei Fehler: 0
+      angle_control: Sim                                                  # Winkel-Limit-Kontrolle -> SIM - Simulierter Weg, REAL - Realer Weg (Nutzung von Upper) | Default bei Fehler: SIM
+                                                                          # Bitte bei REAL `invert_angle` auf True setzen, wenn Spindel Nemo-2 genutzt wird!
       kont_rot: 0                                                         # Setze Kontinuierlisches Drehen ein oder Aus | Default bei Fehler: False
+      sicherheit: 1                                                       # Sicherheits Modus bei Nutzung des Realen Positions-Wertes: 0 - Error und Fehler ignorieren, 1 - Error und Stopp | Default bei Fehler: 0 
     ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
                                                                           # True - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
                                                                           # False - Nichts wird getann!
@@ -928,12 +933,15 @@ devices:
       Input_Size_unit: 'mm'                                               # Einheit der Input-Größe | Default bei Fehler: mm
       debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
     register:
-      cw: 21                                                              # Coil    - Tiegel: 4, Spindel: 20 | Default bei Fehler: Programm-Exit! 
-      ccw: 20                                                             # Coil    - Tiegel: 5, Spindel: 21 | Default bei Fehler: Programm-Exit!
+      cw: 21                                                              # Coil    - Tiegel: 4, Spindel: 21 | Default bei Fehler: Programm-Exit! 
+      ccw: 20                                                             # Coil    - Tiegel: 5, Spindel: 20 | Default bei Fehler: Programm-Exit!
       stopp: 19                                                           # Coil    - Tiegel: 3, Spindel: 19 | Default bei Fehler: Programm-Exit!
-      lese_st_Reg: 53                                                     # Input   - Auslese Start-Adresse: Nemo1 = Spindel: 51, Tiegel: 33 | Nemo2 = Spindel: 53, Tiegel: 34 | Default bei Fehler: Programm-Exit!
+      def-Home: 63                                                        # Coil    - Tiegel: 47, Spindel: 63 (nur Nemo-2) | Default bei Fehler: Programm-Exit! 
+      lese_st_Reg: 51                                                     # Input   - Auslese Start-Adresse: Nemo1 = Spindel: 51, Tiegel: 33 | Nemo2 = Spindel: 53, Tiegel: 34 | Default bei Fehler: Programm-Exit!
+      lese_w_Ist: 139                                                     # Input   - Auslese Start-Adresse (Winkel Ist °): Nemo2 = Spindel: 139, Tiegel: 117 | Default bei Fehler: Programm-Exit!
+      lese_w_U: 159                                                       # Input   - Auslese Start-Adresse (Winkel Ist Umdrehung): Nemo2 = Spindel: 159, Tiegel: 137 | Default bei Fehler: Programm-Exit!
       write_v_Reg: 6                                                      # Holding - Start Register für Geschwindigkeitswert: Spindel: 6, Tiegel: 2 | Default bei Fehler: Programm-Exit!
-      statusReg: 57                                                       # Input   - Status: Nemo1 = Tiegel: 37, Spindel: 55 | Nemo2 = Tiegel: 38, Spindel: 57 | Default bei Fehler: Programm-Exit!
+      statusReg: 55                                                       # Input   - Status: Nemo1 = Tiegel: 37, Spindel: 55 | Nemo2 = Tiegel: 38, Spindel: 57 | Default bei Fehler: Programm-Exit!
     parameter:
       nKS_Aus: 3                                                          # Nachkommerstellen für das Auslesen der Werte und dem Arbeiten mit den Werte! | Default bei Fehler: 3  
       Vorfaktor_Ist: 1                                                    # Vorfaktor für die Ist-Geschwindigkeit: write -> Geteilt, read -> Mal (behoben -> Alt: 0.80318701) | Default bei Fehler: 1
@@ -947,8 +955,9 @@ devices:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
       legend: Rezv ; Rezx ; IWv ; SWv ; IWw ; IWxPID ; SWxPID             
                                                                           # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
-                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Externe-PID-Input-Größe, PID- PID-Modus
-                                                                          # Eingebaut: Rezv, Rezx , IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID, oGPID, uGPID
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Externe-PID-Input-Größe, PID- PID-Modus, d - Device
+                                                                          # Eingebaut: Rezv, Rezx , IWw, IWv, IWwd, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID, oGPID, uGPID
+                                                                          #            IWwd ist nur bei Nemo-2 vorhanden!!
                                                                           # Default bei Fehler: IWw, IWv
     defaults:
       startSpeed: 1                                                       # Startgeschwindigkeit [1/min] | Default bei Fehler: 0
@@ -1121,8 +1130,13 @@ devices:
                                                                           #     CW - Positiv, CCW - Negtaiv
                                                                           #     Bei invert = True wird dies gedreht!                                                                            
                                                                           # Default bei Fehler: False
+      invert_angle: 0                                                     # Invertiert den ausgelesenen Winkel - Bei Nemo-2 Spindel wichtig!
+                                                                          # Default bei Fehler: False
       start_winkel: 0                                                     # Startwinkel in ° | Default bei Fehler: 0
-      kont_rot: 1                                                         # Setze Kontinuierlisches Drehen ein oder Aus | Default bei Fehler: False
+      angle_control: Sim                                                  # Winkel-Limit-Kontrolle -> SIM - Simulierter Weg, REAL - Realer Weg (Nutzung von Upper) | Default bei Fehler: SIM
+                                                                          # Bitte bei REAL `invert_angle` auf True setzen, wenn Spindel Nemo-2 genutzt wird!
+      kont_rot: 0                                                         # Setze Kontinuierlisches Drehen ein oder Aus | Default bei Fehler: False
+      sicherheit: 1                                                       # Sicherheits Modus bei Nutzung des Realen Positions-Wertes: 0 - Error und Fehler ignorieren, 1 - Error und Stopp | Default bei Fehler: 0 
     ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
                                                                           # True  - Ausführung der Stopp-Funktion (Achse hält!)(Rezept wird ebenfals beendet, wenn es läuft!)
                                                                           # False - Nichts wird getann!
@@ -1163,10 +1177,13 @@ devices:
       Input_Size_unit: mm                                                 # Einheit der Input-Größe | Default bei Fehler: mm
       debug_log_time: 5                                                   # für das Debug-Logging: Zeitabstand des Loggens [s] | Default bei Fehler: 5
     register:
-      cw: 4                                                               # Coil    - Tiegel: 4, Spindel: 20 | Default bei Fehler: Programm-Exit! 
-      ccw: 5                                                              # Coil    - Tiegel: 5, Spindel: 21 | Default bei Fehler: Programm-Exit!
+      cw: 4                                                               # Coil    - Tiegel: 4, Spindel: 21 | Default bei Fehler: Programm-Exit! 
+      ccw: 5                                                              # Coil    - Tiegel: 5, Spindel: 20 | Default bei Fehler: Programm-Exit!
       stopp: 3                                                            # Coil    - Tiegel: 3, Spindel: 19 | Default bei Fehler: Programm-Exit!
+      def-Home: 47                                                        # Coil    - Tiegel: 47, Spindel: 63 (nur Nemo-2) | Default bei Fehler: Programm-Exit! 
       lese_st_Reg: 33                                                     # Input   - Auslese Start-Adresse: Nemo1 = Spindel: 51, Tiegel: 33 | Nemo2 = Spindel: 53, Tiegel: 34 | Default bei Fehler: Programm-Exit!
+      lese_w_Ist: 117                                                     # Input   - Auslese Start-Adresse (Winkel Ist °): Nemo2 = Spindel: 139, Tiegel: 117 | Default bei Fehler: Programm-Exit!
+      lese_w_U: 137                                                       # Input   - Auslese Start-Adresse (Winkel Ist Umdrehung): Nemo2 = Spindel: 159, Tiegel: 137 | Default bei Fehler: Programm-Exit!
       write_v_Reg: 2                                                      # Holding - Start Register für Geschwindigkeitswert: Spindel: 6, Tiegel: 2 | Default bei Fehler: Programm-Exit!
       statusReg: 37                                                       # Input   - Status: Nemo1 = Tiegel: 37, Spindel: 55 | Nemo2 = Tiegel: 38, Spindel: 57 | Default bei Fehler: Programm-Exit!
     parameter:
@@ -1182,8 +1199,9 @@ devices:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
       legend: Rezv ; IWv ; SWv ; IWw ; IWxPID ; SWxPID                    
                                                                           # String für die Legenden Option, bei Nichts, muss '' da stehen oder irgendein String!
-                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Externe-PID-Input-Größe, PID- PID-Modus
-                                                                          # Eingebaut: Rezv, Rezx , IWw, IWv, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID, oGPID, uGPID
+                                                                          # IW - Istwert, SW - Sollwert, oG - Obergrenze, uG - Untergrenze, w - Winkel, v - Geschwindigkeit, Rez - Rezept, x - Externe-PID-Input-Größe, PID- PID-Modus, d - Device
+                                                                          # Eingebaut: Rezv, Rezx , IWw, IWv, IWwd, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID, oGPID, uGPID
+                                                                          #            IWwd ist nur bei Nemo-2 vorhanden!!
                                                                           # Default bei Fehler: IWw, IWv
     defaults:
       startSpeed: 1                                                       # Startgeschwindigkeit [1/min] | Default bei Fehler: 0

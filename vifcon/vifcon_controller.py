@@ -878,7 +878,7 @@ class Controller(QObject):
                         device = NemoAchseRot(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, multilog_Link, WriteReadTime, self.add_Ablauf, device_name) 
                         widget = NemoAchseRotWidget(self.sprache, Frame_Anzeige, device_typ_widget, ak_color, self.config["devices"][device_name], config, self.neustart, multilog_Link, self.add_Ablauf, device_name, gamepad_Link)
                         #### Farben-Option:
-                        color_Ant_n = color_Ant_n + 7
+                        color_Ant_n = color_Ant_n + 8
                     elif 'Educrys-Antrieb' in device_name:
                         #### Objekte erstellen:
                         device = EducrysAntrieb(self.sprache, self.config['devices'][device_name], config, self.com_sammlung, self.test_mode, self.neustart, multilog_Link, WriteReadTime, self.add_Ablauf,  device_name) 

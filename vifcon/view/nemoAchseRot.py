@@ -385,6 +385,8 @@ class NemoAchseRotWidget(QWidget):
         self.nemo               = ['Nemo-Anlage',                                                                                               'Nemo facility']
         ## Werte: ###################################################################################################################################################################################################################################################################################
         istwert_str             = ['Ist',                                                                                                       'Is']
+        istwert2_str            = ['Ist-Sim',                                                                                                   'Is-Sim']
+        istwert3_str            = ['Ist-Gerät',                                                                                                 'Is-Device']
         sollwert_str            = ['Soll',                                                                                                      'Set']
         ## Knöpfe: ##################################################################################################################################################################################################################################################################################                                                                  
         rez_start_str           = ['Rezept Start',                                                                                              'Start recipe']
@@ -416,14 +418,17 @@ class NemoAchseRotWidget(QWidget):
         self.x_str              = [f'x in {self.unit_PIDIn}:',                                                                                  f'x in {self.unit_PIDIn}:']
         sv_str                  = ['\u03C9:',                                                                                                   '\u03C9:']              # Omega
         sw_str                  = ['\u03B1 (sim):',                                                                                             '\u03B1 (sim):']        # Alpha
+        swd_str                 = ['\u03B1 (Orig):',                                                                                            '\u03B1 (orig):'] 
         sx_str                  = ['PID:',                                                                                                      'PID:']
         st_v_str                = ['XXX.XX 1/min',                                                                                              'XXX.XX 1/min']
         st_w_str                = ['XXX.XX°',                                                                                                   'XXX.XX°'] 
+        st_wU_str               = ['XXX.XX Umdr.',                                                                                              'XXX.XX revo.']
         st_x_str                = [f'XXX.XX {self.unit_PIDIn}',                                                                                 f'XXX.XX {self.unit_PIDIn}'] 
         w_einzel_str            = ['\u03B1',                                                                                                    '\u03B1']
         v_einzel_str            = ['\u03C9',                                                                                                    '\u03C9']
         x_einzel_str            = ['x',                                                                                                         'x']
         self.einheit_w_einzel   = ['°',                                                                                                         '°']
+        self.einheit_w_einzel_2 = ['Umdr.',                                                                                                     'revo.']
         self.einheit_v_einzel   = ['1/min',                                                                                                     '1/min']
         self.einheit_x_einzel   = [f'{self.unit_PIDIn}',                                                                                        f'{self.unit_PIDIn}']
         PID_Von_1               = ['Wert von Multilog',                                                                                         'Value of Multilog']
@@ -488,9 +493,9 @@ class NemoAchseRotWidget(QWidget):
         self.Stat_N2_Bit6       = ['', ''] # Reserve
         self.Stat_N2_Bit7       = ['', ''] # Reserve
         self.Stat_N2_Bit8       = ['Rampe ein',                                                                                                 'Ramp on']
-        self.Stat_N2_Bit9       = ['Rampe aus',                                                                                                 'Ramp off']
-        self.Stat_N2_Bit10      = ['Winkel modus ein',                                                                                          'angle mode on']
-        self.Stat_N2_Bit11      = ['Winkel modus aus',                                                                                          'angle mode off']
+        self.Stat_N2_Bit9       = ['Winkelfahrt Aktiviert',                                                                                     'Angle drive activated']
+        self.Stat_N2_Bit10      = ['Referenzfahrt Aktiviert',                                                                                   'Homing activated']
+        self.Stat_N2_Bit11      = ['', ''] # Reserve
         self.Stat_N2_Bit12      = ['', ''] # Reserve
         self.Stat_N2_Bit13      = ['', ''] # Reserve
         self.Stat_N2_Bit14      = self.sta_Bit14_str # Schnittstellen Fehler
@@ -529,6 +534,7 @@ class NemoAchseRotWidget(QWidget):
         self.Log_Text_Edu_8     = ['wird',                                                                                                      'is repeated']
         self.Log_Text_Edu_9     = ['mal wiederholt. Das Rezept läuft somit',                                                                    'times. The recipe therefore runs']
         self.Log_Text_Edu_10    = ['mal!',                                                                                                      'times!']
+        self.Log_Text_Nemo1_K   = ['Die Kurve IWwd ist bei der Nemo-1 Anlage nicht vorhanden!!',                                                'The curve IWwd is not available in the Nemo-1 system!!']
         ## Ablaufdatei: #############################################################################################################################################################################################################################################################################
         self.Text_23_str        = ['Knopf betätigt - Initialisierung!',                                                                         'Button pressed - initialization!']
         self.Text_24_str        = ['Ausführung des Rezeptes:',                                                                                  'Execution of the recipe:']
@@ -674,6 +680,15 @@ class NemoAchseRotWidget(QWidget):
         self.La_IstWin_wert = QLabel(st_w_str[self.sprache])
         if self.color_Aktiv: self.La_IstWin_text.setStyleSheet(f"color: {self.color[1]}")
         if self.color_Aktiv: self.La_IstWin_wert.setStyleSheet(f"color: {self.color[1]}")
+        if self.Anlage == 2:
+            #### Istwert Winkel ausgelesen:
+            self.La_IstWinOr_text = QLabel(f'{istwert_str[self.sprache]}-{swd_str[self.sprache]} ')
+            self.La_IstWinOr_wert = QLabel(st_w_str[self.sprache])
+            if self.color_Aktiv: self.La_IstWinOr_text.setStyleSheet(f"color: {self.color[7]}")
+            if self.color_Aktiv: self.La_IstWinOr_wert.setStyleSheet(f"color: {self.color[7]}")
+            #### Istwert Winkel in Umdrehungen:
+            self.La_IstWinU_text = QLabel(f'{istwert_str[self.sprache]}-{swd_str[self.sprache]} ')
+            self.La_IstWinU_wert = QLabel(st_wU_str[self.sprache])
         #### Statuswert:
         self.La_Status = QLabel(status_1_str[self.sprache])
         #### Sollwinkelgeschwindigkeit:
@@ -779,8 +794,12 @@ class NemoAchseRotWidget(QWidget):
         #### Label-Werte:
         W_spalte = 80
 
-        label_list      = [self.La_IstSpeed_text, self.La_SollSpeed_text, self.La_IstWin_text, self.La_IstPID_text, self.La_SollPID_text]
-        label_unit_list = [self.La_IstSpeed_wert, self.La_SollSpeed_wert, self.La_IstWin_wert, self.La_IstPID_wert, self.La_SollPID_wert]
+        if self.Anlage == 2:
+            label_list      = [self.La_IstSpeed_text, self.La_SollSpeed_text, self.La_IstWin_text, self.La_IstWinOr_text, self.La_IstWinU_text, self.La_IstPID_text, self.La_SollPID_text]
+            label_unit_list = [self.La_IstSpeed_wert, self.La_SollSpeed_wert, self.La_IstWin_wert, self.La_IstWinOr_wert, self.La_IstWinU_wert, self.La_IstPID_wert, self.La_SollPID_wert]
+        elif self.Anlage == 1:
+            label_list      = [self.La_IstSpeed_text, self.La_SollSpeed_text, self.La_IstWin_text, self.La_IstPID_text, self.La_SollPID_text]
+            label_unit_list = [self.La_IstSpeed_wert, self.La_SollSpeed_wert, self.La_IstWin_wert, self.La_IstPID_wert, self.La_SollPID_wert]
         widget_list     = []
         count = 0
 
@@ -852,11 +871,12 @@ class NemoAchseRotWidget(QWidget):
             PID_Label_Soll = PID_Von_1[sprache]
             PID_Export_Soll = PID_Zusatz[sprache]
         else:                       PID_Label_Soll = PID_Von_2[sprache]
-        
+
         ## Kurven-Namen:
         kurv_dict = {                                                                       # Wert: [Achse, Farbe/Stift, Name]
             'IWv':      ['a2', pg.mkPen(self.color[0], width=2),                            f'{nemoAchse} - {v_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
-            'IWw':      ['a1', pg.mkPen(self.color[1], width=2),                            f'{nemoAchse} - {w_einzel_str[self.sprache]}<sub>{istwert_str[self.sprache]}</sub>'],
+            'IWw':      ['a1', pg.mkPen(self.color[1], width=2),                            f'{nemoAchse} - {w_einzel_str[self.sprache]}<sub>{istwert2_str[self.sprache]}</sub>'],
+            'IWwd':     ['a1', pg.mkPen(color=self.color[7], width=2),                      f'{nemoAchse} - {w_einzel_str[self.sprache]}<sub>{istwert3_str[self.sprache]}</sub>'],
             'SWv':      ['a2', pg.mkPen(self.color[2]),                                     f'{nemoAchse} - {v_einzel_str[self.sprache]}<sub>{sollwert_str[self.sprache]}</sub>'],
             'oGv':      ['a2', pg.mkPen(color=self.color[0], style=Qt.DashLine),            f'{nemoAchse} - {v_einzel_str[self.sprache]}<sub>{ober_Grenze_str[self.sprache]}</sub>'],
             'uGv':      ['a2', pg.mkPen(color=self.color[0], style=Qt.DashDotDotLine),      f'{nemoAchse} - {v_einzel_str[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
@@ -870,6 +890,10 @@ class NemoAchseRotWidget(QWidget):
             'uGPID':    ['a1', pg.mkPen(color=self.color[5], style=Qt.DashDotDotLine),      f'{nemoAchse} - {self.PID_G_Kurve[self.sprache]}<sub>{unter_Grenze_str[self.sprache]}</sub>'],
         }
 
+        if 'IWwd' in self.legenden_inhalt and self.Anlage == 1:
+            logging.info(f'{self.device_name} - {self.Log_Text_Nemo1_K[self.sprache]}')
+            self.legenden_inhalt.remove('IWwd')
+        
         ## Kurven erstellen:
         ist_drin_list = []                                                      # Jede Kurve kann nur einmal gesetzt werden!
         self.kurven_dict = {}
@@ -906,7 +930,9 @@ class NemoAchseRotWidget(QWidget):
 
         ## Kurven-Daten-Listen:
         ### Messgrößen:
-        self.winList        = []       
+        self.winList        = []  
+        self.winList_d      = [] 
+        self.winList_U      = []      
         self.speedList      = []   
         self.sollspeedList  = []  
         self.sollxPID       = []
@@ -922,7 +948,7 @@ class NemoAchseRotWidget(QWidget):
         #---------------------------------------
         # Dictionarys:
         #---------------------------------------
-        self.curveDict      = {'IWv': '', 'SWv': '', 'IWw':'', 'oGv': '', 'uGv': '', 'oGw': '', 'uGw': '', 'Rezv':'', 'SWxPID':'', 'IWxPID':'', 'Rezx': '', 'oGPID':'', 'uGPID':''}                                                                                             # Kurven
+        self.curveDict      = {'IWv': '', 'SWv': '', 'IWw':'', 'IWwd':'', 'oGv': '', 'uGv': '', 'oGw': '', 'uGw': '', 'Rezv':'', 'SWxPID':'', 'IWxPID':'', 'Rezx': '', 'oGPID':'', 'uGPID':''}                                                                                  # Kurven
         for kurve in self.kurven_dict:
             self.curveDict[kurve] = self.kurven_dict[kurve]
         self.labelDict      = {'IWv': self.La_IstSpeed_wert,                'SWv': self.La_SollSpeed_wert,              'IWw':self.La_IstWin_wert,                  'SWxPID': self.La_SollPID_wert,                     'IWxPID': self.La_IstPID_wert}                          # Label
@@ -930,6 +956,11 @@ class NemoAchseRotWidget(QWidget):
         self.listDict       = {'IWv': self.speedList,                       'SWv':self.sollspeedList,                   'IWw':self.winList,                         'SWxPID': self.sollxPID,                            'IWxPID': self.istxPID}                                 # Werteliste
         self.grenzListDict  = {'oGv': self.VoGList,                         'uGv': self.VuGList,                        'oGw': self.WoGList,                        'uGw': self.WuGList,                                'oGPID': self.XoGList, 'uGPID': self.XuGList}
         self.grenzValueDict = {'oGv': self.oGv,                             'uGv': self.uGv,                            'oGw': self.oGw,                            'uGw': self.uGw,                                    'oGPID': self.oGx,     'uGPID': self.uGx}
+
+        if self.Anlage == 2:
+            self.labelDict.update({'IWwd':self.La_IstWinOr_wert, 'IWwU':self.La_IstWinU_wert})
+            self.labelUnitDict.update({'IWwd':self.einheit_w_einzel[self.sprache], 'IWwU':self.einheit_w_einzel_2[self.sprache]})
+            self.listDict.update({'IWwd':self.winList_d, 'IWwU':self.winList_U})
 
         ## Plot-Skalierungsfaktoren:
         self.skalFak_dict = {}
@@ -1232,7 +1263,7 @@ class NemoAchseRotWidget(QWidget):
         self.data.update(value_dict)   
 
         for messung in value_dict:
-            if not 'Status' in messung:
+            if not 'Status' in messung and not 'IWwU' in messung:
                 Leerzeichen = ''
                 if 'SWv' in messung or 'IWv' in messung or 'SWx' in messung or 'IWx' in messung:
                     Leerzeichen = ' '
@@ -1245,6 +1276,9 @@ class NemoAchseRotWidget(QWidget):
                     self.curveDict[messung].setData(x_value, y)   
             elif 'Status' in messung:
                 logger.debug(f'{self.device_name} - {self.Log_Status_Int[self.sprache]} ({messung}): {value_dict[messung]}')
+            elif 'IWwU' in messung:
+                self.labelDict[messung].setText(f'{value_dict[messung]} {self.labelUnitDict[messung]}')
+                self.listDict[messung].append(value_dict[messung])
 
         # Grenz-Kurven:
         ## Update Grenzwert-Dictionary:

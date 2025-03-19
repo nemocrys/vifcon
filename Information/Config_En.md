@@ -491,8 +491,11 @@ gamepad_Button | | String for the button assignment:<br>*Possible*: RotS, RotT<b
 start |readTime | Time in seconds at which the device is read
 start |init | If **True** the device is initialized!<br>If **False** the sending of commands is blocked so that VIFCON starts and initialization can take place later.<br>**ATTENTION**: The interface that was configured must exist!!
 start |invert | If **True** was selected, the speed is inverted. <br>Used: Nemo-1 system spindle
+start |invert_angle | If set to **True**, the read angle is inverted. This is required for limit control with read angle values ​​on the Nemo 2 spindle!
 start |start_winkel | Start angle for the simulated angle
+start |angle_control | **REAL** – Use of the angle read from the device<br>**SIM** – Use of the simulated angle <br> Angle for limit control!
 start |kont_rot | If **True** the checkbox for continuous rotation is set directly!
+start         |sicherheit   | Safety mode when using the real angle value:<br>**0** - Ignore errors and faults<br>**1** - Error and stop
 register | | See [Modbus_Nemo_En.md](Modbus_Nemo_En.md) <br>Coils, input and holding registers for communication with the PLC
 parameter |nKS_Aus | Reading of decimal places
 parameter |Vorfaktor_Ist | Prefactor for the actual speed
@@ -502,7 +505,7 @@ limits |minWinkel | Limit angle minimum
 limits |maxSpeed ​​| Limit speed maximum
 limits |minSpeed ​​| Limit speed minimum
 GUI |knopf_anzeige | Buttons change color when the movement is selected. Button activation becomes visible!
-GUI |legend | String with curve names for the legend<br>*Structure*: Value type + size<br>*Example*: RezOP = Recipe (Rez) for the output power (OP)<br><br>*Built-in*:<br> Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID, oGPID, uGPID
+GUI |legend | String with curve names for the legend<br>*Structure*: Value type + size<br>*Example*: RezOP = Recipe (Rez) for the output power (OP)<br><br>*Built-in*:<br> Rezv, Rezx , IWw, IWv, IWwd, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID, oGPID, uGPID<br>IWwd only at Nemo-2
 defaults |startSpeed ​​| Value that is written into the speed input field for initialization
 rezept_Loop | | Number of recipe repetitions
 

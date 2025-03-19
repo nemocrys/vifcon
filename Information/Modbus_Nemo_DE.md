@@ -42,53 +42,59 @@ Die Anlagen unterscheiden sich bei ihren Registern. Dadurch das das Antriebs-Sta
 
 Config-Bezeichnung |  Art | Nemo-1 Start-Register | Nemo-2 Start-Register
 --- | --- | --- | --- 
-hoch        | Coil    | 17 | 17
-runter      | Coil    | 18 | 18
-stopp       | Coil    | 16 | 16
-lese_st_Reg | Input   | 38 | 39
-write_v_Reg | Holding |  4 |  4
-posAktuel   | Input   | 42 | 43
-posLimReg   | Input   | 46 | 47
+hoch        | Coil    | 17 |  17
+runter      | Coil    | 18 |  18
+stopp       | Coil    | 16 |  16
+lese_st_Reg | Input   | 38 |  39
+write_v_Reg | Holding |  4 |   4
+posAktuel   | Input   | 42 |  43
+posLimReg   | Input   | 46 |  47
 InfoReg     | Input   |  / | 143
-statusReg   | Input   | 50 | 51
+statusReg   | Input   | 50 |  51
 statusRegEil| Input   |  / | 155
 
 ### Rotations-Antrieb - Spindel (oben)
 
 Config-Bezeichnung |  Art | Nemo-1 Start-Register | Nemo-2 Start-Register
 --- | --- | --- | --- 
-cw          | Coil    | 21 | 21
-ccw         | Coil    | 20 | 20
-stopp       | Coil    | 19 | 19
-lese_st_Reg | Input   | 51 | 53
-write_v_Reg | Holding |  6 |  6
-statusReg   | Input   | 55 | 57
+cw          | Coil    | 21 |  21
+ccw         | Coil    | 20 |  20
+stopp       | Coil    | 19 |  19
+def-Home    | Coil    |  / |  63
+lese_st_Reg | Input   | 51 |  53
+lese_w_Ist  | Input   |  / | 139
+lese_w_U    | Input   |  / | 159
+write_v_Reg | Holding |  6 |   6
+statusReg   | Input   | 55 |  57
 
 ### Hub-Antrieb - Tiegel (unten)
 
 Config-Bezeichnung |  Art | Nemo-1 Start-Register | Nemo-2 Start-Register
 --- | --- | --- | --- 
-hoch        | Coil    |  1 |  1
-runter      | Coil    |  2 |  2
-stopp       | Coil    |  0 |  0
-lese_st_Reg | Input   | 20 | 20
-write_v_Reg | Holding |  0 |  0
-posAktuel   | Input   | 24 | 24
-posLimReg   | Input   | 28 | 28
+hoch        | Coil    |  1 |   1
+runter      | Coil    |  2 |   2
+stopp       | Coil    |  0 |   0
+lese_st_Reg | Input   | 20 |  20
+write_v_Reg | Holding |  0 |   0
+posAktuel   | Input   | 24 |  24
+posLimReg   | Input   | 28 |  28
 InfoReg     | Input   |  / | 121
-statusReg   | Input   | 32 | 32
+statusReg   | Input   | 32 |  32
 statusRegEil| Input   |  / | 133
 
 ### Rotations-Antrieb - Tiegel (unten)
 
 Config-Bezeichnung |  Art | Nemo-1 Start-Register | Nemo-2 Start-Register
 --- | --- | --- | --- 
-cw          | Coil    |  4 |  4
-ccw         | Coil    |  5 |  5
-stopp       | Coil    |  3 |  3
-lese_st_Reg | Input   | 33 | 34 
-write_v_Reg | Holding |  2 |  2
-statusReg   | Input   | 37 | 38
+cw          | Coil    |  4 |   4
+ccw         | Coil    |  5 |   5
+stopp       | Coil    |  3 |   3
+def-Home    | Coil    |  / |  47
+lese_st_Reg | Input   | 33 |  34 
+lese_w_Ist  | Input   |  / | 117
+lese_w_U    | Input   |  / | 137
+write_v_Reg | Holding |  2 |   2
+statusReg   | Input   | 37 |  38  
 
 ### Monitoring
 
@@ -119,4 +125,4 @@ gen_U_Ein           | Coil    | 134 | 141 | 148
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 17.12.2024
+Die Letzte Änderung dieser Beschreibung war: 19.03.2025

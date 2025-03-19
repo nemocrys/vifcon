@@ -110,6 +110,17 @@ Actually, the debug variable should set a boolean value that outputs these value
 
 The latest version of this library is shown in version 0.3.0 of pyModbusTCP (https://pymodbustcp.readthedocs.io/en/latest/). The debug function now works with logging. In version 0.2.0 (https://pymodbustcp.readthedocs.io/en/v0.2.0/) the debug function still existed or was still available.
 
+`debug` was not commented out in the template! If the following error occurs, `debug` must be removed!
+
+```
+Traceback (most recent call last):
+  File "C:\Users\funke-lokal\AppData\Local\Programs\Python\Python38\lib\site-packages\pyModbusTCP\client.py", line 136, in __del__
+    self.close()
+  File "C:\Users\funke-lokal\AppData\Local\Programs\Python\Python38\lib\site-packages\pyModbusTCP\client.py", line 324, in close
+    self._sock.close()
+AttributeError: 'ModbusClient' object has no attribute '_sock'
+```
+
 ### Usage in Python Code
 
 Import example of the libraries:
@@ -203,4 +214,4 @@ After all libraries have been installed, VIFCON works on the Raspberry Pi mentio
 
 ## Last change
 
-The last change of this description was: February 24, 2025
+The last change of this description was: March 19, 2025

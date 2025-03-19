@@ -490,8 +490,11 @@ gamepad_Button	|               | String für die Knopf-Zuweisung:<br>*Möglich*:
 start	        |readTime       | Zeit in Sekunde mit der das Gerät ausgelesen wird
 start	        |init           | Bei **True** wird das Gerät initialisiert!<br>Bei **False** wird das Senden von Befehlen geblockt, sodas VIFCON startet und die Initialisierung später erfolgen kann. <br>**ACHTUNG**: Die Schnittstelle die konfiguriert wurde muss exestieren!!               
 start	        |invert         | Wenn **True** gewählt wurde, so wird die Geschwindigkeit invertiert. <br>Gebraucht: Nemo-1-Anlage Spindel
-start	        |start_winkel   | Startwinkel für den Simulierten Winkel            
-start	        |kont_rot       | Bei **True** wird die Checkbox für das kontinuierliche Rotieren direkt gesetzt!                   
+start         |invert_angle   | Bei **True** wird der ausgelesene Winkel invertiert. Dies wird für die Limit-Kontrolle mit ausgelesenen Winkelwerten bei der Nemo-2-Spindel benötigt!
+start	        |start_winkel   | Startwinkel für den Simulierten Winkel        
+start         |angle_control  | **REAL** – Nutzung der vom Gerät ausgelesen Winkel<br>**SIM** – Nutzung des simulierten Winkel <br> Winkel für Limitkontrolle!          
+start	        |kont_rot       | Bei **True** wird die Checkbox für das kontinuierliche Rotieren direkt gesetzt!   
+start         |sicherheit     | Sicherheits Modus bei Nutzung des Realen Winkel-Wertes:<br>**0** - Error und Fehler ignorieren<br>**1** - Error und Stopp             
 register	    |               | Siehe [Modbus_Nemo_DE.md](Modbus_Nemo_DE.md)	<br>Coils, Input- und Holding-Register für die Kommunikation mit der SPS       
 parameter	    |nKS_Aus        | Auslese Nachkommerstellen               
 parameter	    |Vorfaktor_Ist  | Vorfaktor für die Ist-Geschwindigkeit              
@@ -501,7 +504,7 @@ limits	        |minWinkel      | Limit Winkel Minimum
 limits	        |maxSpeed       | Limit Geschwindigkeit Maximum                   
 limits	        |minSpeed       | Limit Geschwindigkeit Minimum                   
 GUI	            |knopf_anzeige  | Knöpfe werden farbliche verändert, wenn die Bewegung ausgewählt wird. Knopf Betätigung wird sichtbar!                       
-GUI	            |legend         | String mit Kurven-Namen für die Legende<br>*Aufbau*: Wert-Art + Größe<br>*Beispiel*: RezOP = Rezept (Rez) für die Ausgangsleistung (OP)<br><br>*Eingebaut*:<br> Rezv, Rezx, IWs, IWsd, IWv, SWv, SWs, uGv, oGv, uGs, oGs, IWxPID, SWxPID, oGPID, uGPID               
+GUI	            |legend         | String mit Kurven-Namen für die Legende<br>*Aufbau*: Wert-Art + Größe<br>*Beispiel*: RezOP = Rezept (Rez) für die Ausgangsleistung (OP)<br><br>*Eingebaut*:<br> Rezv, Rezx , IWw, IWv, IWwd, SWv, uGv, oGv, uGw, oGw, IWxPID, SWxPID, oGPID, uGPID<br>IWwd nur bei Nemo-2            
 defaults	    |startSpeed     | Wert der in das Geschwindigkeits-Eingabefeld zur Initialisierung geschrieben wird                   
 rezept_Loop	    |               |  Anzahl der Rezept-Wiederholungen      
 

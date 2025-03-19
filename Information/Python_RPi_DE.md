@@ -110,6 +110,17 @@ Eigentlich sollte durch die Debug-Variable ein Boolcherwert gesetzt werden, der 
 
 In der Version 0.3.0 von pyModbusTCP (https://pymodbustcp.readthedocs.io/en/latest/) wird die neuste Version diser Bibliothek gezeigt. Die Debug-Funktion funktioniert nun mit Logging. In der Version 0.2.0 (https://pymodbustcp.readthedocs.io/en/v0.2.0/) exestierte die Debug-Funktion noch bzw. war sie noch vorhanden. 
 
+In dem Template wurde `debug` nicht auskommentiert! Sollte der folgende Fehler erscheinen, so muss `debug` entfernt werden!
+
+```
+Traceback (most recent call last):
+  File "C:\Users\funke-lokal\AppData\Local\Programs\Python\Python38\lib\site-packages\pyModbusTCP\client.py", line 136, in __del__
+    self.close()
+  File "C:\Users\funke-lokal\AppData\Local\Programs\Python\Python38\lib\site-packages\pyModbusTCP\client.py", line 324, in close
+    self._sock.close()
+AttributeError: 'ModbusClient' object has no attribute '_sock'
+```
+
 ### Nutzung in Python Code
 
 Import-Beispiel der Bibliotheken:
@@ -203,4 +214,4 @@ Nach dem alle Bibliotheken installiert worden sind, funktioniert VIFCON auf dem 
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 24.02.2025
+Die Letzte Änderung dieser Beschreibung war: 19.03.2025

@@ -120,7 +120,7 @@ class NemoAchseLin(QObject):
         self.Log_Pfad_conf_13       = ['Position',                                                                                                                                                                              'Position']
         self.Log_Pfad_conf_14       = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilink abgeschaltet ist! Setze Default VV!',                                                                           'Configuration with VM, MV or MM is not possible because the multilink is disabled! Set default VV!']
         Log_Text_PID_N18            = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
-        self.Log_Block_invert_Pos   = ['Wenn der simulierte Weg oder die Nemo-1-Anlage genutzt werden, wird die Positions invertierung auf False gesetzt!',                                                                     'If the simulated path or the Nemo-1 facility is used, the position inversion is set to False!']
+        self.Log_Block_invert_Pos   = ['Wenn der simulierte Weg oder die Nemo-1-Anlage genutzt werden, wird die Positionsinvertierung auf False gesetzt!',                                                                      'If the simulated path or the Nemo-1 facility is used, the position inversion is set to False!']
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Übergeordnet:
@@ -531,7 +531,7 @@ class NemoAchseLin(QObject):
         if not self.control_pos_choise in ['SIM', 'REAL']:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} pos_control - {self.Log_Pfad_conf_2[self.sprache]} [SIM, REAL] - {self.Log_Pfad_conf_3[self.sprache]} SIM')
             self.control_pos_choise = 'SIM'
-        ### Anlagen-Sciherheit bei Realer-Positions-Limitregelung:
+        ### Anlagen-Sicherheit bei Realer-Positions-Limitregelung:
         if not self.save_mode in [0, 1]:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} sicherheit - {self.Log_Pfad_conf_2[self.sprache]} [0, 1] - {self.Log_Pfad_conf_3[self.sprache]} 0')
             self.save_mode = 0
