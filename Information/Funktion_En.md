@@ -315,6 +315,7 @@ If the dictionary of values ​​has no sub-sensors, **“no sensor”** is spe
 *Example Received:*
 ```
 {'Series-600': {'Pyro_h1': 11.6}}
+{'IGA-6-23-adv': 74.0, 'DAQ-6510': {'TE_1_K air 155 mm over crucible': 23.80556}}
 ```
 
 For the Series-600 pyrometer, the sensor information is required. In the example, you can see that there is another dictionary in the dictionary! The sensor is then specified as `Pyro_h1`!

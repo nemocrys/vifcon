@@ -314,6 +314,7 @@ Wenn das Dictionary der Werte keine Untersensoren hat, so wird **„no sensor“
 *Beispiel Erhalten:*
 ```
 {'Series-600': {'Pyro_h1': 11.6}}
+{'IGA-6-23-adv': 74.0, 'DAQ-6510': {'TE_1_K air 155 mm over crucible': 23.80556}}
 ```
 
 Bei dem Series-600 Pyrometer benötigt es die Angabe des Sensors. Im Beispiel sieht man, dass in dem Dictionary noch ein Dictionary ist! Bei dem Sensor wird dann `Pyro_h1 angegeben`!
