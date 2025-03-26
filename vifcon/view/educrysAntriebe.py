@@ -127,7 +127,8 @@ class EducrysAntriebWidget(QWidget):
         self.Log_Pfad_conf_12   = ['PID-Eingang Istwert',                                                                                               'PID input actual value']
         self.Log_Pfad_conf_13   = ['Position',                                                                                                          'Position']
         self.Log_Pfad_conf_14   = ['Konfiguration mit VM, MV oder MM ist so nicht möglich, da der Multilog-Link abgeschaltet ist! Setze Default VV!',   'Configuration with VM, MV or MM is not possible because the Multilog-Link is disabled! Set default VV!']
-        
+        self.Log_Pfad_Conf_Neu  = ['Das Minimum-Limit für die Geschwindigkeit wird auf folgenden Wert gesetzt:',                                        'The minimum speed limit is set to the following value:']
+
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Übergeordnet:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -179,13 +180,6 @@ class EducrysAntriebWidget(QWidget):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.oGv = 1
-        #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-        try: self.uGv    = self.config["limits"]['minSpeed']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minSpeed {self.Log_Pfad_conf_5[self.sprache]} -1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGv = -1
         #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
         try: self.oGx    = self.config['PID']['Input_Limit_max']
         except Exception as e: 
@@ -320,16 +314,12 @@ class EducrysAntriebWidget(QWidget):
             self.uGx = 0
             self.oGx = 1
         ### Geschwindigkeits-Limit:
-        if not type(self.oGv) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGv)}')
+        if not type(self.oGv) in [float, int] or not self.oGv > 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGv)}')
             self.oGv = 1
-        if not type(self.uGv) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} -1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGv)}')
-            self.uGv = -1
-        if self.oGv <= self.uGv:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} -1 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
-            self.uGv = -1
-            self.oGv = 1
+        if not self.Antriebs_wahl == 'F':   self.uGv = self.oGv * -1
+        elif self.Antriebs_wahl == 'F':     self.uGv = 0
+        logger.info(f'{self.device_name} - {self.Log_Pfad_Conf_Neu[self.sprache]} {self.uGv}')
         ### Positions-Limit:
         if not type(self.oGs) in [float, int]:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxPos - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGs)}')
@@ -1359,23 +1349,12 @@ class EducrysAntriebWidget(QWidget):
                 logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
                 self.oGv = 1
             #//////////////////////////////////////////////////////////////////////
-            try: self.uGv = config['devices'][self.device_name]["limits"]['minSpeed']
-            except Exception as e: 
-                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minSpeed {self.Log_Pfad_conf_5[self.sprache]} -1')
-                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-                self.uGv = -1
-            #//////////////////////////////////////////////////////////////////////
-            if not type(self.oGv) in [float, int]:
-                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGv)}')
+            if not type(self.oGv) in [float, int] or not self.oGv > 0:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGv)}')
                 self.oGv = 1
-            if not type(self.uGv) in [float, int]:
-                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} -1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGv)}')
-                self.uGv = -1
-            if self.oGv <= self.uGv:
-                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} -1 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
-                self.uGv = -1
-                self.oGv = 1    
+            if not self.Antriebs_wahl == 'F':   self.uGv = self.oGv * -1
+            elif self.Antriebs_wahl == 'F':     self.uGv = 0
+            logger.info(f'{self.device_name} - {self.Log_Pfad_Conf_Neu[self.sprache]} {self.uGv}') 
             #//////////////////////////////////////////////////////////////////////
             ### Positions-Limit:
             try: self.oGs = config['devices'][self.device_name]["limits"]['maxPos']
@@ -1753,8 +1732,10 @@ class EducrysAntriebWidget(QWidget):
             ## Loop-Funktion nutzen:
             if self.RZLoop_cb.isChecked():
                 ### Listen-Vorbereiten bzw. merken:
-                value_List_Loop = [] + self.value_list
-                time_List_Loop  = [] + self.time_list
+                if first_line.strip() == 'r':   ListStart = 1
+                else:                           ListStart = 0
+                value_List_Loop = [] + self.value_list[ListStart:]
+                time_List_Loop  = [] + self.time_list[ListStart:]
                 #if self.PID_cb.isChecked(): move_list_Loop = [] + self.move_list
                 ### Listen erweitern:
                 if self.rezept_Loop > 0:
@@ -1884,6 +1865,17 @@ class EducrysAntriebWidget(QWidget):
                     logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
                     logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             
+            # Kontrolle Rezept-Loop:
+            try: self.rezept_Loop = config['devices'][self.device_name]['rezept_Loop']
+            except Exception as e:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} rezept_Loop {self.Log_Pfad_conf_5[self.sprache]} 0')
+                logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
+                self.rezept_Loop = 0
+            if not type(self.rezept_Loop) in [int] or not self.rezept_Loop >= 0:
+                logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} rezept_Loop - {self.Log_Pfad_conf_2_1[self.sprache]} [int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 0 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.rezept_Loop)}')
+                self.rezept_Loop = 0
+            self.RZLoop_cb.setToolTip(f'{self.TTRezeptLoop[self.sprache]} {self.rezept_Loop}')
+
             # Combo-Box neu beschreiben:
             self.cb_Rezept.addItem('------------')
             try:

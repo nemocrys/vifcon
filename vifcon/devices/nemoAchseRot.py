@@ -123,7 +123,8 @@ class NemoAchseRot(QObject):
         Log_Text_PID_N18            = ['Die Fehlerbehandlung ist falsch konfiguriert. Möglich sind max, min und error! Fehlerbehandlung wird auf error gesetzt, wodurch der alte Inputwert für den PID-Regler genutzt wird!',   'The error handling is incorrectly configured. Possible values ​​are max, min and error! Error handling is set to error, which means that the old input value is used for the PID controller!']    
         self.Log_Block_invert_Pos   = ['Wenn der simulierte Winkel oder die Nemo-1-Anlage genutzt werden, wird die Winkelinvertierung auf False gesetzt!',                                                                      'If the simulated angle or the Nemo-1 system is used, the angle inversion is set to False!']
         self.Log_WinkelSim          = ['Bei der Anlage Nemo-1 gibt es keinen realen Winkel von der Anlage. Daher wird die Simulation des Winkels eingeschaltet!',                                                               'With the Nemo-1 system, there is no real angle from the system. Therefore, the angle simulation is enabled!']
-       
+        self.Log_Pfad_Conf_Neu      = ['Das Minimum-Limit für die Geschwindigkeit wird auf folgenden Wert gesetzt:',                                                                                                            'The minimum speed limit is set to the following value:']
+        
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ## Übergeordnet:
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -159,9 +160,9 @@ class NemoAchseRot(QObject):
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.Start_Winkel = 0
         #//////////////////////////////////////////////////////////////////////
-        try: self.control_winkel_choise   = self.config['start']['angle_control'].upper()
+        try: self.control_winkel_choise   = self.config['start']['winkel_control'].upper()
         except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|angle_control {self.Log_Pfad_conf_5[self.sprache]} SIM')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|winkel_control {self.Log_Pfad_conf_5[self.sprache]} SIM')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.control_winkel_choise = 'SIM' 
         #//////////////////////////////////////////////////////////////////////
@@ -171,9 +172,9 @@ class NemoAchseRot(QObject):
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.save_mode = 0
         #//////////////////////////////////////////////////////////////////////
-        try: self.invert_Winkel = self.config['start']['invert_angle']
+        try: self.invert_Winkel = self.config['start']['invert_winkel']
         except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|invert_angle {self.Log_Pfad_conf_5[self.sprache]} False')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} start|invert_winkel {self.Log_Pfad_conf_5[self.sprache]} False')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.invert_Winkel = 0
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -261,13 +262,6 @@ class NemoAchseRot(QObject):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
             logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
             self.oGv = 1
-        #//////////////////////////////////////////////////////////////////////
-        try: self.uGv = self.config["limits"]['minSpeed']
-        except Exception as e: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_4[self.sprache]} limits|minSpeed {self.Log_Pfad_conf_5[self.sprache]} -1')
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_7[self.sprache]}')
-            logger.exception(f'{self.device_name} - {self.Log_Pfad_conf_6[self.sprache]}')
-            self.uGv = -1
         #//////////////////////////////////////////////////////////////////////
         try: self.oGw = self.config["limits"]['maxWinkel']
         except Exception as e: 
@@ -391,16 +385,11 @@ class NemoAchseRot(QObject):
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} init - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.init}')
             self.init = 0
         ### Geschwindigkeits-Limit:
-        if not type(self.oGv) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGv)}')
+        if not type(self.oGv) in [float, int] or not self.oGv > 0:
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] (Positiv) - {self.Log_Pfad_conf_3[self.sprache]} 1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGv)}')
             self.oGv = 1
-        if not type(self.uGv) in [float, int]:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} minSpeed - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} -1 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.uGv)}')
-            self.uGv = -1
-        if self.oGv <= self.uGv:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_9[self.sprache]} -1 {self.Log_Pfad_conf_10[self.sprache]} 1 ({self.Log_Pfad_conf_11[self.sprache]})')
-            self.uGv = -1
-            self.oGv = 1
+        self.uGv = self.oGv * -1
+        logger.info(f'{self.device_name} - {self.Log_Pfad_Conf_Neu[self.sprache]} {self.uGv}')
         ### Winkel-Limit:
         if not type(self.oGw) in [float, int]:
             logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} maxWinkel - {self.Log_Pfad_conf_2_1[self.sprache]} [float, int] - {self.Log_Pfad_conf_3[self.sprache]} 180 - {self.Log_Pfad_conf_8_1[self.sprache]} {type(self.oGw)}')
@@ -521,7 +510,7 @@ class NemoAchseRot(QObject):
             self.Anlage = 1
         ### Winkel Kontroll Wahl:
         if not self.control_winkel_choise in ['SIM', 'REAL']:
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} angle_control - {self.Log_Pfad_conf_2[self.sprache]} [SIM, REAL] - {self.Log_Pfad_conf_3[self.sprache]} SIM')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} winkel_control - {self.Log_Pfad_conf_2[self.sprache]} [SIM, REAL] - {self.Log_Pfad_conf_3[self.sprache]} SIM')
             self.control_winkel_choise = 'SIM'
         if self.Anlage == 1:
             logger.warning(f'{self.device_name} - {self.Log_WinkelSim[self.sprache]}')    
@@ -532,7 +521,7 @@ class NemoAchseRot(QObject):
             self.save_mode = 0
         ### Winkel Invertierung:
         if not type(self.invert_Winkel) == bool and not self.invert_Winkel in [0,1]: 
-            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} invert_angle - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.invert_Pos}')
+            logger.warning(f'{self.device_name} - {self.Log_Pfad_conf_1[self.sprache]} invert_winkel - {self.Log_Pfad_conf_2[self.sprache]} [True, False] - {self.Log_Pfad_conf_3[self.sprache]} False - {self.Log_Pfad_conf_8[self.sprache]} {self.invert_Pos}')
             self.invert_Winkel = 0
         if self.control_winkel_choise == 'SIM':
             self.invert_Winkel = 0  
@@ -624,6 +613,7 @@ class NemoAchseRot(QObject):
         self.Log_Text_LB_unit   = ['1/min',                                                                                                                                                                                 '1/min']
         self.Log_Test_Ex_1      = ['Der Variablen-Typ der Größe',                                                                                                                                                           'The variable type of size']
         self.Log_Test_Ex_2      = ['ist nicht Float! Setze Nan ein! Fehlerhafter Wert:',                                                                                                                                    'is not Float! Insert Nan! Incorrect value:']
+        self.Log_Test_Ex_3      = ['Lese Position Aktuell für Kontrolle!',                                                                                                                                                  'Read Position Current for control!']
         self.Log_Filter_PID_S   = ['Sollwert',                                                                                                                                                                              'Setpoint'] 
         self.Log_Filter_PID_I   = ['Istwert',                                                                                                                                                                               'Actual value'] 
         self.Log_Time_w         = ['Die write-Funktion hat',                                                                                                                                                                'The write function has']     
@@ -649,7 +639,6 @@ class NemoAchseRot(QObject):
         self.Text_DH1_str       = ['Befehl Define Home fehlgeschlagen!',                                                                                                                                                    'Define Home command failed!']
         self.Text_DH2_str       = ['Befehl Define Home erfolgreich gesendet!',                                                                                                                                              'Define Home command sent successfully!']
         
-
         #---------------------------------------
         # Schnittstelle:
         #---------------------------------------
@@ -1419,6 +1408,13 @@ class NemoAchseRot(QObject):
             for re in range(0,2,1):
                 value.append(random.choice(exst))
             print(value)
+            print('Fehler')
+
+        a = round(random.uniform(0,50))
+        if a in [10, 20, 30, 40, 50]:  
+            exst = ['0.fffßfvvk', 50.1, 90.1] 
+            posAkt = random.choice(exst)
+            print(posAkt)
             print('Fehler')
 
 '''       

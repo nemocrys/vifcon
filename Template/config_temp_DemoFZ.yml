@@ -351,7 +351,7 @@ devices:
       maxPos: 20                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
       minPos: -20                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
       maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s] | Default bei Fehler: 1
-      minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s] | Default bei Fehler: -1
+                                                                          # Minimale Geschwindigkeit ist der negierte Wert der Maximalen Geschwindigkeit!!!
     GUI:
       bewegung: 'z'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter | Default bei Fehler: z
       piSymbol: 'Un'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus) | Default bei Fehler: UN
@@ -470,7 +470,7 @@ devices:
       maxPos: 20                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
       minPos: -20                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
       maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s] | Default bei Fehler: 1
-      minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s] | Default bei Fehler: -1
+                                                                          # Minimale Geschwindigkeit ist der negierte Wert der Maximalen Geschwindigkeit!!!
     GUI:
       bewegung: 'y'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter | Default bei Fehler: z
       piSymbol: 'Re'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus) | Default bei Fehler: UN
@@ -589,7 +589,7 @@ devices:
       maxPos: 20                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
       minPos: -20                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
       maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s] | Default bei Fehler: 1
-      minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s] | Default bei Fehler: -1
+                                                                          # Minimale Geschwindigkeit ist der negierte Wert der Maximalen Geschwindigkeit!!!
     GUI:
       bewegung: 'x'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter | Default bei Fehler: z
       piSymbol: 'Vo'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus) | Default bei Fehler: UN
@@ -708,7 +708,7 @@ devices:
       maxPos: 20                                                          # Positionsgrenze Maximum [mm] | Default bei Fehler: 1
       minPos: -20                                                         # Positionsgrenze Minimum [mm] | Default bei Fehler: 0
       maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/s] | Default bei Fehler: 1
-      minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/s] | Default bei Fehler: -1
+                                                                          # Minimale Geschwindigkeit ist der negierte Wert der Maximalen Geschwindigkeit!!!
     GUI:
       bewegung: 'z'                                                       # Bewegungsrichtung: y - Rechts, Links | x - Rein, Raus | z - Hoch, Runter | Default bei Fehler: z
       piSymbol: 'Ob'                                                      # Ausrichtung der Achse am Pi-Symbol: y(Li - Links, Re - Rechts), x(Vo - Vorn, Hi - Hinten), z(Ob - Oben, Un - Unten) (Minus Werte zum PI-Symbol, andere Richtung plus) | Default bei Fehler: UN
@@ -847,7 +847,7 @@ devices:
       maxPos: 10                                                          # Maximale Position [mm] | Default bei Fehler: 1
       minPos: -10                                                         # Minimale Position [mm] | Default bei Fehler: 0
       maxSpeed: 60                                                        # Maximale Geschwindigkeit [mm/min] | Default bei Fehler: 1
-      minSpeed: -60                                                       # Minimale Geschwindigkeit [mm/min] | Default bei Fehler: -1
+                                                                          # Minimale Geschwindigkeit ist der negierte Wert der Maximalen Geschwindigkeit!!!
     GUI:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
       legend: Rezv ; IWs ; IWv ; IWsd ; SWv ; Rezx ; IWxPID ; SWxPID       
@@ -906,11 +906,11 @@ devices:
                                                                           #     CW - Positiv, CCW - Negtaiv
                                                                           #     Bei invert = True wird dies gedreht!                                                                          
                                                                           # Default bei Fehler: False
-      invert_angle: 0                                                     # Invertiert den ausgelesenen Winkel - Bei Nemo-2 Spindel wichtig!
+      invert_winkel: 0                                                    # Invertiert den ausgelesenen Winkel - Bei Nemo-2 Spindel wichtig!
                                                                           # Default bei Fehler: False
       start_winkel: 0                                                     # Startwinkel in ° | Default bei Fehler: 0
-      angle_control: Sim                                                  # Winkel-Limit-Kontrolle -> SIM - Simulierter Weg, REAL - Realer Weg (Nutzung von Upper) | Default bei Fehler: SIM
-                                                                          # Bitte bei REAL `invert_angle` auf True setzen, wenn Spindel Nemo-2 genutzt wird!
+      winkel_control: Sim                                                 # Winkel-Limit-Kontrolle -> SIM - Simulierter Weg, REAL - Realer Weg (Nutzung von Upper) | Default bei Fehler: SIM
+                                                                          # Bitte bei REAL `invert_winkel` auf True setzen, wenn Spindel Nemo-2 genutzt wird!
       kont_rot: 0                                                         # Setze Kontinuierlisches Drehen ein oder Aus | Default bei Fehler: False
       sicherheit: 1                                                       # Sicherheits Modus bei Nutzung des Realen Positions-Wertes: 0 - Error und Fehler ignorieren, 1 - Error und Stopp | Default bei Fehler: 0 
     ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
@@ -970,7 +970,7 @@ devices:
       maxWinkel: 180                                                      # Maximaler Winkel [°] | Default bei Fehler: 180
       minWinkel: -1                                                       # Minimaler Winkel [°] | Default bei Fehler: 0
       maxSpeed: 3                                                         # Maximale Geschwindigkeit [1/min] | Default bei Fehler: 1
-      minSpeed: -3                                                        # Minimale Geschwindigkeit [1/min] | Default bei Fehler: -1
+                                                                          # Minimale Geschwindigkeit ist der negierte Wert der Maximalen Geschwindigkeit!!!
     GUI:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! | Default bei Fehler: False
       legend: Rezv ; IWv ; SWv ; IWw ; Rezx ; IWxPID ; SWxPID             
@@ -1096,7 +1096,7 @@ devices:
       maxPos: 200                                                         # Maximale Position [mm] | Default bei Fehler: 1
       minPos: 0                                                           # Minimale Position [mm] | Default bei Fehler: 0
       maxSpeed: 3                                                         # Maximale Geschwindigkeit [mm/min] | Default bei Fehler: 1
-      minSpeed: -3                                                        # Minimale Geschwindigkeit [mm/min] | Default bei Fehler: -1
+                                                                          # Minimale Geschwindigkeit ist der negierte Wert der Maximalen Geschwindigkeit!!!
     GUI:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
       legend: Rezv ; IWs ; IWv ; SWv            
@@ -1150,11 +1150,11 @@ devices:
                                                                           #     CW - Positiv, CCW - Negtaiv
                                                                           #     Bei invert = True wird dies gedreht!                                                                            
                                                                           # Default bei Fehler: False
-      invert_angle: 0                                                     # Invertiert den ausgelesenen Winkel - Bei Nemo-2 Spindel wichtig!
+      invert_winkel: 0                                                    # Invertiert den ausgelesenen Winkel - Bei Nemo-2 Spindel wichtig!
                                                                           # Default bei Fehler: False
       start_winkel: 0                                                     # Startwinkel in ° | Default bei Fehler: 0
-      angle_control: Sim                                                  # Winkel-Limit-Kontrolle -> SIM - Simulierter Weg, REAL - Realer Weg (Nutzung von Upper) | Default bei Fehler: SIM
-                                                                          # Bitte bei REAL `invert_angle` auf True setzen, wenn Spindel Nemo-2 genutzt wird!
+      winkel_control: Sim                                                 # Winkel-Limit-Kontrolle -> SIM - Simulierter Weg, REAL - Realer Weg (Nutzung von Upper) | Default bei Fehler: SIM
+                                                                          # Bitte bei REAL `invert_winkel` auf True setzen, wenn Spindel Nemo-2 genutzt wird!
       kont_rot: 0                                                         # Setze Kontinuierlisches Drehen ein oder Aus | Default bei Fehler: False
       sicherheit: 1                                                       # Sicherheits Modus bei Nutzung des Realen Positions-Wertes: 0 - Error und Fehler ignorieren, 1 - Error und Stopp | Default bei Fehler: 0 
     ende: True                                                            # End-Bedingung (Programm-Exit Knopf):
@@ -1214,7 +1214,7 @@ devices:
       maxWinkel: 180                                                      # Maximaler Winkel [°] | Default bei Fehler: 180
       minWinkel: -1                                                       # Minimaler Winkel [°] | Default bei Fehler: 0
       maxSpeed: 3                                                         # Maximale Geschwindigkeit [1/min] | Default bei Fehler: 1
-      minSpeed: -3                                                        # Minimale Geschwindigkeit [1/min] | Default bei Fehler: -1
+                                                                          # Minimale Geschwindigkeit ist der negierte Wert der Maximalen Geschwindigkeit!!!
     GUI:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
       legend: Rezv ; IWv ; SWv ; IWw                    
@@ -1669,7 +1669,7 @@ devices:
       maxPos: 490                                                         # Maximale Position [mm] | Default bei Fehler: 1
       minPos: -490                                                        # Minimale Position [mm] | Default bei Fehler: 0
       maxSpeed: 600                                                       # Maximale Geschwindigkeit [mm/min] | Default bei Fehler: 1
-      minSpeed: -600                                                      # Minimale Geschwindigkeit [mm/min] | Default bei Fehler: -1
+                                                                          # Minimale Geschwindigkeit ist der negierte Wert der Maximalen Geschwindigkeit!!! Beim Fan ist es Null!
     GUI:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
       legend: IWs ; IWv ; Rezv      
@@ -1771,7 +1771,7 @@ devices:
       maxPos: 500                                                         # Maximale Position [mm] | Default bei Fehler: 1
       minPos: -500                                                        # Minimale Position [mm] | Default bei Fehler: 0
       maxSpeed: 1600                                                      # Maximale Geschwindigkeit [mm/min] | Default bei Fehler: 1
-      minSpeed: 0                                                         # Minimale Geschwindigkeit [mm/min] | Default bei Fehler: -1
+                                                                          # Minimale Geschwindigkeit ist der negierte Wert der Maximalen Geschwindigkeit!!! Beim Fan ist es Null!
     GUI:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
       legend: IWv ; Rezv      
@@ -1874,7 +1874,7 @@ devices:
       maxPos: 500                                                         # Maximale Position [mm] | Default bei Fehler: 1
       minPos: -500                                                        # Minimale Position [mm] | Default bei Fehler: 0
       maxSpeed: 20                                                        # Maximale Geschwindigkeit [mm/min] | Default bei Fehler: 1
-      minSpeed: -20                                                         # Minimale Geschwindigkeit [mm/min] | Default bei Fehler: -1
+                                                                          # Minimale Geschwindigkeit ist der negierte Wert der Maximalen Geschwindigkeit!!! Beim Fan ist es Null!
     GUI:
       knopf_anzeige: 1                                                    # Anzeige das der Knopf betätigt wurde! Default: False | Default bei Fehler: False
       legend: IWv ; Rezv     
