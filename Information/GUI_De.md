@@ -99,11 +99,12 @@ Wie bei PI-Achse und TruHeat ändert der PID-Modus den einzugebenen Sollwert und
 
 ### Nemo-Anlage: Antrieb Rotation
 
-<img src="../Bilder/WidgetDe_NemoRot.png" alt="NemoRot-Widget" title='Beispiel für Nemo-Anlage-Rotation-Widget' width=700/>    
+<img src="../Bilder/WidgetDe_NemoRot.png" alt="NemoRot-Widget-Nemo-1" title='Beispiel für Nemo-1-Anlage-Rotation-Widget' width=700/>    
+<img src="../Bilder/WidgetDe_NemoRot_N2.png" alt="NemoRot-Widget-Nemo-2" title='Beispiel für Nemo-2-Anlage-Rotation-Widget' width=700/>    
 
-Stand des Bildes: 11.02.25
+Stand des Bildes: 27.03.25
 
-Das Widget gehört zu der Rotations-Bewegung der Nemo-Anlagen-Antriebe. Im Beispiel wird das Widget der Nemo-Anlage 2 gezeigt. Die Nemo-Anlage 1 ist identisch im Aufbau der GUI. Gesendet wird hier die Winkelgeschwindigkeit. Folgende Punkte beinhaltet das Widget:
+Das Widget gehört zu der Rotations-Bewegung der Nemo-Anlagen-Antriebe. Im Beispiel werden beide Widgets gezeigt. Beide GUIs unterscheiden sich nur minimal von einander. Bei der Nemo-2-Anlage gibt es zusätzliche Werte. Gesendet wird hier die Winkelgeschwindigkeit. Folgende Punkte beinhaltet das Widget:
 
 1. Rezept Funktionen (Start, Beenden, Auswahl)
 2. Syncro-Rezept Funktion freischalten (Checkbox)
@@ -196,4 +197,4 @@ TruHeat             | Messzeit auf Null Sekunden setzen! Auch beim Init! | Der W
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 11.02.2025
+Die Letzte Änderung dieser Beschreibung war: 27.03.2025

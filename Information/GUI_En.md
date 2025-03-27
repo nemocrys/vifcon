@@ -99,11 +99,12 @@ As with the PI axis and TruHeat, the PID mode changes the setpoint to be entered
 
 ### Nemo system: Drive rotation
 
-<img src="../Bilder/WidgetEn_NemoRot.png" alt="NemoRot-Widget" title='Example of Nemo system rotation widget' width=700/>
+<img src="../Bilder/WidgetEn_NemoRot.png" alt="NemoRot-Widget-Nemo-1" title='Example of Nemo 1 system rotation widget' width=700/>
+<img src="../Bilder/WidgetEn_NemoRot_N2.png" alt="NemoRot-Widget-Nemo-2" title='Example of Nemo 2 system rotation widget' width=700/>
 
-Image status: February 11, 2025
+Image status: March 27, 2025
 
-The widget belongs to the rotation movement of the Nemo system drives. The example shows the widget of Nemo system 2. Nemo system 1 has an identical GUI structure. The angular velocity is sent here. The widget contains the following points:
+The widget belongs to the rotational movement of the Nemo system drives. Both widgets are shown in the example. The two GUIs differ only minimally from each other. The Nemo 2 system has additional values. The angular velocity is sent here. The widget contains the following items:
 
 1. Recipe functions (start, stop, selection)
 2. Activate syncro recipe function (checkbox)
@@ -196,4 +197,4 @@ TruHeat             | Set measurement time to zero seconds! Also at Init! | The 
 
 ## Last change
 
-The last change to this description was: February 11, 2025
+The last change to this description was: March 26, 2025

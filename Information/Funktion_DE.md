@@ -43,6 +43,10 @@ Nemo-Generator |1. Lese Max-Limits (P, I, U, f) und Generator Einstellungen (Nam
 PI-Achse | 1. Lese Informationen: <br>- Board Adresse, Status, Version <br>2. Start-Position Lesen
 TruHeat | 1. Schreibe den Watchdog-Timer<br>2. Lese Informationen:<br>- Software Version, Seriennummer Modul, Netzteil-Typ, SIMIN, SUMIN, Maximale Leistung, Maximaler Strom, Maximale Spannung, Aktives Interface 
 
+### Neustart
+
+Über Argparser kann zu Beginn mit `-n` die Neustart Funktion ausgeführt werden. Diese Funktion wurde für Programmabstürze gedacht, doch hat in VIFCON keine große Rolle mehr. Wenn dies mit `-n` gestartet wird, werden lediglich die unter [Start-Funktion](#start-funktion) stehenden Punkte nicht ausgeführt. Der Neustart-Modus wird ansich nicht mehr gebraucht, da die meisten Start-Konfigurationen entweder durch die Config abstellbar (z.B. Setzen von HO und PID-Werten bei Eurotherm) sind oder im späteren neu gesetzt werden können (z.B. PID-VIFCON-Werte, Limits, Rezepte).
+
 ## Plot, Legenden und Cursor
 
 <img src="../Bilder/GUI_S_De.png" alt="GUI" title='Grafische Oberfläche - Tab Steuerung' width=700/>
@@ -376,4 +380,4 @@ Die Ablaufdatei ist eine zusätzliche Log-Datei. In dieser wird z.B. vermerkt, w
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 13.03.2025
+Die Letzte Änderung dieser Beschreibung war: 27.03.2025

@@ -43,6 +43,10 @@ Nemo-Generator |1. Read max limits (P, I, U, f) and generator settings (name, ty
 PI-Axis | 1. Read information: <br>- Board address, status, version <br>2. Read start position
 TruHeat | 1. Write watchdog timer<br>2. Read information:<br>- Software version, Module serial number, Power supply type, SIMIN, SUMIN, Maximum power, Maximum current, Maximum voltage, Active interface
 
+### Restart
+
+The restart function can be executed via Argparser at the beginning with `-n`. This function was intended for program crashes, but no longer plays a major role in VIFCON. When started with `-n`, only the items listed under [Start-Function](#start-function) are not executed. The restart mode itself is no longer needed, since most startup configurations can either be disabled via the config (e.g., setting HO and PID values ​​for Eurotherm) or can be reset later (e.g., PID VIFCON values, limits, recipes).
+
 ## Plot, legends and cursors
 
 <img src="../Bilder/GUI_S_En.png" alt="GUI" title='Graphical interface - Control tab' width=700/>
@@ -377,4 +381,4 @@ The expiration file is an additional log file. It records, for example, which GU
 
 ## Last change
 
-The last change to this description was: March 13, 2025
+The last change to this description was: March 27, 2025
