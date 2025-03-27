@@ -29,6 +29,9 @@ Im Einzelmodus, wird immer nur eine Datei angezeigt. Beim Wechsel zu einer ander
 
 Ein kleines Video zeigt die Nutzung - [Nutzung.mp4](./Video/Nutzung.mp4)
 
+In der GUI werden bestimmte Größen gezeigt. Die Größen die einen Namen bekommen, können auch Skalliert werden. Wenn z.B. die Nemo-Gase Datei eingelesen wird, siehe folgendes Bild, dann wird in der Legende `?` erscheinen. Durch den Tool-Tip kann dann die Bezeichnung der Kurve wie z.B. PP22 gesehen werden, wodurch die Zuordnung erscheint! Das selbe passiert beim Wert der Umdrehungen bei der Nemo-Rotation!
+
+<img src="../Bilder/GUI_Extra_3_De.png" alt="Sonstige Daten" title='Weitere Daten Darstellung' width=700/>
 
 ### Knöpfe und Bereiche
 
@@ -78,7 +81,7 @@ options:
 ## Fehlende Punkte
 
 - Optimierungen:
-    - Vergleichsmodus - Datei entfernen und y-Achse anpassen! 
-    - Neustart Vergleichsmodus: Kontrolle der y-Achse
+    - Das Setzen und Entfernen der Skalierungsoption funktioniert nicht ganz im Vergleichsmodus!
+    - Vergleichsmodus: Anpassung der y-Achse bei Entfernung von Kurven! (z.B. P [%] bleibt auch wenn kein Gerät mehr ausgefällt ist!)
     - Änderung des Plot-Titels, wenn gewollt
     - Fehlermeldungen auf GUI

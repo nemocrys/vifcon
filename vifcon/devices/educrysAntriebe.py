@@ -1159,7 +1159,7 @@ class EducrysAntrieb(QObject):
             units = f"# datetime,s,mm,mm/min,{PID_x_unit},{PID_x_unit},\n"
             header = "time_abs,time_rel,Ist-Position,Ist-Geschwindigkeit,Soll-x_PID-Modus_A,Ist-x_PID-Modus_A,\n"
         else:
-            units = f"# datetime,mm,1/min,{PID_x_unit},{PID_x_unit},\n"
+            units = f"# datetime,s,1/min,{PID_x_unit},{PID_x_unit},\n"
             header = "time_abs,time_rel,Ist-Winkelgeschwindigkeit,Soll-x_PID-Modus_A,Ist-x_PID-Modus_A,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")

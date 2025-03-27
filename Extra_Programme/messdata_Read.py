@@ -256,7 +256,7 @@ class PlotWidget(QWidget):
         #            Größe:                     [Möglichkeiten (list), Achsenlabel (string or list), Achse (string)]
         Achsen =    {'Temperatur':              [['Soll-Temperatur', 'Ist-Temperatur', 'Soll-Temperatur_PID-Modus', 'Ist-Temperatur_PID-Modus'],                                                'T',            'links'],
                      'Position':                [['Position', 'Position-sim', 'Position-real', 'Soll-Position','max.Pos.','min.Pos.', 'Ist-Position-sim', 'Ist-Position-real', 'Ist-Position'], 's',            'links'],
-                     'Winkel':                  [['Ist-Winkel', 'Winkel'],                                                                                                                      '\u03B1',       'links'],
+                     'Winkel':                  [['Ist-Winkel', 'Winkel', 'Ist-Winkel(sim)','Ist-Winkel(real)'],                                                                                '\u03B1',       'links'],
                      'Strom':                   [['Ist-Strom','Soll-Strom', 'Ist_Strom'],                                                                                                       'I',            'links'],
                      'Spannung':                [['Ist-Spannung', 'Soll-Spannung'],                                                                                                             'U',            'links'],
                      'Leistung':                [['Ist-Leistung','Soll-Leistung', 'Operating-point'],                                                                                           'P',            'rechts'],
@@ -302,6 +302,7 @@ class PlotWidget(QWidget):
                         ak_size     = 'Unbekannt'
                         size_Fo     = '?'
                         achse_pos   = 'links'
+                        size        = '?'
                 ### Zusatz-Beschriftung finden:
                 for extra in Zusatz:
                     if Zusatz[extra] in n:
@@ -323,8 +324,12 @@ class PlotWidget(QWidget):
                 elif size == 'PIDG':
                     unit    = 's.G.'
                     size_Fo = 'xG'
+                elif size == '?':
+                    unit    = 's.CSV'
                 if unit == 'DEG C':
                     unit = '°C'
+                elif unit == 'DEG':
+                    unit = '°'
                 ### Zusammensetzen:
                 label = f'{size_Fo} [{unit}] | '
                 if achse_pos == 'links' and not label in self.label_left:        self.label_left += label
@@ -747,30 +752,31 @@ class GUI(QMainWindow, Cursor):
                     for n in variables_list:
                         werte_dict.update({n:[[], units_list[z]]})
                         z += 1
+                    variable_anz = len(variables_list)
                 else:
                     teil_zeile = line.split(',')
                     z = 0
-                    for teil in teil_zeile:
-                        variable = variables_list[z]
-                        werte_dict[variable][0].append(teil)
-                        z += 1
+                    if variable_anz == len(teil_zeile):
+                        for teil in teil_zeile:
+                            variable = variables_list[z]
+                            werte_dict[variable][0].append(teil)
+                            z += 1
+                    else:
+                        for teil in variables_list:
+                            werte_dict[teil][0].append(teil_zeile[z])
+                            z += 1
 
             self.plot.update(f"{file.replace('.csv', '').replace(f'{self.ordner}/','')} - {date}", werte_dict, self.plot, self.legend_achsen_Rechts_widget, file)
 
-            ## Skalierungsbereiche freischalten:
-            for n in self.size_dict:
-                for i in self.plot.curve_dict:
-                    if self.plot.curve_dict[i][0] == n:
-                        self.size_dict[n][1].setEnabled(True)     
-                        break  
         else:
-            #print(self.plot.used_Color_list)
+            # Entfernen der Kurven und der Legende:
             del_widget = []
             for widget in self.plot.widget_dict:
                 if self.plot.widget_dict[widget][0] == file:
                     widget.setParent(None) 
                     self.plot.used_Color_list.remove(self.plot.widget_dict[widget][1])
-                    #print( self.plot.used_Color_list)
+                    kurve = self.plot.widget_dict[widget][2]
+                    self.plot.curve_dict.pop(kurve)
                     self.plot.widget_dict[widget][2].clear()
                     self.plot.anzK = 0
                     del_widget.append(widget)
@@ -778,6 +784,32 @@ class GUI(QMainWindow, Cursor):
                 self.plot.widget_dict.pop(n)
             button.setStyleSheet(self.default)
             self.bereits_geklicket.remove(file)
+        
+        ## Skalierungsbereiche freischalten und Speeren:
+        ak_Size_Skal = []
+        # fontsize     = 12
+        # right_color  = 'red'
+        for j in self.plot.curve_dict:
+            ak_Size_Skal.append(self.plot.curve_dict[j][0])
+                
+        for n in self.size_dict:
+            for i in self.plot.curve_dict:
+                ### Freischalten Eingabefelder:
+                if self.plot.curve_dict[i][0] == n:
+                    self.size_dict[n][1].setEnabled(True)    
+                    break 
+        
+        # ### Update y-Achse im Falle des Vergleichsmodus:
+        # for n in self.size_dict:
+        #     if self.plot.Vergleichsmodus:
+        #         if n in self.plot.label_left:
+        #             if not n in ak_Size_Skal:
+        #                 self.plot.label_left = self.plot.label_left.replace(f'{n} | ', '')[0:-2]
+        #                 self.plot.achse_1.setLabel(axis = 'left', text= self.plot.label_left, **{'font-size': f'{fontsize}pt'}) 
+        #         if n in self.plot.label_right:
+        #             if not n in ak_Size_Skal:
+        #                 self.plot.label_right = self.plot.label_right.replace(f'{n} | ', '')[0:-2]
+        #                 self.plot.achse_1.getAxis('right').setLabel(self.plot.label_right, **{'color': right_color, 'font-size': f'{fontsize}pt'})
 
     def Update_Kurven_Bereich(self):
         self.labelError_1.setText('')
@@ -911,6 +943,8 @@ class GUI(QMainWindow, Cursor):
         self.plot.achse_2.clear()
         self.plot.achse_1.setLabel(axis = 'left', text= '', **{'font-size': f'{fontsize}pt'}) 
         self.plot.achse_1.getAxis('right').setLabel('', **{'color': right_color, 'font-size': f'{fontsize}pt'})
+        self.plot.label_right = ''
+        self.plot.label_left = ''
         self.plot.used_Color_list = []
         self.bereits_geklicket = []
         self.plot.widget_dict = {}

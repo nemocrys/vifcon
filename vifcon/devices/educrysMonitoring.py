@@ -397,7 +397,7 @@ class EducrysMon:
         """
         self.filename = f"{pfad}/{self.device_name}.csv"
         units  = "# datetime,s,DEG C,DEG C,DEG C,DEG C,DEG C,ms,ms,ms,ms,DEG C,DEG C,g,g,mm,\n"
-        header = "time_abs,time_rel,TC1_Temp,TC2_Temp,PT1_Temp,PT2_Temp,Pyrometer_Temp,PID_Output,PID_P_Anteil,PID_I_Anteil,PID_D_Anteil,PID_Input,PID_Input_gemittelt,Gewischt,Gewischt_gemittelt,Durchmesser,\n"
+        header = "time_abs,time_rel,TC1_Temp,TC2_Temp,PT1_Temp,PT2_Temp,Pyrometer_Temp,PID_Output,PID_P_Anteil,PID_I_Anteil,PID_D_Anteil,PID_Input,PID_Input_gemittelt,Gewicht,Gewicht_gemittelt,Durchmesser,\n"
         if self.messZeit != 0:                                          # Erstelle Datei nur wenn gemessen wird!
             logger.info(f"{self.device_name} - {self.Log_Text_71_str[self.sprache]} {self.filename}")
             with open(self.filename, "w", encoding="utf-8") as f:

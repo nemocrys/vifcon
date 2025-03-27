@@ -29,6 +29,10 @@ In single mode, only one file is displayed at a time. When switching to another,
 
 A short video shows the use - [Nutzung.mp4](./Video/Nutzung.mp4)
 
+Certain quantities are displayed in the GUI. Quantities that are given a name can also be scaled. For example, if the Nemo gas file is imported, see the following image, '?' will appear in the legend. The tooltip then shows the curve name, such as PP22, which indicates the assignment! The same applies to the revolution value for the Nemo rotation!
+
+<img src="../Bilder/GUI_Extra_3_De.png" alt="Other Data" title='Other Data Display' width=700/>
+
 ### Buttons and areas
 
 **Area 1 - Scaling:**    
@@ -77,7 +81,7 @@ options:
 ## Missing points
 
 - Optimizations:
-  - Compare mode - remove file and adjust y-axis!
-  - Restart compare mode: check the y-axis
+  - Setting and removing the scaling option does not fully work in compare mode!
+  - Comparison mode: Adjustment of the y-axis when curves are removed! (e.g., P [%] remains even if no device has failed!)
   - Change the plot title if desired
   - Error messages on GUI
