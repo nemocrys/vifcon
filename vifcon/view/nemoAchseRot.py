@@ -1108,7 +1108,7 @@ class NemoAchseRotWidget(QWidget):
     def Stopp(self, n = 1):
         '''Halte Achse an'''
         if self.init:
-            if n == 3: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_47_str[self.sprache]}')
+            if n == 3:   self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_47_str[self.sprache]}')
             elif n == 5: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_90_str[self.sprache]}')
             elif n == 6: self.add_Text_To_Ablauf_Datei(f'{self.device_name} - {self.Text_PID_3[self.sprache]}') # PID wird eingeschaltet!!
             # Beende PID-Modus:
@@ -2049,5 +2049,28 @@ class NemoAchseRotWidget(QWidget):
         print(f'Zeitdifferenz zu Soll: {timediff-self.time_list[self.step]}')
         #print(f'Nächste Timer Zeit: {self.time_list[self.step]}')
             self.start_Func = datetime.datetime.now(datetime.timezone.utc).astimezone()
+
+        timediff    = (datetime.datetime.now(datetime.timezone.utc).astimezone() - self.start_Func).total_seconds()  # Differenz Timer-Aufruf
+        timediff_2  = timediff - self.time_list[self.step]                                                           # Differenz zum Vorliegenden Zeitschritt
+        if timediff_2 > 0:      self.sum += timediff_2
+        elif timediff_2 < 0:    self.sum -= timediff_2
+        #print(f'Zeitdifferenz zu Soll: {timediff-self.time_list[self.step]}')
+        #print(f'Nächste Timer Zeit: {self.time_list[self.step]}')
+
+        class MyThread(QThread):
+            def __init__(self, target=None):
+                super().__init__()
+                self.target = target
+                self.RezTimer = QTimer()                                                                
+                self.RezTimer.timeout.connect(target) 
+            
+            def start(self):
+                self.RezTimer.start()
+
+            def change_Time(self, time):
+                self.RezTimer.setInterval(time)
+
+            def stop(self):
+                self.RezTimer.stop()
 
 '''
