@@ -1681,8 +1681,8 @@ class NemoAchseRotWidget(QWidget):
         if self.step > len(self.time_list) - 1:
             self.Stopp(2)
         else:
+            # Timer Intervall updaten:
             self.RezTimer.setInterval(int(abs(self.time_list[self.step]*1000)))
-
             # Nächstes Element senden:
             ## PID-Modus oder Normaler-Modus:
             if self.PID_cb.isChecked():

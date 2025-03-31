@@ -328,6 +328,235 @@ If something goes wrong during setup or Multilog is closed, VIFCON reacts and te
 
 To switch on communication, the *Multilog_Link* configuration under *Function_Skip* must be set to True (1). This makes it possible for both programs to communicate with each other. On the one hand, all data is saved in the Multilog measurement folder and, on the other hand, Multilog measurement values ​​for the VIFCON PID controller can be used for all control devices.
 
+### VIFCON values ​​to Multilog
+
+VIFCON sends specific dictionaries to Multilog. These dictionaries contain specific abbreviations for the various values. These abbreviations can also be found in the curve legends. These dictionaries are shown below so that Multilog can also see what is being received. Examples can be found under [Multilog Link](#Multilog-Link). These dictionaries contain all the values ​​that are also written to the CSV files! All designations are based on German words or the symbols of the size!
+
+#### Educrys drives
+
+```
+self.value_name = { 'IWs': 0,               # Actual value of the distance
+                    'IWv': 0,               # Actual speed value
+                    'SWxPID': self.Soll,    # Setpoint PID controller input
+                    'IWxPID': self.Ist      # Actual value PID controller input
+                    }
+```
+
+IWs will only be non-zero for the linear drive!
+
+#### Educrys Heater
+
+```
+self.value_name = { 'SWT': 0,               # Setpoint temperature
+                    'IWT': 0,               # Actual value temperature
+                    'IWOp': 0,              # Actual value power
+                    'SWTPID': self.Soll,    # Setpoint PID controller input temperature
+                    'IWTPID': self.Ist      # Actual value PID controller input temperature
+                    }
+```
+
+#### Educrys-Monitioring
+
+```
+self.value_name     = { 'TC1_T': 0,         # temperature TC1-Sensor
+                        'TC2_T': 0,         # temperature TC2-Sensor
+                        'PT1_T': 0,         # temperature PT1-Sensor
+                        'PT2_T': 0,         # temperature PT2-Sensor
+                        'Pyro_T': 0,        # temperature Pyrometer
+                        'PID_Out': 0,       # PID-Output
+                        'PID_P': 0,         # P-component of the PID output
+                        'PID_I': 0,         # I-component of the PID-Output
+                        'PID_D': 0,         # D-component of the PID-Output
+                        'PID_In': 0,        # PID-Input
+                        'PID_In_M': 0,      # PID-Input averaged
+                        'K_weight': 0,      # Crystal weight
+                        'K_weight_M': 0,    # Crystal weight averaged
+                        'K_d': 0            # Crystal diameter
+                        } 
+```
+
+#### Eurotherm
+
+```
+self.value_name = { 'SWT': 0,               # Setpoint temperature 
+                    'IWT': 0,               # Actual value temperature 
+                    'IWOp': 0,              # Actual value Operatingpoint (power)
+                    'SWTPID': self.Soll,    # Setpoint PID controller input temperature 
+                    'IWTPID': self.Ist      # Actual value PID controller input temperature
+                    }
+```
+
+#### Nemo system linear drive
+
+```
+self.value_name = { 'IWs': 0,               # Actual value Simulated distance
+                    'IWsd':0,               # Actual value Real distance from the device
+                    'IWv': 0,               # Actual value Speed
+                    'SWv': 0,               # Setpoint Speed
+                    'SWs':0,                # Setpoint distance
+                    'oGs':0,                # Maximum Limit Distance (Upper Limit)
+                    'uGs': 0,               # Minimum Limit Distance (lower limit)
+                    'SWxPID': self.Soll,    # Setpoint PID controller input
+                    'IWxPID': self.Ist,     # Actual value PID controller input
+                    'Status': 0,            # Status message 1
+                    'Status_2': 0,          # Status message 2
+                    'StatusEil': 0,         # Status message 3 (rapid traverse)
+                    'StatusEil_2': 0        # Status message 4 (rapid traverse)   
+                    }
+```
+
+The status message is a read-out value used for the GUI. It is not used in the CSV file or the plot!
+Status messages 2 to 4 are only available with Nemo-2!
+
+#### Nemo system rotation drive
+
+Nemo-1:
+```
+self.value_name = { 'IWv': 0,               # Actual value Angular velocity
+                    'IWw':0,                # Actual value simulated angle
+                    'SWv': 0,               # Setpoint Angular velocity
+                    'SWxPID': self.Soll,    # Setpoint PID controller input
+                    'IWxPID': self.Ist,     # Actual value PID controller input
+                    'Status': 0             # Status message
+                    }
+```
+
+Nemo-2:
+```
+self.value_name = { 'IWv': 0,               # Actual value Angular velocity
+                    'IWw':0,                # Actual value simulated angle
+                    'IWwd':0,               # Actual value real angle of the device
+                    'IWwU':0,               # Actual value Angles as revolutions
+                    'SWv': 0,               # Setpoint Angular velocity
+                    'SWxPID': self.Soll,    # Setpoint PID controller input
+                    'IWxPID': self.Ist,     # Actual value PID controller input
+                    'Status': 0             # Status message
+                    }
+```
+
+There are two different dictionaries for rotation. Nemo-2 has two additional values ​​that the Nemo-1 system doesn't provide.
+
+The status message is a read-out value used for the GUI. It is not used in the CSV file or the plot!
+
+#### Nemo-Anlage Monitoring
+
+```
+self.value_name = { 'MFC24': 0,             # Mass-Flow-Controller 24 Actual flow
+                    'MFC25': 0,             # Mass-Flow-Controller 25 Actual flow
+                    'MFC26': 0,             # Mass-Flow-Controller 26 Actual flow
+                    'MFC27': 0,             # Mass-Flow-Controller 27 Actual flow
+                    'DM21': 0,              # Actual pressure of pump DM21
+                    'PP21': 0,              # Actual pressure of pump PP21
+                    'PP22': 0,              # Actual pressure of pump PP22
+                    'PP21Status': 0,        # Status message of pump PP21
+                    'PP22Status': 0,        # Status message of pump PP22
+                    'PP22I': 0,             # number of revolutions of pump PP22
+                    'PP22mPtS': 0,          # max pressure zum Start of pump PP22
+                    'MV1_I': 0,             # Actual pressure at solenoid valve 1 
+                    'MV1_S': 0,             # Solldruck at solenoid valve 1
+                    'MV1_VS': 0,            # Valve position at solenoid valve 1
+                    'MV1Status': 0,         # Status message at solenoid valve 1
+                    'MFC24_S': 0,           # Mass-Flow-Controller 24 Target flow
+                    'MFC24_FM': 0,          # Mass-Flow-Controller 24 Maximum flow
+                    'MFC24Status': 0,       # Status message Mass-Flow-Controller 24 
+                    'MFC25_S': 0,           # Mass-Flow-Controller 25 Target flow
+                    'MFC25_FM': 0,          # Mass-Flow-Controller 25 Maximum flow
+                    'MFC25Status': 0,       # Status message Mass-Flow-Controller 25
+                    'MFC26_S': 0,           # Mass-Flow-Controller 26 Target flow
+                    'MFC26_FM': 0,          # Mass-Flow-Controller 26 Maximum flow
+                    'MFC26Status': 0,       # Status message Mass-Flow-Controller 26
+                    'MFC27_S': 0,           # Mass-Flow-Controller 27 Target flow
+                    'MFC27_FM': 0,          # Mass-Flow-Controller 27 Maximum flow
+                    'MFC27Status': 0,       # Status message Mass-Flow-Controller 27
+                    'V1Status': 0,          # Status message valve 1
+                    'V2Status': 0,          # Status message valve 2
+                    'V3Status': 0,          # Status message valve 3
+                    'V4Status': 0,          # Status message valve 4
+                    'V5Status': 0,          # Status message valve 5
+                    'V6Status': 0,          # Status message valve 6
+                    'V7Status': 0,          # Status message valve 7
+                    'V17Status': 0,         # Status message valve 17
+                    'KWKDF_1': 0,           # Water cooling circuit 1 - flow
+                    'KWKDF_2': 0,           # Water cooling circuit 2 - flow
+                    'KWKDF_3': 0,           # Water cooling circuit 3 - flow 
+                    'KWKDF_4': 0,           # Water cooling circuit 4 - flow 
+                    'KWKDF_5': 0,           # Water cooling circuit 5 - flow 
+                    'KWKDF_6': 0,           # Water cooling circuit 6 - flow 
+                    'KWKDF_7': 0,           # Water cooling circuit 7 - flow 
+                    'KWKDF_8': 0,           # Water cooling circuit 8 - flow 
+                    'KWKDF_9': 0,           # Water cooling circuit 9 - flow 
+                    'KWKT_1': 0,            # Water cooling circuit 1 - temperature 
+                    'KWKT_2': 0,            # Water cooling circuit 2 - temperature  
+                    'KWKT_3': 0,            # Water cooling circuit 3 - temperature  
+                    'KWKT_4': 0,            # Water cooling circuit 4 - temperature  
+                    'KWKT_5': 0,            # Water cooling circuit 5 - temperature  
+                    'KWKT_6': 0,            # Water cooling circuit 6 - temperature  
+                    'KWKT_7': 0,            # Water cooling circuit 7 - temperature  
+                    'KWKT_8': 0,            # Water cooling circuit 8 - temperature  
+                    'KWKT_9': 0,            # Water cooling circuit 9 - temperature 
+                    'ASTO': 0,              # temperature Safety thermocouple top
+                    'ASTM': 0,              # temperature Safety thermocouple center
+                    'ASTU': 0,              # temperature Safety thermocouple bottom
+                    'ASBMStatus': 0,        # Status message Operating mode
+                    'ASStatus':0,           # Status message System
+                    }
+```
+
+The status message is a read-out value used for the GUI. This is not used in the CSV file!
+Please note the following:
+
+Nemo-1: `"time_abs,time_rel,MFC24,MFC25,MFC26,MFC27,DM21,PP21,PP22,PP22I,\n"` - Header CSV file
+Nemo-2: `"time_abs,time_rel,MFC1_Ist,MFC2_Ist,MFC3_Ist,MFC4_Ist,PP1,PP2,P2I,PP2mPtS,MV1_Ist,MV1_Soll,MV1_VS,MFC1_Soll,MFC1_FlowMax,MFC2_Soll,MFC2_FlowMax,MFC3_Soll,MFC3_FlowMax,MFC4_Soll,MFC4_FlowMax,WK1Flow,WK2Flow,WK3Flow,WK4Flow,WK5Flow,WK6Flow,WK7Flow,WK8Flow,WK9Flow,WK1T,WK2T,WK3T,WK4T,WK5T,WK6T,WK7T,WK8T,WK9T,SaveThermoOben,SaveThermoMitte,SaveThermoUnten,\n"` - Header CSV file
+
+Many of the values ​​are missing from the Nemo 1 system. The CSW file contains many zeros for all missing values!
+
+#### Nemo-2 plant generator
+
+```
+self.value_name = { 'IWP': 0,               # Actual value power
+                    'IWU': 0,               # Actual value voltage
+                    'IWI': 0,               # Actual value current
+                    'IWf': 0,               # Actual value frequency
+                    'SWP': 0,               # Setpoint power
+                    'SWU': 0,               # Setpoint voltage
+                    'SWI': 0,               # Setpoint current
+                    'SWxPID': self.Soll,    # Setpoint PID controller input
+                    'IWxPID': self.Ist,     # Actual value PID controller input
+                    'Status': 0,            # Status message 
+                    'Status_Name': '',      # Name of the generator
+                    'Status_Typ': 0,        # Interface number
+                    'Status_Kombi': 0       # Combination of generators
+                    }
+```
+
+The status message is a read-out value used for the GUI. It is not used in the CSV file or the plot!
+
+#### PI axis
+
+```
+self.value_name = { 'IWs': 0,               # Actual value distance
+                    'IWv': 0,               # Actual value Speed
+                    'SWv': 0,               # Setpoint Speed
+                    'SWxPID': self.Soll,    # Setpoint PID controller input   
+                    'IWxPID': self.Ist      # Actual value PID controller input
+                    }
+```
+
+#### TruHeat
+
+```
+self.value_name = { 'IWP': 0,               # Actual value power
+                    'IWU': 0,               # Actual value voltage
+                    'IWI': 0,               # Actual value current
+                    'IWf': 0,               # Actual value frequency
+                    'SWP': 0,               # Setpoint power
+                    'SWU': 0,               # Setpoint volatge
+                    'SWI': 0,               # Setpoint current
+                    'SWxPID': self.Soll,    # Setpoint PID controller input
+                    'IWxPID': self.Ist      # Actual value PID controller input
+                    } 
+```
+
 ## Test mode
 
 At the start of a program, test mode can be switched on via the console (`-t`). This function allows VIFCON to be used without a device. The [Initialization](#Initialization), the [Recipe function](#Recipe mode) and other points can be viewed. However, it must be noted that the measurement values ​​shown are generated randomly. An example can be found in the [main readme](../README.md).
@@ -381,4 +610,4 @@ The expiration file is an additional log file. It records, for example, which GU
 
 ## Last change
 
-The last change to this description was: March 27, 2025
+The last change to this description was: March 31, 2025

@@ -327,6 +327,235 @@ Wenn bei dem Aufbau etwas schief geht oder Multilog geschlossen wird, reagiert V
 
 Um die Kommunikation einzuschalten, muss die Konfiguration *Multilog_Link* unter *Function_Skip* auf True (1) gestellt werden.  Somit ist es möglich das beide Programme miteinander kommunizieren. Zum einen werden alle Daten im Multilog-Messordner gespeichert und zum anderen können Multilog-Messwerte für den PID-Regler von VIFCON für alle Steuergeräte genutzt werden. 
 
+### VIFCON-Werte an Multilog
+
+VIFCON sendet bestimmte Dictionaries an Multilog. Diese Dictionaries beinhalten bestimmte Abkürzungen für die verschiedenen Werte. Diese Abkürzungen finden sich auch bei den Kurven (Legenden) wieder. Im folgenden sollen diese Dictionaries gezeigt werden, somit man auch an Multilog sehen kann was ankommt. Beispiel sind unter [Multilog Link](#Multilog-Link) zu finden. Diese Dictionaries beinhalten alle Werte die auch in die CSV-Datein geschrieben werden! All designations are based on German words or the symbols of the size!
+
+#### Educrys-Antriebe
+
+```
+self.value_name = { 'IWs': 0,               # Istwert Strecke
+                    'IWv': 0,               # Istwert Geschwindigkeit
+                    'SWxPID': self.Soll,    # Sollwert PID-Regler-Input
+                    'IWxPID': self.Ist      # Istwert PID-Regler-Input
+                    }
+```
+
+IWs wird nur bei dem Linearen Antrieb ungleich Null sein!
+
+#### Educrys-Heizer
+
+```
+self.value_name = { 'SWT': 0,               # Sollwert Temperatur
+                    'IWT': 0,               # Istwert Temperatur
+                    'IWOp': 0,              # Istwert Leistung
+                    'SWTPID': self.Soll,    # Sollwert PID-Regler-Input Temperatur
+                    'IWTPID': self.Ist      # Istwert PID-Regler-Input Temperatur
+                    }
+```
+
+#### Educrys-Monitioring
+
+```
+self.value_name     = { 'TC1_T': 0,         # Temperatur TC1-Sensor
+                        'TC2_T': 0,         # Temperatur TC2-Sensor
+                        'PT1_T': 0,         # Temperatur PT1-Sensor
+                        'PT2_T': 0,         # Temperatur PT2-Sensor
+                        'Pyro_T': 0,        # Temperatur Pyrometer
+                        'PID_Out': 0,       # PID-Output
+                        'PID_P': 0,         # P-Anteil des PID-Output
+                        'PID_I': 0,         # I-Anteil des PID-Output
+                        'PID_D': 0,         # D-Anteil des PID-Output
+                        'PID_In': 0,        # PID-Input
+                        'PID_In_M': 0,      # PID-Input gemittelt
+                        'K_weight': 0,      # Kristallgewicht
+                        'K_weight_M': 0,    # Kristallgewicht gemittelt
+                        'K_d': 0            # Kristalldurchmesser
+                        } 
+```
+
+#### Eurotherm
+
+```
+self.value_name = { 'SWT': 0,               # Sollwert Temperatur 
+                    'IWT': 0,               # Istwert Temperatur 
+                    'IWOp': 0,              # Istwert Operatingpoint (Leistung)
+                    'SWTPID': self.Soll,    # Sollwert PID-Regler-Input Temperatur 
+                    'IWTPID': self.Ist      # Istwert PID-Regler-Input Temperatur
+                    }
+```
+
+#### Nemo-Anlage Linearer-Antrieb
+
+```
+self.value_name = { 'IWs': 0,               # Istwert Simulierte Strecke
+                    'IWsd':0,               # Istwert Reale Strecke vom Gerät
+                    'IWv': 0,               # Istwert Geschwindigkeit
+                    'SWv': 0,               # Sollwert Geschwindigkeit
+                    'SWs':0,                # Sollwert Strecke
+                    'oGs':0,                # Maximum Limit Strecke (Obere Grenze)
+                    'uGs': 0,               # Minimum Limit Strecke (untere Grenze)
+                    'SWxPID': self.Soll,    # Sollwert PID-Regler Input
+                    'IWxPID': self.Ist,     # Istwert PID-Regler Input
+                    'Status': 0,            # Statusmeldung 1
+                    'Status_2': 0,          # Statusmeldung 2
+                    'StatusEil': 0,         # Statusmeldung 3 (Eilgang)
+                    'StatusEil_2': 0        # Statusmeldung 4 (Eilgang)   
+                    }
+```
+
+Die Statusmeldung ist ein ausgelesener Wert, der für die GUI gebraucht wird. Diese wird nicht in der CSV-Datei oder dem Plot verwendet!
+Die Statusmeldungen 2 bis 4 gibt es nur bei Nemo-2!
+
+#### Nemo-Anlage Rotations-Antrieb
+
+Nemo-1:
+```
+self.value_name = { 'IWv': 0,               # Istwert Winkelgeschwindigkeit
+                    'IWw':0,                # Istwert simulierter Winkel
+                    'SWv': 0,               # Sollwert Winkelgeschwindigkeit
+                    'SWxPID': self.Soll,    # Sollwert PID-Regler Input
+                    'IWxPID': self.Ist,     # Istwert PID-Regler Input
+                    'Status': 0             # Statusmeldung
+                    }
+```
+
+Nemo-2:
+```
+self.value_name = { 'IWv': 0,               # Istwert Winkelgeschwindigkeit
+                    'IWw':0,                # Istwert simulierter Winkel
+                    'IWwd':0,               # Istwert realer Winkel vom Gerät
+                    'IWwU':0,               # Istwert Winkel als Umdrehungen
+                    'SWv': 0,               # Sollwert Winkelgeschwindigkeit
+                    'SWxPID': self.Soll,    # Sollwert PID-Regler Input
+                    'IWxPID': self.Ist,     # Istwert PID-Regler Input
+                    'Status': 0             # Statusmeldung
+                    }
+```
+
+Bei der Rotation gibt es zwei verschiedene Dictionaries. Nemo-2 hat zwei zusätzliche Wertem, die die Nemo-1 Anlage nicht liefert.
+
+Die Statusmeldung ist ein ausgelesener Wert, der für die GUI gebraucht wird. Diese wird nicht in der CSV-Datei oder dem Plot verwendet!
+
+#### Nemo-Anlage Monitoring
+
+```
+self.value_name = { 'MFC24': 0,             # Mass-Flow-Controller 24 Istfluss
+                    'MFC25': 0,             # Mass-Flow-Controller 25 Istfluss
+                    'MFC26': 0,             # Mass-Flow-Controller 26 Istfluss
+                    'MFC27': 0,             # Mass-Flow-Controller 27 Istfluss
+                    'DM21': 0,              # Istdruck der Pumpe DM21
+                    'PP21': 0,              # Istdruck der Pumpe PP21
+                    'PP22': 0,              # Istdruck der Pumpe PP22
+                    'PP21Status': 0,        # Statusmeldung der Pumpe PP21
+                    'PP22Status': 0,        # Statusmeldung der Pumpe PP22
+                    'PP22I': 0,             # Drehzahl der Pumpe PP22
+                    'PP22mPtS': 0,          # max Druck zum Start der Pumpe PP22
+                    'MV1_I': 0,             # Istdruck bei Magnetventil 1 
+                    'MV1_S': 0,             # Solldruck bei Magnetventil 1
+                    'MV1_VS': 0,            # Ventilstellung bei Magnetventil 1
+                    'MV1Status': 0,         # Statusmeldung bei Magnetventil 1
+                    'MFC24_S': 0,           # Mass-Flow-Controller 24 Sollfluss
+                    'MFC24_FM': 0,          # Mass-Flow-Controller 24 Maximaler Fluss
+                    'MFC24Status': 0,       # Statusmeldung Mass-Flow-Controller 24 
+                    'MFC25_S': 0,           # Mass-Flow-Controller 25 Sollfluss
+                    'MFC25_FM': 0,          # Mass-Flow-Controller 25 Maximaler Fluss
+                    'MFC25Status': 0,       # Statusmeldung Mass-Flow-Controller 25
+                    'MFC26_S': 0,           # Mass-Flow-Controller 26 Sollfluss
+                    'MFC26_FM': 0,          # Mass-Flow-Controller 26 Maximaler Fluss
+                    'MFC26Status': 0,       # Statusmeldung Mass-Flow-Controller 26
+                    'MFC27_S': 0,           # Mass-Flow-Controller 27 Sollfluss
+                    'MFC27_FM': 0,          # Mass-Flow-Controller 27 Maximaler Fluss
+                    'MFC27Status': 0,       # Statusmeldung Mass-Flow-Controller 27
+                    'V1Status': 0,          # Statusmeldung Ventil 1
+                    'V2Status': 0,          # Statusmeldung Ventil 2
+                    'V3Status': 0,          # Statusmeldung Ventil 3
+                    'V4Status': 0,          # Statusmeldung Ventil 4
+                    'V5Status': 0,          # Statusmeldung Ventil 5
+                    'V6Status': 0,          # Statusmeldung Ventil 6
+                    'V7Status': 0,          # Statusmeldung Ventil 7
+                    'V17Status': 0,         # Statusmeldung Ventil 17
+                    'KWKDF_1': 0,           # Wasser-Kühlkreislauf 1 - Durchfluss
+                    'KWKDF_2': 0,           # Wasser-Kühlkreislauf 2 - Durchfluss
+                    'KWKDF_3': 0,           # Wasser-Kühlkreislauf 3 - Durchfluss 
+                    'KWKDF_4': 0,           # Wasser-Kühlkreislauf 4 - Durchfluss 
+                    'KWKDF_5': 0,           # Wasser-Kühlkreislauf 5 - Durchfluss 
+                    'KWKDF_6': 0,           # Wasser-Kühlkreislauf 6 - Durchfluss 
+                    'KWKDF_7': 0,           # Wasser-Kühlkreislauf 7 - Durchfluss 
+                    'KWKDF_8': 0,           # Wasser-Kühlkreislauf 8 - Durchfluss 
+                    'KWKDF_9': 0,           # Wasser-Kühlkreislauf 9 - Durchfluss 
+                    'KWKT_1': 0,            # Wasser-Kühlkreislauf 1 - Temperatur 
+                    'KWKT_2': 0,            # Wasser-Kühlkreislauf 2 - Temperatur  
+                    'KWKT_3': 0,            # Wasser-Kühlkreislauf 3 - Temperatur  
+                    'KWKT_4': 0,            # Wasser-Kühlkreislauf 4 - Temperatur  
+                    'KWKT_5': 0,            # Wasser-Kühlkreislauf 5 - Temperatur  
+                    'KWKT_6': 0,            # Wasser-Kühlkreislauf 6 - Temperatur  
+                    'KWKT_7': 0,            # Wasser-Kühlkreislauf 7 - Temperatur  
+                    'KWKT_8': 0,            # Wasser-Kühlkreislauf 8 - Temperatur  
+                    'KWKT_9': 0,            # Wasser-Kühlkreislauf 9 - Temperatur 
+                    'ASTO': 0,              # Temperatur Sicherheitsthermoelement Oben
+                    'ASTM': 0,              # Temperatur Sicherheitsthermoelement Mitte
+                    'ASTU': 0,              # Temperatur Sicherheitsthermoelement Unten
+                    'ASBMStatus': 0,        # Statusmeldung Betriebsmodus
+                    'ASStatus':0,           # Statusmeldung Anlage
+                    }
+```
+
+Die Statusmeldung ist ein ausgelesener Wert, der für die GUI gebraucht wird. Diese wird nicht in der CSV-Datei verwendet!
+Beachtet werden muss folgendes:
+
+Nemo-1: `"time_abs,time_rel,MFC24,MFC25,MFC26,MFC27,DM21,PP21,PP22,PP22I,\n"` - Kopf CSV-Datei
+Nemo-2: `"time_abs,time_rel,MFC1_Ist,MFC2_Ist,MFC3_Ist,MFC4_Ist,PP1,PP2,P2I,PP2mPtS,MV1_Ist,MV1_Soll,MV1_VS,MFC1_Soll,MFC1_FlowMax,MFC2_Soll,MFC2_FlowMax,MFC3_Soll,MFC3_FlowMax,MFC4_Soll,MFC4_FlowMax,WK1Flow,WK2Flow,WK3Flow,WK4Flow,WK5Flow,WK6Flow,WK7Flow,WK8Flow,WK9Flow,WK1T,WK2T,WK3T,WK4T,WK5T,WK6T,WK7T,WK8T,WK9T,SaveThermoOben,SaveThermoMitte,SaveThermoUnten,\n"` - Kopf CSV-Datei
+
+Bei der Nemo-1-Anlage gibt es viele der Werte nicht. In der CSW-Datei finden sich viele Nullen wieder, für alle nicht vorhandenen Größen!
+
+#### Nemo-2-Anlage Generator
+
+```
+self.value_name = { 'IWP': 0,               # Istwert Leistung
+                    'IWU': 0,               # Istwert Spannung
+                    'IWI': 0,               # Istwert Strom
+                    'IWf': 0,               # Istwert Frequenz
+                    'SWP': 0,               # Sollwert Leistung
+                    'SWU': 0,               # Sollwert Spannung
+                    'SWI': 0,               # Sollwert Strom
+                    'SWxPID': self.Soll,    # Sollwert PID-Regler Input
+                    'IWxPID': self.Ist,     # Istwert PID-Regler Input
+                    'Status': 0,            # Statusmeldung 
+                    'Status_Name': '',      # Name des Generators
+                    'Status_Typ': 0,        # Schnittstellen Nummer
+                    'Status_Kombi': 0       # Kombination der Generatoren
+                    }
+```
+
+Die Statusmeldung ist ein ausgelesener Wert, der für die GUI gebraucht wird. Diese wird nicht in der CSV-Datei oder dem Plot verwendet!
+
+#### PI-Achse
+
+```
+self.value_name = { 'IWs': 0,               # Istwert Strecke
+                    'IWv': 0,               # Istwert Geschwindigkeit
+                    'SWv': 0,               # Sollwert Geschwindigkeit
+                    'SWxPID': self.Soll,    # Sollwert PID-Regler Input   
+                    'IWxPID': self.Ist      # Istwert PID-Regler Input
+                    }
+```
+
+#### TruHeat
+
+```
+self.value_name = { 'IWP': 0,               # Istwert Leistung
+                    'IWU': 0,               # Istwert Spannung
+                    'IWI': 0,               # Istwert Strom
+                    'IWf': 0,               # Istwert Frequenz
+                    'SWP': 0,               # Sollwert Leistung
+                    'SWU': 0,               # Sollwert Spannung
+                    'SWI': 0,               # Sollwert Strom
+                    'SWxPID': self.Soll,    # Sollwert PID-Regler Input
+                    'IWxPID': self.Ist      # Istwert PID-Regler Input
+                    } 
+```
+
 ## Test-Modus
 
 Zu Beginn eines Programmes kann der Test-Modus über die Konsole (`-t`) eingeschaltet werden. Durch diese Funktion kann VIFCON vollkommen ohne ein Gerät genutzt werden. Die [Initialisierung](#Initialisierung), die [Rezept-Funktion](#Rezept-Modus) und andere Punkte können sich angesehen werden. Beachtet werden muss aber, das die zu sehenden Messwerte zufällig generiert werden. Im [Haupt-Readme](Readme_DE.md) ist ein Beispiel zu finden.
@@ -380,4 +609,4 @@ Die Ablaufdatei ist eine zusätzliche Log-Datei. In dieser wird z.B. vermerkt, w
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 27.03.2025
+Die Letzte Änderung dieser Beschreibung war: 31.03.2025
