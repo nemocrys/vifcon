@@ -261,7 +261,8 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                     self.device_widget.ak_value = sample_values
                     self.signal.emit(sample_values, self.xList, self.device_name)
             else:
-                if self.count_error == 0:
+                ## Fehlschlag - Port geschlossen:
+                if self.count_error == 0:   
                     self.device_widget.add_Text_To_Ablauf_Datei(f"{self.device_name} - {self.Log_Text_6_str[self.sprache]} ")
                 if self.count_error < self.port_error_anz:
                     logging.warning(f"{self.device_name} - {self.Log_Text_6_str[self.sprache]} ")
@@ -320,9 +321,9 @@ class Controller(QObject):
         """
         super().__init__()
 
-        self.test_mode = test_mode
-        self.config_pfad = config
-        self.neustart = neustart
+        self.test_mode      = test_mode
+        self.config_pfad    = config
+        self.neustart       = neustart
 
         #--------------------------------------------------------------------------
         # Yaml-Datei auslesen:
@@ -412,7 +413,7 @@ class Controller(QObject):
         ## Error: ######################################################################################################################################################################################################################################################################################
         self.err_Text_1         = ['Zu hohe Verzeichnisanzahl.',                                                                                                                            "Too high directory count."]
         self.err_Text_2         = ['Synchron Modus benötigt\nAbsolute Positionierung (PI-Achse)!!',                                                                                         'Synchronous mode requires\nabsolute positioning (PI axis)!!']
-        ## Ablaufdatei:                                  
+        ## Ablaufdatei: ################################################################################################################################################################################################################################################################################                                 
         self.Text_2_str         = ['Ablauf der Messung:',                                                                                                                                   'Measuring process:']
         self.Text_3_str         = ['Werteingaben und Knopfberührungen',                                                                                                                     'Value entries and button touches']
         self.Text_4_str         = ['Exit-Knopf betätigt - Programm beendet!',                                                                                                               'Exit button pressed - program ended!']
@@ -730,9 +731,11 @@ class Controller(QObject):
         used_Color_list.append(matplotlib.colors.cnames['black'])
 
         ## Geräte und ihre Tabs erstellen:
+        ### Farbe:
         color_Gen_n = 0
         color_Ant_n = 0
-
+        überlaufA = False
+        überlaufG = False
         ### Schnittstelle:
         self.com_sammlung           = {}                                                  # Dictionary für alle Coms (Schnittstellen)
         self.com_doppelt            = []                                                  # Alle Coms die öfters genutzt werden
@@ -748,9 +751,6 @@ class Controller(QObject):
         ### Gamepad:
         self.PadAchsenList          = []                                                  # Verbundene Achsen mit dem Controller
         self.hardware_controller    = False                                               # Controller soll erstellt werden
-
-        überlaufA = False
-        überlaufG = False
 
         ## Konfigurationscheck - Geräte:
         try: devices_dict_conf = self.config['devices']
