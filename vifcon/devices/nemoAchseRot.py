@@ -1228,7 +1228,8 @@ class NemoAchseRot(QObject):
             ## Lese realen Winkel:
             ans = self.serial.read_input_registers(self.read_wIst, 2)
             logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
-            value_IWwd = self.umwandeln_Float(ans)[0]
+            try:    value_IWwd = self.umwandeln_Float(ans)[0]
+            except: value_IWwd = 'NAN'                          # Wenn von umwandeln_Float eine [] kommt, soll der folgende Fehler ausgelöst werden, weshalb ein String in die Variable bewusst eingesetzt wird!
             if not type(value_IWwd) == float:    
                 value_IWwd = m.nan
                 logger.warning(f'{self.Log_Test_Ex_1[self.sprache]} IWwd {self.Log_Test_Ex_2[self.sprache]} {value_IWwd}')
@@ -1237,7 +1238,8 @@ class NemoAchseRot(QObject):
             ## Lese realen Winkel in Umdrehung:
             ans = self.serial.read_input_registers(self.read_wUm, 2)
             logger.debug(f'{self.device_name} - {self.Log_Text_63_str[self.sprache]} {ans}')
-            value_IWwU = self.umwandeln_Float(ans)[0]
+            try:    value_IWwU = self.umwandeln_Float(ans)[0]
+            except: value_IWwU = 'NAN'                          # Wenn von umwandeln_Float eine [] kommt, soll der folgende Fehler ausgelöst werden, weshalb ein String in die Variable bewusst eingesetzt wird!
             if not type(value_IWwU) == float:    
                 value_IWwU = m.nan
                 logger.warning(f'{self.Log_Test_Ex_1[self.sprache]} IWwU {self.Log_Test_Ex_2[self.sprache]} {value_IWwU}')

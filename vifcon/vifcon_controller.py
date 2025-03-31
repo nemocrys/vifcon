@@ -137,6 +137,10 @@ class Sampler(QObject, metaclass=SignalMetaclass):
         '''
         self.end_done = False
         logging.debug(f"{self.device_name} - {self.Log_Text_2_str[self.sprache]}")
+
+        #---------------------------------------------------------------
+        # Mehrfach Nutzung einer Schnittstelle blocken - Mutex-Locker:
+        #---------------------------------------------------------------
         with QMutexLocker(self.mutex):
             logging.debug(f"{self.device_name} - {self.Log_Text_3_str[self.sprache]} {self.mutex} {self.Log_Text_4_str[self.sprache]}")
             #---------------------------------------
