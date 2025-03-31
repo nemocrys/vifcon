@@ -159,7 +159,9 @@ class Sampler(QObject, metaclass=SignalMetaclass):
             ## Bei Port = False und detektiertem Abbruch -> Teste Verbindung und öffne Port wieder:
             if 'Nemo' in self.device_name and not port and self.serial_connect_bruch and self.device.init:
                 check3 = self.device.Test_Connection()
-                if check3: logger.info(f'{self.Log_Text_Neu_1[self.sprache]}{self.device_widget.Anlage} - {self.device_name} - {self.Log_Text_Neu_2[self.sprache]}')
+                if check3: 
+                    logger.info(f'{self.Log_Text_Neu_1[self.sprache]}{self.device_widget.Anlage} - {self.device_name} - {self.Log_Text_Neu_2[self.sprache]}')
+                    self.device_widget.add_Text_To_Ablauf_Datei(f'{self.Log_Text_Neu_1[self.sprache]}{self.device_widget.Anlage} - {self.device_name} - {self.Log_Text_Neu_2[self.sprache]}')
                 self.serial_connect_bruch = False
 
             ## Kontrolliere Port bei Exit (Bei Erfolgreichen Test, Port als offen ansehen!!):
@@ -259,6 +261,8 @@ class Sampler(QObject, metaclass=SignalMetaclass):
                     self.device_widget.ak_value = sample_values
                     self.signal.emit(sample_values, self.xList, self.device_name)
             else:
+                if self.count_error == 0:
+                    self.device_widget.add_Text_To_Ablauf_Datei(f"{self.device_name} - {self.Log_Text_6_str[self.sprache]} ")
                 if self.count_error < self.port_error_anz:
                     logging.warning(f"{self.device_name} - {self.Log_Text_6_str[self.sprache]} ")
                     self.count_error += 1
