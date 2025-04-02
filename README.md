@@ -1,7 +1,7 @@
 # VIFCON
 **Vi**sual **F**urnace **Con**trol
 
-As part of Vincent Funke's (HTW) master's thesis "Automation of a model system for crystal growth with induction heating based on Python and Raspberry Pi", the VIFCON controller was designed at the Leibniz Institute for Crystal Growth (IKZ) for the [model experiments group](https://www.ikz-berlin.de/en/research/materials-science/section-fundamental-description-1).
+As part of Vincent Funke's (HTW) master's thesis "Automation of a model system for crystal growth with induction heating based on Python and Raspberry Pi" (see [Documents](#Documents)), the VIFCON controller was designed at the Leibniz Institute for Crystal Growth (IKZ) for the [model experiments group](https://www.ikz-berlin.de/en/research/materials-science/section-fundamental-description-1).
 
 The controller can be used to control various systems and devices, for example to carry out simple heating tests or crystal growth.
 
@@ -146,6 +146,8 @@ The GUI requires a minimum screen resolution of 1240x900 pixels.
 
 ## Documents
 
+A detailed description of VIFCON and its development histroy can be found in Vincent Funke's Master's thesis (in German): "Automatisierung einer Modellanlage für Kristallzüchtung mit Induktionsheizung basierend auf Python und Raspberry Pi". It is available online [here](https://nemocrys.github.io/papers/Masterarbeit_Vincent_Funke_ohneUS_Logo.pdf).
+
 ## Information
 
 The **[Information](Information)** folder contains further documents that describe VIFCON in more detail. The following topics can be found there in German and English:
@@ -173,3 +175,9 @@ The **[Information](Information)** folder contains further documents that descri
 ## Last change
 
 The last change of this description was: March 19, 2025
+
+## Acknowledgements
+
+[This project](https://nemocrys.github.io/) has received funding from the European Research Council (ERC) under the European Union's Horizon 2020 research and innovation programme (grant agreement No 851768).
+
+<img src="https://github.com/nemocrys/test-cz-induction/blob/main/EU-ERC.png">
