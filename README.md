@@ -146,7 +146,7 @@ The GUI requires a minimum screen resolution of 1240x900 pixels.
 
 ## Documents
 
-A detailed description of VIFCON and its development histroy can be found in Vincent Funke's Master's thesis (in German): "Automatisierung einer Modellanlage für Kristallzüchtung mit Induktionsheizung basierend auf Python und Raspberry Pi". It is available online [here](https://nemocrys.github.io/papers/Masterarbeit_Vincent_Funke_ohneUS_Logo.pdf).
+A detailed description of VIFCON and its development history can be found in Vincent Funke's Master's thesis (in German): "Automatisierung einer Modellanlage für Kristallzüchtung mit Induktionsheizung basierend auf Python und Raspberry Pi". It is available online [here](https://nemocrys.github.io/papers/Masterarbeit_Vincent_Funke_ohneUS_Logo.pdf).
 
 ## Information
 
