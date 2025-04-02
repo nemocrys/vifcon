@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/818420028.svg)](https://doi.org/10.5281/zenodo.15127462)
+
 # VIFCON
 **Vi**sual **F**urnace **Con**trol
 
