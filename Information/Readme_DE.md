@@ -1,7 +1,7 @@
 # VIFCON
 **Vi**sual **F**urnace **Con**trol
 
-Im Rahmen der Master-Arbeit "Automatisierung einer Modellanlage für Kristallzüchtung mit Induktionsheizung basierend auf Python und Raspberry Pi" von Vincent Funke (HTW) wurde die Steuerung VIFCON am Leibniz Institut für Kristallzüchtung (IKZ) für die [Gruppe Modellexperimente](https://www.ikz-berlin.de/forschung-lehre/materialwissenschaften/sektion-fundamentale-beschreibung-1) entworfen. 
+Im Rahmen der Master-Arbeit "Automatisierung einer Modellanlage für Kristallzüchtung mit Induktionsheizung basierend auf Python und Raspberry Pi" (see [Dokumente](#Dokumente)) von Vincent Funke (HTW) wurde die Steuerung VIFCON am Leibniz Institut für Kristallzüchtung (IKZ) für die [Gruppe Modellexperimente](https://www.ikz-berlin.de/forschung-lehre/materialwissenschaften/sektion-fundamentale-beschreibung-1) entworfen. 
 
 Mit der Steuerung können verschiedene Anlagen und Geräte gesteuert werden um z.B. einfache Heiztest oder auch Kristallzüchtungen durchzuführen.
 
@@ -148,6 +148,8 @@ Die GUI benötigt eine Mindestauflösung des Bildschirms von 1240x900 Pixel.
 
 ## Dokumente
 
+Eine ausführliche Beschreibung von VIFCON und seiner Entwicklungsgeschichte finden Sie in der Masterarbeit von Vincent Funke: "Automatisierung einer Modellanlage für Kristallzüchtung mit Induktionsheizung basierend auf Python und Raspberry Pi". Es ist online [hier](https://nemocrys.github.io/papers/Masterarbeit_Vincent_Funke_ohneUS_Logo.pdf) verfügbar .
+
 ## Informationen
 
 Im Ordner **[Information](../Information)** befinden sich weitere Dokumente, die VIFCON näher beschreiben. Folgende Themen sind dort in Deutsch und Englisch zu finden:
@@ -173,4 +175,4 @@ Im Ordner **[Information](../Information)** befinden sich weitere Dokumente, die
 
 ## Letzte Änderung
 
-Die Letzte Änderung dieser Beschreibung war: 19.03.2025
+Die Letzte Änderung dieser Beschreibung war: 04.04.2025
