@@ -3,7 +3,7 @@
 # VIFCON
 **Vi**sual **F**urnace **Con**trol
 
-As part of Vincent Funke's (HTW) master's thesis "Automation of a model system for crystal growth with induction heating based on Python and Raspberry Pi" (see [Documents](#Documents)), the VIFCON controller was designed at the Leibniz Institute for Crystal Growth (IKZ) for the [model experiments group](https://www.ikz-berlin.de/en/research/materials-science/section-fundamental-description-1).
+As part of Vincent Funke's (HTW) master's thesis "Automatisierung einer Modellanlage für Kristallzüchtung mit Induktionsheizung basierend auf Python und Raspberry Pi" (see [Documents](#Documents)), the VIFCON controller was designed at the Leibniz Institute for Crystal Growth (IKZ) for the [model experiments group](https://www.ikz-berlin.de/en/research/materials-science/section-fundamental-description-1).
 
 The controller can be used to control various systems and devices, for example to carry out simple heating tests or crystal growth.
 
